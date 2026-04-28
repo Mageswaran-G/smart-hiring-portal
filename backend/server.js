@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 // initialize app
 const app = express();
@@ -16,6 +17,7 @@ dotenv.config();
 app.use(cors());
 app.use(express.json());
 app.use('/api/users', userRoutes);
+app.use('/api/auth', authRoutes);
 
 // test route to check if server is running
 app.get('/', (req, res) => {
