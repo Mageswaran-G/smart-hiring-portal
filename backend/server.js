@@ -2,13 +2,14 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
-
+const connectDB = require('./config/db');
 
 // initialize app
 const app = express();
 
 // load environment variables
 dotenv.config();
+connectDB();
 
 // middleware
 app.use(cors());
