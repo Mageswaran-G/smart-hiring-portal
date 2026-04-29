@@ -1,12 +1,13 @@
-// import express and create router
 const express = require('express');
 const router = express.Router();
-const { signup, login } = require('../controllers/authController');
+const { signup, login, refresh, logout } = require('../controllers/authController');
+const { verifyToken } = require('../middleware/authMiddleware');
+const { validate } = require('../middleware/validateMiddleware');
+const { signupSchema, loginSchema } = require('../utils/validators');
 
-// post /api/auth/signup
-router.post('/signup', signup);
-
-// post /api/auth/login
-router.post('/login', login);
+router.post('/signup', validate(signupSchema), signup);
+router.post('/login', validate(loginSchema), login);
+router.post('/refresh', refresh);
+router.post('/logout', verifyToken, logout);
 
 module.exports = router;

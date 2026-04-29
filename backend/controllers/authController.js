@@ -1,102 +1,79 @@
-const User = require('../models/User');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const authService = require('../services/authService');
+const ApiResponse = require('../utils/ApiResponse');
+const AppError = require('../utils/AppError');
 
-// SIGNUP
-exports.signup = async (req, res) => {
+exports.signup = async (req, res, next) => {
   try {
-    const { name, email, password, role } = req.body;
-
-    // Step 1: Check all fields exist
-    if (!name || !email || !password) {
-      return res.status(400).json({ 
-        error: 'Name, email and password are required' 
-      });
-    }
-
-    // Step 2: Check if email already registered
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ 
-        error: 'Email already registered' 
-      });
-    }
-
-    // Step 3: Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Step 4: Save user to MongoDB
-    const user = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-      role
-    });
-
-    // Step 5: Return success
-    res.status(201).json({
-      message: 'User registered successfully',
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
-    });
-
+    const data = await authService.signup(req.body);
+    res.status(201).json(
+      new ApiResponse(true, 'User registered successfully', data)
+    );
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 };
 
-// login 
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const data = await authService.login(req.body);
 
-    // Step 1: Validate input
-    if (!email || !password) {
-      return res.status(400).json({
-        error: 'Email and password are required'
-      });
-    }
-
-    // Step 2: Check user exists
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({
-        error: 'Invalid credentials'
-      });
-    }
-
-    // Step 3: Compare password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({
-        error: 'Invalid credentials'
-      });
-    }
-
-    // Step 4: Generate JWT with id AND role
-    const token = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    // Step 5: Send response
-    res.status(200).json({
-      message: 'Login successful',
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
+    res.cookie('refreshToken', data.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
+    res.status(200).json(
+      new ApiResponse(true, 'Login successful', {
+        accessToken: data.accessToken,
+        tokenType: data.tokenType,
+        expiresIn: data.expiresIn,
+        user: data.user
+      })
+    );
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
+  }
+};
+
+exports.refresh = async (req, res, next) => {
+  try {
+    const refreshToken = req.cookies?.refreshToken || req.body.refreshToken;
+
+    if (!refreshToken) {
+      return next(new AppError('Refresh token required', 400));
+    }
+
+    const data = await authService.refresh({ refreshToken });
+
+    res.cookie('refreshToken', data.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    res.status(200).json(
+      new ApiResponse(true, 'Token refreshed', {
+        accessToken: data.accessToken
+      })
+    );
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.logout = async (req, res, next) => {
+  try {
+    const data = await authService.logout(req.user.id);
+
+    res.clearCookie('refreshToken');
+
+    res.status(200).json(
+      new ApiResponse(true, 'Logged out successfully', data)
+    );
+  } catch (err) {
+    next(err);
   }
 };
