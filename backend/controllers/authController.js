@@ -48,3 +48,55 @@ exports.signup = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// login 
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Step 1: Validate input
+    if (!email || !password) {
+      return res.status(400).json({
+        error: 'Email and password are required'
+      });
+    }
+
+    // Step 2: Check user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({
+        error: 'Invalid credentials'
+      });
+    }
+
+    // Step 3: Compare password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({
+        error: 'Invalid credentials'
+      });
+    }
+
+    // Step 4: Generate JWT with id AND role
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    // Step 5: Send response
+    res.status(200).json({
+      message: 'Login successful',
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
