@@ -1,18 +1,22 @@
-const AppError = require('../utils/AppError');
+const { ZodError } = require('zod');
 
-// Validate request body against Zod schema
-exports.validate = (schema) => {
-  return (req, res, next) => {
-    const result = schema.safeParse(req.body);
-
-    if (!result.success) {
-      const message = result.error.errors
-        .map(e => e.message)
-        .join(', ');
-      return next(new AppError(message, 400));
-    }
-
-    req.body = result.data;
+exports.validate = (schema) => (req, res, next) => {
+  try {
+    schema.parse(req.body);
     next();
-  };
+  } catch (error) {
+    if (error instanceof ZodError) {
+      const formattedErrors = error.issues.map(err => ({
+        field: err.path[0],
+        message: err.message
+      }));
+
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        errors: formattedErrors
+      });
+    }
+    next(error);
+  }
 };

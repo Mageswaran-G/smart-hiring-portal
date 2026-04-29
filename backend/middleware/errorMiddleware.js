@@ -12,11 +12,20 @@ exports.errorHandler = (err, req, res, next) => {
   }
 
   // Mongoose validation error
-  if (err.name === 'ValidationError') {
+  if (err.name === 'ValidationError' && err.errors) {
     return res.status(400).json({
       success: false,
       message: Object.values(err.errors)
-        .map(e => e.message).join(', ')
+        .map(e => e.message)
+        .join(', ')
+    });
+  }
+
+  // Zod validation error (from validateMiddleware)
+  if (err.name === 'ZodError') {
+    return res.status(400).json({
+      success: false,
+      message: err.errors.map(e => e.message).join(', ')
     });
   }
 

@@ -4,7 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
-const mongoSanitize = require('express-mongo-sanitize');
+
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
@@ -28,8 +28,8 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-// NoSQL injection protection
-app.use(mongoSanitize());
+
+
 
 // XSS protection
 app.use(xssClean);
