@@ -12,34 +12,29 @@ const AuthContext = createContext();
 // All pages inside can access token and user info
 export const AuthProvider = ({ children }) => {
 
-  // accessToken: stores JWT access token
-  // Starts as null = no one is logged in
+  // accessToken: JWT token — starts null (not logged in)
   const [accessToken, setAccessToken] = useState(null);
 
-  // user: stores { id, name, email, role }
-  // Starts as null = no user data yet
+  // user: { id, name, email, role } — starts null
   const [user, setUser] = useState(null);
 
   // loginUser: called after successful login
-  // Saves token and user info into memory
-  // Also saves to window so axios interceptor can read it
+  // Saves token to React memory AND window (for axios)
   const loginUser = (token, userData) => {
     setAccessToken(token);
     setUser(userData);
-    // window is global browser memory — safe, not localStorage
-    window.__accessToken__ = token;
+    window.__accessToken__ = token; // axios interceptor reads this
   };
 
   // logoutUser: called when user clicks Logout
-  // Clears token and user from memory
+  // Clears everything from memory
   const logoutUser = () => {
     setAccessToken(null);
     setUser(null);
-    // Clear token from window memory on logout
     window.__accessToken__ = null;
   };
 
-  // Provide these 4 values to all child pages
+  // Share these 4 things with all pages
   return (
     <AuthContext.Provider value={{ accessToken, user, loginUser, logoutUser }}>
       {children}
@@ -47,6 +42,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// useAuth: shortcut hook for any page to access context
-// Usage: const { user, loginUser } = useAuth();
+// useAuth: shortcut to read context in any page
 export const useAuth = () => useContext(AuthContext);
