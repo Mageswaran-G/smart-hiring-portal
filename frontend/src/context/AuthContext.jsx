@@ -20,19 +20,22 @@ export const AuthProvider = ({ children }) => {
   // Starts as null = no user data yet
   const [user, setUser] = useState(null);
 
-  // loginUser: called after successful login
-  // Saves token and user info into memory
-  const loginUser = (token, userData) => {
-    setAccessToken(token);
-    setUser(userData);
-  };
+  
 
-  // logoutUser: called when user clicks Logout
-  // Clears token and user from memory
-  const logoutUser = () => {
-    setAccessToken(null);
-    setUser(null);
-  };
+  const loginUser = (token, userData) => {
+  setAccessToken(token);
+  setUser(userData);
+  // Also save to window so axios interceptor can read it
+  // window is global browser memory — safe, not localStorage
+  window.__accessToken__ = token;
+      };
+
+      const logoutUser = () => {
+  setAccessToken(null);
+  setUser(null);
+  // Clear token from window memory on logout
+  window.__accessToken__ = null;
+};
 
   // Provide these 4 values to all child pages:
   // accessToken, user, loginUser, logoutUser

@@ -25,7 +25,8 @@ function SignupPage() {
   // loading: true while API call is happening
   // Disables button and shows "Creating Account..."
   const [loading, setLoading] = useState(false);
-
+  //success message text
+  const [success, setSuccess] = useState('');
   // useNavigate: used to go to another page after signup
   const navigate = useNavigate();
 
@@ -44,12 +45,11 @@ function SignupPage() {
     setLoading(true);    // show loading state
 
     try {
-      // Call backend signup API with form data
       await signup(formData);
-
-      // Success: show message and go to login page
-      alert('Account created! Please login.');
-      navigate('/login');
+      // Show green success message
+      setSuccess('Account created! Redirecting to login...');
+      // Wait 2 seconds then go to login page
+      setTimeout(() => navigate('/login'), 2000);
 
     } catch (err) {
       // Failure: get error message from backend response
@@ -78,9 +78,16 @@ function SignupPage() {
         {/* Error message box — only shows if error is not empty */}
         {error && (
           <div className="bg-red-100 text-red-700 px-4 py-2 rounded mb-4 text-sm">
-            {error}
-          </div>
-        )}
+              {error}
+            </div>
+          )}
+
+          {/* Green success box — only shows after successful signup */}
+          {success && (
+            <div className="bg-green-100 text-green-700 px-4 py-2 rounded mb-4 text-sm font-medium">
+              ✅ {success}
+            </div>
+          )}
 
         {/* Signup Form */}
         <form onSubmit={handleSubmit} className="space-y-4">

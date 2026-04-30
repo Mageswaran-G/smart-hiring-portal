@@ -12,12 +12,34 @@ const API = axios.create({
   withCredentials: true
 });
 
+// INTERCEPTOR — runs before EVERY request automatically
+// Reads accessToken from memory and attaches to header
+// So we never forget to send token manually
+API.interceptors.request.use(
+  (config) => {
+    // Get token from window memory (we store it here after login)
+    const token = window.__accessToken__;
+
+    if (token) {
+      // Attach token to Authorization header
+      // Backend reads this header to verify user
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config; // send the request
+  },
+  (error) => {
+    // If interceptor itself fails, reject the promise
+    return Promise.reject(error);
+  }
+);
+
 // SIGNUP function
 // Sends user data to POST /api/v1/auth/signup
 // userData = { name, email, password, role }
 export const signup = async (userData) => {
   const response = await API.post('/auth/signup', userData);
-  return response.data; // return backend's JSON reply
+  return response.data;
 };
 
 // LOGIN function
@@ -25,5 +47,5 @@ export const signup = async (userData) => {
 // userData = { email, password }
 export const login = async (userData) => {
   const response = await API.post('/auth/login', userData);
-  return response.data; // return backend's JSON reply
+  return response.data;
 };
