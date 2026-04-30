@@ -22,12 +22,12 @@ exports.errorHandler = (err, req, res, next) => {
   }
 
   // Zod validation error (from validateMiddleware)
-  if (err.name === 'ZodError') {
-    return res.status(400).json({
-      success: false,
-      message: err.errors.map(e => e.message).join(', ')
-    });
-  }
+if (err.name === 'ZodError') {
+  return res.status(400).json({
+    success: false,
+    message: err.issues.map(e => e.message).join(', ')  // ✅ CORRECT
+  });
+}
 
   // JWT errors
   if (err.name === 'JsonWebTokenError') {
