@@ -74,8 +74,8 @@ exports.login = async ({ email, password }) => {
 // REFRESH TOKEN SERVICE
 exports.refresh = async ({ refreshToken }) => {
 
-  console.log('DEBUG 1 - refresh called');
-  console.log('DEBUG 2 - token value:', refreshToken ? 'EXISTS' : 'MISSING');
+  //console.log('DEBUG 1 - refresh called');
+  //console.log('DEBUG 2 - token value:', refreshToken ? 'EXISTS' : 'MISSING');
 
   if (!refreshToken) {
     throw new AppError('Refresh token required', 400);
@@ -84,27 +84,27 @@ exports.refresh = async ({ refreshToken }) => {
   let decoded;
   try {
     decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-    console.log('DEBUG 3 - jwt verified, user id:', decoded.id);
+    //console.log('DEBUG 3 - jwt verified, user id:', decoded.id);
   } catch (err) {
-    console.log('DEBUG 3 FAILED - jwt error:', err.message);
+    //console.log('DEBUG 3 FAILED - jwt error:', err.message);
     throw new AppError('Invalid or expired refresh token', 401);
   }
 
   const user = await User.findById(decoded.id);
-  console.log('DEBUG 4 - user found:', user ? 'YES' : 'NO');
+  //console.log('DEBUG 4 - user found:', user ? 'YES' : 'NO');
 
   if (!user) {
     throw new AppError('User not found', 401);
   }
 
-  console.log('DEBUG 5 - user.refreshToken:', user.refreshToken ? 'HAS TOKEN' : 'NULL');
+  //console.log('DEBUG 5 - user.refreshToken:', user.refreshToken ? 'HAS TOKEN' : 'NULL');
 
   if (!user.refreshToken) {
     throw new AppError('Session expired. Please login again', 401);
   }
 
   const isValid = await compareToken(refreshToken, user.refreshToken);
-  console.log('DEBUG 6 - token valid:', isValid);
+  //console.log('DEBUG 6 - token valid:', isValid);
 
   if (!isValid) {
     user.refreshToken = null;
