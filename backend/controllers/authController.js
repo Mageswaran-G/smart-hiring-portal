@@ -18,11 +18,11 @@ exports.login = async (req, res, next) => {
     const data = await authService.login(req.body);
 
     res.cookie('refreshToken', data.refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000
-    });
+    httpOnly: true,
+    secure: false,           // false for localhost development
+    sameSite: 'Lax',        // allows cross-origin cookie sending
+    maxAge: 7 * 24 * 60 * 60 * 1000 
+      });
 
     res.status(200).json(
       new ApiResponse(true, 'Login successful', {
@@ -50,15 +50,16 @@ exports.refresh = async (req, res, next) => {
     res.cookie('refreshToken', data.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Strict',
+      sameSite: 'Lax',
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
     res.status(200).json(
-      new ApiResponse(true, 'Token refreshed', {
-        accessToken: data.accessToken
-      })
-    );
+  new ApiResponse(true, 'Token refreshed', {
+    accessToken: data.accessToken,
+    user: data.user
+  })
+);
   } catch (err) {
     next(err);
   }

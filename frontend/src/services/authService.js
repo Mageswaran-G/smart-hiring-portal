@@ -4,11 +4,10 @@
 
 import axios from 'axios';
 
-// Create a custom axios instance with base settings
-// baseURL: all requests start from this address
-// withCredentials: allows cookies (needed for refresh token)
-const API = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api/v1',
+// Export API so AuthContext can reuse same instance
+// This avoids duplicate axios instances
+export const API = axios.create({
+  baseURL: 'http://localhost:8000/api/v1',
   withCredentials: true
 });
 

@@ -40,7 +40,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// Rate limiting
+// Strict limiter for login and signup only
+// Prevents brute force attacks
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
@@ -50,8 +51,23 @@ const authLimiter = rateLimit({
   }
 });
 
-// Combined route mounting
-app.use('/api/v1/auth', authLimiter, authRoutes);
+// Generous limiter for refresh
+// User can refresh browser many times normally
+const refreshLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 60,  // 60 refreshes per 15 minutes = plenty
+  message: {
+    success: false,
+    message: 'Too many requests, please try again later'
+  }
+});
+
+// Apply strict limit only to signup and login
+// Apply generous limit to refresh
+app.use('/api/v1/auth/signup', authLimiter);
+app.use('/api/v1/auth/login', authLimiter);
+app.use('/api/v1/auth/refresh', refreshLimiter);
+app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
 
 // Health check
