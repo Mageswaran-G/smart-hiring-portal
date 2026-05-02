@@ -579,7 +579,7 @@ export default function LoginPage() {
                       to="/signup"
                       style={{ color: accent, fontWeight: 600, textDecoration: 'none', transition: 'color 0.4s' }}
                     >
-                      Sign up free
+                      Sign up
                     </Link>
                   </div>
 
