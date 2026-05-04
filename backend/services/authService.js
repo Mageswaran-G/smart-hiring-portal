@@ -74,7 +74,6 @@ exports.login = async ({ email, password }) => {
 // REFRESH TOKEN SERVICE
 exports.refresh = async ({ refreshToken }) => {
 
-  
   if (!refreshToken) {
     throw new AppError('Refresh token required', 400);
   }
@@ -82,38 +81,24 @@ exports.refresh = async ({ refreshToken }) => {
   let decoded;
   try {
     decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-    
   } catch (err) {
-    
     throw new AppError('Invalid or expired refresh token', 401);
   }
 
-  
+  // Find user — only ONE const user declaration!
   const user = await User.findById(decoded.id);
 
-// Safety check — user must exist before touching user.refreshToken
-if (!user) {
-  throw new AppError('Session expired. Please login again', 401);
-}
-
-// Now safe to check refreshToken
-if (!user.refreshToken) {
-  throw new AppError('Session expired. Please login again', 401);
-}
-  
-
+  // Check user exists BEFORE touching user.refreshToken
   if (!user) {
-    throw new AppError('User not found', 401);
+    throw new AppError('Session expired. Please login again', 401);
   }
 
-  
-
+  // Now safe to check refreshToken
   if (!user.refreshToken) {
     throw new AppError('Session expired. Please login again', 401);
   }
 
   const isValid = await compareToken(refreshToken, user.refreshToken);
-  
 
   if (!isValid) {
     user.refreshToken = null;
@@ -134,15 +119,15 @@ if (!user.refreshToken) {
   logger.info(`Token refreshed for user: ${user.email}`);
 
   return {
-  accessToken: newAccessToken,
-  refreshToken: newRefreshToken,
-  user: {
-    id: user._id,
-    name: user.name,
-    email: user.email,
-    role: user.role
-  }
-};
+    accessToken: newAccessToken,
+    refreshToken: newRefreshToken,
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    }
+  };
 };
 
 // LOGOUT SERVICE
