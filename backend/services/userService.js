@@ -39,13 +39,11 @@ exports.updateProfile = async (userId, updateData) => {
     'companyName', 'companyWebsite', 'industry'
   ];
 
-  // Build filtered object — only allowed fields
-  const filteredData = {};
-  Object.keys(updateData).forEach((key) => {
-    if (allowedFields.includes(key)) {
-      filteredData[key] = updateData[key];
-    }
-  });
+  for (const key of Object.keys(updateData)) {
+  if (allowedFields.includes(key)) {
+    filteredData[key] = updateData[key];
+  }
+}
 
   // Reject empty payload — nothing to update
   if (Object.keys(filteredData).length === 0) {
