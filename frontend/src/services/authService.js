@@ -1,49 +1,43 @@
 // authService.js
-// Purpose: All API calls to backend auth routes
-// This file is the "phone" that talks to our backend
+// Professional pattern — no window globals
+// Token is injected via interceptor using a getter function
 
 import axios from 'axios';
 
-// Export API so AuthContext can reuse same instance
-// This avoids duplicate axios instances
+// Axios instance — all API calls use this
 export const API = axios.create({
   baseURL: 'http://localhost:8000/api/v1',
-  withCredentials: true
+  withCredentials: true  // sends HTTP-only cookie automatically
 });
 
-// INTERCEPTOR — runs before EVERY request automatically
-// Reads accessToken from memory and attaches to header
-// So we never forget to send token manually
+// Token getter — AuthContext will set this function
+// This is closure pattern — clean and reactive
+let getToken = () => null;
+
+// AuthContext calls this after login to register the getter
+export const setTokenGetter = (fn) => {
+  getToken = fn;
+};
+
+// Interceptor — runs before EVERY request
+// Reads token using getter function — no window globals
 API.interceptors.request.use(
   (config) => {
-    // Get token from window memory (we store it here after login)
-    const token = window.__accessToken__;
-
+    const token = getToken();
     if (token) {
-      // Attach token to Authorization header
-      // Backend reads this header to verify user
       config.headers.Authorization = `Bearer ${token}`;
     }
-
-    return config; // send the request
+    return config;
   },
-  (error) => {
-    // If interceptor itself fails, reject the promise
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// SIGNUP function
-// Sends user data to POST /api/v1/auth/signup
-// userData = { name, email, password, role }
+// Auth API functions
 export const signup = async (userData) => {
   const response = await API.post('/auth/signup', userData);
   return response.data;
 };
 
-// LOGIN function
-// Sends credentials to POST /api/v1/auth/login
-// userData = { email, password }
 export const login = async (userData) => {
   const response = await API.post('/auth/login', userData);
   return response.data;
