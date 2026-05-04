@@ -88,7 +88,18 @@ exports.refresh = async ({ refreshToken }) => {
     throw new AppError('Invalid or expired refresh token', 401);
   }
 
+  
   const user = await User.findById(decoded.id);
+
+// Safety check — user must exist before touching user.refreshToken
+if (!user) {
+  throw new AppError('Session expired. Please login again', 401);
+}
+
+// Now safe to check refreshToken
+if (!user.refreshToken) {
+  throw new AppError('Session expired. Please login again', 401);
+}
   
 
   if (!user) {
