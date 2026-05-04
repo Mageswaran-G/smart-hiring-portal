@@ -1,10 +1,8 @@
 // AuthContext.jsx
-// Professional pattern — token in React state + ref
-// No window globals. Clean closure via setTokenGetter.
+// Fixed: registers tokenUpdater so interceptor can update ref properly
 
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
-import { API, setTokenGetter } from '../services/authService';
-import { API, setTokenGetter, logoutAPI } from '../services/authService';
+import { API, setTokenGetter, setTokenUpdater, logoutAPI } from '../services/authService';
 
 const AuthContext = createContext();
 
@@ -13,13 +11,25 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser]               = useState(null);
   const [isLoading, setIsLoading]     = useState(true);
 
-  // ref always holds latest token
-  // Interceptor reads from ref — never stale
+  // Ref always holds latest token — interceptor reads this
   const tokenRef = useRef(null);
 
-  // Register getter with axios on mount — runs once
+  // Register getter — interceptor reads token via this
   useEffect(() => {
     setTokenGetter(() => tokenRef.current);
+  }, []);
+
+  // Register updater — interceptor updates token via this
+  // This keeps ref and state in sync after auto-refresh
+  useEffect(() => {
+    setTokenUpdater((newToken) => {
+      tokenRef.current = newToken;
+      setAccessToken(newToken);
+      // If token cleared → user is logged out
+      if (!newToken) {
+        setUser(null);
+      }
+    });
   }, []);
 
   // Login — save token in both ref and state
@@ -29,15 +39,13 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
   };
 
+  // Logout — call backend first, then clear frontend
   const logoutUser = async () => {
-  // Call backend first — clears refresh token from DB
-  await logoutAPI();
-
-  // Then clear frontend memory
-  tokenRef.current = null;
-  setAccessToken(null);
-  setUser(null);
-};
+    await logoutAPI();
+    tokenRef.current = null;
+    setAccessToken(null);
+    setUser(null);
+  };
 
   // Auto-refresh on app startup
   useEffect(() => {
@@ -51,7 +59,10 @@ export const AuthProvider = ({ children }) => {
         setUser(user);
 
       } catch (err) {
-        logoutUser();
+        // No valid session — user needs to login
+        tokenRef.current = null;
+        setAccessToken(null);
+        setUser(null);
       } finally {
         setIsLoading(false);
       }

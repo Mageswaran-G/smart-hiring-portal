@@ -1,6 +1,6 @@
 // authService.js
 // Production-grade auth service
-// Handles: token injection, auto-retry on 401, refresh queue
+// Fixed: infinite refresh loop, proper token update
 
 import axios from 'axios';
 
@@ -10,30 +10,28 @@ export const API = axios.create({
 });
 
 // ── Token Getter (closure pattern) ──
-// AuthContext registers this after login
 let getToken = () => null;
 export const setTokenGetter = (fn) => { getToken = fn; };
 
-// ── Refresh Queue System ──
-// Prevents multiple simultaneous refresh calls
-// If 5 requests fail at same time → only 1 refresh happens
-// Other 4 wait in queue → get new token after refresh done
+// ── Token Updater ──
+// Interceptor calls this to update token in AuthContext ref
+// Separate from getter — avoids breaking the ref pattern
+let updateTokenInContext = (token) => {};
+export const setTokenUpdater = (fn) => { updateTokenInContext = fn; };
+
+// ── Refresh Queue — prevents multiple refresh calls ──
 let isRefreshing = false;
 let refreshQueue = [];
 
 const processQueue = (error, token = null) => {
-  refreshQueue.forEach((promise) => {
-    if (error) {
-      promise.reject(error);
-    } else {
-      promise.resolve(token);
-    }
+  refreshQueue.forEach((p) => {
+    if (error) { p.reject(error); }
+    else        { p.resolve(token); }
   });
   refreshQueue = [];
 };
 
 // ── Request Interceptor ──
-// Attaches token to every outgoing request
 API.interceptors.request.use(
   (config) => {
     const token = getToken();
@@ -46,21 +44,22 @@ API.interceptors.request.use(
 );
 
 // ── Response Interceptor ──
-// Auto-retry when token expires (401 error)
-// This means user never gets logged out mid-session
 API.interceptors.response.use(
-  // Success — just return response normally
   (response) => response,
 
-  // Error — check if 401 and try refresh
   async (error) => {
     const originalRequest = error.config;
 
-    // Only handle 401 (unauthorized) errors
-    // _retry flag prevents infinite retry loop
+    // ✅ CRITICAL FIX: Never retry the refresh endpoint itself!
+    // This prevents the infinite loop
+    if (originalRequest.url?.includes('/auth/refresh')) {
+      return Promise.reject(error);
+    }
+
+    // Only handle 401 errors — and only once per request
     if (error.response?.status === 401 && !originalRequest._retry) {
+
       // If already refreshing — add this request to queue
-      // Queue will retry it after refresh completes
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           refreshQueue.push({ resolve, reject });
@@ -70,31 +69,27 @@ API.interceptors.response.use(
         }).catch((err) => Promise.reject(err));
       }
 
-      // Mark request so we don't retry it again
       originalRequest._retry = true;
       isRefreshing = true;
 
       try {
-        // Try to get new access token using refresh cookie
+        // Get new token from backend using HTTP-only cookie
         const res = await API.post('/auth/refresh');
         const newToken = res.data.data.accessToken;
 
-        // Update token in ref (via getter mechanism)
-        setTokenGetter(() => newToken);
+        // ✅ Update token properly via AuthContext updater
+        // This updates tokenRef.current in AuthContext
+        updateTokenInContext(newToken);
 
-        // Update this request's header
+        // Retry original request with new token
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
-
-        // Give new token to all waiting requests in queue
         processQueue(null, newToken);
-
-        // Retry the original failed request
         return API(originalRequest);
 
       } catch (refreshError) {
-        // Refresh also failed — session is truly expired
-        // Reject all waiting requests
+        // Refresh failed — session expired, clear everything
         processQueue(refreshError, null);
+        updateTokenInContext(null);
         return Promise.reject(refreshError);
 
       } finally {
@@ -106,9 +101,7 @@ API.interceptors.response.use(
   }
 );
 
-// ── Error Message Normalizer ──
-// Backend sometimes sends { message } sometimes { error }
-// This always gives clean message
+// ── Error normalizer ──
 export const getErrorMessage = (err) => {
   return (
     err.response?.data?.message ||
@@ -117,7 +110,7 @@ export const getErrorMessage = (err) => {
   );
 };
 
-// ── Auth API Functions ──
+// ── Auth API functions ──
 export const signup = async (userData) => {
   const response = await API.post('/auth/signup', userData);
   return response.data;
@@ -128,12 +121,10 @@ export const login = async (userData) => {
   return response.data;
 };
 
-// Fix 2 — Logout calls backend to invalidate refresh token in DB
 export const logoutAPI = async () => {
   try {
     await API.post('/auth/logout');
   } catch (err) {
-    // Even if backend fails — still clear frontend
     console.error('Logout API error:', err.message);
   }
 };
