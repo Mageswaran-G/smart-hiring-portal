@@ -15,16 +15,6 @@ exports.getUsers = async () => {
   return users;
 };
 
-// GET USER BY ID
-// Used by profile route — hides sensitive fields
-exports.getUserById = async (id) => {
-  const user = await User.findById(id)
-    .select('-password -refreshToken');
-  if (!user) {
-    throw new AppError('User not found', 404);
-  }
-  return user;
-};
 // GET profile — returns full user profile
 // Hides password and refreshToken always
 exports.getProfile = async (userId) => {
@@ -39,45 +29,33 @@ exports.getProfile = async (userId) => {
   return user;
 };
 
-// UPDATE profile — saves new profile fields
-// allowedFields = whitelist of safe fields only
-// Prevents user from updating password/role/refreshToken
+// UPDATE profile — whitelist approach
+// Only allowed fields can be updated
 exports.updateProfile = async (userId, updateData) => {
 
-  // Only these fields are allowed to be updated
   const allowedFields = [
     'bio', 'location', 'phone',
     'skills', 'education', 'experience',
     'companyName', 'companyWebsite', 'industry'
   ];
 
-  // Filter out any field NOT in allowedFields
-  // Even if hacker sends { role: 'admin' } → ignored!
+  // Build filtered object — only allowed fields
   const filteredData = {};
   Object.keys(updateData).forEach((key) => {
     if (allowedFields.includes(key)) {
       filteredData[key] = updateData[key];
     }
   });
-  const filteredData = {};
-  Object.keys(updateData).forEach((key) => {
-  if (allowedFields.includes(key)) {
-    filteredData[key] = updateData[key];
-  }
-});
 
-  // ADD THIS — reject empty payload
+  // Reject empty payload — nothing to update
   if (Object.keys(filteredData).length === 0) {
-  throw new AppError('No valid fields to update', 400);
+    throw new AppError('No valid fields to update', 400);
   }
 
   const user = await User.findByIdAndUpdate(
     userId,
-    filteredData,    // only safe filtered fields
-    {
-      new: true,           // return updated user
-      runValidators: true, // check mongoose rules
-    }
+    filteredData,
+    { new: true, runValidators: true }
   ).select('-password -refreshToken');
 
   if (!user) {
