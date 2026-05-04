@@ -30,7 +30,75 @@ const userSchema = new mongoose.Schema({
   refreshToken: {
   type: String,
   default: null
-} 
+},
+// ── Profile Fields ──
+
+// For both candidate and company
+bio: {
+  type: String,
+  default: '',
+  trim: true,
+  maxlength: 500,   // max 500 characters
+},
+
+location: {
+  type: String,
+  default: '',
+  trim: true,
+},
+
+phone: {
+  type: String,
+  default: '',
+  trim: true,
+},
+
+profilePhoto: {
+  type: String,
+  default: '',   // will store file path later
+},
+
+// ── Candidate only fields ──
+skills: {
+  type: [String],  // array of strings ['React', 'Node.js']
+  default: [],
+},
+
+education: {
+  type: String,
+  default: '',
+  trim: true,
+},
+
+experience: {
+  type: String,
+  default: '',
+  trim: true,
+},
+
+resumeUrl: {
+  type: String,
+  default: '',   // will store uploaded resume path
+},
+
+// ── Company only fields ──
+companyName: {
+  type: String,
+  default: '',
+  trim: true,
+},
+
+companyWebsite: {
+  type: String,
+  default: '',
+  trim: true,
+},
+
+industry: {
+  type: String,
+  default: '',
+  trim: true,
+},
 }, { timestamps: true, versionKey: false });
 
 // Auto hash password before saving

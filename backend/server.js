@@ -9,7 +9,7 @@ const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
 const { errorHandler } = require('./middleware/errorMiddleware');
-const { xssClean } = require('./middleware/xssMiddleware');
+const xssMiddleware = require('./middleware/xssMiddleware');
 const logger = require('./utils/logger');
 
 dotenv.config();
@@ -31,8 +31,7 @@ app.use(cookieParser());
 
 
 
-// XSS protection
-app.use(xssClean);
+app.use(xssMiddleware);
 
 // Request logging with IP
 app.use((req, res, next) => {

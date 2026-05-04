@@ -1,22 +1,22 @@
-const { ZodError } = require('zod');
+// validateMiddleware.js
+// Purpose: Apply Zod schema validation to request body
+// Usage: validateMiddleware(schema) → returns middleware function
 
-exports.validate = (schema) => (req, res, next) => {
+const validateMiddleware = (schema) => (req, res, next) => {
   try {
+    // parse() throws error if validation fails
     schema.parse(req.body);
-    next();
-  } catch (error) {
-    if (error instanceof ZodError) {
-      const formattedErrors = error.issues.map(err => ({
-        field: err.path[0],
-        message: err.message
-      }));
 
-      return res.status(400).json({
-        success: false,
-        message: 'Validation failed',
-        errors: formattedErrors
-      });
-    }
-    next(error);
+    // Validation passed — go to next middleware
+    next();
+  } catch (err) {
+    // Zod v4 uses .issues not .errors
+    return res.status(400).json({
+      success: false,
+      message: err.errors?.[0]?.message || 'Validation error'
+    });
   }
 };
+
+// Export as function directly — not as object
+module.exports = validateMiddleware;

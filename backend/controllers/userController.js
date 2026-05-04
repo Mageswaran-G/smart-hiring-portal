@@ -1,40 +1,44 @@
 // userController.js
 // Purpose: Handle HTTP requests for user routes
-// Thin layer — only handles req/res
-// All business logic is in userService.js
+// Thin layer — only req/res handling
+// All logic is in userService.js
 
 const userService = require('../services/userService');
 const ApiResponse = require('../utils/ApiResponse');
 
-// GET ALL USERS
+// GET all users
 // Route: GET /api/v1/users
-// Access: Public (for now — will be admin only later)
 exports.getUsers = async (req, res, next) => {
   try {
-    // Call service layer to get users from database
     const users = await userService.getUsers();
-
-    // Send standard API response format
     res.status(200).json(
       new ApiResponse(true, 'Users fetched successfully', users)
     );
   } catch (err) {
-    // Pass error to centralized error handler
     next(err);
   }
 };
 
-// GET USER PROFILE
+// GET my profile
 // Route: GET /api/v1/users/profile
-// Access: Protected (needs JWT token)
-exports.getProfile = async (req, res, next) => {
+exports.getMyProfile = async (req, res, next) => {
   try {
-    // req.user is set by verifyToken middleware
-    // Contains { id, role, email } from JWT
-    const user = await userService.getUserById(req.user.id);
-
+    const user = await userService.getProfile(req.user.id);
     res.status(200).json(
       new ApiResponse(true, 'Profile fetched successfully', user)
+    );
+  } catch (err) {
+    next(err);
+  }
+};
+
+// UPDATE my profile
+// Route: PUT /api/v1/users/profile
+exports.updateMyProfile = async (req, res, next) => {
+  try {
+    const user = await userService.updateProfile(req.user.id, req.body);
+    res.status(200).json(
+      new ApiResponse(true, 'Profile updated successfully', user)
     );
   } catch (err) {
     next(err);
