@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { login } from '../services/authService';
+import { login, getErrorMessage } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
 
 // ── Animated Logo Mark ──
@@ -71,7 +71,7 @@ export default function LoginPage() {
       loginUser(res.data.accessToken, res.data.user);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }

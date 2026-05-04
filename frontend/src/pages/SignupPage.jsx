@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { signup } from '../services/authService';
+import { signup, getErrorMessage } from '../services/authService';
 
 // ── Animated Logo Mark ──
 function LogoMark({ size = 36, color = '#E65C00' }) {
@@ -151,7 +151,7 @@ export default function SignupPage() {
     } catch (err) {
       // CHANGE 2: Go back to step 1 if error
       setCurrentStep(1);
-      setError(err.response?.data?.message || 'Signup failed. Please try again.');
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
