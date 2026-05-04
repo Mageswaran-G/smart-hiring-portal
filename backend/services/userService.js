@@ -59,6 +59,17 @@ exports.updateProfile = async (userId, updateData) => {
       filteredData[key] = updateData[key];
     }
   });
+  const filteredData = {};
+  Object.keys(updateData).forEach((key) => {
+  if (allowedFields.includes(key)) {
+    filteredData[key] = updateData[key];
+  }
+});
+
+  // ADD THIS — reject empty payload
+  if (Object.keys(filteredData).length === 0) {
+  throw new AppError('No valid fields to update', 400);
+  }
 
   const user = await User.findByIdAndUpdate(
     userId,
