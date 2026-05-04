@@ -1,7 +1,3 @@
-// authService.js
-// Production-grade auth service
-// Fixed: infinite refresh loop, proper token update
-
 import axios from 'axios';
 
 export const API = axios.create({
@@ -9,29 +5,22 @@ export const API = axios.create({
   withCredentials: true
 });
 
-// ── Token Getter (closure pattern) ──
+// Token getter — AuthContext registers this
 let getToken = () => null;
 export const setTokenGetter = (fn) => { getToken = fn; };
 
-// ── Token Updater ──
-// Interceptor calls this to update token in AuthContext ref
-// Separate from getter — avoids breaking the ref pattern
-let updateTokenInContext = (token) => {};
-export const setTokenUpdater = (fn) => { updateTokenInContext = fn; };
-
-// ── Refresh Queue — prevents multiple refresh calls ──
+// Refresh queue — prevents multiple simultaneous refresh calls
 let isRefreshing = false;
 let refreshQueue = [];
 
 const processQueue = (error, token = null) => {
   refreshQueue.forEach((p) => {
-    if (error) { p.reject(error); }
-    else        { p.resolve(token); }
+    error ? p.reject(error) : p.resolve(token);
   });
   refreshQueue = [];
 };
 
-// ── Request Interceptor ──
+// Request interceptor — attach token to every request
 API.interceptors.request.use(
   (config) => {
     const token = getToken();
@@ -43,23 +32,27 @@ API.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ── Response Interceptor ──
+// Response interceptor — auto retry on 401
 API.interceptors.response.use(
   (response) => response,
 
   async (error) => {
     const originalRequest = error.config;
 
-    // ✅ CRITICAL FIX: Never retry the refresh endpoint itself!
-    // This prevents the infinite loop
-    if (originalRequest.url?.includes('/auth/refresh')) {
+    // Fix 3 — never retry refresh or logout endpoints
+    // This prevents infinite loop
+    const isAuthRoute =
+      originalRequest.url?.includes('/auth/refresh') ||
+      originalRequest.url?.includes('/auth/logout');
+
+    if (isAuthRoute) {
       return Promise.reject(error);
     }
 
-    // Only handle 401 errors — and only once per request
+    // Only retry on 401 — and only once per request
     if (error.response?.status === 401 && !originalRequest._retry) {
 
-      // If already refreshing — add this request to queue
+      // Already refreshing — add to queue, wait for new token
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           refreshQueue.push({ resolve, reject });
@@ -73,23 +66,26 @@ API.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Get new token from backend using HTTP-only cookie
         const res = await API.post('/auth/refresh');
         const newToken = res.data.data.accessToken;
 
-        // ✅ Update token properly via AuthContext updater
-        // This updates tokenRef.current in AuthContext
-        updateTokenInContext(newToken);
+        // Fix 1 — update React state + ref via injected setter
+        if (API.setAuthToken) {
+          API.setAuthToken(newToken);
+        }
 
-        // Retry original request with new token
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         processQueue(null, newToken);
         return API(originalRequest);
 
       } catch (refreshError) {
-        // Refresh failed — session expired, clear everything
         processQueue(refreshError, null);
-        updateTokenInContext(null);
+
+        // Fix 4 — force logout in UI when refresh fails
+        if (API.setAuthToken) {
+          API.setAuthToken(null);
+        }
+
         return Promise.reject(refreshError);
 
       } finally {
@@ -101,7 +97,7 @@ API.interceptors.response.use(
   }
 );
 
-// ── Error normalizer ──
+// Error normalizer
 export const getErrorMessage = (err) => {
   return (
     err.response?.data?.message ||
@@ -110,7 +106,7 @@ export const getErrorMessage = (err) => {
   );
 };
 
-// ── Auth API functions ──
+// Auth functions
 export const signup = async (userData) => {
   const response = await API.post('/auth/signup', userData);
   return response.data;

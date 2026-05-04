@@ -1,8 +1,5 @@
-// AuthContext.jsx
-// Fixed: registers tokenUpdater so interceptor can update ref properly
-
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
-import { API, setTokenGetter, setTokenUpdater, logoutAPI } from '../services/authService';
+import { API, setTokenGetter, logoutAPI } from '../services/authService';
 
 const AuthContext = createContext();
 
@@ -11,40 +8,42 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser]               = useState(null);
   const [isLoading, setIsLoading]     = useState(true);
 
-  // Ref always holds latest token — interceptor reads this
   const tokenRef = useRef(null);
 
-  // Register getter — interceptor reads token via this
+  // Fix 1 — setAuthToken updates BOTH ref and React state
+  // Interceptor uses this to keep UI in sync after auto-refresh
+  const setAuthToken = (token) => {
+    tokenRef.current = token;
+    setAccessToken(token);
+    if (!token) setUser(null);
+  };
+
+  // Fix 2 — clearAuth = silent cleanup, NO backend call
+  // Used when session expires naturally
+  const clearAuth = () => {
+    tokenRef.current = null;
+    setAccessToken(null);
+    setUser(null);
+  };
+
+  // Register getter + inject setAuthToken into API object
+  // Interceptor can now call API.setAuthToken(newToken)
   useEffect(() => {
     setTokenGetter(() => tokenRef.current);
+    API.setAuthToken = setAuthToken;
   }, []);
 
-  // Register updater — interceptor updates token via this
-  // This keeps ref and state in sync after auto-refresh
-  useEffect(() => {
-    setTokenUpdater((newToken) => {
-      tokenRef.current = newToken;
-      setAccessToken(newToken);
-      // If token cleared → user is logged out
-      if (!newToken) {
-        setUser(null);
-      }
-    });
-  }, []);
-
-  // Login — save token in both ref and state
+  // Login — user clicked login button
   const loginUser = (token, userData) => {
     tokenRef.current = token;
     setAccessToken(token);
     setUser(userData);
   };
 
-  // Logout — call backend first, then clear frontend
+  // Logout — user clicked logout button → call backend
   const logoutUser = async () => {
     await logoutAPI();
-    tokenRef.current = null;
-    setAccessToken(null);
-    setUser(null);
+    clearAuth();
   };
 
   // Auto-refresh on app startup
@@ -59,10 +58,9 @@ export const AuthProvider = ({ children }) => {
         setUser(user);
 
       } catch (err) {
-        // No valid session — user needs to login
-        tokenRef.current = null;
-        setAccessToken(null);
-        setUser(null);
+        // Fix 2 — use clearAuth here, NOT logoutUser
+        // Refresh failed = no valid session, no need to call backend
+        clearAuth();
       } finally {
         setIsLoading(false);
       }
@@ -73,11 +71,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{
-      accessToken,
-      user,
-      loginUser,
-      logoutUser,
-      isLoading
+      accessToken, user, loginUser, logoutUser, isLoading
     }}>
       {children}
     </AuthContext.Provider>
