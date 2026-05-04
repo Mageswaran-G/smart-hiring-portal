@@ -4,6 +4,7 @@
 
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { API, setTokenGetter } from '../services/authService';
+import { API, setTokenGetter, logoutAPI } from '../services/authService';
 
 const AuthContext = createContext();
 
@@ -28,12 +29,15 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
   };
 
-  // Logout — clear everything
-  const logoutUser = () => {
-    tokenRef.current = null;
-    setAccessToken(null);
-    setUser(null);
-  };
+  const logoutUser = async () => {
+  // Call backend first — clears refresh token from DB
+  await logoutAPI();
+
+  // Then clear frontend memory
+  tokenRef.current = null;
+  setAccessToken(null);
+  setUser(null);
+};
 
   // Auto-refresh on app startup
   useEffect(() => {
