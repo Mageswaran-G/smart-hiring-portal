@@ -19,7 +19,7 @@ exports.login = async (req, res, next) => {
 
     res.cookie('refreshToken', data.refreshToken, {
     httpOnly: true,
-    secure: false,           // false for localhost development
+    secure: process.env.NODE_ENV === 'production',
     sameSite: 'Lax',        // allows cross-origin cookie sending
     maxAge: 7 * 24 * 60 * 60 * 1000 
       });
