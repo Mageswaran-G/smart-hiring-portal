@@ -1,7 +1,35 @@
 const logger = require('../utils/logger');
+const multer = require('multer');
 
 exports.errorHandler = (err, req, res, next) => {
   logger.error(err.message);
+
+  // Multer file size error
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({
+        success: false,
+        message: 'File too large. Maximum size is 5MB'
+      });
+    }
+    return res.status(400).json({
+      success: false,
+      message: err.message
+    });
+  }
+
+  // Wrong file type error
+  if (err.message === 'Only PDF, DOC, and DOCX files are allowed') {
+    return res.status(400).json({
+      success: false,
+      message: err.message
+    });
+  }
+  // ── END OF NEW LINES ──
+
+  // MongoDB duplicate key
+  if (err.code === 11000) {
+  // ... rest of your existing code stays same
 
   // MongoDB duplicate key
   if (err.code === 11000) {
