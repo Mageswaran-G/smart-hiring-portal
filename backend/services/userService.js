@@ -44,7 +44,7 @@ exports.updateProfile = async (userId, updateData) => {
   const user = await User.findByIdAndUpdate(
     userId,
     filteredData,
-    { new: true, runValidators: true }
+    { returnDocument: 'after', runValidators: true }
   ).select('-password -refreshToken');
 
   if (!user) throw new AppError('User not found', 404);
