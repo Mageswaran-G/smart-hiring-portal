@@ -1,9 +1,9 @@
 const jwt = require('jsonwebtoken');
 const User = require('../../models/User');
-const AppError = require('../utils/AppError');
-const { hashToken, compareToken } = require('../utils/hashToken');
-const { generateAccessToken, generateRefreshToken } = require('../utils/generateToken');
-const logger = require('../utils/logger');
+const AppError = require('../../utils/AppError');
+const { hashToken, compareToken } = require('../../utils/hashToken');
+const { generateAccessToken, generateRefreshToken } = require('../../utils/generateToken');
+const logger = require('../../utils/logger');
 
 // SIGNUP SERVICE
 exports.signup = async ({ name, email, password, role }) => {

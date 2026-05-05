@@ -1,9 +1,8 @@
 // userService.js
 
-const logger = require('../utils/logger');
-
 const User     = require('../../models/User');
 const AppError = require('../../utils/AppError');
+const logger   = require('../../utils/logger');
 
 // GET ALL USERS
 exports.getUsers = async () => {

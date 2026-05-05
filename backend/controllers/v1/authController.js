@@ -4,8 +4,8 @@
 
 
 const authService = require('../../services/v1/authService');
-const ApiResponse = require('../utils/ApiResponse');
-const AppError = require('../utils/AppError');
+const ApiResponse = require('../../utils/ApiResponse');
+const AppError = require('../../utils/AppError');
 
 // ── Cookie config — same options used for SET and CLEAR ──
 // IMPORTANT: Must match exactly when setting and clearing

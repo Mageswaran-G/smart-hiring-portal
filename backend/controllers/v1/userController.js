@@ -4,10 +4,9 @@
 // All logic is in userService.js
 
 const userService            = require('../../services/v1/userService');
+const ApiResponse            = require('../../utils/ApiResponse');
+const AppError               = require('../../utils/AppError');
 const { validateFileSignature } = require('../../middleware/uploadMiddleware');
-
-const ApiResponse = require('../utils/ApiResponse');
-const AppError = require('../utils/AppError');
 
 
 // GET all users

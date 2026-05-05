@@ -1,3 +1,4 @@
+const config = require('./config');
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
@@ -12,7 +13,7 @@ const { errorHandler } = require('./middleware/errorMiddleware');
 const xssMiddleware = require('./middleware/xssMiddleware');
 const logger = require('./utils/logger');
 
-const config = require('./config');
+
 
 dotenv.config();
 
