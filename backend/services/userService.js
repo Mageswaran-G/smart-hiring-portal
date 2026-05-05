@@ -44,7 +44,7 @@ exports.updateProfile = async (userId, updateData) => {
   const user = await User.findByIdAndUpdate(
     userId,
     filteredData,
-    { returnDocument: 'after', runValidators: true }
+    { new: true, runValidators: true }
   ).select('-password -refreshToken');
 
   if (!user) throw new AppError('User not found', 404);
@@ -52,26 +52,33 @@ exports.updateProfile = async (userId, updateData) => {
   return user;
 };
 
-// UPLOAD RESUME
 exports.uploadResume = async (userId, filePath) => {
-  const fs = require('fs');
+  const fs   = require('fs');
+  const path = require('path');
 
-  // Find existing user first
+  // Find existing user
   const existingUser = await User.findById(userId);
   if (!existingUser) throw new AppError('User not found', 404);
 
-  // Delete old resume file if it exists
+  // Delete old resume file if exists
   if (existingUser.resumeUrl) {
-    const oldFilePath = existingUser.resumeUrl;
-    if (fs.existsSync(oldFilePath)) {
-      fs.unlinkSync(oldFilePath);  // delete old file from disk
+    // Extract just the filename from URL like /uploads/resumes/file.pdf
+    const fileName = path.basename(existingUser.resumeUrl);
+    const fullPath = path.join('uploads', 'resumes', fileName);
+
+    if (fs.existsSync(fullPath)) {
+      fs.unlinkSync(fullPath);  // delete old file from disk
     }
   }
 
-  // Save new file path to MongoDB
+  // Store as public URL — not filesystem path
+  // Example: /uploads/resumes/resume-userId-timestamp.pdf
+  const fileName  = path.basename(filePath);
+  const publicUrl = `/uploads/resumes/${fileName}`;
+
   const user = await User.findByIdAndUpdate(
     userId,
-    { resumeUrl: filePath },
+    { resumeUrl: publicUrl },
     { new: true }
   ).select('-password -refreshToken');
 
