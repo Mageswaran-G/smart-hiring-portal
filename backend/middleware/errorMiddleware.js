@@ -25,11 +25,6 @@ exports.errorHandler = (err, req, res, next) => {
       message: err.message
     });
   }
-  // ── END OF NEW LINES ──
-
-  // MongoDB duplicate key
-  if (err.code === 11000) {
-  // ... rest of your existing code stays same
 
   // MongoDB duplicate key
   if (err.code === 11000) {
@@ -49,13 +44,13 @@ exports.errorHandler = (err, req, res, next) => {
     });
   }
 
-  // Zod validation error (from validateMiddleware)
-if (err.name === 'ZodError') {
-  return res.status(400).json({
-    success: false,
-    message: err.issues.map(e => e.message).join(', ')  // ✅ CORRECT
-  });
-}
+  // Zod validation error
+  if (err.name === 'ZodError') {
+    return res.status(400).json({
+      success: false,
+      message: err.issues.map(e => e.message).join(', ')
+    });
+  }
 
   // JWT errors
   if (err.name === 'JsonWebTokenError') {
@@ -72,6 +67,7 @@ if (err.name === 'ZodError') {
     });
   }
 
+  // Default error
   res.status(err.statusCode || 500).json({
     success: false,
     message: err.message || 'Server Error'
