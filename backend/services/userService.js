@@ -54,14 +54,26 @@ exports.updateProfile = async (userId, updateData) => {
 
 // UPLOAD RESUME
 exports.uploadResume = async (userId, filePath) => {
+  const fs = require('fs');
 
+  // Find existing user first
+  const existingUser = await User.findById(userId);
+  if (!existingUser) throw new AppError('User not found', 404);
+
+  // Delete old resume file if it exists
+  if (existingUser.resumeUrl) {
+    const oldFilePath = existingUser.resumeUrl;
+    if (fs.existsSync(oldFilePath)) {
+      fs.unlinkSync(oldFilePath);  // delete old file from disk
+    }
+  }
+
+  // Save new file path to MongoDB
   const user = await User.findByIdAndUpdate(
     userId,
     { resumeUrl: filePath },
     { new: true }
   ).select('-password -refreshToken');
-
-  if (!user) throw new AppError('User not found', 404);
 
   return user;
 };

@@ -29,18 +29,22 @@ const storage = multer.diskStorage({
   }
 });
 
-// FILE FILTER
-// Only allow resume formats — reject everything else
 const fileFilter = function (req, file, cb) {
 
+  // Check 1 — allowed MIME types
   const allowedTypes = [
-    'application/pdf',                                                        // PDF
-    'application/msword',                                                     // DOC
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document' // DOCX
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
   ];
 
-  if (allowedTypes.includes(file.mimetype)) {
-    cb(null, true);   // accept file
+  // Check 2 — allowed file extensions
+  const allowedExt = ['.pdf', '.doc', '.docx'];
+  const ext = path.extname(file.originalname).toLowerCase();
+
+  // BOTH must pass — mimetype AND extension
+  if (allowedTypes.includes(file.mimetype) && allowedExt.includes(ext)) {
+    cb(null, true);   // accept
   } else {
     cb(new Error('Only PDF, DOC, and DOCX files are allowed'), false); // reject
   }

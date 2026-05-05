@@ -26,6 +26,9 @@ app.use(cors({
 }));
 
 app.use(express.json());
+// Serve uploaded files as public URLs
+// Example: http://localhost:8000/uploads/resumes/filename.pdf
+app.use('/uploads', express.static('uploads'));
 app.use(cookieParser());
 
 
