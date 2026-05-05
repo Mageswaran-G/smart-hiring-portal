@@ -46,19 +46,17 @@ exports.updateMyProfile = async (req, res, next) => {
   }
 };
 
-// UPLOAD RESUME
-// Route: POST /api/v1/users/upload-resume
 exports.uploadResume = async (req, res, next) => {
   try {
     if (!req.file) {
       return next(new AppError('Please upload a file', 400));
     }
 
-    const user = await userService.uploadResume(req.user.id, req.file.path);
+    const { user, fullUrl } = await userService.uploadResume(req.user.id, req.file.path);
 
     res.status(200).json(
       new ApiResponse(true, 'Resume uploaded successfully', {
-        resumeUrl: user.resumeUrl
+        resumeUrl: fullUrl    // frontend gets full URL directly
       })
     );
   } catch (err) {

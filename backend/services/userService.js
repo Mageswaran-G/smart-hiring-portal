@@ -52,35 +52,47 @@ exports.updateProfile = async (userId, updateData) => {
   return user;
 };
 
+// UPLOAD RESUME
 exports.uploadResume = async (userId, filePath) => {
-  const fs   = require('fs');
+  const fs   = require('fs').promises;  // async version — no event loop blocking
   const path = require('path');
 
   // Find existing user
   const existingUser = await User.findById(userId);
   if (!existingUser) throw new AppError('User not found', 404);
 
-  // Delete old resume file if exists
+  // Delete old resume if exists
   if (existingUser.resumeUrl) {
-    // Extract just the filename from URL like /uploads/resumes/file.pdf
     const fileName = path.basename(existingUser.resumeUrl);
-    const fullPath = path.join('uploads', 'resumes', fileName);
 
-    if (fs.existsSync(fullPath)) {
-      fs.unlinkSync(fullPath);  // delete old file from disk
+    // PATH TRAVERSAL PROTECTION
+    // Prevents: ../../../../etc/passwd type attacks
+    const allowedDir      = path.resolve('uploads/resumes');
+    const resolvedPath    = path.resolve(path.join('uploads', 'resumes', fileName));
+
+    // If resolved path tries to go outside uploads/resumes → block it
+    if (!resolvedPath.startsWith(allowedDir)) {
+      throw new AppError('Invalid file path', 400);
     }
+
+    // Delete old file safely (async — non-blocking)
+    await fs.unlink(resolvedPath).catch(() => {});
+    // .catch(() => {}) means: if file already missing, ignore error
   }
 
-  // Store as public URL — not filesystem path
-  // Example: /uploads/resumes/resume-userId-timestamp.pdf
+  // Store as public URL path
   const fileName  = path.basename(filePath);
   const publicUrl = `/uploads/resumes/${fileName}`;
 
+  // Full URL for frontend to use directly
+  const fullUrl = `${process.env.BASE_URL || 'http://localhost:8000'}${publicUrl}`;
+
   const user = await User.findByIdAndUpdate(
     userId,
-    { resumeUrl: publicUrl },
+    { resumeUrl: publicUrl },     // store short URL in DB
     { new: true }
   ).select('-password -refreshToken');
 
-  return user;
+  // Return full URL in response so frontend can use it directly
+  return { user, fullUrl };
 };
