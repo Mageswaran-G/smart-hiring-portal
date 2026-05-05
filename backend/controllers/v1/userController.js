@@ -3,9 +3,12 @@
 // Thin layer — only req/res handling
 // All logic is in userService.js
 
-const userService = require('../services/userService');
+const userService            = require('../../services/v1/userService');
+const { validateFileSignature } = require('../../middleware/uploadMiddleware');
+
 const ApiResponse = require('../utils/ApiResponse');
 const AppError = require('../utils/AppError');
+
 
 // GET all users
 // Route: GET /api/v1/users
@@ -52,11 +55,26 @@ exports.uploadResume = async (req, res, next) => {
       return next(new AppError('Please upload a file', 400));
     }
 
-    const { user, fullUrl } = await userService.uploadResume(req.user.id, req.file.path);
+    // SIGNATURE CHECK — verify actual file content
+    const isValidFile = validateFileSignature(req.file.path, req.file.mimetype);
+    if (!isValidFile) {
+      // Delete the fake file immediately
+      const fs = require('fs').promises;
+      await fs.unlink(req.file.path).catch(() => {});
+      return next(new AppError('Invalid file content. File may be corrupted or unsafe.', 400));
+    }
+
+    const { user, fullUrl } = await userService.uploadResume(req.user.id, req.file);
 
     res.status(200).json(
       new ApiResponse(true, 'Resume uploaded successfully', {
-        resumeUrl: fullUrl    // frontend gets full URL directly
+        resume: {
+          url:          fullUrl,
+          originalName: req.file.originalname,
+          size:         req.file.size,
+          mimeType:     req.file.mimetype,
+          uploadedAt:   new Date()
+        }
       })
     );
   } catch (err) {

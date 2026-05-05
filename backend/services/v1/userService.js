@@ -1,7 +1,9 @@
 // userService.js
-const User = require('../models/User');
-const AppError = require('../utils/AppError');
+
 const logger = require('../utils/logger');
+
+const User     = require('../../models/User');
+const AppError = require('../../utils/AppError');
 
 // GET ALL USERS
 exports.getUsers = async () => {
@@ -52,47 +54,44 @@ exports.updateProfile = async (userId, updateData) => {
   return user;
 };
 
-// UPLOAD RESUME
-exports.uploadResume = async (userId, filePath) => {
-  const fs   = require('fs').promises;  // async version — no event loop blocking
+exports.uploadResume = async (userId, file) => {
+  const fs   = require('fs').promises;
   const path = require('path');
 
-  // Find existing user
+  // Step 1 — Find user
   const existingUser = await User.findById(userId);
   if (!existingUser) throw new AppError('User not found', 404);
 
-  // Delete old resume if exists
-  if (existingUser.resumeUrl) {
-    const fileName = path.basename(existingUser.resumeUrl);
-
-    // PATH TRAVERSAL PROTECTION
-    // Prevents: ../../../../etc/passwd type attacks
-    const allowedDir      = path.resolve('uploads/resumes');
-    const resolvedPath    = path.resolve(path.join('uploads', 'resumes', fileName));
-
-    // If resolved path tries to go outside uploads/resumes → block it
-    if (!resolvedPath.startsWith(allowedDir)) {
-      throw new AppError('Invalid file path', 400);
-    }
-
-    // Delete old file safely (async — non-blocking)
-    await fs.unlink(resolvedPath).catch(() => {});
-    // .catch(() => {}) means: if file already missing, ignore error
-  }
-
-  // Store as public URL path
-  const fileName  = path.basename(filePath);
+  // Step 2 — Upload new file first (already done by Multer)
+  const fileName  = path.basename(file.path);
   const publicUrl = `/uploads/resumes/${fileName}`;
+  const fullUrl   = `${process.env.BASE_URL || 'http://localhost:8000'}${publicUrl}`;
 
-  // Full URL for frontend to use directly
-  const fullUrl = `${process.env.BASE_URL || 'http://localhost:8000'}${publicUrl}`;
-
-  const user = await User.findByIdAndUpdate(
+  // Step 3 — Update DB with full metadata
+  const updatedUser = await User.findByIdAndUpdate(
     userId,
-    { resumeUrl: publicUrl },     // store short URL in DB
+    {
+      resume: {
+        url:          publicUrl,
+        originalName: file.originalname,
+        size:         file.size,
+        mimeType:     file.mimetype,
+        uploadedAt:   new Date()
+      }
+    },
     { new: true }
   ).select('-password -refreshToken');
 
-  // Return full URL in response so frontend can use it directly
-  return { user, fullUrl };
+  // Step 4 — ONLY delete old file AFTER DB update succeeds
+  if (existingUser.resume?.url) {
+    const oldFileName    = path.basename(existingUser.resume.url);
+    const allowedDir     = path.resolve('uploads/resumes');
+    const resolvedPath   = path.resolve(path.join('uploads', 'resumes', oldFileName));
+
+    if (resolvedPath.startsWith(allowedDir)) {
+      await fs.unlink(resolvedPath).catch(() => {});
+    }
+  }
+
+  return { user: updatedUser, fullUrl };
 };

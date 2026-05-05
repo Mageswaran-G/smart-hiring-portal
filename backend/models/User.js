@@ -76,9 +76,12 @@ experience: {
   trim: true,
 },
 
-resumeUrl: {
-  type: String,
-  default: '',   // will store uploaded resume path
+resume: {
+  url:          { type: String, default: '' },
+  originalName: { type: String, default: '' },
+  size:         { type: Number, default: 0  },
+  mimeType:     { type: String, default: '' },
+  uploadedAt:   { type: Date                }
 },
 
 // ── Company only fields ──

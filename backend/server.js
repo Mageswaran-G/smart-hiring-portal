@@ -6,11 +6,13 @@ const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 
 const connectDB = require('./config/db');
-const userRoutes = require('./routes/userRoutes');
-const authRoutes = require('./routes/authRoutes');
+const authRoutes = require('./routes/v1/authRoutes');
+const userRoutes = require('./routes/v1/userRoutes');
 const { errorHandler } = require('./middleware/errorMiddleware');
 const xssMiddleware = require('./middleware/xssMiddleware');
 const logger = require('./utils/logger');
+
+const config = require('./config');
 
 dotenv.config();
 
@@ -83,7 +85,7 @@ app.get('/', (req, res) => {
 
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 8000;
+const PORT = config.port;
 
 const startServer = async () => {
   try {

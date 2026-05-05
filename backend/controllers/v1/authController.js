@@ -2,7 +2,8 @@
 // Thin layer — only handles req/res
 // All business logic is in authService.js
 
-const authService = require('../services/authService');
+
+const authService = require('../../services/v1/authService');
 const ApiResponse = require('../utils/ApiResponse');
 const AppError = require('../utils/AppError');
 
