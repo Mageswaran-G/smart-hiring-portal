@@ -1,1 +1,7 @@
+node_modules/
+.env
 logs/
+uploads/resumes/*.pdf
+uploads/resumes/*.PDF
+uploads/resumes/*.doc
+uploads/resumes/*.docx

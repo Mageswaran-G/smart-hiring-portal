@@ -5,6 +5,7 @@
 
 const userService = require('../services/userService');
 const ApiResponse = require('../utils/ApiResponse');
+const AppError = require('../utils/AppError');
 
 // GET all users
 // Route: GET /api/v1/users
@@ -39,6 +40,26 @@ exports.updateMyProfile = async (req, res, next) => {
     const user = await userService.updateProfile(req.user.id, req.body);
     res.status(200).json(
       new ApiResponse(true, 'Profile updated successfully', user)
+    );
+  } catch (err) {
+    next(err);
+  }
+};
+
+// UPLOAD RESUME
+// Route: POST /api/v1/users/upload-resume
+exports.uploadResume = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return next(new AppError('Please upload a file', 400));
+    }
+
+    const user = await userService.uploadResume(req.user.id, req.file.path);
+
+    res.status(200).json(
+      new ApiResponse(true, 'Resume uploaded successfully', {
+        resumeUrl: user.resumeUrl
+      })
     );
   } catch (err) {
     next(err);

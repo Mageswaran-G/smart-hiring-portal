@@ -51,3 +51,17 @@ exports.updateProfile = async (userId, updateData) => {
 
   return user;
 };
+
+// UPLOAD RESUME
+exports.uploadResume = async (userId, filePath) => {
+
+  const user = await User.findByIdAndUpdate(
+    userId,
+    { resumeUrl: filePath },
+    { new: true }
+  ).select('-password -refreshToken');
+
+  if (!user) throw new AppError('User not found', 404);
+
+  return user;
+};

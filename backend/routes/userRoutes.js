@@ -5,6 +5,7 @@ const router = express.Router();
 const userController = require('../controllers/userController');
 const { verifyToken, authorizeRole } = require('../middleware/authMiddleware');
 const { updateProfileSchema } = require('../utils/validators');
+const upload = require('../middleware/uploadMiddleware');
 
 // Import validateMiddleware correctly
 const validateMiddleware = require('../middleware/validateMiddleware');
@@ -21,6 +22,15 @@ router.put(
   verifyToken,
   validateMiddleware(updateProfileSchema),
   userController.updateMyProfile
+);
+
+// POST upload resume — candidates only
+router.post(
+  '/upload-resume',
+  verifyToken,
+  authorizeRole('candidate'),    // ← only candidates can upload resume
+  upload.single('resume'),
+  userController.uploadResume
 );
 
 // Admin only route
