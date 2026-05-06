@@ -1,71 +1,127 @@
+// ─────────────────────────────────────────────────────
 // ProfilePage.jsx
-// Shows logged-in user profile
-// View mode + Edit mode + Resume Upload
+// Purpose: Main profile page — coordinates all sub-components
+// This file only handles:
+//   1. Fetching profile data from API
+//   2. Managing state (loading, editing, saving, uploading)
+//   3. Passing data down to child components
+// All UI is handled by components/profile/ files
+// ─────────────────────────────────────────────────────
 
-import { useState, useEffect, useRef } from 'react';
+// React hooks
+import { useState, useEffect } from 'react';
+
+// React Router — for navigation
 import { useNavigate } from 'react-router-dom';
+
+// Auth context — to get current user info and logout function
 import { useAuth } from '../context/AuthContext';
+
+// API instance and error helper
 import { API, getErrorMessage } from '../services/authService';
 
+// Profile sub-components — each handles one section of the page
+import ProfileHeader   from '../components/profile/ProfileHeader';
+import ProfileDetails  from '../components/profile/ProfileDetails';
+import ResumeSection   from '../components/profile/ResumeSection';
+import EditProfileForm from '../components/profile/EditProfileForm';
+
 export default function ProfilePage() {
+  // Get current logged-in user and logout function from context
   const { user, logoutUser } = useAuth();
+
+  // useNavigate — for Back button and role-based redirects
   const navigate = useNavigate();
 
-  // ── State ──
-  const [profile,    setProfile]    = useState(null);
-  const [formData,   setFormData]   = useState({});
-  const [isEditing,  setIsEditing]  = useState(false);
-  const [isLoading,  setIsLoading]  = useState(true);
-  const [isSaving,   setIsSaving]   = useState(false);
-  const [isUploading,setIsUploading]= useState(false);
-  const [successMsg, setSuccessMsg] = useState('');
-  const [errorMsg,   setErrorMsg]   = useState('');
-  const fileInputRef = useRef(null);
+  // ── State variables ──────────────────────────────────
+  // profile    = data loaded from MongoDB (read only display)
+  const [profile,     setProfile]     = useState(null);
 
-  // ── Load profile on page open ──
+  // formData   = copy of profile used in edit form (changes as user types)
+  const [formData,    setFormData]    = useState({});
+
+  // isEditing  = true when Edit Profile button is clicked
+  const [isEditing,   setIsEditing]   = useState(false);
+
+  // isLoading  = true while first profile fetch is running
+  const [isLoading,   setIsLoading]   = useState(true);
+
+  // isSaving   = true while save API call is running
+  const [isSaving,    setIsSaving]    = useState(false);
+
+  // isUploading = true while resume upload is running
+  const [isUploading, setIsUploading] = useState(false);
+
+  // successMsg = green message shown after save or upload
+  const [successMsg,  setSuccessMsg]  = useState('');
+
+  // errorMsg   = red message shown when API call fails
+  const [errorMsg,    setErrorMsg]    = useState('');
+
+  // ── Load profile when page first opens ───────────────
+  // Empty dependency array [] means runs ONCE on mount
   useEffect(() => { fetchProfile(); }, []);
 
+  // ── Fetch profile from backend ───────────────────────
   const fetchProfile = async () => {
     try {
       setIsLoading(true);
+
+      // GET /api/v1/users/profile — requires Bearer token (added by interceptor)
       const res = await API.get('/users/profile');
+
+      // Save profile to state for display
       setProfile(res.data.data);
+
+      // Also copy to formData so edit form has current values
       setFormData(res.data.data);
+
     } catch (err) {
+      // getErrorMessage extracts readable message from axios error
       setErrorMsg(getErrorMessage(err));
     } finally {
+      // Always stop loading — even if error happened
       setIsLoading(false);
     }
   };
 
-  // ── Handle text field change ──
+  // ── Handle regular field change (text inputs) ─────────
+  // Called on every keystroke in edit form
+  // e.target.name  = field name (e.g. "bio", "location")
+  // e.target.value = new value typed by user
   const handleChange = (e) => {
     const { name, value } = e.target;
+    // Update only the changed field, keep all others same
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // ── Skills field — array stored as comma separated text ──
+  // ── Handle skills field change ────────────────────────
+  // Skills is stored as array in DB but shown as comma text in input
+  // Example: user types "React, Node.js" → stored as ['React', 'Node.js']
   const handleSkillsChange = (e) => {
     const skillsArray = e.target.value
-      .split(',')
-      .map(s => s.trim())
-      .filter(s => s);
+      .split(',')           // split by comma
+      .map(s => s.trim())   // remove spaces around each skill
+      .filter(s => s);      // remove empty strings
     setFormData(prev => ({ ...prev, skills: skillsArray }));
   };
 
-  // ── Save profile ──
+  // ── Save profile to backend ───────────────────────────
   const handleSave = async () => {
     try {
       setIsSaving(true);
       setErrorMsg('');
       setSuccessMsg('');
 
+      // Only send fields the backend allows
+      // This prevents role/password injection from frontend
       const allowedFields = [
         'bio', 'location', 'phone',
         'skills', 'education', 'experience',
         'companyName', 'companyWebsite', 'industry'
       ];
 
+      // Build payload — only include allowed fields that exist in formData
       const payload = {};
       allowedFields.forEach(field => {
         if (formData[field] !== undefined) {
@@ -73,11 +129,19 @@ export default function ProfilePage() {
         }
       });
 
+      // PUT /api/v1/users/profile — update profile in MongoDB
       const res = await API.put('/users/profile', payload);
+
+      // Update displayed profile with new data from server
       setProfile(res.data.data);
+
+      // Show success message and go back to view mode
       setSuccessMsg('Profile updated successfully!');
       setIsEditing(false);
+
+      // Auto hide success message after 3 seconds
       setTimeout(() => setSuccessMsg(''), 3000);
+
     } catch (err) {
       setErrorMsg(getErrorMessage(err));
     } finally {
@@ -85,283 +149,133 @@ export default function ProfilePage() {
     }
   };
 
+  // ── Cancel editing ────────────────────────────────────
+  // Restores form to original profile values (discards changes)
   const handleCancel = () => {
-    setFormData(profile);
+    setFormData(profile); // reset form back to saved profile
     setErrorMsg('');
     setIsEditing(false);
   };
 
-  // ── Resume upload ──
+  // ── Handle resume upload ──────────────────────────────
   const handleResumeUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const file = e.target.files[0]; // get selected file
+    if (!file) return;              // do nothing if no file selected
 
     try {
       setIsUploading(true);
       setErrorMsg('');
       setSuccessMsg('');
 
+      // FormData is required for file upload — not JSON
       const formDataObj = new FormData();
-      formDataObj.append('resume', file);
+      formDataObj.append('resume', file); // 'resume' must match backend field name
 
-      const res = await API.post('/users/upload-resume', formDataObj, {
+      // POST /api/v1/users/upload-resume — multipart/form-data
+      await API.post('/users/upload-resume', formDataObj, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
-      // Refresh profile to show new resume
+      // Refresh profile to show new resume info
       await fetchProfile();
+
       setSuccessMsg('Resume uploaded successfully!');
       setTimeout(() => setSuccessMsg(''), 3000);
+
     } catch (err) {
       setErrorMsg(getErrorMessage(err));
     } finally {
       setIsUploading(false);
-      // Reset file input so same file can be re-selected
-      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
-  // ── Loading state ──
+  // ── Loading screen ────────────────────────────────────
+  // Shown while first profile fetch is running
   if (isLoading) {
     return (
       <div style={s.centered}>
-        <div style={s.loadingDot}></div>
-        <p style={{ color: '#888', marginTop: 16 }}>Loading profile...</p>
+        <p style={{ color: '#888' }}>Loading profile...</p>
       </div>
     );
   }
 
+  // ── Role checks ───────────────────────────────────────
+  // Used to show/hide candidate or company specific sections
   const isCandidate = user?.role === 'candidate';
   const isCompany   = user?.role === 'company';
-  const firstName   = profile?.name?.split(' ')[0] || 'User';
+
+  // ── Responsive grid ───────────────────────────────────
+  // Desktop: side by side (profile details + resume)
+  // Mobile:  stacked vertically (one column)
+  const gridColumns = window.innerWidth < 768 ? '1fr' : '1fr 340px';
 
   return (
     <div style={s.page}>
 
-      {/* ── TOP NAV ── */}
+      {/* ── TOP NAVIGATION BAR ── */}
       <nav style={s.nav}>
         <div style={s.navLeft}>
+          {/* HirePortal logo */}
           <span style={s.logo}>HP</span>
           <span style={s.logoText}>HirePortal</span>
         </div>
         <div style={s.navRight}>
+          {/* Back button — goes to previous page */}
           <button onClick={() => navigate(-1)} style={s.navBtn}>← Back</button>
+          {/* Logout button — clears token and redirects to login */}
           <button onClick={logoutUser} style={s.logoutBtn}>Logout</button>
         </div>
       </nav>
 
-      {/* ── MAIN CONTENT ── */}
+      {/* ── PAGE CONTENT ── */}
       <div style={s.container}>
 
-        {/* ── PROFILE HEADER CARD ── */}
-        <div style={s.headerCard}>
-          <div style={s.avatarWrap}>
-            <div style={s.avatar}>
-              {profile?.name?.charAt(0).toUpperCase()}
-            </div>
-          </div>
-          <div style={s.headerInfo}>
-            <h1 style={s.name}>{profile?.name}</h1>
-            <p style={s.email}>{profile?.email}</p>
-            <span style={{
-              ...s.badge,
-              background: isCandidate ? '#fff3e8' : '#e8f0ff',
-              color: isCandidate ? '#E65C00' : '#1D3557'
-            }}>
-              {profile?.role?.toUpperCase()}
-            </span>
-          </div>
-          {!isEditing && (
-            <button onClick={() => setIsEditing(true)} style={s.editBtn}>
-              Edit Profile
-            </button>
-          )}
-        </div>
+        {/* Profile header — avatar, name, email, role badge */}
+        <ProfileHeader
+          profile={profile}
+          isEditing={isEditing}
+          onEdit={() => setIsEditing(true)}
+          isCandidate={isCandidate}
+        />
 
-        {/* ── SUCCESS / ERROR MESSAGES ── */}
+        {/* Success message — green box */}
         {successMsg && <div style={s.successBox}>{successMsg}</div>}
-        {errorMsg   && <div style={s.errorBox}>{errorMsg}</div>}
 
-        <div style={s.grid}>
+        {/* Error message — red box */}
+        {errorMsg && <div style={s.errorBox}>{errorMsg}</div>}
 
-          {/* ── LEFT COLUMN — PROFILE DETAILS ── */}
-          <div style={s.card}>
-            <h2 style={s.cardTitle}>
-              {isEditing ? 'Edit Profile' : 'Profile Details'}
-            </h2>
+        {/* Two column grid — profile details + resume */}
+        <div style={{ ...s.grid, gridTemplateColumns: gridColumns }}>
 
-            {!isEditing ? (
+          {/* LEFT COLUMN */}
+          {/* View mode — ProfileDetails */}
+          {/* Edit mode — EditProfileForm */}
+          {!isEditing
+            ? <ProfileDetails
+                profile={profile}
+                isCandidate={isCandidate}
+                isCompany={isCompany}
+              />
+            : <EditProfileForm
+                formData={formData}
+                isCandidate={isCandidate}
+                isCompany={isCompany}
+                isSaving={isSaving}
+                onChange={handleChange}
+                onSkillsChange={handleSkillsChange}
+                onSave={handleSave}
+                onCancel={handleCancel}
+              />
+          }
 
-              /* VIEW MODE */
-              <div>
-                <Field label="Bio"      value={profile?.bio} />
-                <Field label="Location" value={profile?.location} />
-                <Field label="Phone"    value={profile?.phone} />
-
-                {isCandidate && <>
-                  <Field label="Skills"
-                    value={Array.isArray(profile?.skills) && profile.skills.length > 0
-                      ? profile.skills.join(', ')
-                      : null}
-                  />
-                  <Field label="Education"  value={profile?.education} />
-                  <Field label="Experience" value={profile?.experience} />
-                </>}
-
-                {isCompany && <>
-                  <Field label="Company Name"    value={profile?.companyName} />
-                  <Field label="Company Website" value={profile?.companyWebsite} />
-                  <Field label="Industry"        value={profile?.industry} />
-                </>}
-              </div>
-
-            ) : (
-
-              /* EDIT MODE */
-              <div>
-                <FormField label="Bio" name="bio"
-                  value={formData.bio || ''}
-                  onChange={handleChange}
-                  placeholder="Tell us about yourself (max 500 chars)"
-                  multiline />
-
-                <FormField label="Location" name="location"
-                  value={formData.location || ''}
-                  onChange={handleChange}
-                  placeholder="City, State" />
-
-                <FormField label="Phone" name="phone"
-                  value={formData.phone || ''}
-                  onChange={handleChange}
-                  placeholder="+91 9876543210" />
-
-                {isCandidate && <>
-                  <div style={s.fieldGroup}>
-                    <label style={s.label}>Skills</label>
-                    <input
-                      style={s.input}
-                      value={Array.isArray(formData.skills)
-                        ? formData.skills.join(', ')
-                        : ''}
-                      onChange={handleSkillsChange}
-                      placeholder="React, Node.js, MongoDB (comma separated)"
-                    />
-                    <p style={s.hint}>Separate each skill with a comma</p>
-                  </div>
-
-                  <FormField label="Education" name="education"
-                    value={formData.education || ''}
-                    onChange={handleChange}
-                    placeholder="B.E Computer Science, Anna University 2026" />
-
-                  <FormField label="Experience" name="experience"
-                    value={formData.experience || ''}
-                    onChange={handleChange}
-                    placeholder="6 months intern at XYZ Company" />
-                </>}
-
-                {isCompany && <>
-                  <FormField label="Company Name" name="companyName"
-                    value={formData.companyName || ''}
-                    onChange={handleChange}
-                    placeholder="Acme Technologies Pvt Ltd" />
-
-                  <FormField label="Company Website" name="companyWebsite"
-                    value={formData.companyWebsite || ''}
-                    onChange={handleChange}
-                    placeholder="https://yourcompany.com" />
-
-                  <FormField label="Industry" name="industry"
-                    value={formData.industry || ''}
-                    onChange={handleChange}
-                    placeholder="Software, Finance, Healthcare..." />
-                </>}
-
-                {/* SAVE / CANCEL BUTTONS */}
-                <div style={s.btnRow}>
-                  <button
-                    onClick={handleCancel}
-                    style={s.cancelBtn}
-                    disabled={isSaving}>
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleSave}
-                    style={s.saveBtn}
-                    disabled={isSaving}>
-                    {isSaving ? 'Saving...' : 'Save Profile'}
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* ── RIGHT COLUMN — RESUME (candidates only) ── */}
+          {/* RIGHT COLUMN — Resume section */}
+          {/* Only shown to candidates */}
           {isCandidate && (
-            <div style={s.card}>
-              <h2 style={s.cardTitle}>Resume</h2>
-
-              {/* Show current resume */}
-              {profile?.resume?.url ? (
-                <div style={s.resumeBox}>
-                  <div style={s.resumeIcon}>📄</div>
-                  <div style={s.resumeInfo}>
-                    <p style={s.resumeName}>
-                      {profile.resume.originalName || 'Resume'}
-                    </p>
-                    <p style={s.resumeMeta}>
-                      {profile.resume.mimeType?.includes('pdf') ? 'PDF' : 'Word'} •{' '}
-                      {profile.resume.size
-                        ? `${(profile.resume.size / 1024).toFixed(0)} KB`
-                        : ''}
-                    </p>
-                    {profile.resume.uploadedAt && (
-                      <p style={s.resumeMeta}>
-                        Uploaded: {new Date(profile.resume.uploadedAt).toLocaleDateString('en-IN')}
-                      </p>
-                    )}
-                  </div>
-                  <a
-                    href={`http://localhost:8000${profile.resume.url}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={s.viewBtn}>
-                    View
-                  </a>
-                </div>
-              ) : (
-                <div style={s.noResume}>
-                  <p style={{ color: '#888', marginBottom: 8 }}>
-                    No resume uploaded yet.
-                  </p>
-                  <p style={{ color: '#aaa', fontSize: 13 }}>
-                    Upload your resume to apply for jobs.
-                  </p>
-                </div>
-              )}
-
-              {/* Upload button */}
-              <div style={{ marginTop: 20 }}>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleResumeUpload}
-                  accept=".pdf,.doc,.docx"
-                  style={{ display: 'none' }}
-                />
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  style={s.uploadBtn}
-                  disabled={isUploading}>
-                  {isUploading
-                    ? 'Uploading...'
-                    : profile?.resume?.url
-                      ? 'Replace Resume'
-                      : 'Upload Resume'}
-                </button>
-                <p style={s.hint}>PDF, DOC, DOCX • Max 5MB</p>
-              </div>
-            </div>
+            <ResumeSection
+              profile={profile}
+              isUploading={isUploading}
+              onUpload={handleResumeUpload}
+            />
           )}
 
         </div>
@@ -370,96 +284,125 @@ export default function ProfilePage() {
   );
 }
 
-// ── Small helper — one field in view mode ──
-function Field({ label, value }) {
-  return (
-    <div style={s.fieldRow}>
-      <span style={s.fieldLabel}>{label}</span>
-      <span style={s.fieldValue}>
-        {value && value.length > 0
-          ? value
-          : <em style={{ color: '#bbb' }}>Not set</em>}
-      </span>
-    </div>
-  );
-}
-
-// ── Small helper — one input in edit mode ──
-function FormField({ label, name, value, onChange, placeholder, multiline }) {
-  return (
-    <div style={s.fieldGroup}>
-      <label style={s.label}>{label}</label>
-      {multiline
-        ? <textarea name={name} value={value} onChange={onChange}
-            placeholder={placeholder} rows={3}
-            style={{ ...s.input, resize: 'vertical' }} />
-        : <input name={name} value={value} onChange={onChange}
-            placeholder={placeholder} style={s.input} />
-      }
-    </div>
-  );
-}
-
-// ── All styles ──
+// ─────────────────────────────────────────────────────
+// Styles for ProfilePage layout only
+// Component-specific styles are in each component file
+// ─────────────────────────────────────────────────────
 const s = {
-  page: { minHeight: '100vh', background: '#f0f0f0', fontFamily: 'Inter, sans-serif' },
-  centered: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh' },
-  loadingDot: { width: 40, height: 40, borderRadius: '50%', border: '3px solid #E65C00', borderTopColor: 'transparent', animation: 'spin 1s linear infinite' },
+  // Full page background — light gray
+  page: {
+    minHeight: '100vh',
+    background: '#f0f0f0',
+    fontFamily: 'Inter, sans-serif'
+  },
 
-  // Nav
-  nav: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', padding: '14px 16px', borderBottom: '1px solid #eee', position: 'sticky', top: 0, zIndex: 10 },
+  // Centered loading screen
+  centered: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100vh'
+  },
+
+  // Sticky top navigation bar
+  nav: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    background: '#fff',
+    padding: '14px 16px',
+    borderBottom: '1px solid #eee',
+    position: 'sticky',
+    top: 0,
+    zIndex: 10  // stays above all other content
+  },
+
+  // Left side of nav — logo area
   navLeft: { display: 'flex', alignItems: 'center', gap: 10 },
-  logo: { width: 36, height: 36, borderRadius: 8, background: '#E65C00', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 16, fontFamily: 'Sora, sans-serif' },
-  logoText: { fontFamily: 'Sora, sans-serif', fontWeight: 700, fontSize: 18, color: '#0a0a14' },
+
+  // HP logo square
+  logo: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    background: '#E65C00',
+    color: '#fff',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontWeight: 800,
+    fontSize: 16,
+    fontFamily: 'Sora, sans-serif'
+  },
+
+  // HirePortal text next to logo
+  logoText: {
+    fontFamily: 'Sora, sans-serif',
+    fontWeight: 700,
+    fontSize: 18,
+    color: '#0a0a14'
+  },
+
+  // Right side of nav — Back and Logout buttons
   navRight: { display: 'flex', gap: 10 },
-  navBtn: { background: 'none', border: '1px solid #ddd', borderRadius: 8, padding: '8px 16px', cursor: 'pointer', fontSize: 14, color: '#555' },
-  logoutBtn: { background: '#E65C00', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 18px', cursor: 'pointer', fontSize: 14, fontWeight: 600 },
 
-  // Layout
-  container: { maxWidth: 1000, margin: '0 auto', padding: '32px 24px' },
-  grid: { display: 'grid', gridTemplateColumns: window.innerWidth < 768 ? '1fr' : '1fr 340px', gap: 24, marginTop: 24, alignItems: 'start' },
-  
-  // Header card
-  headerCard: { background: '#fff', borderRadius: 16, padding: '20px', display: 'flex', alignItems: 'center', gap: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', flexWrap: 'wrap' },
-  avatarWrap: { flexShrink: 0 },
-  avatar: { width: 80, height: 80, borderRadius: '50%', background: '#E65C00', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, fontWeight: 800, fontFamily: 'Sora, sans-serif' },
-  headerInfo: { flex: 1 },
-  name: { fontFamily: 'Sora, sans-serif', fontSize: 24, fontWeight: 700, color: '#0a0a14', margin: '0 0 4px' },
-  email: { fontSize: 14, color: '#888', margin: '0 0 8px' },
-  badge: { display: 'inline-block', padding: '3px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, letterSpacing: '0.5px' },
-  editBtn: { background: '#E65C00', color: '#fff', border: 'none', borderRadius: 10, padding: '10px 22px', cursor: 'pointer', fontSize: 14, fontWeight: 600, whiteSpace: 'nowrap' },
+  // Back button — transparent with border
+  navBtn: {
+    background: 'none',
+    border: '1px solid #ddd',
+    borderRadius: 8,
+    padding: '8px 16px',
+    cursor: 'pointer',
+    fontSize: 14,
+    color: '#555'
+  },
 
-  // Messages
-  successBox: { background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534', borderRadius: 10, padding: '12px 16px', marginTop: 16, fontSize: 14 },
-  errorBox:   { background: '#fff1f2', border: '1px solid #fecdd3', color: '#be123c', borderRadius: 10, padding: '12px 16px', marginTop: 16, fontSize: 14 },
+  // Logout button — orange
+  logoutBtn: {
+    background: '#E65C00',
+    color: '#fff',
+    border: 'none',
+    borderRadius: 8,
+    padding: '8px 18px',
+    cursor: 'pointer',
+    fontSize: 14,
+    fontWeight: 600
+  },
 
-  // Card
-  card: { background: '#fff', borderRadius: 16, padding: '28px 28px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' },
-  cardTitle: { fontFamily: 'Sora, sans-serif', fontSize: 17, fontWeight: 700, color: '#0a0a14', margin: '0 0 20px', paddingBottom: 12, borderBottom: '1px solid #f0f0f0' },
+  // Main content area — centered with max width
+  container: {
+    maxWidth: 1000,
+    margin: '0 auto',
+    padding: '32px 24px'
+  },
 
-  // View mode fields
-  fieldRow: { display: 'flex', padding: '11px 0', borderBottom: '1px solid #f7f7f7' },
-  fieldLabel: { width: 130, flexShrink: 0, fontSize: 13, fontWeight: 600, color: '#888' },
-  fieldValue: { fontSize: 14, color: '#222', flex: 1, lineHeight: 1.5 },
+  // Two column grid layout
+  grid: {
+    display: 'grid',
+    gap: 24,
+    marginTop: 24,
+    alignItems: 'start'  // cards align to top, not stretched
+  },
 
-  // Edit mode fields
-  fieldGroup: { marginBottom: 16 },
-  label: { display: 'block', fontSize: 11, fontWeight: 600, color: '#888', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.5px' },
-  input: { width: '100%', padding: '10px 14px', border: '1px solid #e5e5e5', borderRadius: 8, fontSize: 14, color: '#222', outline: 'none', boxSizing: 'border-box', fontFamily: 'Inter, sans-serif' },
-  hint: { fontSize: 11, color: '#aaa', marginTop: 4 },
+  // Green success message box
+  successBox: {
+    background: '#f0fdf4',
+    border: '1px solid #bbf7d0',
+    color: '#166534',
+    borderRadius: 10,
+    padding: '12px 16px',
+    marginTop: 16,
+    fontSize: 14
+  },
 
-  // Edit buttons
-  btnRow: { display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 24 },
-  cancelBtn: { background: '#fff', border: '1px solid #ddd', borderRadius: 8, padding: '10px 24px', cursor: 'pointer', fontSize: 14, color: '#555' },
-  saveBtn:   { background: '#E65C00', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 24px', cursor: 'pointer', fontSize: 14, fontWeight: 600 },
-
-  // Resume section
-  resumeBox: { display: 'flex', alignItems: 'center', gap: 14, background: '#f9f9f9', borderRadius: 12, padding: '16px' },
-  resumeIcon: { fontSize: 32, flexShrink: 0 },
-  resumeInfo: { flex: 1 },
-  resumeName: { fontSize: 14, fontWeight: 600, color: '#222', margin: '0 0 4px' },
-  resumeMeta: { fontSize: 12, color: '#888', margin: 0 },
-  viewBtn: { background: '#1D3557', color: '#fff', padding: '6px 14px', borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: 'none', flexShrink: 0 },
-  noResume: { background: '#f9f9f9', borderRadius: 12, padding: '24px', textAlign: 'center' },
-  uploadBtn: { width: '100%', background: '#E65C00', color: '#fff', border: 'none', borderRadius: 10, padding: '12px', cursor: 'pointer', fontSize: 14, fontWeight: 600 },
+  // Red error message box
+  errorBox: {
+    background: '#fff1f2',
+    border: '1px solid #fecdd3',
+    color: '#be123c',
+    borderRadius: 10,
+    padding: '12px 16px',
+    marginTop: 16,
+    fontSize: 14
+  },
 };

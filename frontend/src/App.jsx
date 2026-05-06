@@ -41,21 +41,22 @@ const CandidateDashboard = () => {
   return (
     <div style={{ textAlign: 'center', marginTop: '80px' }}>
       <h1 style={{ color: '#E65C00', fontFamily: 'Sora, sans-serif' }}>
-        Welcome, {user?.name}! 👤
+        Welcome, {user?.name}! 
       </h1>
       <p style={{ color: '#666', marginTop: 8 }}>Email: {user?.email}</p>
       <p style={{ color: '#E65C00', fontWeight: 600, marginTop: 4 }}>Role: Candidate</p>
       <p style={{ color: '#888', marginTop: 16, fontSize: 14 }}>
-        Profile page coming Wednesday!
+        Browse jobs and manage your applications from here.
       </p>
-      <button onClick={logoutUser} style={logoutStyle}>
-        Logout
-      </button>
       <button
         onClick={() => navigate('/profile')}
         style={{ marginRight: 12, padding: '8px 18px', borderRadius: 8, border: '1px solid #E65C00', background: '#fff', color: '#E65C00', cursor: 'pointer', fontWeight: 600 }}>
         My Profile
       </button>
+      <button onClick={logoutUser} style={logoutStyle}>
+        Logout
+      </button>
+      
     </div>
   );
 };
@@ -63,16 +64,22 @@ const CandidateDashboard = () => {
 // ── Company Dashboard ──
 const CompanyDashboard = () => {
   const { user, logoutUser } = useAuth();
+  const navigate = useNavigate();
   return (
     <div style={{ textAlign: 'center', marginTop: '80px' }}>
       <h1 style={{ color: '#1D3557', fontFamily: 'Sora, sans-serif' }}>
-        Welcome, {user?.name}! 🏢
+        Welcome, {user?.name}! 
       </h1>
       <p style={{ color: '#666', marginTop: 8 }}>Email: {user?.email}</p>
       <p style={{ color: '#1D3557', fontWeight: 600, marginTop: 4 }}>Role: Company</p>
       <p style={{ color: '#888', marginTop: 16, fontSize: 14 }}>
-        Company profile page coming Wednesday!
+        Manage your company profile and job postings from here.
       </p>
+      <button
+        onClick={() => navigate('/profile')}
+        style={{ marginRight: 12, padding: '8px 18px', borderRadius: 8, border: '1px solid #1D3557', background: '#fff', color: '#1D3557', cursor: 'pointer', fontWeight: 600, marginTop: 24 }}>
+        My Profile
+      </button>
       <button onClick={logoutUser} style={{ ...logoutStyle, background: '#1D3557' }}>
         Logout
       </button>
