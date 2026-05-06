@@ -75,10 +75,9 @@ export default function ProfileHeader({
             // text-4xl = large font size
             // font-extrabold = very bold
             // flex items-center justify-center = center the letter
-            <div className={`w-full h-full text-white text-4xl font-extrabold flex items-center justify-center ${
+            <div className={`font-sora w-full h-full text-white text-4xl font-extrabold flex items-center justify-center ${
                 isCandidate ? 'bg-orange-500' : 'bg-blue-900'
-              }`}
-              style={{ fontFamily: 'Sora, sans-serif' }}>
+              }`}>
               {profile?.name?.charAt(0).toUpperCase()}
             </div>
           )}
@@ -121,17 +120,20 @@ export default function ProfileHeader({
               🌐 Public
             </button>
 
-            {/* Private button */}
-            {/* Filled navy if selected, gray if not */}
-            <button
-              onClick={() => onVisibilityChange('private')}
-              className={`text-xs px-2 py-1 rounded-full font-semibold border-none cursor-pointer
-                ${profile?.photoVisibility === 'private'
-                  ? 'bg-blue-900 text-white'         // selected = dark navy
-                  : 'bg-gray-100 text-gray-400'}`}   // not selected = gray
-            >
-              🔒 Private
-            </button>
+            {/* Private button — color based on role */}
+              {/* Candidate selected = orange, Company selected = navy */}
+              <button
+                onClick={() => onVisibilityChange('private')}
+                className={`text-xs px-2 py-1 rounded-full font-semibold border-none cursor-pointer
+                  ${profile?.photoVisibility === 'private'
+                    ? isCandidate
+                      ? 'bg-orange-500 text-white'
+                      : 'bg-blue-900 text-white'
+                    : 'bg-gray-100 text-gray-400'
+                  }`}
+                >
+                🔒 Private
+              </button>
 
           </div>
         )}
@@ -143,8 +145,7 @@ export default function ProfileHeader({
       <div className="flex-1">
 
         {/* Full name — large bold text */}
-        <h1 className="text-2xl font-bold text-gray-900 mb-1"
-          style={{ fontFamily: 'Sora, sans-serif' }}>
+        <h1 className="font-sora text-2xl font-bold text-gray-900 mb-1">
           {profile?.name}
         </h1>
 

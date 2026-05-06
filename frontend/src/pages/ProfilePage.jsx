@@ -258,7 +258,7 @@ export default function ProfilePage() {
   // ── Responsive grid ───────────────────────────────────
   // Desktop: side by side (profile details + resume)
   // Mobile:  stacked vertically (one column)
-  const gridColumns = window.innerWidth < 768 ? '1fr' : '1fr 340px';
+  
 
   return (
     // Full page — light gray background
@@ -281,16 +281,14 @@ export default function ProfilePage() {
           }}>
 
           {/* HP box — color changes based on role */}
-          <span className={`w-9 h-9 rounded-lg flex items-center justify-center font-extrabold text-base text-white ${
-            isCandidate ? 'bg-orange-500' : 'bg-blue-900'
-          }`}
-            style={{ fontFamily: 'Sora, sans-serif' }}>
+          <span className={`font-sora w-9 h-9 rounded-lg flex items-center justify-center font-extrabold text-base text-white ${
+              isCandidate ? 'bg-orange-500' : 'bg-blue-900'
+            }`}>
             HP
           </span>
 
           {/* HirePortal text */}
-          <span className="font-bold text-lg text-gray-900"
-            style={{ fontFamily: 'Sora, sans-serif' }}>
+          <span className="font-sora font-bold text-lg text-gray-900">
             HirePortal
           </span>
 

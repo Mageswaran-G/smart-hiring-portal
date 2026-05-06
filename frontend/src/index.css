@@ -1,1 +1,11 @@
-@import "tailwindcss";
+/* Step 1 — Google Fonts must come FIRST */
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+
+/* Step 2 — Then Tailwind */
+@import 'tailwindcss';
+
+/* Step 3 — Then custom theme */
+@theme {
+  --font-sora: 'Sora', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+}

@@ -10,8 +10,7 @@ export default function ProfileDetails({ profile, isCandidate, isCompany }) {
     <div className="bg-white rounded-2xl p-7 shadow-md">
 
       {/* Section title with bottom border */}
-      <h2 className="font-bold text-gray-900 text-lg mb-5 pb-3 border-b border-gray-100"
-        style={{ fontFamily: 'Sora, sans-serif' }}>
+      <h2 className="font-sora font-bold text-gray-900 text-lg mb-5 pb-3 border-b border-gray-100">
         Profile Details
       </h2>
 

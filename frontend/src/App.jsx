@@ -40,7 +40,7 @@ const CandidateDashboard = () => {
   const navigate = useNavigate();
   return (
     <div style={{ textAlign: 'center', marginTop: '80px' }}>
-      <h1 style={{ color: '#E65C00', fontFamily: 'Sora, sans-serif' }}>
+      <h1 className="font-sora" style={{ color: '#E65C00' }}>
         Welcome, {user?.name}! 
       </h1>
       <p style={{ color: '#666', marginTop: 8 }}>Email: {user?.email}</p>
@@ -68,7 +68,7 @@ const CompanyDashboard = () => {
   const navigate = useNavigate();
   return (
     <div style={{ textAlign: 'center', marginTop: '80px' }}>
-      <h1 style={{ color: '#1D3557', fontFamily: 'Sora, sans-serif' }}>
+      <h1 className="font-sora" style={{ color: '#1D3557' }}>
         Welcome, {user?.name}! 
       </h1>
       <p style={{ color: '#666', marginTop: 8 }}>Email: {user?.email}</p>
@@ -93,7 +93,7 @@ const AdminDashboard = () => {
   const { user, logoutUser } = useAuth();
   return (
     <div style={{ textAlign: 'center', marginTop: '80px' }}>
-      <h1 style={{ color: '#6d28d9', fontFamily: 'Sora, sans-serif' }}>
+      <h1 className="font-sora" style={{ color: '#6d28d9' }}>
         Admin Panel ⚙️
       </h1>
       <p style={{ color: '#666', marginTop: 8 }}>Email: {user?.email}</p>
