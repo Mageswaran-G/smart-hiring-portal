@@ -2,10 +2,11 @@
 // Role-based routing — Candidate, Company, Admin
 // each role sees their own dashboard
 
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
+import ProfilePage from './pages/ProfilePage';
 
 // ── Protected Route — waits for refresh before deciding ──
 const ProtectedRoute = ({ children }) => {
@@ -36,6 +37,7 @@ const RoleRoute = ({ children, allowedRoles }) => {
 // ── Candidate Dashboard ──
 const CandidateDashboard = () => {
   const { user, logoutUser } = useAuth();
+  const navigate = useNavigate();
   return (
     <div style={{ textAlign: 'center', marginTop: '80px' }}>
       <h1 style={{ color: '#E65C00', fontFamily: 'Sora, sans-serif' }}>
@@ -48,6 +50,11 @@ const CandidateDashboard = () => {
       </p>
       <button onClick={logoutUser} style={logoutStyle}>
         Logout
+      </button>
+      <button
+        onClick={() => navigate('/profile')}
+        style={{ marginRight: 12, padding: '8px 18px', borderRadius: 8, border: '1px solid #E65C00', background: '#fff', color: '#E65C00', cursor: 'pointer', fontWeight: 600 }}>
+        My Profile
       </button>
     </div>
   );
@@ -106,6 +113,8 @@ const logoutStyle = {
   fontFamily: 'Inter, sans-serif',
   fontWeight: 600,
 };
+
+
 
 // ── Smart redirect — sends user to their dashboard ──
 const RoleRedirect = () => {
@@ -175,6 +184,11 @@ function App() {
             }
           />
 
+          <Route path="/profile" element={
+            <ProtectedRoute>
+            <ProfilePage />
+            </ProtectedRoute>
+            } />    
         </Routes>
       </AuthProvider>
     </BrowserRouter>
