@@ -407,7 +407,7 @@ const s = {
   loadingDot: { width: 40, height: 40, borderRadius: '50%', border: '3px solid #E65C00', borderTopColor: 'transparent', animation: 'spin 1s linear infinite' },
 
   // Nav
-  nav: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', padding: '14px 32px', borderBottom: '1px solid #eee', position: 'sticky', top: 0, zIndex: 10 },
+  nav: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', padding: '14px 16px', borderBottom: '1px solid #eee', position: 'sticky', top: 0, zIndex: 10 },
   navLeft: { display: 'flex', alignItems: 'center', gap: 10 },
   logo: { width: 36, height: 36, borderRadius: 8, background: '#E65C00', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 16, fontFamily: 'Sora, sans-serif' },
   logoText: { fontFamily: 'Sora, sans-serif', fontWeight: 700, fontSize: 18, color: '#0a0a14' },
@@ -417,10 +417,10 @@ const s = {
 
   // Layout
   container: { maxWidth: 1000, margin: '0 auto', padding: '32px 24px' },
-  grid: { display: 'grid', gridTemplateColumns: '1fr 340px', gap: 24, marginTop: 24, alignItems: 'start' },
-
+  grid: { display: 'grid', gridTemplateColumns: window.innerWidth < 768 ? '1fr' : '1fr 340px', gap: 24, marginTop: 24, alignItems: 'start' },
+  
   // Header card
-  headerCard: { background: '#fff', borderRadius: 16, padding: '28px 32px', display: 'flex', alignItems: 'center', gap: 24, boxShadow: '0 2px 12px rgba(0,0,0,0.06)' },
+  headerCard: { background: '#fff', borderRadius: 16, padding: '20px', display: 'flex', alignItems: 'center', gap: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', flexWrap: 'wrap' },
   avatarWrap: { flexShrink: 0 },
   avatar: { width: 80, height: 80, borderRadius: '50%', background: '#E65C00', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, fontWeight: 800, fontFamily: 'Sora, sans-serif' },
   headerInfo: { flex: 1 },
