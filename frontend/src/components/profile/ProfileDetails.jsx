@@ -1,22 +1,19 @@
 // ─────────────────────────────────────────────────────
 // ProfileDetails.jsx
-// Purpose: Shows all profile fields in VIEW mode (read only)
-// Shows different fields based on role:
-//   Candidate → skills, education, experience
-//   Company   → companyName, companyWebsite, industry
-// Used in: ProfilePage.jsx
+// Purpose: Shows all profile fields in VIEW mode
+// NOW USING TAILWIND CSS — no inline styles!
 // ─────────────────────────────────────────────────────
 
-// profile     = user data from MongoDB
-// isCandidate = true if role is 'candidate'
-// isCompany   = true if role is 'company'
 export default function ProfileDetails({ profile, isCandidate, isCompany }) {
   return (
-    // White card with shadow
-    <div style={s.card}>
+    // White card with shadow and rounded corners
+    <div className="bg-white rounded-2xl p-7 shadow-md">
 
-      {/* Section title */}
-      <h2 style={s.title}>Profile Details</h2>
+      {/* Section title with bottom border */}
+      <h2 className="font-bold text-gray-900 text-lg mb-5 pb-3 border-b border-gray-100"
+        style={{ fontFamily: 'Sora, sans-serif' }}>
+        Profile Details
+      </h2>
 
       {/* Common fields — shown to ALL roles */}
       <Field label="Bio"      value={profile?.bio} />
@@ -24,10 +21,7 @@ export default function ProfileDetails({ profile, isCandidate, isCompany }) {
       <Field label="Phone"    value={profile?.phone} />
 
       {/* Candidate-only fields */}
-      {/* Only shown when role is 'candidate' */}
       {isCandidate && <>
-        {/* Skills array — joined with comma for display */}
-        {/* Example: ['React', 'Node.js'] → 'React, Node.js' */}
         <Field
           label="Skills"
           value={
@@ -41,7 +35,6 @@ export default function ProfileDetails({ profile, isCandidate, isCompany }) {
       </>}
 
       {/* Company-only fields */}
-      {/* Only shown when role is 'company' */}
       {isCompany && <>
         <Field label="Company Name"    value={profile?.companyName} />
         <Field label="Company Website" value={profile?.companyWebsite} />
@@ -53,71 +46,31 @@ export default function ProfileDetails({ profile, isCandidate, isCompany }) {
 }
 
 // ─────────────────────────────────────────────────────
-// Field — small helper component
-// Shows ONE row: label on left, value on right
-// If value is empty → shows "Not set" in gray italic
+// Field — shows ONE row: label on left, value on right
 // ─────────────────────────────────────────────────────
 function Field({ label, value }) {
   return (
-    <div style={s.row}>
-      {/* Label — gray, bold, left side */}
-      <span style={s.label}>{label}</span>
+    // flex = side by side layout
+    // py-3 = vertical padding
+    // border-b = bottom border line
+    // border-gray-50 = very light gray border
+    <div className="flex py-3 border-b border-gray-50">
 
-      {/* Value — dark, right side */}
-      {/* If no value → shows "Not set" in light gray */}
-      <span style={s.value}>
+      {/* Label — gray, bold, fixed width */}
+      {/* w-32 = fixed 128px width so all labels align */}
+      {/* shrink-0 = never shrinks */}
+      <span className="w-32 shrink-0 text-sm font-semibold text-gray-400">
+        {label}
+      </span>
+
+      {/* Value — dark text */}
+      {/* flex-1 = takes remaining space */}
+      <span className="flex-1 text-sm text-gray-800 leading-relaxed">
         {value && value.length > 0
           ? value
-          : <em style={{ color: '#bbb' }}>Not set</em>}
+          : <em className="text-gray-300">Not set</em>}
       </span>
+
     </div>
   );
 }
-
-// ─────────────────────────────────────────────────────
-// Styles for this component
-// ─────────────────────────────────────────────────────
-const s = {
-  // White card with rounded corners and shadow
-  card: {
-    background: '#fff',
-    borderRadius: 16,
-    padding: '28px',
-    boxShadow: '0 2px 12px rgba(0,0,0,0.06)'
-  },
-
-  // Section heading — "Profile Details"
-  title: {
-    fontFamily: 'Sora, sans-serif',
-    fontSize: 17,
-    fontWeight: 700,
-    color: '#0a0a14',
-    margin: '0 0 20px',
-    paddingBottom: 12,
-    borderBottom: '1px solid #f0f0f0' // thin line below title
-  },
-
-  // One field row — flex layout, label + value side by side
-  row: {
-    display: 'flex',
-    padding: '11px 0',
-    borderBottom: '1px solid #f7f7f7' // very light separator line
-  },
-
-  // Label text — "Bio", "Location" etc
-  label: {
-    width: 130,        // fixed width so all labels align
-    flexShrink: 0,     // label never shrinks
-    fontSize: 13,
-    fontWeight: 600,
-    color: '#888'      // gray color
-  },
-
-  // Value text — actual content
-  value: {
-    fontSize: 14,
-    color: '#222',
-    flex: 1,           // takes remaining space
-    lineHeight: 1.5
-  },
-};

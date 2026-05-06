@@ -1,50 +1,191 @@
 // ─────────────────────────────────────────────────────
 // ProfileHeader.jsx
-// Purpose: Shows the top section of profile page
-// Displays: Avatar circle, name, email, role badge, Edit button
-// Used in: ProfilePage.jsx
+// Purpose: Shows avatar/photo, name, email, role badge
+// NOW USING TAILWIND CSS — no more inline style objects!
 // ─────────────────────────────────────────────────────
 
-// Default export — this component receives data from ProfilePage
-// profile     = the user's data from MongoDB
-// isEditing   = true when user clicked Edit Profile button
-// onEdit      = function to call when Edit button is clicked
-// isCandidate = true if user role is 'candidate'
-export default function ProfileHeader({ profile, isEditing, onEdit, isCandidate }) {
+import { useRef } from 'react';
+
+export default function ProfileHeader({
+  profile,
+  isEditing,
+  onEdit,
+  isCandidate,
+  onPhotoUpload,
+  isUploadingPhoto,
+  onVisibilityChange
+}) {
+  const photoInputRef = useRef(null);
+
   return (
-    // Outer card — white box with rounded corners and shadow
-    <div style={s.headerCard}>
+    // Outer white card
+    // bg-white = white background
+    // rounded-2xl = rounded corners
+    // p-5 = padding 20px
+    // flex = flexbox layout
+    // items-center = vertically centered
+    // gap-4 = space between items
+    // shadow-md = drop shadow
+    // flex-wrap = wraps on mobile
+    <div className="bg-white rounded-2xl p-5 flex items-center gap-4 shadow-md flex-wrap">
 
-      {/* Avatar circle — shows first letter of name */}
-      {/* Example: "Mageswaran G" → shows "M" */}
-      <div style={s.avatar}>
-        {profile?.name?.charAt(0).toUpperCase()}
+      {/* ── AVATAR SECTION ── */}
+      {/* flex-col = stack items vertically */}
+      {/* items-center = center horizontally */}
+      {/* gap-1 = small gap between avatar and text */}
+      {/* shrink-0 = never shrink on mobile */}
+      <div className="flex flex-col items-center gap-1 shrink-0">
+
+        {/* Hidden file input — only accepts image files */}
+        <input
+          type="file"
+          ref={photoInputRef}
+          onChange={onPhotoUpload}
+          accept=".jpg,.jpeg,.png,.webp"
+          className="hidden"
+        />
+
+        {/* Clickable avatar — opens file picker on click */}
+        {/* relative = needed for camera overlay positioning */}
+        {/* w-24 h-24 = 96px width and height */}
+        {/* rounded-full = perfect circle */}
+        {/* overflow-hidden = keeps content inside circle */}
+        {/* cursor-pointer = shows hand cursor on hover */}
+        {/* border-4 border-orange-500 = orange border around circle */}
+        <div
+          className={`relative w-24 h-24 rounded-full overflow-hidden cursor-pointer border-4 ${
+            isCandidate ? 'border-orange-500' : 'border-blue-900'
+          }`}
+          onClick={() => photoInputRef.current?.click()}
+          title="Click to change profile photo">
+
+          {/* Show uploaded photo OR first letter of name */}
+          {profile?.profilePhoto ? (
+            // Profile photo — fills the circle
+            // object-cover = crops image to fill without stretching
+            <img
+              src={`${import.meta.env.VITE_API_URL}${profile.profilePhoto}`}
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            // Letter avatar — shown when no photo uploaded
+            // bg-orange-500 = orange background
+            // text-white = white text
+            // text-4xl = large font size
+            // font-extrabold = very bold
+            // flex items-center justify-center = center the letter
+            <div className={`w-full h-full text-white text-4xl font-extrabold flex items-center justify-center ${
+                isCandidate ? 'bg-orange-500' : 'bg-blue-900'
+              }`}
+              style={{ fontFamily: 'Sora, sans-serif' }}>
+              {profile?.name?.charAt(0).toUpperCase()}
+            </div>
+          )}
+
+          {/* Camera overlay — dark strip at bottom of avatar */}
+          {/* absolute = positioned relative to parent */}
+          {/* bottom-0 left-0 right-0 = sticks to bottom */}
+          {/* h-8 = height of overlay strip */}
+          {/* bg-black/50 = black with 50% transparency */}
+          {/* flex items-center justify-center = center the icon */}
+          {/* text-white text-sm = white small text */}
+          <div className="absolute bottom-0 left-0 right-0 h-8 bg-black/50 flex items-center justify-center text-white text-sm">
+            {isUploadingPhoto ? '...' : '📷'}
+          </div>
+
+        </div>
+
+        {/* Change photo text below avatar */}
+        {/* text-xs = very small text */}
+        {/* text-gray-400 = light gray color */}
+        {/* cursor-pointer = hand cursor */}
+        <p className="text-xs text-gray-400 cursor-pointer">
+          {isUploadingPhoto ? 'Uploading...' : 'Change photo'}
+        </p>
+
+        {/* Visibility toggle — only shown when photo exists */}
+        {profile?.profilePhoto && (
+          // flex gap-1 = row layout with small gap
+          <div className="flex gap-1 mt-1">
+
+            {/* Public button */}
+            {/* Filled orange if selected, gray if not */}
+            <button
+              onClick={() => onVisibilityChange('public')}
+              className={`text-xs px-2 py-1 rounded-full font-semibold border-none cursor-pointer
+                ${profile?.photoVisibility === 'public'
+                  ? 'bg-orange-500 text-white'      // selected = orange
+                  : 'bg-gray-100 text-gray-400'}`}  // not selected = gray
+            >
+              🌐 Public
+            </button>
+
+            {/* Private button */}
+            {/* Filled navy if selected, gray if not */}
+            <button
+              onClick={() => onVisibilityChange('private')}
+              className={`text-xs px-2 py-1 rounded-full font-semibold border-none cursor-pointer
+                ${profile?.photoVisibility === 'private'
+                  ? 'bg-blue-900 text-white'         // selected = dark navy
+                  : 'bg-gray-100 text-gray-400'}`}   // not selected = gray
+            >
+              🔒 Private
+            </button>
+
+          </div>
+        )}
+
       </div>
 
-      {/* Name, email and role badge section */}
-      <div style={s.info}>
+      {/* ── NAME, EMAIL, ROLE BADGE ── */}
+      {/* flex-1 = takes all remaining space */}
+      <div className="flex-1">
 
-        {/* Full name — from MongoDB */}
-        <h1 style={s.name}>{profile?.name}</h1>
+        {/* Full name — large bold text */}
+        <h1 className="text-2xl font-bold text-gray-900 mb-1"
+          style={{ fontFamily: 'Sora, sans-serif' }}>
+          {profile?.name}
+        </h1>
 
-        {/* Email address */}
-        <p style={s.email}>{profile?.email}</p>
+        {/* Email — small gray text */}
+        <p className="text-sm text-gray-400 mb-2">
+          {profile?.email}
+        </p>
 
-        {/* Role badge — orange for candidate, blue for company */}
-        <span style={{
-          ...s.badge,
-          background: isCandidate ? '#fff3e8' : '#e8f0ff', // light orange or light blue
-          color:      isCandidate ? '#E65C00' : '#1D3557'  // dark orange or dark navy
-        }}>
-          {/* Shows CANDIDATE or COMPANY in uppercase */}
-          {profile?.role?.toUpperCase()}
-        </span>
+        {/* Role badge — pill shape */}
+        {/* inline-block = fits content width */}
+        {/* px-3 py-0.5 = horizontal and vertical padding */}
+        {/* rounded-full = pill shape */}
+        {/* text-xs font-bold = small bold text */}
+        {/* Role text — CANDIDATE or COMPANY */}
+          <span className={`inline-block px-3 py-0.5 rounded-full text-xs font-bold tracking-wide ${
+            isCandidate
+              ? 'bg-orange-50 text-orange-500'
+              : 'bg-blue-50 text-blue-900'
+          }`}>
+            {profile?.role?.toUpperCase()}
+          </span>
 
       </div>
 
-      {/* Edit Profile button — only shown in view mode (not while editing) */}
+      {/* Edit Profile button — only shown in view mode */}
       {!isEditing && (
-        <button onClick={onEdit} style={s.editBtn}>
+        // px-5 py-2.5 = padding
+        // bg-orange-500 = orange background
+        // text-white = white text
+        // rounded-xl = rounded corners
+        // font-semibold = semi bold
+        // whitespace-nowrap = text never wraps
+        // hover:bg-orange-600 = darker on hover
+        // transition = smooth color change
+        <button
+          onClick={onEdit}
+          className={`px-5 py-2.5 text-white rounded-xl font-semibold text-sm whitespace-nowrap transition cursor-pointer border-none ${
+            isCandidate
+              ? 'bg-orange-500 hover:bg-orange-600'
+              : 'bg-blue-900 hover:bg-blue-800'
+          }`}>
           Edit Profile
         </button>
       )}
@@ -52,78 +193,5 @@ export default function ProfileHeader({ profile, isEditing, onEdit, isCandidate 
     </div>
   );
 }
-
-// ─────────────────────────────────────────────────────
-// All styles for this component
-// ─────────────────────────────────────────────────────
-const s = {
-  // Outer white card — flexbox layout, wraps on mobile
-  headerCard: {
-    background: '#fff',
-    borderRadius: 16,
-    padding: '20px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: 16,
-    boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-    flexWrap: 'wrap' // wraps to next line on small screens
-  },
-
-  // Orange circle with white letter
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: '50%',      // makes it a circle
-    background: '#E65C00',    // HirePortal orange
-    color: '#fff',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 32,
-    fontWeight: 800,
-    fontFamily: 'Sora, sans-serif',
-    flexShrink: 0             // prevents avatar from shrinking on mobile
-  },
-
-  // Info section — takes all remaining space
-  info: { flex: 1 },
-
-  // Name text — bold and large
-  name: {
-    fontFamily: 'Sora, sans-serif',
-    fontSize: 24,
-    fontWeight: 700,
-    color: '#0a0a14',
-    margin: '0 0 4px'
-  },
-
-  // Email text — small and gray
-  email: {
-    fontSize: 14,
-    color: '#888',
-    margin: '0 0 8px'
-  },
-
-  // Role badge — small pill shape
-  badge: {
-    display: 'inline-block',
-    padding: '3px 12px',
-    borderRadius: 20,
-    fontSize: 11,
-    fontWeight: 700,
-    letterSpacing: '0.5px'
-  },
-
-  // Edit Profile button — orange
-  editBtn: {
-    background: '#E65C00',
-    color: '#fff',
-    border: 'none',
-    borderRadius: 10,
-    padding: '10px 22px',
-    cursor: 'pointer',
-    fontSize: 14,
-    fontWeight: 600,
-    whiteSpace: 'nowrap' // prevents button text from wrapping
-  },
-};
+// Note: No more 'const s = {}' style object at the bottom!
+// All styles are now Tailwind classes directly on elements

@@ -29,9 +29,13 @@ app.use(cors({
 }));
 
 app.use(express.json());
-// Serve uploaded files as public URLs
-// Example: http://localhost:8000/uploads/resumes/filename.pdf
-app.use('/uploads', express.static('uploads'));
+
+// Serve uploaded files with CORS headers
+// This allows frontend (port 5173) to load images from backend (port 8000)
+app.use('/uploads', (req, res, next) => {
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  next();
+}, express.static('uploads'));
 app.use(cookieParser());
 
 

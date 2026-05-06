@@ -1,21 +1,10 @@
 // ─────────────────────────────────────────────────────
 // EditProfileForm.jsx
 // Purpose: Shows all profile fields in EDIT mode
-// User can type new values and save or cancel
-// Shows different fields based on role:
-//   Candidate → skills, education, experience
-//   Company   → companyName, companyWebsite, industry
-// Used in: ProfilePage.jsx
+// User types new values and saves or cancels
+// NOW USING TAILWIND CSS — no inline styles!
 // ─────────────────────────────────────────────────────
 
-// formData       = current form values (controlled inputs)
-// isCandidate    = true if role is 'candidate'
-// isCompany      = true if role is 'company'
-// isSaving       = true while API call is in progress
-// onChange       = handles text field changes
-// onSkillsChange = handles skills field (special — comma separated)
-// onSave         = called when Save button clicked
-// onCancel       = called when Cancel button clicked
 export default function EditProfileForm({
   formData,
   isCandidate,
@@ -28,13 +17,27 @@ export default function EditProfileForm({
 }) {
   return (
     // White card with shadow
-    <div style={s.card}>
+    <div className="bg-white rounded-2xl p-7 shadow-md">
 
       {/* Section title */}
-      <h2 style={s.title}>Edit Profile</h2>
+      <h2
+        className="font-bold text-gray-900 text-lg mb-5 pb-3 border-b border-gray-100"
+        style={{ fontFamily: 'Sora, sans-serif' }}>
+        Edit Profile
+      </h2>
 
-      {/* Common fields — shown to ALL roles */}
-      {/* multiline={true} makes textarea instead of input */}
+      {/* Full Name — shown to ALL roles */}
+      <Field
+        label="Full Name"
+        name="name"
+        value={formData.name || ''}
+        onChange={onChange}
+        placeholder="Enter your full name"
+        isCandidate={isCandidate}
+      />
+
+      {/* Bio — shown to ALL roles */}
+      {/* multiline = textarea instead of input */}
       <Field
         label="Bio"
         name="bio"
@@ -42,42 +45,50 @@ export default function EditProfileForm({
         onChange={onChange}
         placeholder="Tell us about yourself (max 500 chars)"
         multiline
+        isCandidate={isCandidate}
       />
 
+      {/* Location — shown to ALL roles */}
       <Field
         label="Location"
         name="location"
         value={formData.location || ''}
         onChange={onChange}
         placeholder="City, State"
+        isCandidate={isCandidate}
       />
 
+      {/* Phone — shown to ALL roles */}
       <Field
         label="Phone"
         name="phone"
         value={formData.phone || ''}
         onChange={onChange}
         placeholder="+91 9876543210"
+        isCandidate={isCandidate}
       />
 
-      {/* Candidate-only fields */}
+      {/* ── CANDIDATE ONLY FIELDS ── */}
       {isCandidate && <>
 
-        {/* Skills field — special handling */}
-        {/* Array stored in DB — shown as comma separated text in input */}
-        {/* Example: ['React','Node.js'] → 'React, Node.js' in input */}
-        <div style={s.group}>
-          <label style={s.label}>Skills</label>
+        {/* Skills — special handling */}
+        {/* Array in DB shown as comma text in input */}
+        <div className="mb-4">
+          <label className="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wide">
+            Skills
+          </label>
           <input
-            style={s.input}
+            className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-800 outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-100"
             value={Array.isArray(formData.skills)
-              ? formData.skills.join(', ')  // array → comma separated string
+              ? formData.skills.join(', ')
               : ''}
-            onChange={onSkillsChange}       // uses special handler (not onChange)
+            onChange={onSkillsChange}
             placeholder="React, Node.js, MongoDB (comma separated)"
           />
-          {/* Helper text below skills input */}
-          <p style={s.hint}>Separate each skill with a comma</p>
+          {/* Helper text below skills */}
+          <p className="text-xs text-gray-300 mt-1">
+            Separate each skill with a comma
+          </p>
         </div>
 
         <Field
@@ -86,6 +97,7 @@ export default function EditProfileForm({
           value={formData.education || ''}
           onChange={onChange}
           placeholder="B.E Computer Science, Anna University 2026"
+          isCandidate={isCandidate}
         />
 
         <Field
@@ -94,11 +106,12 @@ export default function EditProfileForm({
           value={formData.experience || ''}
           onChange={onChange}
           placeholder="6 months intern at XYZ Company"
+          isCandidate={isCandidate}
         />
 
       </>}
 
-      {/* Company-only fields */}
+      {/* ── COMPANY ONLY FIELDS ── */}
       {isCompany && <>
 
         <Field
@@ -107,6 +120,7 @@ export default function EditProfileForm({
           value={formData.companyName || ''}
           onChange={onChange}
           placeholder="Acme Technologies Pvt Ltd"
+          isCandidate={false}
         />
 
         <Field
@@ -115,6 +129,7 @@ export default function EditProfileForm({
           value={formData.companyWebsite || ''}
           onChange={onChange}
           placeholder="https://yourcompany.com"
+          isCandidate={false}
         />
 
         <Field
@@ -123,27 +138,32 @@ export default function EditProfileForm({
           value={formData.industry || ''}
           onChange={onChange}
           placeholder="Software, Finance, Healthcare"
+          isCandidate={false}
         />
 
       </>}
 
-      {/* Save and Cancel buttons row */}
-      <div style={s.btnRow}>
+      {/* ── SAVE AND CANCEL BUTTONS ── */}
+      {/* justify-end = buttons on right side */}
+      <div className="flex gap-3 justify-end mt-6">
 
-        {/* Cancel — goes back to view mode without saving */}
+        {/* Cancel button — white with border */}
         <button
           onClick={onCancel}
-          style={s.cancelBtn}
-          disabled={isSaving}>
+          disabled={isSaving}
+          className="px-6 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-500 cursor-pointer hover:bg-gray-50 transition">
           Cancel
         </button>
 
-        {/* Save — sends data to backend API */}
-        {/* Shows "Saving..." while API call is running */}
+        {/* Save button — color based on role */}
         <button
           onClick={onSave}
-          style={s.saveBtn}
-          disabled={isSaving}>
+          disabled={isSaving}
+          className={`px-6 py-2.5 text-white rounded-lg text-sm font-semibold border-none cursor-pointer transition ${
+            isCandidate
+              ? 'bg-orange-500 hover:bg-orange-600'
+              : 'bg-blue-900 hover:bg-blue-800'
+          }`}>
           {isSaving ? 'Saving...' : 'Save Profile'}
         </button>
 
@@ -154,22 +174,35 @@ export default function EditProfileForm({
 
 // ─────────────────────────────────────────────────────
 // Field — reusable input component
-// label    = field name shown above input
-// name     = HTML name attribute (used by onChange)
-// value    = current value (controlled input)
-// onChange = updates formData state on every keystroke
-// placeholder = gray hint text shown when empty
-// multiline = if true, renders textarea instead of input
+// label      = field name above input
+// name       = HTML name (used by onChange)
+// value      = current value
+// onChange   = updates state on keystroke
+// placeholder = hint text when empty
+// multiline  = textarea if true, input if false
+// isCandidate = changes focus color based on role
 // ─────────────────────────────────────────────────────
-function Field({ label, name, value, onChange, placeholder, multiline }) {
+function Field({ label, name, value, onChange, placeholder, multiline, isCandidate }) {
+
+  // Focus ring color — orange for candidate, navy for company
+  const focusClass = isCandidate
+    ? 'focus:border-orange-400 focus:ring-1 focus:ring-orange-100'
+    : 'focus:border-blue-800 focus:ring-1 focus:ring-blue-100';
+
+  // Base input classes — same for all fields
+  const inputClass = `w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-800 outline-none ${focusClass}`;
+
   return (
-    <div style={s.group}>
+    // Each field group — label + input
+    <div className="mb-4">
 
-      {/* Label above input */}
-      <label style={s.label}>{label}</label>
+      {/* Label above input — small uppercase gray */}
+      <label className="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wide">
+        {label}
+      </label>
 
-      {/* Textarea for multi-line fields (like Bio) */}
-      {/* Regular input for single-line fields */}
+      {/* Textarea for multiline fields like Bio */}
+      {/* Regular input for single line fields */}
       {multiline
         ? <textarea
             name={name}
@@ -177,102 +210,17 @@ function Field({ label, name, value, onChange, placeholder, multiline }) {
             onChange={onChange}
             placeholder={placeholder}
             rows={3}
-            style={{ ...s.input, resize: 'vertical' }} // user can resize vertically
+            className={`${inputClass} resize-y`}
           />
         : <input
             name={name}
             value={value}
             onChange={onChange}
             placeholder={placeholder}
-            style={s.input}
+            className={inputClass}
           />
       }
 
     </div>
   );
 }
-
-// ─────────────────────────────────────────────────────
-// Styles for this component
-// ─────────────────────────────────────────────────────
-const s = {
-  // White card with shadow
-  card: {
-    background: '#fff',
-    borderRadius: 16,
-    padding: '28px',
-    boxShadow: '0 2px 12px rgba(0,0,0,0.06)'
-  },
-
-  // Section heading — "Edit Profile"
-  title: {
-    fontFamily: 'Sora, sans-serif',
-    fontSize: 17,
-    fontWeight: 700,
-    color: '#0a0a14',
-    margin: '0 0 20px',
-    paddingBottom: 12,
-    borderBottom: '1px solid #f0f0f0'
-  },
-
-  // Each field group — label + input together
-  group: { marginBottom: 16 },
-
-  // Label above each input — small uppercase gray text
-  label: {
-    display: 'block',
-    fontSize: 11,
-    fontWeight: 600,
-    color: '#888',
-    marginBottom: 6,
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px'
-  },
-
-  // Input and textarea — same style
-  input: {
-    width: '100%',
-    padding: '10px 14px',
-    border: '1px solid #e5e5e5',
-    borderRadius: 8,
-    fontSize: 14,
-    color: '#222',
-    outline: 'none',
-    boxSizing: 'border-box',   // padding included in width calculation
-    fontFamily: 'Inter, sans-serif'
-  },
-
-  // Helper text below skills input
-  hint: { fontSize: 11, color: '#aaa', marginTop: 4 },
-
-  // Button row — right aligned
-  btnRow: {
-    display: 'flex',
-    gap: 12,
-    justifyContent: 'flex-end', // buttons on right side
-    marginTop: 24
-  },
-
-  // Cancel button — white with border
-  cancelBtn: {
-    background: '#fff',
-    border: '1px solid #ddd',
-    borderRadius: 8,
-    padding: '10px 24px',
-    cursor: 'pointer',
-    fontSize: 14,
-    color: '#555'
-  },
-
-  // Save button — orange
-  saveBtn: {
-    background: '#E65C00',
-    color: '#fff',
-    border: 'none',
-    borderRadius: 8,
-    padding: '10px 24px',
-    cursor: 'pointer',
-    fontSize: 14,
-    fontWeight: 600
-  },
-};

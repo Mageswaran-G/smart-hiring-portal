@@ -24,9 +24,11 @@ exports.updateProfile = async (userId, updateData) => {
 
   // Only these fields allowed to update
   const allowedFields = [
+    'name', 
     'bio', 'location', 'phone',
     'skills', 'education', 'experience',
-    'companyName', 'companyWebsite', 'industry'
+    'companyName', 'companyWebsite', 'industry',
+    'photoVisibility' 
   ];
 
   // Build safe object — only allowed fields
@@ -93,4 +95,41 @@ exports.uploadResume = async (userId, file) => {
   }
 
   return { user: updatedUser, fullUrl };
+};
+
+// ── UPLOAD PROFILE PHOTO ──────────────────────────────
+// Saves profile photo path to MongoDB
+// Deletes old photo from disk if exists
+exports.uploadProfilePhoto = async (userId, filePath) => {
+  const fs   = require('fs').promises;
+  const path = require('path');
+
+  // Find existing user
+  const existingUser = await User.findById(userId);
+  if (!existingUser) throw new AppError('User not found', 404);
+
+  // Build public URL for the new photo
+  const fileName  = path.basename(filePath);
+  const publicUrl = `/uploads/profiles/${fileName}`;
+
+  // Delete old profile photo if exists
+  if (existingUser.profilePhoto) {
+    const oldFileName  = path.basename(existingUser.profilePhoto);
+    const allowedDir   = path.resolve('uploads/profiles');
+    const resolvedPath = path.resolve(path.join('uploads', 'profiles', oldFileName));
+
+    // Path traversal protection
+    if (resolvedPath.startsWith(allowedDir)) {
+      await fs.unlink(resolvedPath).catch(() => {});
+    }
+  }
+
+  // Save new photo URL to MongoDB
+  const user = await User.findByIdAndUpdate(
+    userId,
+    { profilePhoto: publicUrl },
+    { new: true }
+  ).select('-password -refreshToken');
+
+  return { user, publicUrl };
 };

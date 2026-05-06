@@ -57,6 +57,8 @@ export default function ProfilePage() {
 
   // errorMsg   = red message shown when API call fails
   const [errorMsg,    setErrorMsg]    = useState('');
+  // isUploadingPhoto = true while profile photo is uploading
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
   // ── Load profile when page first opens ───────────────
   // Empty dependency array [] means runs ONCE on mount
@@ -116,6 +118,7 @@ export default function ProfilePage() {
       // Only send fields the backend allows
       // This prevents role/password injection from frontend
       const allowedFields = [
+        'name', 
         'bio', 'location', 'phone',
         'skills', 'education', 'experience',
         'companyName', 'companyWebsite', 'industry'
@@ -189,15 +192,63 @@ export default function ProfilePage() {
     }
   };
 
+  // ── Handle profile photo upload ───────────────────────
+    // Called when user selects a photo by clicking avatar
+    const handlePhotoUpload = async (e) => {
+      const file = e.target.files[0]; // get selected image file
+      if (!file) return;
+
+      try {
+        setIsUploadingPhoto(true);
+        setErrorMsg('');
+        setSuccessMsg('');
+
+        // FormData required for file upload
+        const formDataObj = new FormData();
+        formDataObj.append('photo', file); // 'photo' matches backend field name
+
+        // POST /api/v1/users/upload-photo
+        await API.post('/users/upload-photo', formDataObj, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+
+        // Refresh profile to show new photo
+        await fetchProfile();
+        setSuccessMsg('Profile photo updated!');
+        setTimeout(() => setSuccessMsg(''), 3000);
+
+      } catch (err) {
+        setErrorMsg(getErrorMessage(err));
+      } finally {
+        setIsUploadingPhoto(false);
+      }
+    };
+
+    // ── Handle photo visibility change ────────────────────
+    // Called when user clicks Public or Private button
+    // value = 'public' or 'private'
+    const handleVisibilityChange = async (value) => {
+      try {
+        await API.put('/users/profile', { photoVisibility: value });
+        // Refresh profile to show updated visibility
+        await fetchProfile();
+        setSuccessMsg(`Photo visibility set to ${value}`);
+        setTimeout(() => setSuccessMsg(''), 3000);
+      } catch (err) {
+        setErrorMsg(getErrorMessage(err));
+      }
+    };
+
   // ── Loading screen ────────────────────────────────────
   // Shown while first profile fetch is running
-  if (isLoading) {
+    if (isLoading) {
     return (
-      <div style={s.centered}>
-        <p style={{ color: '#888' }}>Loading profile...</p>
+      // Full screen centered loading
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-gray-400">Loading profile...</p>
       </div>
     );
-  }
+    }
 
   // ── Role checks ───────────────────────────────────────
   // Used to show/hide candidate or company specific sections
@@ -210,25 +261,72 @@ export default function ProfilePage() {
   const gridColumns = window.innerWidth < 768 ? '1fr' : '1fr 340px';
 
   return (
-    <div style={s.page}>
+    // Full page — light gray background
+    <div className="min-h-screen bg-gray-100 font-sans">
 
       {/* ── TOP NAVIGATION BAR ── */}
-      <nav style={s.nav}>
-        <div style={s.navLeft}>
-          {/* HirePortal logo */}
-          <span style={s.logo}>HP</span>
-          <span style={s.logoText}>HirePortal</span>
+      {/* Top navigation bar */}
+      {/* sticky top-0 = stays at top while scrolling */}
+      {/* z-10 = stays above all other content */}
+      <nav className="flex items-center justify-between bg-white px-4 py-3.5 border-b border-gray-100 sticky top-0 z-10">
+
+        {/* Left side — HP logo + HirePortal text */}
+        {/* Clicking goes to dashboard */}
+        <div
+          className="flex items-center gap-2 cursor-pointer"
+          onClick={() => {
+            if (user?.role === 'candidate') navigate('/candidate/dashboard');
+            else if (user?.role === 'company') navigate('/company/dashboard');
+            else navigate('/');
+          }}>
+
+          {/* HP box — color changes based on role */}
+          <span className={`w-9 h-9 rounded-lg flex items-center justify-center font-extrabold text-base text-white ${
+            isCandidate ? 'bg-orange-500' : 'bg-blue-900'
+          }`}
+            style={{ fontFamily: 'Sora, sans-serif' }}>
+            HP
+          </span>
+
+          {/* HirePortal text */}
+          <span className="font-bold text-lg text-gray-900"
+            style={{ fontFamily: 'Sora, sans-serif' }}>
+            HirePortal
+          </span>
+
         </div>
-        <div style={s.navRight}>
-          {/* Back button — goes to previous page */}
-          <button onClick={() => navigate(-1)} style={s.navBtn}>← Back</button>
-          {/* Logout button — clears token and redirects to login */}
-          <button onClick={logoutUser} style={s.logoutBtn}>Logout</button>
+
+        {/* Right side — Back and Logout buttons */}
+        <div className="flex gap-2">
+
+          {/* Back button — color changes based on role */}
+          <button
+            onClick={() => navigate(-1)}
+            className={`px-4 py-2 rounded-lg text-sm border bg-white cursor-pointer ${
+              isCandidate
+                ? 'border-orange-400 text-orange-500 hover:bg-orange-50'
+                : 'border-blue-900 text-blue-900 hover:bg-blue-50'
+            }`}>
+            ← Back
+          </button>
+
+          {/* Logout button — color changes based on role */}
+          <button
+            onClick={logoutUser}
+            className={`px-4 py-2 rounded-lg text-sm font-semibold text-white border-none cursor-pointer ${
+              isCandidate
+                ? 'bg-orange-500 hover:bg-orange-600'
+                : 'bg-blue-900 hover:bg-blue-800'
+            }`}>
+            Logout
+          </button>
+
         </div>
       </nav>
 
       {/* ── PAGE CONTENT ── */}
-      <div style={s.container}>
+      {/* Main content — centered with max width */}
+      <div className="max-w-5xl mx-auto px-6 py-8">
 
         {/* Profile header — avatar, name, email, role badge */}
         <ProfileHeader
@@ -236,16 +334,30 @@ export default function ProfilePage() {
           isEditing={isEditing}
           onEdit={() => setIsEditing(true)}
           isCandidate={isCandidate}
+          onPhotoUpload={handlePhotoUpload}
+          isUploadingPhoto={isUploadingPhoto}
+          onVisibilityChange={handleVisibilityChange} 
         />
 
-        {/* Success message — green box */}
-        {successMsg && <div style={s.successBox}>{successMsg}</div>}
+        {/* Green success message */}
+          {successMsg && (
+            <div className="bg-green-50 border border-green-200 text-green-700 rounded-xl px-4 py-3 mt-4 text-sm">
+              {successMsg}
+            </div>
+          )}
 
-        {/* Error message — red box */}
-        {errorMsg && <div style={s.errorBox}>{errorMsg}</div>}
+          {/* Red error message */}
+          {errorMsg && (
+            <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 mt-4 text-sm">
+              {errorMsg}
+            </div>
+          )}
 
-        {/* Two column grid — profile details + resume */}
-        <div style={{ ...s.grid, gridTemplateColumns: gridColumns }}>
+        
+        {/* Two column grid — stacks on mobile */}
+          <div className={`grid gap-6 mt-6 items-start ${
+            isCandidate ? 'lg:grid-cols-[1fr_340px]' : 'grid-cols-1'
+          }`}>
 
           {/* LEFT COLUMN */}
           {/* View mode — ProfileDetails */}
@@ -275,6 +387,7 @@ export default function ProfilePage() {
               profile={profile}
               isUploading={isUploading}
               onUpload={handleResumeUpload}
+              isCandidate={isCandidate}
             />
           )}
 
@@ -284,125 +397,3 @@ export default function ProfilePage() {
   );
 }
 
-// ─────────────────────────────────────────────────────
-// Styles for ProfilePage layout only
-// Component-specific styles are in each component file
-// ─────────────────────────────────────────────────────
-const s = {
-  // Full page background — light gray
-  page: {
-    minHeight: '100vh',
-    background: '#f0f0f0',
-    fontFamily: 'Inter, sans-serif'
-  },
-
-  // Centered loading screen
-  centered: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100vh'
-  },
-
-  // Sticky top navigation bar
-  nav: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    background: '#fff',
-    padding: '14px 16px',
-    borderBottom: '1px solid #eee',
-    position: 'sticky',
-    top: 0,
-    zIndex: 10  // stays above all other content
-  },
-
-  // Left side of nav — logo area
-  navLeft: { display: 'flex', alignItems: 'center', gap: 10 },
-
-  // HP logo square
-  logo: {
-    width: 36,
-    height: 36,
-    borderRadius: 8,
-    background: '#E65C00',
-    color: '#fff',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontWeight: 800,
-    fontSize: 16,
-    fontFamily: 'Sora, sans-serif'
-  },
-
-  // HirePortal text next to logo
-  logoText: {
-    fontFamily: 'Sora, sans-serif',
-    fontWeight: 700,
-    fontSize: 18,
-    color: '#0a0a14'
-  },
-
-  // Right side of nav — Back and Logout buttons
-  navRight: { display: 'flex', gap: 10 },
-
-  // Back button — transparent with border
-  navBtn: {
-    background: 'none',
-    border: '1px solid #ddd',
-    borderRadius: 8,
-    padding: '8px 16px',
-    cursor: 'pointer',
-    fontSize: 14,
-    color: '#555'
-  },
-
-  // Logout button — orange
-  logoutBtn: {
-    background: '#E65C00',
-    color: '#fff',
-    border: 'none',
-    borderRadius: 8,
-    padding: '8px 18px',
-    cursor: 'pointer',
-    fontSize: 14,
-    fontWeight: 600
-  },
-
-  // Main content area — centered with max width
-  container: {
-    maxWidth: 1000,
-    margin: '0 auto',
-    padding: '32px 24px'
-  },
-
-  // Two column grid layout
-  grid: {
-    display: 'grid',
-    gap: 24,
-    marginTop: 24,
-    alignItems: 'start'  // cards align to top, not stretched
-  },
-
-  // Green success message box
-  successBox: {
-    background: '#f0fdf4',
-    border: '1px solid #bbf7d0',
-    color: '#166534',
-    borderRadius: 10,
-    padding: '12px 16px',
-    marginTop: 16,
-    fontSize: 14
-  },
-
-  // Red error message box
-  errorBox: {
-    background: '#fff1f2',
-    border: '1px solid #fecdd3',
-    color: '#be123c',
-    borderRadius: 10,
-    padding: '12px 16px',
-    marginTop: 16,
-    fontSize: 14
-  },
-};

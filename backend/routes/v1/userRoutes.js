@@ -26,5 +26,14 @@ router.post('/upload-resume',
   upload.single('resume'),
   userController.uploadResume
 );
+// POST upload profile photo — all logged-in users can upload
+// Only image files allowed (JPG, PNG, WEBP)
+// Max size: 2MB
+router.post(
+  '/upload-photo',
+  verifyToken,                          // must be logged in
+  upload.single('photo'),               // 'photo' = field name
+  userController.uploadProfilePhoto     // controller function
+);
 
 module.exports = router;

@@ -7,6 +7,8 @@ const userService            = require('../../services/v1/userService');
 const ApiResponse            = require('../../utils/ApiResponse');
 const AppError               = require('../../utils/AppError');
 const { validateFileSignature } = require('../../middleware/uploadMiddleware');
+// asyncHandler — removes need for try/catch in every function
+const asyncHandler = require('../../utils/asyncHandler');
 
 
 // GET all users
@@ -22,18 +24,11 @@ exports.getUsers = async (req, res, next) => {
   }
 };
 
-// GET my profile
-// Route: GET /api/v1/users/profile
-exports.getMyProfile = async (req, res, next) => {
-  try {
-    const user = await userService.getProfile(req.user.id);
-    res.status(200).json(
-      new ApiResponse(true, 'Profile fetched successfully', user)
-    );
-  } catch (err) {
-    next(err);
-  }
-};
+// GET profile — no more try/catch needed!
+exports.getMyProfile = asyncHandler(async (req, res) => {
+  const user = await userService.getProfile(req.user.id);
+  res.status(200).json(new ApiResponse(true, 'Profile fetched', user));
+});
 
 // UPDATE my profile
 // Route: PUT /api/v1/users/profile
@@ -74,6 +69,42 @@ exports.uploadResume = async (req, res, next) => {
           mimeType:     req.file.mimetype,
           uploadedAt:   new Date()
         }
+      })
+    );
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ── UPLOAD PROFILE PHOTO ──────────────────────────────
+// Route: POST /api/v1/users/upload-photo
+exports.uploadProfilePhoto = async (req, res, next) => {
+  try {
+    // Check file was sent
+    if (!req.file) {
+      return next(new AppError('Please upload an image', 400));
+    }
+
+    // Verify file signature (anti-spoof check)
+    const isValid = validateFileSignature(req.file.path, req.file.mimetype);
+    if (!isValid) {
+      const fs = require('fs').promises;
+      await fs.unlink(req.file.path).catch(() => {});
+      return next(new AppError('Invalid image file', 400));
+    }
+
+    // Save to DB and get public URL
+    const { user, publicUrl } = await userService.uploadProfilePhoto(
+      req.user.id,
+      req.file.path
+    );
+
+    // Return full URL for frontend to display
+    const fullUrl = `${process.env.BASE_URL || 'http://localhost:8000'}${publicUrl}`;
+
+    res.status(200).json(
+      new ApiResponse(true, 'Profile photo updated successfully', {
+        photoUrl: fullUrl
       })
     );
   } catch (err) {

@@ -48,6 +48,7 @@ const CandidateDashboard = () => {
       <p style={{ color: '#888', marginTop: 16, fontSize: 14 }}>
         Browse jobs and manage your applications from here.
       </p>
+      
       <button
         onClick={() => navigate('/profile')}
         style={{ marginRight: 12, padding: '8px 18px', borderRadius: 8, border: '1px solid #E65C00', background: '#fff', color: '#E65C00', cursor: 'pointer', fontWeight: 600 }}>

@@ -16,6 +16,17 @@ exports.loginSchema = z.object({
 
 // Profile update validation
 exports.updateProfileSchema = z.object({
+  
+  // photoVisibility — who can see profile photo
+  // Must be either 'public' or 'private'
+  photoVisibility: z.enum(['public', 'private']).optional(),
+
+  // name — full name of user, minimum 3 characters
+  name: z.string()
+    .trim()
+    .min(3, 'Name must be at least 3 characters')
+    .max(100, 'Name too long')
+    .optional(),
 
   bio:      z.string().trim().max(500, 'Bio max 500 characters').optional(),
   location: z.string().trim().max(100, 'Location max 100 characters').optional(),

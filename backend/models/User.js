@@ -53,9 +53,15 @@ phone: {
   trim: true,
 },
 
-profilePhoto: {
-  type: String,
-  default: '',   // will store file path later
+profilePhoto: { type: String, default: '' },
+
+// photoVisibility — who can see the profile photo
+// 'public'  = everyone can see
+// 'private' = only logged-in users / HR can see
+photoVisibility: { 
+  type: String, 
+  enum: ['public', 'private'], 
+  default: 'public' 
 },
 
 // ── Candidate only fields ──
