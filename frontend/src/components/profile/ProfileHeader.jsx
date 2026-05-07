@@ -1,11 +1,4 @@
-// ─────────────────────────────────────────────────────
-// ProfileHeader.jsx
-// Purpose: Shows avatar/photo, name, email, role badge
-// NOW USING TAILWIND CSS — no more inline style objects!
-// ─────────────────────────────────────────────────────
-
 import { useRef } from 'react';
-// Import theme helper — returns correct colors based on role
 import { getTheme } from '../../utils/theme';
 
 export default function ProfileHeader({
@@ -18,30 +11,15 @@ export default function ProfileHeader({
   onVisibilityChange
 }) {
   const photoInputRef = useRef(null);
-  // Get theme based on role — all color classes come from here
-    // Instead of writing isCandidate ? orange : navy everywhere
-    const theme = getTheme(isCandidate);
+  const theme = getTheme(isCandidate);
 
   return (
-    // Outer white card
-    // bg-white = white background
-    // rounded-2xl = rounded corners
-    // p-5 = padding 20px
-    // flex = flexbox layout
-    // items-center = vertically centered
-    // gap-4 = space between items
-    // shadow-md = drop shadow
-    // flex-wrap = wraps on mobile
     <div className="bg-white rounded-2xl p-5 flex items-center gap-4 shadow-md flex-wrap">
 
-      {/* ── AVATAR SECTION ── */}
-      {/* flex-col = stack items vertically */}
-      {/* items-center = center horizontally */}
-      {/* gap-1 = small gap between avatar and text */}
-      {/* shrink-0 = never shrink on mobile */}
+      {/* Avatar section */}
       <div className="flex flex-col items-center gap-1 shrink-0">
 
-        {/* Hidden file input — only accepts image files */}
+        {/* Hidden file input — triggered by clicking avatar */}
         <input
           type="file"
           ref={photoInputRef}
@@ -50,13 +28,7 @@ export default function ProfileHeader({
           className="hidden"
         />
 
-        {/* Clickable avatar — opens file picker on click */}
-        {/* relative = needed for camera overlay positioning */}
-        {/* w-24 h-24 = 96px width and height */}
-        {/* rounded-full = perfect circle */}
-        {/* overflow-hidden = keeps content inside circle */}
-        {/* cursor-pointer = shows hand cursor on hover */}
-        {/* border-4 border-orange-500 = orange border around circle */}
+        {/* Clickable avatar circle */}
         <div
           className={`relative w-24 h-24 rounded-full overflow-hidden cursor-pointer border-4 ${theme.border}`}
           onClick={() => photoInputRef.current?.click()}
@@ -64,124 +36,70 @@ export default function ProfileHeader({
 
           {/* Show uploaded photo OR first letter of name */}
           {profile?.profilePhoto ? (
-            // Profile photo — fills the circle
-            // object-cover = crops image to fill without stretching
             <img
               src={`${import.meta.env.VITE_API_URL}${profile.profilePhoto}`}
               alt="Profile"
               className="w-full h-full object-cover"
             />
           ) : (
-            // Letter avatar — shown when no photo uploaded
-            // bg-orange-500 = orange background
-            // text-white = white text
-            // text-4xl = large font size
-            // font-extrabold = very bold
-            // flex items-center justify-center = center the letter
             <div className={`font-sora w-full h-full text-white text-4xl font-extrabold flex items-center justify-center ${theme.avatar}`}>
               {profile?.name?.charAt(0).toUpperCase()}
             </div>
           )}
 
-          {/* Camera overlay — dark strip at bottom of avatar */}
-          {/* absolute = positioned relative to parent */}
-          {/* bottom-0 left-0 right-0 = sticks to bottom */}
-          {/* h-8 = height of overlay strip */}
-          {/* bg-black/50 = black with 50% transparency */}
-          {/* flex items-center justify-center = center the icon */}
-          {/* text-white text-sm = white small text */}
+          {/* Camera icon overlay at bottom of avatar */}
           <div className="absolute bottom-0 left-0 right-0 h-8 bg-black/50 flex items-center justify-center text-white text-sm">
-            {isUploadingPhoto ? '...' : '📷'}
+            {isUploadingPhoto ? '...' : 'Change'}
           </div>
-
         </div>
 
-        {/* Change photo text below avatar */}
-        {/* text-xs = very small text */}
-        {/* text-gray-400 = light gray color */}
-        {/* cursor-pointer = hand cursor */}
         <p className="text-xs text-gray-400 cursor-pointer">
           {isUploadingPhoto ? 'Uploading...' : 'Change photo'}
         </p>
 
         {/* Visibility toggle — only shown when photo exists */}
         {profile?.profilePhoto && (
-          // flex gap-1 = row layout with small gap
           <div className="flex gap-1 mt-1">
-
-            {/* Public button */}
-            {/* Filled orange if selected, gray if not */}
             <button
               onClick={() => onVisibilityChange('public')}
               className={`text-xs px-2 py-1 rounded-full font-semibold border-none cursor-pointer ${
                 profile?.photoVisibility === 'public'
                   ? theme.button
                   : 'bg-gray-100 text-gray-400'
-              }`}
-            >
-              🌐 Public
+              }`}>
+              Public
             </button>
-
-            {/* Private button — color based on role */}
-              {/* Candidate selected = orange, Company selected = navy */}
-              <button
-                onClick={() => onVisibilityChange('private')}
-                className={`text-xs px-2 py-1 rounded-full font-semibold border-none cursor-pointer ${
-                  profile?.photoVisibility === 'private'
-                    ? theme.button
-                    : 'bg-gray-100 text-gray-400'
-                }`}
-                >
-                🔒 Private
-              </button>
-
+            <button
+              onClick={() => onVisibilityChange('private')}
+              className={`text-xs px-2 py-1 rounded-full font-semibold border-none cursor-pointer ${
+                profile?.photoVisibility === 'private'
+                  ? theme.button
+                  : 'bg-gray-100 text-gray-400'
+              }`}>
+              Private
+            </button>
           </div>
         )}
-
       </div>
 
-      {/* ── NAME, EMAIL, ROLE BADGE ── */}
-      {/* flex-1 = takes all remaining space */}
+      {/* Name, email, role badge */}
       <div className="flex-1">
-
-        {/* Full name — large bold text */}
         <h1 className="font-sora text-2xl font-bold text-gray-900 mb-1">
           {profile?.name}
         </h1>
-
-        {/* Email — small gray text */}
         <p className="text-sm text-gray-400 mb-2">
           {profile?.email}
         </p>
-
-        {/* Role badge — pill shape */}
-        {/* inline-block = fits content width */}
-        {/* px-3 py-0.5 = horizontal and vertical padding */}
-        {/* rounded-full = pill shape */}
-        {/* text-xs font-bold = small bold text */}
-        {/* Role text — CANDIDATE or COMPANY */}
-          <span 
-          className={`inline-block px-3 py-0.5 rounded-full text-xs font-bold tracking-wide ${theme.badge}`}
-          >
-            {profile?.role?.toUpperCase()}
-          </span>
-
+        <span className={`inline-block px-3 py-0.5 rounded-full text-xs font-bold tracking-wide ${theme.badge}`}>
+          {profile?.role?.toUpperCase()}
+        </span>
       </div>
 
-      {/* Edit Profile button — only shown in view mode */}
+      {/* Edit Profile button — hidden while editing */}
       {!isEditing && (
-        // px-5 py-2.5 = padding
-        // bg-orange-500 = orange background
-        // text-white = white text
-        // rounded-xl = rounded corners
-        // font-semibold = semi bold
-        // whitespace-nowrap = text never wraps
-        // hover:bg-orange-600 = darker on hover
-        // transition = smooth color change
         <button
           onClick={onEdit}
-          className={`px-5 py-2.5 text-white rounded-xl font-semibold text-sm whitespace-nowrap transition cursor-pointer border-none ${theme.button}`}
-          >
+          className={`px-5 py-2.5 text-white rounded-xl font-semibold text-sm whitespace-nowrap transition cursor-pointer border-none ${theme.button}`}>
           Edit Profile
         </button>
       )}
@@ -189,5 +107,3 @@ export default function ProfileHeader({
     </div>
   );
 }
-// Note: No more 'const s = {}' style object at the bottom!
-// All styles are now Tailwind classes directly on elements
