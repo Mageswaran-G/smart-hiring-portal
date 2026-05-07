@@ -1,20 +1,16 @@
-/* Google Fonts — must be first line */
+/* Google Fonts — must be FIRST */
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
 
-/* Tailwind v4 */
+/* Tailwind v4 — handles its own reset internally */
 @import 'tailwindcss';
 
-/* Custom font tokens */
+/* Custom font tokens for Tailwind */
 @theme {
   --font-sora: 'Sora', sans-serif;
   --font-inter: 'Inter', sans-serif;
 }
 
-/* ── Global reset ── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #f0f0f0; font-family: 'Inter', sans-serif; }
-
-/* ── Login page animations ── */
+/* Login page animations */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -32,7 +28,7 @@ body { background: #f0f0f0; font-family: 'Inter', sans-serif; }
   40%           { opacity: 1;   transform: scale(1.1); }
 }
 
-/* ── Login page layout classes ── */
+/* Login page layout — kept as CSS classes because of complex animations */
 .hp-page {
   min-height: 100vh;
   display: flex;
@@ -52,8 +48,6 @@ body { background: #f0f0f0; font-family: 'Inter', sans-serif; }
   min-height: 560px;
   animation: fadeUp 0.5s ease;
 }
-
-/* Left panel */
 .hp-left {
   width: 380px;
   flex-shrink: 0;
@@ -117,8 +111,6 @@ body { background: #f0f0f0; font-family: 'Inter', sans-serif; }
   color: #bbb;
   letter-spacing: 0.5px;
 }
-
-/* Right panel */
 .hp-right {
   flex: 1;
   background: #fafafa;
@@ -199,7 +191,7 @@ body { background: #f0f0f0; font-family: 'Inter', sans-serif; }
   margin-bottom: 16px;
 }
 
-/* Mobile — hide left panel */
+/* Mobile — hide left panel on small screens */
 @media (max-width: 700px) {
   .hp-left  { display: none; }
   .hp-right { padding: 32px 24px; }
