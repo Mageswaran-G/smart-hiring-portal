@@ -5,48 +5,72 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(null);
-  const [user, setUser]               = useState(null);
-  const [isLoading, setIsLoading]     = useState(true);
+  const [user,        setUser]        = useState(null);
+  const [profile,     setProfile]     = useState(null); // global profile — shared across all pages
+  const [isLoading,   setIsLoading]   = useState(true);
 
   const tokenRef = useRef(null);
 
-  // Fix 1 — setAuthToken updates BOTH ref and React state
+  // Updates both ref and React state
   // Interceptor uses this to keep UI in sync after auto-refresh
   const setAuthToken = (token) => {
     tokenRef.current = token;
     setAccessToken(token);
-    if (!token) setUser(null);
+    if (!token) {
+      setUser(null);
+      setProfile(null); // clear profile on logout
+    }
   };
 
-  // Fix 2 — clearAuth = silent cleanup, NO backend call
-  // Used when session expires naturally
+  // Silent cleanup — no backend call
   const clearAuth = () => {
     tokenRef.current = null;
     setAccessToken(null);
     setUser(null);
+    setProfile(null); // clear profile on session expiry
   };
 
-  // Register getter + inject setAuthToken into API object
-  // Interceptor can now call API.setAuthToken(newToken)
+  // Register token getter and inject setAuthToken into API
   useEffect(() => {
     setTokenGetter(() => tokenRef.current);
     API.setAuthToken = setAuthToken;
   }, []);
 
-  // Login — user clicked login button
-  const loginUser = (token, userData) => {
+  // Fetch profile from backend and store globally
+  // Called after login and after refresh
+  const fetchProfile = async () => {
+    try {
+      const res = await API.get('/users/profile');
+      setProfile(res.data.data);
+    } catch (err) {
+      // Profile fetch failed — not critical, page still works
+      console.error('Profile fetch failed:', err.message);
+    }
+  };
+
+  // Login — called when user submits login form
+  const loginUser = async (token, userData) => {
     tokenRef.current = token;
     setAccessToken(token);
     setUser(userData);
+    // Fetch profile immediately after login
+    // So dashboard shows photo and data right away
+    try {
+      const res = await API.get('/users/profile');
+      setProfile(res.data.data);
+    } catch (err) {
+      console.error('Profile fetch after login failed:', err.message);
+    }
   };
 
-  // Logout — user clicked logout button → call backend
+  // Logout — called when user clicks logout
   const logoutUser = async () => {
     await logoutAPI();
     clearAuth();
   };
 
   // Auto-refresh on app startup
+  // Restores session if user refreshes the browser
   useEffect(() => {
     const refreshUser = async () => {
       try {
@@ -57,9 +81,17 @@ export const AuthProvider = ({ children }) => {
         setAccessToken(accessToken);
         setUser(user);
 
+        // Fetch profile after successful refresh
+        // So profile photo shows in dashboard on page reload
+        try {
+          const profileRes = await API.get('/users/profile');
+          setProfile(profileRes.data.data);
+        } catch (err) {
+          console.error('Profile fetch after refresh failed:', err.message);
+        }
+
       } catch (err) {
-        // Fix 2 — use clearAuth here, NOT logoutUser
-        // Refresh failed = no valid session, no need to call backend
+        // Refresh failed — clear everything silently
         clearAuth();
       } finally {
         setIsLoading(false);
@@ -70,8 +102,15 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
+    // profile and fetchProfile now available to ALL pages
     <AuthContext.Provider value={{
-      accessToken, user, loginUser, logoutUser, isLoading
+      accessToken,
+      user,
+      profile,      // global profile data
+      fetchProfile, // call this after updating profile
+      loginUser,
+      logoutUser,
+      isLoading,
     }}>
       {children}
     </AuthContext.Provider>

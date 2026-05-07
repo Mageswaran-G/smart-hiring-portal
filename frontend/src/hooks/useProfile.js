@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { API, getErrorMessage } from '../services/authService';
 import { API_ENDPOINTS } from '../constants/api';
+import { useAuth } from '../context/AuthContext';
 
 // useProfile — custom hook that handles all profile logic
 // ProfilePage.jsx uses this hook instead of managing everything itself
 export default function useProfile() {
-
+  const { fetchProfile: refreshGlobalProfile } = useAuth();
   const [profile,          setProfile]          = useState(null);
   const [formData,         setFormData]         = useState({});
   const [isEditing,        setIsEditing]        = useState(false);
@@ -15,7 +16,7 @@ export default function useProfile() {
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [successMsg,       setSuccessMsg]       = useState('');
   const [errorMsg,         setErrorMsg]         = useState('');
-
+  
   // Auto-clear messages after 3 seconds
   const showSuccess = (msg) => {
     setSuccessMsg(msg);
@@ -28,16 +29,19 @@ export default function useProfile() {
 
   // Fetch profile from backend
   const fetchProfile = async () => {
-    try {
-      setIsLoading(true);
-      const res = await API.get(API_ENDPOINTS.PROFILE);
-      setProfile(res.data.data);
-      setFormData(res.data.data);
-    } catch (err) {
-      showError(err);
-    } finally {
-      setIsLoading(false);
-    }
+  try {
+    setIsLoading(true);
+    const res = await API.get(API_ENDPOINTS.PROFILE);
+    setProfile(res.data.data);
+    setFormData(res.data.data);
+    // Also update global profile in AuthContext
+    // So dashboard shows updated photo/name immediately
+    refreshGlobalProfile();
+  } catch (err) {
+    showError(err);
+  } finally {
+    setIsLoading(false);
+  }
   };
 
   // Load profile on first render

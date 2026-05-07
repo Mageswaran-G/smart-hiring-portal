@@ -1,40 +1,22 @@
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { API } from '../../services/authService';
 import { ROUTES } from '../../constants/routes';
-import { API_ENDPOINTS } from '../../constants/api';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 
 export default function CompanyDashboard() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth(); // profile from global context
   const navigate = useNavigate();
-  const [profilePhoto, setProfilePhoto] = useState(null);
-
-  useEffect(() => {
-    const fetchPhoto = async () => {
-      try {
-        const res = await API.get(API_ENDPOINTS.PROFILE);
-        setProfilePhoto(res.data.data?.profilePhoto || null);
-      } catch (err) {
-        console.error('Could not fetch photo:', err.message);
-      }
-    };
-    fetchPhoto();
-  }, []);
 
   return (
     <DashboardLayout>
 
-      {/* Welcome card */}
       <div className="bg-white rounded-2xl p-8 shadow-md mb-6">
         <div className="flex items-center gap-4 mb-4">
 
-          {/* Avatar — photo or first letter */}
           <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-blue-900 shrink-0">
-            {profilePhoto ? (
+            {profile?.profilePhoto ? (
               <img
-                src={`${import.meta.env.VITE_API_URL}${profilePhoto}`}
+                src={`${import.meta.env.VITE_API_URL}${profile.profilePhoto}`}
                 alt="Profile"
                 className="w-full h-full object-cover"
               />
@@ -60,7 +42,6 @@ export default function CompanyDashboard() {
         </p>
       </div>
 
-      {/* Quick action cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div
           onClick={() => navigate(ROUTES.PROFILE)}
