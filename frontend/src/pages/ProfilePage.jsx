@@ -7,6 +7,7 @@ import ProfileHeader   from '../components/profile/ProfileHeader';
 import ProfileDetails  from '../components/profile/ProfileDetails';
 import ResumeSection   from '../components/profile/ResumeSection';
 import EditProfileForm from '../components/profile/EditProfileForm';
+import ProfileSkeleton from '../components/ui/ProfileSkeleton';
 
 export default function ProfilePage() {
   const { user, logoutUser } = useAuth();
@@ -32,13 +33,10 @@ export default function ProfilePage() {
     handleVisibilityChange,
   } = useProfile();
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <p className="text-gray-400">Loading profile...</p>
-      </div>
-    );
-  }
+  // Show skeleton while profile data is loading
+    if (isLoading) {
+      return <ProfileSkeleton />;
+    }
 
   const isCandidate = user?.role === 'candidate';
   const isCompany   = user?.role === 'company';

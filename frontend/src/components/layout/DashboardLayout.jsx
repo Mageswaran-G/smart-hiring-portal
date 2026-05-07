@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { ROUTES } from '../../constants/routes';
+import DashboardSkeleton from '../ui/DashboardSkeleton';
 
 // Role-based nav config — one place to control all nav colors and links
 const NAV_CONFIG = {
@@ -24,15 +25,17 @@ const NAV_CONFIG = {
   },
 };
 
-// DashboardLayout wraps all dashboard pages
-// children = the page content below the nav
-export default function DashboardLayout({ children }) {
-  const { user, logoutUser } = useAuth();
-  const navigate = useNavigate();
+    export default function DashboardLayout({ children }) {
+    const { user, logoutUser, isLoading } = useAuth();
+    const navigate = useNavigate();
 
-  // Get nav colors based on current user role
+    // Show skeleton while auth is loading
+    if (isLoading) {
+        return <DashboardSkeleton />;
+    }
+
   const config = NAV_CONFIG[user?.role] || NAV_CONFIG.candidate;
-
+  // ... rest stays same
   return (
     <div className="min-h-screen bg-gray-50">
 
