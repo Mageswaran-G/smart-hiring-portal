@@ -6,12 +6,15 @@
 // ─────────────────────────────────────────────────────
 
 import { useRef } from 'react';
+import { getTheme } from '../../utils/theme';
+
+
 
 export default function ResumeSection({ profile, isUploading, onUpload, isCandidate }) {
 
   // fileInputRef — points to hidden file input element
   const fileInputRef = useRef(null);
-
+  const theme = getTheme(isCandidate);
   return (
     // White card with shadow
     <div className="bg-white rounded-2xl p-7 shadow-md">
@@ -60,9 +63,8 @@ export default function ResumeSection({ profile, isUploading, onUpload, isCandid
             href={`${import.meta.env.VITE_API_URL}${profile.resume.url}`}
             target="_blank"
             rel="noreferrer"
-            className={`shrink-0 px-4 py-1.5 text-white text-sm font-semibold rounded-lg no-underline ${
-              isCandidate ? 'bg-orange-500' : 'bg-blue-900'
-            }`}>
+            className={`shrink-0 px-4 py-1.5 text-white text-sm font-semibold rounded-lg no-underline ${theme.avatar}`}
+            >
             View
           </a>
 
@@ -97,11 +99,8 @@ export default function ResumeSection({ profile, isUploading, onUpload, isCandid
         <button
           onClick={() => fileInputRef.current?.click()}
           disabled={isUploading}
-          className={`w-full py-3 text-white font-semibold rounded-xl cursor-pointer border-none transition text-sm ${
-            isCandidate
-              ? 'bg-orange-500 hover:bg-orange-600'
-              : 'bg-blue-900 hover:bg-blue-800'
-          }`}>
+          className={`w-full py-3 text-white font-semibold rounded-xl cursor-pointer border-none transition text-sm ${theme.button}`}
+          >
           {isUploading
             ? 'Uploading...'
             : profile?.resume?.url

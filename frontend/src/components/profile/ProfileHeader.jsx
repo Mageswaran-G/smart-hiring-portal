@@ -5,6 +5,8 @@
 // ─────────────────────────────────────────────────────
 
 import { useRef } from 'react';
+// Import theme helper — returns correct colors based on role
+import { getTheme } from '../../utils/theme';
 
 export default function ProfileHeader({
   profile,
@@ -16,6 +18,9 @@ export default function ProfileHeader({
   onVisibilityChange
 }) {
   const photoInputRef = useRef(null);
+  // Get theme based on role — all color classes come from here
+    // Instead of writing isCandidate ? orange : navy everywhere
+    const theme = getTheme(isCandidate);
 
   return (
     // Outer white card
@@ -53,9 +58,7 @@ export default function ProfileHeader({
         {/* cursor-pointer = shows hand cursor on hover */}
         {/* border-4 border-orange-500 = orange border around circle */}
         <div
-          className={`relative w-24 h-24 rounded-full overflow-hidden cursor-pointer border-4 ${
-            isCandidate ? 'border-orange-500' : 'border-blue-900'
-          }`}
+          className={`relative w-24 h-24 rounded-full overflow-hidden cursor-pointer border-4 ${theme.border}`}
           onClick={() => photoInputRef.current?.click()}
           title="Click to change profile photo">
 
@@ -75,9 +78,7 @@ export default function ProfileHeader({
             // text-4xl = large font size
             // font-extrabold = very bold
             // flex items-center justify-center = center the letter
-            <div className={`font-sora w-full h-full text-white text-4xl font-extrabold flex items-center justify-center ${
-                isCandidate ? 'bg-orange-500' : 'bg-blue-900'
-              }`}>
+            <div className={`font-sora w-full h-full text-white text-4xl font-extrabold flex items-center justify-center ${theme.avatar}`}>
               {profile?.name?.charAt(0).toUpperCase()}
             </div>
           )}
@@ -112,10 +113,11 @@ export default function ProfileHeader({
             {/* Filled orange if selected, gray if not */}
             <button
               onClick={() => onVisibilityChange('public')}
-              className={`text-xs px-2 py-1 rounded-full font-semibold border-none cursor-pointer
-                ${profile?.photoVisibility === 'public'
-                  ? 'bg-orange-500 text-white'      // selected = orange
-                  : 'bg-gray-100 text-gray-400'}`}  // not selected = gray
+              className={`text-xs px-2 py-1 rounded-full font-semibold border-none cursor-pointer ${
+                profile?.photoVisibility === 'public'
+                  ? theme.button
+                  : 'bg-gray-100 text-gray-400'
+              }`}
             >
               🌐 Public
             </button>
@@ -124,13 +126,11 @@ export default function ProfileHeader({
               {/* Candidate selected = orange, Company selected = navy */}
               <button
                 onClick={() => onVisibilityChange('private')}
-                className={`text-xs px-2 py-1 rounded-full font-semibold border-none cursor-pointer
-                  ${profile?.photoVisibility === 'private'
-                    ? isCandidate
-                      ? 'bg-orange-500 text-white'
-                      : 'bg-blue-900 text-white'
+                className={`text-xs px-2 py-1 rounded-full font-semibold border-none cursor-pointer ${
+                  profile?.photoVisibility === 'private'
+                    ? theme.button
                     : 'bg-gray-100 text-gray-400'
-                  }`}
+                }`}
                 >
                 🔒 Private
               </button>
@@ -160,11 +160,9 @@ export default function ProfileHeader({
         {/* rounded-full = pill shape */}
         {/* text-xs font-bold = small bold text */}
         {/* Role text — CANDIDATE or COMPANY */}
-          <span className={`inline-block px-3 py-0.5 rounded-full text-xs font-bold tracking-wide ${
-            isCandidate
-              ? 'bg-orange-50 text-orange-500'
-              : 'bg-blue-50 text-blue-900'
-          }`}>
+          <span 
+          className={`inline-block px-3 py-0.5 rounded-full text-xs font-bold tracking-wide ${theme.badge}`}
+          >
             {profile?.role?.toUpperCase()}
           </span>
 
@@ -182,11 +180,8 @@ export default function ProfileHeader({
         // transition = smooth color change
         <button
           onClick={onEdit}
-          className={`px-5 py-2.5 text-white rounded-xl font-semibold text-sm whitespace-nowrap transition cursor-pointer border-none ${
-            isCandidate
-              ? 'bg-orange-500 hover:bg-orange-600'
-              : 'bg-blue-900 hover:bg-blue-800'
-          }`}>
+          className={`px-5 py-2.5 text-white rounded-xl font-semibold text-sm whitespace-nowrap transition cursor-pointer border-none ${theme.button}`}
+          >
           Edit Profile
         </button>
       )}
