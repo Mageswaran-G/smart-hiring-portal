@@ -1,10 +1,8 @@
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { API, getErrorMessage } from '../services/authService';
 import { getTheme } from '../utils/theme';
-import { API_ENDPOINTS } from '../constants/api';
 import { ROUTES } from '../constants/routes';
+import useProfile from '../hooks/useProfile';
 import ProfileHeader   from '../components/profile/ProfileHeader';
 import ProfileDetails  from '../components/profile/ProfileDetails';
 import ResumeSection   from '../components/profile/ResumeSection';
@@ -14,138 +12,25 @@ export default function ProfilePage() {
   const { user, logoutUser } = useAuth();
   const navigate = useNavigate();
 
-  const [profile,          setProfile]          = useState(null);
-  const [formData,         setFormData]         = useState({});
-  const [isEditing,        setIsEditing]        = useState(false);
-  const [isLoading,        setIsLoading]        = useState(true);
-  const [isSaving,         setIsSaving]         = useState(false);
-  const [isUploading,      setIsUploading]      = useState(false);
-  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
-  const [successMsg,       setSuccessMsg]       = useState('');
-  const [errorMsg,         setErrorMsg]         = useState('');
-
-  useEffect(() => { fetchProfile(); }, []);
-
-  const fetchProfile = async () => {
-    try {
-      setIsLoading(true);
-      // API_ENDPOINTS.PROFILE = '/users/profile'
-      const res = await API.get(API_ENDPOINTS.PROFILE);
-      setProfile(res.data.data);
-      setFormData(res.data.data);
-    } catch (err) {
-      setErrorMsg(getErrorMessage(err));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSkillsChange = (e) => {
-    const skillsArray = e.target.value
-      .split(',')
-      .map(s => s.trim())
-      .filter(s => s);
-    setFormData(prev => ({ ...prev, skills: skillsArray }));
-  };
-
-  const handleSave = async () => {
-    try {
-      setIsSaving(true);
-      setErrorMsg('');
-      setSuccessMsg('');
-
-      const allowedFields = [
-        'name', 'bio', 'location', 'phone',
-        'skills', 'education', 'experience',
-        'companyName', 'companyWebsite', 'industry'
-      ];
-
-      const payload = {};
-      allowedFields.forEach(field => {
-        if (formData[field] !== undefined) payload[field] = formData[field];
-      });
-
-      // API_ENDPOINTS.PROFILE = '/users/profile'
-      const res = await API.put(API_ENDPOINTS.PROFILE, payload);
-      setProfile(res.data.data);
-      setSuccessMsg('Profile updated successfully!');
-      setIsEditing(false);
-      setTimeout(() => setSuccessMsg(''), 3000);
-    } catch (err) {
-      setErrorMsg(getErrorMessage(err));
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleCancel = () => {
-    setFormData(profile);
-    setErrorMsg('');
-    setIsEditing(false);
-  };
-
-  const handleResumeUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    try {
-      setIsUploading(true);
-      setErrorMsg('');
-      setSuccessMsg('');
-      const formDataObj = new FormData();
-      formDataObj.append('resume', file);
-      // API_ENDPOINTS.UPLOAD_RESUME = '/users/upload-resume'
-      await API.post(API_ENDPOINTS.UPLOAD_RESUME, formDataObj, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      await fetchProfile();
-      setSuccessMsg('Resume uploaded successfully!');
-      setTimeout(() => setSuccessMsg(''), 3000);
-    } catch (err) {
-      setErrorMsg(getErrorMessage(err));
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const handlePhotoUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    try {
-      setIsUploadingPhoto(true);
-      setErrorMsg('');
-      setSuccessMsg('');
-      const formDataObj = new FormData();
-      formDataObj.append('photo', file);
-      // API_ENDPOINTS.UPLOAD_PHOTO = '/users/upload-photo'
-      await API.post(API_ENDPOINTS.UPLOAD_PHOTO, formDataObj, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      await fetchProfile();
-      setSuccessMsg('Profile photo updated!');
-      setTimeout(() => setSuccessMsg(''), 3000);
-    } catch (err) {
-      setErrorMsg(getErrorMessage(err));
-    } finally {
-      setIsUploadingPhoto(false);
-    }
-  };
-
-  const handleVisibilityChange = async (value) => {
-    try {
-      // API_ENDPOINTS.PROFILE = '/users/profile'
-      await API.put(API_ENDPOINTS.PROFILE, { photoVisibility: value });
-      await fetchProfile();
-      setSuccessMsg(`Photo visibility set to ${value}`);
-      setTimeout(() => setSuccessMsg(''), 3000);
-    } catch (err) {
-      setErrorMsg(getErrorMessage(err));
-    }
-  };
+  // All profile logic comes from the custom hook
+  const {
+    profile,
+    formData,
+    isEditing,    setIsEditing,
+    isLoading,
+    isSaving,
+    isUploading,
+    isUploadingPhoto,
+    successMsg,
+    errorMsg,
+    handleChange,
+    handleSkillsChange,
+    handleSave,
+    handleCancel,
+    handleResumeUpload,
+    handlePhotoUpload,
+    handleVisibilityChange,
+  } = useProfile();
 
   if (isLoading) {
     return (
@@ -155,7 +40,6 @@ export default function ProfilePage() {
     );
   }
 
-  // isCandidate and theme must be defined AFTER the loading check
   const isCandidate = user?.role === 'candidate';
   const isCompany   = user?.role === 'company';
   const theme       = getTheme(isCandidate);
@@ -167,8 +51,6 @@ export default function ProfilePage() {
         <div
           className="flex items-center gap-2 cursor-pointer"
           onClick={() => {
-            // ROUTES.CANDIDATE_DASHBOARD = '/candidate/dashboard'
-            // ROUTES.COMPANY_DASHBOARD   = '/company/dashboard'
             if (user?.role === 'candidate') navigate(ROUTES.CANDIDATE_DASHBOARD);
             else if (user?.role === 'company') navigate(ROUTES.COMPANY_DASHBOARD);
             else navigate(ROUTES.HOME);
