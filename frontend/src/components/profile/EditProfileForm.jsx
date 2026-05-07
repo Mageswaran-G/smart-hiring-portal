@@ -5,6 +5,9 @@
 // NOW USING TAILWIND CSS — no inline styles!
 // ─────────────────────────────────────────────────────
 
+// getTheme — returns orange or navy colors based on role
+import { getTheme } from '../../utils/theme';
+
 export default function EditProfileForm({
   formData,
   isCandidate,
@@ -15,6 +18,10 @@ export default function EditProfileForm({
   onSave,
   onCancel
 }) {
+  // ── Theme — MUST be defined inside component, AFTER props ──
+  // isCandidate comes from props — available here
+  const theme = getTheme(isCandidate);
+
   return (
     // White card with shadow
     <div className="bg-white rounded-2xl p-7 shadow-md">
@@ -34,8 +41,7 @@ export default function EditProfileForm({
         isCandidate={isCandidate}
       />
 
-      {/* Bio — shown to ALL roles */}
-      {/* multiline = textarea instead of input */}
+      {/* Bio — multiline textarea */}
       <Field
         label="Bio"
         name="bio"
@@ -46,7 +52,7 @@ export default function EditProfileForm({
         isCandidate={isCandidate}
       />
 
-      {/* Location — shown to ALL roles */}
+      {/* Location */}
       <Field
         label="Location"
         name="location"
@@ -56,7 +62,7 @@ export default function EditProfileForm({
         isCandidate={isCandidate}
       />
 
-      {/* Phone — shown to ALL roles */}
+      {/* Phone */}
       <Field
         label="Phone"
         name="phone"
@@ -69,21 +75,19 @@ export default function EditProfileForm({
       {/* ── CANDIDATE ONLY FIELDS ── */}
       {isCandidate && <>
 
-        {/* Skills — special handling */}
-        {/* Array in DB shown as comma text in input */}
+        {/* Skills — comma separated, stored as array in DB */}
         <div className="mb-4">
           <label className="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wide">
             Skills
           </label>
           <input
-            className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-800 outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-100"
+            className={`w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-800 outline-none ${theme.focus}`}
             value={Array.isArray(formData.skills)
               ? formData.skills.join(', ')
               : ''}
             onChange={onSkillsChange}
             placeholder="React, Node.js, MongoDB (comma separated)"
           />
-          {/* Helper text below skills */}
           <p className="text-xs text-gray-300 mt-1">
             Separate each skill with a comma
           </p>
@@ -106,7 +110,6 @@ export default function EditProfileForm({
           placeholder="6 months intern at XYZ Company"
           isCandidate={isCandidate}
         />
-
       </>}
 
       {/* ── COMPANY ONLY FIELDS ── */}
@@ -117,7 +120,7 @@ export default function EditProfileForm({
           name="companyName"
           value={formData.companyName || ''}
           onChange={onChange}
-          placeholder="Acme Technologies Pvt Ltd"
+          placeholder="Technologies Pvt Ltd"
           isCandidate={false}
         />
 
@@ -138,14 +141,12 @@ export default function EditProfileForm({
           placeholder="Software, Finance, Healthcare"
           isCandidate={false}
         />
-
       </>}
 
       {/* ── SAVE AND CANCEL BUTTONS ── */}
-      {/* justify-end = buttons on right side */}
       <div className="flex gap-3 justify-end mt-6">
 
-        {/* Cancel button — white with border */}
+        {/* Cancel — goes back to view mode */}
         <button
           onClick={onCancel}
           disabled={isSaving}
@@ -153,54 +154,45 @@ export default function EditProfileForm({
           Cancel
         </button>
 
-        {/* Save button — color based on role */}
+        {/* Save — sends data to backend */}
         <button
           onClick={onSave}
           disabled={isSaving}
-          className={`px-6 py-2.5 text-white rounded-lg text-sm font-semibold border-none cursor-pointer transition ${
-            isCandidate
-              ? 'bg-orange-500 hover:bg-orange-600'
-              : 'bg-blue-900 hover:bg-blue-800'
-          }`}>
+          className={`px-6 py-2.5 text-white rounded-lg text-sm font-semibold border-none cursor-pointer transition ${theme.button}`}>
           {isSaving ? 'Saving...' : 'Save Profile'}
         </button>
-
       </div>
     </div>
   );
 }
 
 // ─────────────────────────────────────────────────────
-// Field — reusable input component
-// label      = field name above input
-// name       = HTML name (used by onChange)
-// value      = current value
-// onChange   = updates state on keystroke
-// placeholder = hint text when empty
-// multiline  = textarea if true, input if false
-// isCandidate = changes focus color based on role
+// Field — reusable input component inside this file
+// label       = text shown above input
+// name        = HTML name attribute
+// value       = current value (controlled input)
+// onChange    = updates formData on every keystroke
+// placeholder = gray hint text when field is empty
+// multiline   = if true, renders textarea instead of input
+// isCandidate = changes focus ring color based on role
 // ─────────────────────────────────────────────────────
 function Field({ label, name, value, onChange, placeholder, multiline, isCandidate }) {
 
-  // Focus ring color — orange for candidate, navy for company
-  const focusClass = isCandidate
-    ? 'focus:border-orange-400 focus:ring-1 focus:ring-orange-100'
-    : 'focus:border-blue-800 focus:ring-1 focus:ring-blue-100';
+  // Get theme for this field's focus color
+  const theme = getTheme(isCandidate);
 
-  // Base input classes — same for all fields
-  const inputClass = `w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-800 outline-none ${focusClass}`;
+  // Input classes — base styles + focus ring from theme
+  const inputClass = `w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-800 outline-none ${theme.focus}`;
 
   return (
-    // Each field group — label + input
     <div className="mb-4">
 
-      {/* Label above input — small uppercase gray */}
+      {/* Label — small uppercase gray text above input */}
       <label className="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wide">
         {label}
       </label>
 
-      {/* Textarea for multiline fields like Bio */}
-      {/* Regular input for single line fields */}
+      {/* Textarea for Bio, regular input for everything else */}
       {multiline
         ? <textarea
             name={name}
@@ -218,7 +210,6 @@ function Field({ label, name, value, onChange, placeholder, multiline, isCandida
             className={inputClass}
           />
       }
-
     </div>
   );
 }
