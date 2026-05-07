@@ -24,11 +24,18 @@ exports.updateProfile = async (userId, updateData) => {
 
   // Only these fields allowed to update
   const allowedFields = [
-    'name', 
-    'bio', 'location', 'phone',
-    'skills', 'education', 'experience',
-    'companyName', 'companyWebsite', 'industry',
-    'photoVisibility' 
+  // Common
+  'name', 'bio', 'phone', 'city', 'state', 'country', 'gender', 'dateOfBirth',
+  // Social
+  'linkedIn', 'github', 'portfolio',
+  // Candidate
+  'skills', 'educationList', 'workHistory',
+  'jobType', 'locationType', 'expectedSalary', 'noticePeriod', 'preferredLocations',
+  // Company
+  'companyName', 'companyWebsite', 'industry', 'companySize',
+  'companyDescription', 'foundedYear', 'companyCity', 'companyState', 'companyCountry',
+  // Photo
+  'photoVisibility',
   ];
 
   // Build safe object — only allowed fields

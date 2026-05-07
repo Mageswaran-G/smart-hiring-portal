@@ -97,6 +97,20 @@ export default function useProfile() {
     setIsEditing(false);
   };
 
+  // Save a specific section — used by individual section components
+  // payload = only the fields that section cares about
+  const handleSectionSave = async (payload) => {
+    try {
+      const res = await API.put(API_ENDPOINTS.PROFILE, payload);
+      setProfile(res.data.data);
+      setFormData(res.data.data);
+      refreshGlobalProfile();
+      showSuccess('Saved successfully!');
+    } catch (err) {
+      showError(err);
+    }
+  };
+
   // Upload resume
   const handleResumeUpload = async (e) => {
     const file = e.target.files[0];
@@ -168,5 +182,6 @@ export default function useProfile() {
     handleResumeUpload,
     handlePhotoUpload,
     handleVisibilityChange,
+    handleSectionSave
   };
 }
