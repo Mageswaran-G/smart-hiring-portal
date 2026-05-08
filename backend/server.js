@@ -12,6 +12,7 @@ const userRoutes = require('./routes/v1/userRoutes');
 const { errorHandler } = require('./middleware/errorMiddleware');
 const xssMiddleware = require('./middleware/xssMiddleware');
 const logger = require('./utils/logger');
+const publicRoutes = require('./routes/v1/publicRoutes');
 
 
 
@@ -78,6 +79,7 @@ app.use('/api/v1/auth/login', authLimiter);
 app.use('/api/v1/auth/refresh', refreshLimiter);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/public', publicRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

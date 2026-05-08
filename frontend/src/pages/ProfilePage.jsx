@@ -22,6 +22,7 @@ import SkillsSection from '../components/profile/sections/SkillsSection';
 import CertificationsSection from '../components/profile/sections/CertificationsSection';
 import LanguagesSection from '../components/profile/sections/LanguagesSection';
 import PortfolioSection from '../components/profile/sections/PortfolioSection';
+import ProfileSlugSection from '../components/profile/sections/ProfileSlugSection';
 
 export default function ProfilePage() {
   const { user, logoutUser } = useAuth();
@@ -197,6 +198,11 @@ export default function ProfilePage() {
               onSave={handleSectionSave}
             />
             <SocialLinksSection
+              profile={profile}
+              isCandidate={isCandidate}
+              onSave={handleSectionSave}
+            />
+            <ProfileSlugSection
               profile={profile}
               isCandidate={isCandidate}
               onSave={handleSectionSave}

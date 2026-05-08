@@ -10,6 +10,7 @@ import CandidateDashboard from './pages/candidate/CandidateDashboard';
 import CompanyDashboard   from './pages/company/CompanyDashboard';
 import AdminDashboard     from './pages/admin/AdminDashboard';
 import ErrorBoundary from './components/layout/ErrorBoundary';
+import PublicProfilePage from './pages/PublicProfilePage';
 
 // Sends user to correct dashboard after login based on role
 const RoleRedirect = () => {
@@ -30,7 +31,7 @@ export default function App() {
           <Route path={ROUTES.HOME}      element={<Navigate to={ROUTES.LOGIN} />} />
           <Route path={ROUTES.LOGIN}     element={<LoginPage />} />
           <Route path={ROUTES.SIGNUP}    element={<SignupPage />} />
-
+          <Route path="/p/:slug" element={<PublicProfilePage />} />
           <Route path={ROUTES.DASHBOARD} element={
             <ProtectedRoute><RoleRedirect /></ProtectedRoute>
           } />
