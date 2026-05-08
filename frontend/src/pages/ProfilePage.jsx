@@ -8,7 +8,7 @@ import ProfileHeader        from '../components/profile/ProfileHeader';
 import ProfileDetails       from '../components/profile/ProfileDetails';
 import ResumeSection        from '../components/profile/ResumeSection';
 import EditProfileForm      from '../components/profile/EditProfileForm';
-import RichTextAboutSection from '../components/profile/sections/RichTextAboutSection';
+import RichTextRichTextAboutSection from '../components/profile/sections/RichTextRichTextAboutSection';
 import PersonalDetailsSection  from '../components/profile/sections/PersonalDetailsSection';
 import EducationSection        from '../components/profile/sections/EducationSection';
 import WorkHistorySection      from '../components/profile/sections/WorkHistorySection';
@@ -132,7 +132,7 @@ export default function ProfilePage() {
               isCandidate={isCandidate}
               onSave={handleSectionSave}
             />
-            <AboutSection
+            <RichTextAboutSection
               profile={profile}
               isCandidate={isCandidate}
               onSave={handleSectionSave}
@@ -230,7 +230,7 @@ export default function ProfilePage() {
               isCandidate={false}
               onSave={handleSectionSave}
             />
-            <AboutSection
+            <RichTextAboutSection
               profile={profile}
               isCandidate={false}
               onSave={handleSectionSave}
