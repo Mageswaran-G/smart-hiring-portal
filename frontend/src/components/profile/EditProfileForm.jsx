@@ -10,7 +10,7 @@ export default function EditProfileForm({
   onSave,
   onCancel
 }) {
-  const theme = getTheme(isCandidate);
+  const theme = getTheme(isCandidate ? 'candidate' : 'company');
 
   return (
     <div className="bg-white rounded-2xl p-7 shadow-md">
@@ -71,7 +71,7 @@ export default function EditProfileForm({
 
 // Reusable field — handles both input and textarea
 function Field({ label, name, value, onChange, placeholder, multiline, isCandidate }) {
-  const theme = getTheme(isCandidate);
+  const theme = getTheme(isCandidate ? 'candidate' : 'company');
   const inputClass = `w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-800 outline-none ${theme.focus}`;
 
   return (

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { getTheme } from '../../../utils/theme';
 
 export default function CompanyDetailsSection({ profile, onSave }) {
-  const theme = getTheme(false); // always navy for company
+  const theme = getTheme('company'); // always navy for company
   const [editing, setEditing] = useState(false);
   const [saving,  setSaving]  = useState(false);
   const [form, setForm] = useState({

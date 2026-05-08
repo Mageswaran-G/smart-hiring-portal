@@ -4,7 +4,7 @@ import { getTheme } from '../../../utils/theme';
 const EMPTY_EDU = { degree: '', field: '', institution: '', startYear: '', endYear: '', grade: '', current: false };
 
 export default function EducationSection({ profile, isCandidate, onSave }) {
-  const theme = getTheme(isCandidate);
+  const theme = getTheme(isCandidate ? 'candidate' : 'company');
   const [showForm, setShowForm]   = useState(false);
   const [editIndex, setEditIndex] = useState(null);
   const [saving, setSaving]       = useState(false);

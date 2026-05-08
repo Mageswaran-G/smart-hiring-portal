@@ -3,7 +3,7 @@ import { getTheme } from '../../utils/theme';
 
 export default function ResumeSection({ profile, isUploading, onUpload, isCandidate }) {
   const fileInputRef = useRef(null);
-  const theme = getTheme(isCandidate);
+  const theme = getTheme(isCandidate ? 'candidate' : 'company');
 
   return (
     <div className="bg-white rounded-2xl p-7 shadow-md">

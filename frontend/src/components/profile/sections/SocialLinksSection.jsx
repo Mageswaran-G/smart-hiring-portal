@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { getTheme } from '../../../utils/theme';
 
 export default function SocialLinksSection({ profile, isCandidate, onSave }) {
-  const theme = getTheme(isCandidate);
+  const theme = getTheme(isCandidate ? 'candidate' : 'company');
   const [editing, setEditing] = useState(false);
   const [saving,  setSaving]  = useState(false);
   const [form, setForm] = useState({
