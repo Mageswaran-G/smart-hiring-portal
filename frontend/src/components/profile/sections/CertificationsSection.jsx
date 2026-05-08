@@ -17,7 +17,7 @@ function CertCard({ cert, theme, onEdit, onRemove }) {
             {cert.issuer}{cert.year ? ` · ${cert.year}` : ''}
           </p>
           {cert.url && (
-            
+            <a
               href={cert.url}
               target="_blank"
               rel="noreferrer"
