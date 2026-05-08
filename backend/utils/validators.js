@@ -17,6 +17,31 @@ exports.loginSchema = z.object({
 // Profile update validation
 exports.updateProfileSchema = z.object({
 
+  // New fields to add inside updateProfileSchema
+  headline:         z.string().trim().max(120).optional(),
+  openToWork:       z.boolean().optional(),
+  resumeVisibility: z.enum(['public', 'private']).optional(),
+  profileSlug:      z.string().trim().max(50).optional(),
+
+  certifications: z.array(z.object({
+    name:   z.string().trim().max(100).optional(),
+    issuer: z.string().trim().max(100).optional(),
+    year:   z.string().trim().max(10).optional(),
+    url:    z.string().trim().max(200).optional(),
+  })).optional(),
+
+  languages: z.array(z.object({
+    language:    z.string().trim().max(50).optional(),
+    proficiency: z.enum(['beginner', 'intermediate', 'advanced', 'native', '']).optional(),
+  })).optional(),
+
+  portfolioProjects: z.array(z.object({
+    title:       z.string().trim().max(100).optional(),
+    description: z.string().trim().max(500).optional(),
+    url:         z.string().trim().max(200).optional(),
+    tech:        z.string().trim().max(200).optional(),
+  })).optional(),
+
   // Common fields
   name:        z.string().trim().min(3).max(100).optional(),
   bio:         z.string().trim().max(1000).optional(),

@@ -72,6 +72,51 @@ const userSchema = new mongoose.Schema({
   noticePeriod:       { type: String, default: '' },
   preferredLocations: { type: [String], default: [] },
 
+  // Custom headline — shown below name in profile
+  headline: { type: String, default: '', trim: true, maxlength: 120 },
+
+  // Open to Work — candidate toggle
+  openToWork: { type: Boolean, default: false },
+
+  // Resume visibility — who can see the resume
+  resumeVisibility: { type: String, enum: ['public', 'private'], default: 'public' },
+
+  // Multiple resumes
+  resumes: [{
+    url:          { type: String, default: '' },
+    originalName: { type: String, default: '' },
+    size:         { type: Number, default: 0  },
+    mimeType:     { type: String, default: '' },
+    label:        { type: String, default: '' },
+    isDefault:    { type: Boolean, default: false },
+    uploadedAt:   { type: Date }
+  }],
+
+  // Certifications
+  certifications: [{
+    name:       { type: String, default: '' },
+    issuer:     { type: String, default: '' },
+    year:       { type: String, default: '' },
+    url:        { type: String, default: '' },
+  }],
+
+  // Languages
+  languages: [{
+    language:    { type: String, default: '' },
+    proficiency: { type: String, enum: ['beginner', 'intermediate', 'advanced', 'native', ''], default: '' },
+  }],
+
+  // Portfolio projects
+  portfolioProjects: [{
+    title:       { type: String, default: '' },
+    description: { type: String, default: '' },
+    url:         { type: String, default: '' },
+    tech:        { type: String, default: '' },
+  }],
+
+  // Public profile slug — used in public URL
+  profileSlug: { type: String, default: '', lowercase: true, trim: true },
+
   // Resume
   resume: {
     url:          { type: String, default: '' },
