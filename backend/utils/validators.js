@@ -22,6 +22,7 @@ exports.updateProfileSchema = z.object({
   openToWork:       z.boolean().optional(),
   resumeVisibility: z.enum(['public', 'private']).optional(),
   profileSlug:      z.string().trim().max(50).optional(),
+  profileVisibility: z.enum(['public', 'private']).optional(),
 
   certifications: z.array(z.object({
     name:   z.string().trim().max(100).optional(),

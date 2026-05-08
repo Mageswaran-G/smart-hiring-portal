@@ -117,7 +117,13 @@ const userSchema = new mongoose.Schema({
   // Public profile slug — used in public URL
   profileSlug: { type: String, default: '', lowercase: true, trim: true },
 
-  // Resume
+  profileVisibility: {
+    type:    String,
+    enum:    ['public', 'private'],
+    default: 'public'
+   },
+
+    // Resume
   resume: {
     url:          { type: String, default: '' },
     originalName: { type: String, default: '' },

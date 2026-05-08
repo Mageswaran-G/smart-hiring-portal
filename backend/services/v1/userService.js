@@ -38,7 +38,7 @@ exports.updateProfile = async (userId, updateData) => {
   'photoVisibility',
 
   'headline', 'openToWork', 'resumeVisibility', 'profileSlug', 'resumes',
-  'certifications', 'languages', 'portfolioProjects',
+  'certifications', 'languages', 'portfolioProjects', 'profileVisibility',
   ];
 
   // Build safe object — only allowed fields

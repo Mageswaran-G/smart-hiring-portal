@@ -24,6 +24,7 @@ import LanguagesSection from '../components/profile/sections/LanguagesSection';
 import PortfolioSection from '../components/profile/sections/PortfolioSection';
 import ProfileSlugSection from '../components/profile/sections/ProfileSlugSection';
 import MultipleResumesSection from '../components/profile/sections/MultipleResumesSection';
+import PrivacyControlsSection from '../components/profile/sections/PrivacyControlsSection';
 
 export default function ProfilePage() {
   const { user, logoutUser } = useAuth();
@@ -209,6 +210,11 @@ export default function ProfilePage() {
               onSave={handleSectionSave}
             />
             <ProfileSlugSection
+              profile={profile}
+              isCandidate={isCandidate}
+              onSave={handleSectionSave}
+            />
+            <PrivacyControlsSection
               profile={profile}
               isCandidate={isCandidate}
               onSave={handleSectionSave}

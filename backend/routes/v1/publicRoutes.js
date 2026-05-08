@@ -4,20 +4,21 @@ const asyncHandler = require('../../utils/asyncHandler');
 const User         = require('../../models/User');
 const AppError     = require('../../utils/AppError');
 
-// GET /api/v1/public/profile/:slug
-// Public route — no auth required
-// Returns only safe public fields
 router.get('/profile/:slug', asyncHandler(async (req, res) => {
   const { slug } = req.params;
 
   const user = await User.findOne({ profileSlug: slug.toLowerCase() })
-    .select('-password -refreshToken -resumeVisibility -photoVisibility -openToWork');
+    .select('-password -refreshToken');
 
   if (!user) {
     throw new AppError('Profile not found.', 404);
   }
 
-  // Only return public fields — never return sensitive data
+  // If user has made profile private — do not show it publicly
+  if (user.profileVisibility === 'private') {
+    throw new AppError('This profile is not available.', 403);
+  }
+
   const publicProfile = {
     name:              user.name,
     headline:          user.headline,
