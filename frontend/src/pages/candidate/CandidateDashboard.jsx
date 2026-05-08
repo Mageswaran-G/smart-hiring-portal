@@ -1,19 +1,19 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { ROUTES } from '../../constants/routes';
+import { User, Briefcase, FileText } from 'lucide-react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 
 export default function CandidateDashboard() {
-  const { user, profile } = useAuth(); // profile comes from global context now
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
 
   return (
     <DashboardLayout>
 
+      {/* Welcome card */}
       <div className="bg-white rounded-2xl p-8 shadow-md mb-6">
-        <div className="flex items-center gap-4 mb-4">
-
-          {/* Avatar — uses global profile photo */}
+        <div className="flex items-center gap-4 mb-3">
           <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-orange-500 shrink-0">
             {profile?.profilePhoto ? (
               <img
@@ -27,10 +27,9 @@ export default function CandidateDashboard() {
               </div>
             )}
           </div>
-
           <div>
             <h1 className="font-sora text-2xl font-bold text-gray-900">
-              Welcome back, {user?.name}!
+              Candidate Dashboard
             </h1>
             <p className="text-sm text-gray-400 mt-1">{user?.email}</p>
             <span className="inline-block mt-1 px-3 py-0.5 rounded-full text-xs font-bold bg-orange-50 text-orange-500">
@@ -39,24 +38,28 @@ export default function CandidateDashboard() {
           </div>
         </div>
         <p className="text-gray-500 text-sm">
-          Browse jobs and manage your applications from here.
+          Manage your profile, browse jobs and track applications.
         </p>
       </div>
 
+      {/* Action cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div
           onClick={() => navigate(ROUTES.PROFILE)}
           className="bg-white rounded-2xl p-6 shadow-sm cursor-pointer hover:shadow-md transition border-l-4 border-orange-500">
+          <User size={24} className="text-orange-500 mb-3" />
           <h3 className="font-sora font-bold text-gray-800 mb-1">My Profile</h3>
           <p className="text-sm text-gray-400">Update your skills, bio and resume</p>
         </div>
         <div className="bg-white rounded-2xl p-6 shadow-sm border-l-4 border-gray-200 opacity-60">
-          <h3 className="font-sora font-bold text-gray-800 mb-1">Browse Jobs</h3>
-          <p className="text-sm text-gray-400">Coming in Module 3</p>
+          <Briefcase size={24} className="text-gray-400 mb-3" />
+          <h3 className="font-sora font-bold text-gray-800 mb-1">Job Listings</h3>
+          <p className="text-sm text-gray-400">Feature under development</p>
         </div>
         <div className="bg-white rounded-2xl p-6 shadow-sm border-l-4 border-gray-200 opacity-60">
-          <h3 className="font-sora font-bold text-gray-800 mb-1">My Applications</h3>
-          <p className="text-sm text-gray-400">Coming in Module 4</p>
+          <FileText size={24} className="text-gray-400 mb-3" />
+          <h3 className="font-sora font-bold text-gray-800 mb-1">Applications</h3>
+          <p className="text-sm text-gray-400">Feature under development</p>
         </div>
       </div>
 
