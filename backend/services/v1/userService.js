@@ -37,7 +37,7 @@ exports.updateProfile = async (userId, updateData) => {
   // Photo
   'photoVisibility',
 
-  'headline', 'openToWork', 'resumeVisibility', 'profileSlug',
+  'headline', 'openToWork', 'resumeVisibility', 'profileSlug', 'resumes',
   'certifications', 'languages', 'portfolioProjects',
   ];
 

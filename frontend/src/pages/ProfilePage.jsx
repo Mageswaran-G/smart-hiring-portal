@@ -23,6 +23,7 @@ import CertificationsSection from '../components/profile/sections/Certifications
 import LanguagesSection from '../components/profile/sections/LanguagesSection';
 import PortfolioSection from '../components/profile/sections/PortfolioSection';
 import ProfileSlugSection from '../components/profile/sections/ProfileSlugSection';
+import MultipleResumesSection from '../components/profile/sections/MultipleResumesSection';
 
 export default function ProfilePage() {
   const { user, logoutUser } = useAuth();
@@ -164,6 +165,11 @@ export default function ProfilePage() {
                   profile={profile}
                   isCandidate={isCandidate}
                   onSave={handleSectionSave}
+                />
+                <MultipleResumesSection
+                  profile={profile}
+                  isCandidate={isCandidate}
+                  onProfileRefresh={fetchProfile}
                 />
               </div>
             </div>

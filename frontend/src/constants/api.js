@@ -13,4 +13,6 @@ export const API_ENDPOINTS = {
   PROFILE:       '/users/profile',
   UPLOAD_RESUME: '/users/upload-resume',
   UPLOAD_PHOTO:  '/users/upload-photo',
+  UPLOAD_RESUME_ADD: '/users/upload-resume',
+  RESUMES_UPDATE:    '/users/profile',
 };
