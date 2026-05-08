@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MapPin, Briefcase, Globe, Github, Linkedin, Award, Languages, FolderGit2 } from 'lucide-react';
+import { MapPin, Briefcase, Globe, Link2, Award, Languages, FolderGit2, ExternalLink } from 'lucide-react';
 
 // Public profile page — no login required
 // Accessible at /p/:slug
@@ -133,13 +133,13 @@ export default function PublicProfilePage() {
                 {profile?.linkedIn && (
                   <a href={profile.linkedIn} target="_blank" rel="noreferrer"
                     className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition no-underline">
-                    <Linkedin size={15} className="text-gray-500" />
+                    <Link2 size={15} className="text-gray-500" />
                   </a>
                 )}
                 {profile?.github && (
                   <a href={profile.github} target="_blank" rel="noreferrer"
                     className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition no-underline">
-                    <Github size={15} className="text-gray-500" />
+                    <ExternalLink size={15} className="text-gray-500" />
                   </a>
                 )}
                 {profile?.portfolio && (
