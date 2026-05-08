@@ -9,32 +9,36 @@
 // 'file'  = nested object field — complete if url exists inside
 
 const CANDIDATE_FIELDS = [
-  { key: 'name',           weight: 10, type: 'text'  },
-  { key: 'bio',            weight: 10, type: 'text'  },
-  { key: 'phone',          weight: 5,  type: 'text'  },
-  { key: 'city',           weight: 5,  type: 'text'  },
-  { key: 'profilePhoto',   weight: 10, type: 'text'  },
-  { key: 'skills',         weight: 10, type: 'array' },
-  { key: 'educationList',  weight: 10, type: 'array' },
-  { key: 'workHistory',    weight: 10, type: 'array' },
-  { key: 'jobType',        weight: 5,  type: 'text'  },
-  { key: 'expectedSalary', weight: 5,  type: 'text'  },
-  { key: 'linkedIn',       weight: 5,  type: 'text'  },
-  { key: 'resume',         weight: 15, type: 'file'  },
+  { key: 'name',              weight: 8,  type: 'text'  },
+  { key: 'headline',          weight: 7,  type: 'text'  },
+  { key: 'bio',               weight: 8,  type: 'text'  },
+  { key: 'phone',             weight: 5,  type: 'text'  },
+  { key: 'city',              weight: 5,  type: 'text'  },
+  { key: 'profilePhoto',      weight: 8,  type: 'text'  },
+  { key: 'skills',            weight: 8,  type: 'array' },
+  { key: 'educationList',     weight: 10, type: 'array' },
+  { key: 'workHistory',       weight: 10, type: 'array' },
+  { key: 'certifications',    weight: 7,  type: 'array' },
+  { key: 'languages',         weight: 5,  type: 'array' },
+  { key: 'portfolioProjects', weight: 7,  type: 'array' },
+  { key: 'jobType',           weight: 5,  type: 'text'  },
+  { key: 'expectedSalary',    weight: 5,  type: 'text'  },
+  { key: 'linkedIn',          weight: 4,  type: 'text'  },
+  { key: 'resume',            weight: 8,  type: 'file'  },
 ];
 
 const COMPANY_FIELDS = [
   { key: 'name',               weight: 10, type: 'text'  },
+  { key: 'headline',           weight: 8,  type: 'text'  },
   { key: 'bio',                weight: 10, type: 'text'  },
   { key: 'phone',              weight: 5,  type: 'text'  },
   { key: 'profilePhoto',       weight: 10, type: 'text'  },
   { key: 'companyName',        weight: 15, type: 'text'  },
   { key: 'companyWebsite',     weight: 10, type: 'text'  },
   { key: 'industry',           weight: 10, type: 'text'  },
-  { key: 'companySize',        weight: 10, type: 'text'  },
-  { key: 'companyDescription', weight: 10, type: 'text'  },
+  { key: 'companySize',        weight: 8,  type: 'text'  },
+  { key: 'companyDescription', weight: 9,  type: 'text'  },
   { key: 'linkedIn',           weight: 5,  type: 'text'  },
-  { key: 'companyCity',        weight: 5,  type: 'text'  },
 ];
 
 // Checks if a single field is complete based on its type

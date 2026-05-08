@@ -143,7 +143,7 @@ export default function ProfilePage() {
               isCandidate={isCandidate}
               onSave={handleSectionSave}
             />
-            <div className="grid lg:grid-cols-[1fr_340px] gap-4">
+            <div className="grid lg:grid-cols-[1fr_340px] gap-4 items-start">
               <div className="flex flex-col gap-4">
                 <ProfileDetails
                   profile={profile}
