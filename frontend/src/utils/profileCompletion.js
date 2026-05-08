@@ -1,55 +1,77 @@
-// Calculates how complete a profile is
-// Returns a number from 0 to 100
+// Config-driven profile completion calculator
+// Each field has a type — text, array, or file
+// Adding new field type = just add a new case in checkField()
+// No if/else chains anywhere
 
+// Supported types:
+// 'text'  = normal string field — complete if not empty
+// 'array' = array field — complete if has at least one item
+// 'file'  = nested object field — complete if url exists inside
+
+const CANDIDATE_FIELDS = [
+  { key: 'name',           weight: 10, type: 'text'  },
+  { key: 'bio',            weight: 10, type: 'text'  },
+  { key: 'phone',          weight: 5,  type: 'text'  },
+  { key: 'city',           weight: 5,  type: 'text'  },
+  { key: 'profilePhoto',   weight: 10, type: 'text'  },
+  { key: 'skills',         weight: 10, type: 'array' },
+  { key: 'educationList',  weight: 10, type: 'array' },
+  { key: 'workHistory',    weight: 10, type: 'array' },
+  { key: 'jobType',        weight: 5,  type: 'text'  },
+  { key: 'expectedSalary', weight: 5,  type: 'text'  },
+  { key: 'linkedIn',       weight: 5,  type: 'text'  },
+  { key: 'resume',         weight: 15, type: 'file'  },
+];
+
+const COMPANY_FIELDS = [
+  { key: 'name',               weight: 10, type: 'text'  },
+  { key: 'bio',                weight: 10, type: 'text'  },
+  { key: 'phone',              weight: 5,  type: 'text'  },
+  { key: 'profilePhoto',       weight: 10, type: 'text'  },
+  { key: 'companyName',        weight: 15, type: 'text'  },
+  { key: 'companyWebsite',     weight: 10, type: 'text'  },
+  { key: 'industry',           weight: 10, type: 'text'  },
+  { key: 'companySize',        weight: 10, type: 'text'  },
+  { key: 'companyDescription', weight: 10, type: 'text'  },
+  { key: 'linkedIn',           weight: 5,  type: 'text'  },
+  { key: 'companyCity',        weight: 5,  type: 'text'  },
+];
+
+// Checks if a single field is complete based on its type
+// Clean switch — easy to add new types later
+function checkField(profile, key, type) {
+  switch (type) {
+    case 'text':
+      // Complete if field exists and is not empty string
+      return !!(profile[key] && profile[key].toString().trim() !== '');
+
+    case 'array':
+      // Complete if array exists and has at least one item
+      return Array.isArray(profile[key]) && profile[key].length > 0;
+
+    case 'file':
+      // Complete if nested url field exists
+      // Example: resume.url
+      return !!(profile[key]?.url);
+
+    default:
+      return false;
+  }
+}
+
+// Main function — calculates total completion percentage
 export function calculateCompletion(profile, isCandidate) {
   if (!profile) return 0;
 
-  // Each field has a weight (how important it is)
-  // All weights add up to 100
-  const candidateFields = [
-    { key: 'name',           weight: 10 },
-    { key: 'bio',            weight: 10 },
-    { key: 'phone',          weight: 5  },
-    { key: 'city',           weight: 5  },
-    { key: 'profilePhoto',   weight: 10 },
-    { key: 'skills',         weight: 10, isArray: true },
-    { key: 'educationList',  weight: 10, isArray: true },
-    { key: 'workHistory',    weight: 10, isArray: true },
-    { key: 'jobType',        weight: 5  },
-    { key: 'expectedSalary', weight: 5  },
-    { key: 'linkedIn',       weight: 5  },
-    { key: 'resume',         weight: 15, isResume: true },
-  ];
+  const fields = isCandidate ? CANDIDATE_FIELDS : COMPANY_FIELDS;
 
-  const companyFields = [
-    { key: 'name',               weight: 10 },
-    { key: 'bio',                weight: 10 },
-    { key: 'phone',              weight: 5  },
-    { key: 'profilePhoto',       weight: 10 },
-    { key: 'companyName',        weight: 15 },
-    { key: 'companyWebsite',     weight: 10 },
-    { key: 'industry',           weight: 10 },
-    { key: 'companySize',        weight: 10 },
-    { key: 'companyDescription', weight: 10 },
-    { key: 'linkedIn',           weight: 5  },
-    { key: 'companyCity',        weight: 5  },
-  ];
+  const total = fields.reduce((sum, { key, weight, type }) => {
+    // checkField returns true or false
+    // true  = field is complete = add its weight
+    // false = field is empty   = add 0
+    return sum + (checkField(profile, key, type) ? weight : 0);
+  }, 0);
 
-  const fields = isCandidate ? candidateFields : companyFields;
-  let total = 0;
-
-  fields.forEach(({ key, weight, isArray, isResume }) => {
-    if (isResume) {
-      // Resume is complete only if URL exists
-      if (profile.resume?.url) total += weight;
-    } else if (isArray) {
-      // Array is complete if it has at least one entry
-      if (Array.isArray(profile[key]) && profile[key].length > 0) total += weight;
-    } else {
-      // Normal field — complete if not empty
-      if (profile[key] && profile[key].toString().trim() !== '') total += weight;
-    }
-  });
-
-  return Math.min(100, total); // max 100
+  // Cap at 100 in case weights add up slightly over
+  return Math.min(100, total);
 }
