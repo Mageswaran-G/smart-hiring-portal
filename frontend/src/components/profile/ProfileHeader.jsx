@@ -45,6 +45,14 @@ export default function ProfileHeader({
             </p>
           )}
 
+          {/* Open to Work badge — only shown when candidate has turned it on */}
+          {profile?.openToWork && (
+            <div className="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 rounded-full px-2.5 py-0.5 mb-2">
+              <div className="w-2 h-2 rounded-full bg-green-500" />
+              <span className="text-xs font-semibold text-green-700">Open to Work</span>
+            </div>
+          )}
+
           <p className="text-sm text-gray-400 mb-2">{profile?.email}</p>
           <span className={`inline-block px-3 py-0.5 rounded-full text-xs font-bold tracking-wide ${theme.badge}`}>
             {profile?.role?.toUpperCase()}

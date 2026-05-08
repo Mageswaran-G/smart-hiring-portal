@@ -16,6 +16,7 @@ import CareerPreferencesSection from '../components/profile/sections/CareerPrefe
 import SocialLinksSection      from '../components/profile/sections/SocialLinksSection';
 import CompanyDetailsSection   from '../components/profile/sections/CompanyDetailsSection';
 import HeadlineSection from '../components/profile/sections/HeadlineSection';
+import OpenToWorkSection from '../components/profile/sections/OpenToWorkSection';
 
 export default function ProfilePage() {
   const { user, logoutUser } = useAuth();
@@ -114,6 +115,11 @@ export default function ProfilePage() {
         {isCandidate && !isEditing && (
           <>
              <HeadlineSection
+              profile={profile}
+              isCandidate={isCandidate}
+              onSave={handleSectionSave}
+            />
+            <OpenToWorkSection
               profile={profile}
               isCandidate={isCandidate}
               onSave={handleSectionSave}
