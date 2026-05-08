@@ -21,6 +21,7 @@ import ResumeVisibilitySection from '../components/profile/sections/ResumeVisibi
 import SkillsSection from '../components/profile/sections/SkillsSection';
 import CertificationsSection from '../components/profile/sections/CertificationsSection';
 import LanguagesSection from '../components/profile/sections/LanguagesSection';
+import PortfolioSection from '../components/profile/sections/PortfolioSection';
 
 export default function ProfilePage() {
   const { user, logoutUser } = useAuth();
@@ -181,6 +182,11 @@ export default function ProfilePage() {
               onSave={handleSectionSave}
             />
             <LanguagesSection
+              profile={profile}
+              isCandidate={isCandidate}
+              onSave={handleSectionSave}
+            />
+            <PortfolioSection
               profile={profile}
               isCandidate={isCandidate}
               onSave={handleSectionSave}
