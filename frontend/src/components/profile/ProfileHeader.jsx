@@ -34,13 +34,21 @@ export default function ProfileHeader({
       </div>
 
       <div className="flex-1">
-        <h1 className="font-sora text-2xl font-bold text-gray-900 mb-1">
-          {profile?.name}
-        </h1>
-        <p className="text-sm text-gray-400 mb-2">{profile?.email}</p>
-        <span className={`inline-block px-3 py-0.5 rounded-full text-xs font-bold tracking-wide ${theme.badge}`}>
-          {profile?.role?.toUpperCase()}
-        </span>
+          <h1 className="font-sora text-2xl font-bold text-gray-900 mb-1">
+            {profile?.name}
+          </h1>
+
+          {/* Headline — shows if user has added one */}
+          {profile?.headline && (
+            <p className="text-sm font-medium text-gray-600 mb-1">
+              {profile.headline}
+            </p>
+          )}
+
+          <p className="text-sm text-gray-400 mb-2">{profile?.email}</p>
+          <span className={`inline-block px-3 py-0.5 rounded-full text-xs font-bold tracking-wide ${theme.badge}`}>
+            {profile?.role?.toUpperCase()}
+          </span>
       </div>
 
       {!isEditing && (
