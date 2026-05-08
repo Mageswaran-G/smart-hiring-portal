@@ -175,6 +175,7 @@ export default function useProfile() {
     isUploadingPhoto,
     successMsg,
     errorMsg,
+    fetchProfile,
     handleChange,
     handleSkillsChange,
     handleSave,
@@ -182,6 +183,6 @@ export default function useProfile() {
     handleResumeUpload,
     handlePhotoUpload,
     handleVisibilityChange,
-    handleSectionSave
+    handleSectionSave,
   };
 }

@@ -40,6 +40,7 @@ export default function ProfilePage() {
     isUploadingPhoto,
     successMsg,
     errorMsg,
+    fetchProfile,
     handleChange,
     handleSkillsChange,
     handleSave,
