@@ -43,7 +43,7 @@ export default function ProfileHeader({
   onVisibilityChange
 }) {
   const photoInputRef = useRef(null);
-  const theme = getTheme(isCandidate);
+  const theme = getTheme(profile?.role);
 
   // useMemo — only recalculates when profile or role changes
   // avoids unnecessary recalculation on every render

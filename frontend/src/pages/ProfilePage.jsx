@@ -44,7 +44,7 @@ export default function ProfilePage() {
 
   const isCandidate = user?.role === 'candidate';
   const isCompany   = user?.role === 'company';
-  const theme       = getTheme(isCandidate);
+  const theme       = getTheme(user?.role);
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans">

@@ -1,20 +1,22 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { ROUTES } from '../../constants/routes';
+import { getTheme } from '../../utils/theme';
 import { User, Briefcase, FileText } from 'lucide-react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
+import DashboardCard from '../../components/ui/DashboardCard';
 
 export default function CandidateDashboard() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
+  const theme = getTheme(user?.role);
 
   return (
     <DashboardLayout>
 
-      {/* Welcome card */}
       <div className="bg-white rounded-2xl p-8 shadow-md mb-6">
         <div className="flex items-center gap-4 mb-3">
-          <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-orange-500 shrink-0">
+          <div className={`w-16 h-16 rounded-full overflow-hidden border-2 shrink-0 ${theme.border}`}>
             {profile?.profilePhoto ? (
               <img
                 src={`${import.meta.env.VITE_API_URL}${profile.profilePhoto}`}
@@ -22,7 +24,7 @@ export default function CandidateDashboard() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="font-sora w-full h-full bg-orange-500 text-white text-2xl font-extrabold flex items-center justify-center">
+              <div className={`font-sora w-full h-full text-white text-2xl font-extrabold flex items-center justify-center ${theme.avatar}`}>
                 {user?.name?.charAt(0).toUpperCase()}
               </div>
             )}
@@ -32,7 +34,7 @@ export default function CandidateDashboard() {
               Candidate Dashboard
             </h1>
             <p className="text-sm text-gray-400 mt-1">{user?.email}</p>
-            <span className="inline-block mt-1 px-3 py-0.5 rounded-full text-xs font-bold bg-orange-50 text-orange-500">
+            <span className={`inline-block mt-1 px-3 py-0.5 rounded-full text-xs font-bold ${theme.badge}`}>
               CANDIDATE
             </span>
           </div>
@@ -42,25 +44,28 @@ export default function CandidateDashboard() {
         </p>
       </div>
 
-      {/* Action cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div
+        <DashboardCard
+          icon={<User size={24} />}
+          title="My Profile"
+          description="Update your skills, bio and resume"
           onClick={() => navigate(ROUTES.PROFILE)}
-          className="bg-white rounded-2xl p-6 shadow-sm cursor-pointer hover:shadow-md transition border-l-4 border-orange-500">
-          <User size={24} className="text-orange-500 mb-3" />
-          <h3 className="font-sora font-bold text-gray-800 mb-1">My Profile</h3>
-          <p className="text-sm text-gray-400">Update your skills, bio and resume</p>
-        </div>
-        <div className="bg-white rounded-2xl p-6 shadow-sm border-l-4 border-gray-200 opacity-60">
-          <Briefcase size={24} className="text-gray-400 mb-3" />
-          <h3 className="font-sora font-bold text-gray-800 mb-1">Job Listings</h3>
-          <p className="text-sm text-gray-400">Feature under development</p>
-        </div>
-        <div className="bg-white rounded-2xl p-6 shadow-sm border-l-4 border-gray-200 opacity-60">
-          <FileText size={24} className="text-gray-400 mb-3" />
-          <h3 className="font-sora font-bold text-gray-800 mb-1">Applications</h3>
-          <p className="text-sm text-gray-400">Feature under development</p>
-        </div>
+          accentColor={theme.primary}
+        />
+        <DashboardCard
+          icon={<Briefcase size={24} />}
+          title="Job Listings"
+          description="Feature under development"
+          accentColor={theme.primary}
+          disabled
+        />
+        <DashboardCard
+          icon={<FileText size={24} />}
+          title="Applications"
+          description="Feature under development"
+          accentColor={theme.primary}
+          disabled
+        />
       </div>
 
     </DashboardLayout>
