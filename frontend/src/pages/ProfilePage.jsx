@@ -18,6 +18,7 @@ import CompanyDetailsSection   from '../components/profile/sections/CompanyDetai
 import HeadlineSection from '../components/profile/sections/HeadlineSection';
 import OpenToWorkSection from '../components/profile/sections/OpenToWorkSection';
 import ResumeVisibilitySection from '../components/profile/sections/ResumeVisibilitySection';
+import SkillsSection from '../components/profile/sections/SkillsSection';
 
 export default function ProfilePage() {
   const { user, logoutUser } = useAuth();
@@ -136,23 +137,30 @@ export default function ProfilePage() {
               onSave={handleSectionSave}
             />
             <div className="grid lg:grid-cols-[1fr_340px] gap-4">
-              <ProfileDetails
-                profile={profile}
-                isCandidate={isCandidate}
-                isCompany={isCompany}
-              />
               <div className="flex flex-col gap-4">
-              <ResumeSection
-                profile={profile}
-                isUploading={isUploading}
-                onUpload={handleResumeUpload}
-                isCandidate={isCandidate}
-              />
-              <ResumeVisibilitySection
-                profile={profile}
-                isCandidate={isCandidate}
-                onSave={handleSectionSave}
-              />
+                <ProfileDetails
+                  profile={profile}
+                  isCandidate={isCandidate}
+                  isCompany={isCompany}
+                />
+                <SkillsSection
+                  profile={profile}
+                  isCandidate={isCandidate}
+                  onSave={handleSectionSave}
+                />
+              </div>
+              <div className="flex flex-col gap-4">
+                <ResumeSection
+                  profile={profile}
+                  isUploading={isUploading}
+                  onUpload={handleResumeUpload}
+                  isCandidate={isCandidate}
+                />
+                <ResumeVisibilitySection
+                  profile={profile}
+                  isCandidate={isCandidate}
+                  onSave={handleSectionSave}
+                />
               </div>
             </div>
             <EducationSection
