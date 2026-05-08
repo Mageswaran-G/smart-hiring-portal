@@ -1,28 +1,22 @@
 import { useState } from 'react';
-import { Plus, ExternalLink } from 'lucide-react';
+import { Plus, ExternalLink, Award } from 'lucide-react';
 import { getTheme } from '../../../utils/theme';
 
 const EMPTY = { name: '', issuer: '', year: '', url: '' };
 
-// Single certification card — view mode
 function CertCard({ cert, theme, onEdit, onRemove }) {
   return (
     <div className="flex items-start justify-between p-4 border border-gray-100 rounded-xl hover:border-gray-200 transition">
-      <div className="flex gap-3">
 
-        {/* Certificate icon */}
+      <div className="flex gap-3">
         <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${theme.badge}`}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="8" r="6"/>
-            <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
-          </svg>
+          <Award size={18} />
         </div>
 
         <div>
           <p className="text-sm font-semibold text-gray-800">{cert.name}</p>
           <p className="text-xs text-gray-400 mt-0.5">
-            {cert.issuer}{cert.year && ` · ${cert.year}`}
+            {cert.issuer}{cert.year ? ` · ${cert.year}` : ''}
           </p>
           {cert.url && (
             
@@ -124,12 +118,9 @@ export default function CertificationsSection({ profile, isCandidate, onSave }) 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-md">
 
-      {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="font-sora font-bold text-gray-900 text-lg">
-            Certifications
-          </h2>
+          <h2 className="font-sora font-bold text-gray-900 text-lg">Certifications</h2>
           <p className="text-xs text-gray-400 mt-0.5">
             {list.length} certificate{list.length !== 1 ? 's' : ''} added
           </p>
@@ -142,12 +133,11 @@ export default function CertificationsSection({ profile, isCandidate, onSave }) 
         </button>
       </div>
 
-      {/* Certificate list */}
       {list.length === 0 && !showForm ? (
         <div className="bg-gray-50 rounded-xl p-6 text-center">
           <p className="text-sm text-gray-400">No certifications added yet.</p>
           <p className="text-xs text-gray-300 mt-1">
-            Add your certifications to stand out to recruiters.
+            Add certifications to stand out to recruiters.
           </p>
         </div>
       ) : (
@@ -164,7 +154,6 @@ export default function CertificationsSection({ profile, isCandidate, onSave }) 
         </div>
       )}
 
-      {/* Add or edit form */}
       {showForm && (
         <div className="border border-gray-200 rounded-xl p-4 mt-2">
           <p className="text-xs font-semibold text-gray-500 uppercase mb-3">
