@@ -143,38 +143,32 @@ export default function ProfilePage() {
               isCandidate={isCandidate}
               onSave={handleSectionSave}
             />
-            <div className="grid lg:grid-cols-[1fr_340px] gap-4 items-start">
-              <div className="flex flex-col gap-4">
-                <ProfileDetails
-                  profile={profile}
-                  isCandidate={isCandidate}
-                  isCompany={isCompany}
-                />
-                <SkillsSection
-                  profile={profile}
-                  isCandidate={isCandidate}
-                  onSave={handleSectionSave}
-                />
-              </div>
-              <div className="flex flex-col gap-4">
-                <ResumeSection
-                  profile={profile}
-                  isUploading={isUploading}
-                  onUpload={handleResumeUpload}
-                  isCandidate={isCandidate}
-                />
-                <ResumeVisibilitySection
-                  profile={profile}
-                  isCandidate={isCandidate}
-                  onSave={handleSectionSave}
-                />
-                <MultipleResumesSection
-                  profile={profile}
-                  isCandidate={isCandidate}
-                  onProfileRefresh={fetchProfile}
-                />
-              </div>
-            </div>
+            <ProfileDetails
+              profile={profile}
+              isCandidate={isCandidate}
+              isCompany={isCompany}
+            />
+            <SkillsSection
+              profile={profile}
+              isCandidate={isCandidate}
+              onSave={handleSectionSave}
+            />
+            <ResumeSection
+              profile={profile}
+              isUploading={isUploading}
+              onUpload={handleResumeUpload}
+              isCandidate={isCandidate}
+            />
+            <ResumeVisibilitySection
+              profile={profile}
+              isCandidate={isCandidate}
+              onSave={handleSectionSave}
+            />
+            <MultipleResumesSection
+              profile={profile}
+              isCandidate={isCandidate}
+              onProfileRefresh={fetchProfile}
+            />
             <EducationSection
               profile={profile}
               isCandidate={isCandidate}

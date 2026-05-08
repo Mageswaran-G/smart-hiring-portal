@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { getTheme } from '../../../utils/theme';
+import useAutoSave from '../../../hooks/useAutoSave';
 
 export default function PersonalDetailsSection({ profile, isCandidate, onSave }) {
   const theme = getTheme(isCandidate ? 'candidate' : 'company');
+
   const [editing, setEditing] = useState(false);
   const [saving,  setSaving]  = useState(false);
   const [form, setForm] = useState({
@@ -14,12 +16,38 @@ export default function PersonalDetailsSection({ profile, isCandidate, onSave })
     phone:       profile?.phone       || '',
   });
 
+  const { hasDraft, getDraft, clearDraft, savedAt } = useAutoSave(
+    'personal_details',
+    form,
+    editing
+  );
+
+  const handleOpenEdit = () => {
+    setEditing(true);
+    const draft = getDraft();
+    if (draft) setForm(draft);
+  };
+
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSave = async () => {
     setSaving(true);
     await onSave(form);
+    clearDraft();
     setSaving(false);
+    setEditing(false);
+  };
+
+  const handleCancel = () => {
+    setForm({
+      dateOfBirth: profile?.dateOfBirth || '',
+      gender:      profile?.gender      || '',
+      city:        profile?.city        || '',
+      state:       profile?.state       || '',
+      country:     profile?.country     || 'India',
+      phone:       profile?.phone       || '',
+    });
+    clearDraft();
     setEditing(false);
   };
 
@@ -30,10 +58,15 @@ export default function PersonalDetailsSection({ profile, isCandidate, onSave })
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-sora font-bold text-gray-900 text-lg">Personal Details</h2>
         {!editing && (
-          <button onClick={() => setEditing(true)}
-            className={`text-xs px-3 py-1.5 rounded-lg border cursor-pointer ${theme.buttonLight}`}>
-            Edit
-          </button>
+          <div className="flex items-center gap-2">
+            {hasDraft && (
+              <span className="text-xs text-amber-500">Unsaved draft</span>
+            )}
+            <button onClick={handleOpenEdit}
+              className={`text-xs px-3 py-1.5 rounded-lg border cursor-pointer ${theme.buttonLight}`}>
+              Edit
+            </button>
+          </div>
         )}
       </div>
 
@@ -57,6 +90,12 @@ export default function PersonalDetailsSection({ profile, isCandidate, onSave })
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-3">
+          {hasDraft && (
+            <div className="col-span-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-1">
+              <p className="text-xs text-amber-600 font-medium">Draft restored from previous session.</p>
+            </div>
+          )}
+
           <div>
             <label className="block text-xs font-semibold text-gray-400 mb-1 uppercase">Date of Birth</label>
             <input type="date" name="dateOfBirth" value={form.dateOfBirth} onChange={handleChange} className={inputClass} />
@@ -88,13 +127,19 @@ export default function PersonalDetailsSection({ profile, isCandidate, onSave })
             <input type="text" name="country" value={form.country} onChange={handleChange} placeholder="India" className={inputClass} />
           </div>
 
-          <div className="col-span-2 flex gap-2 justify-end mt-2">
-            <button onClick={() => setEditing(false)}
-              className="px-4 py-2 text-sm border border-gray-200 rounded-lg cursor-pointer">Cancel</button>
-            <button onClick={handleSave} disabled={saving}
-              className={`px-4 py-2 text-sm text-white rounded-lg border-none cursor-pointer ${theme.button}`}>
-              {saving ? 'Saving...' : 'Save'}
-            </button>
+          <div className="col-span-2 flex items-center justify-between mt-2">
+            {savedAt && (
+              <p className="text-xs text-gray-300">
+                Draft saved at {savedAt.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+              </p>
+            )}
+            <div className="flex gap-2 ml-auto">
+              <button onClick={handleCancel} className="px-4 py-2 text-sm border border-gray-200 rounded-lg cursor-pointer">Cancel</button>
+              <button onClick={handleSave} disabled={saving}
+                className={`px-4 py-2 text-sm text-white rounded-lg border-none cursor-pointer ${theme.button}`}>
+                {saving ? 'Saving...' : 'Save'}
+              </button>
+            </div>
           </div>
         </div>
       )}
