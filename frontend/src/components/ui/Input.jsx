@@ -11,7 +11,7 @@ export default function Input({
   disabled = false,
   multiline = false,
   rows = 3,
-  focusColor = '#E65C00',
+  focusColor = '#6b7280',
   hint = '',
 }) {
   const baseClass = `

@@ -43,7 +43,7 @@ export default function SocialLinksSection({ profile, isCandidate, onSave }) {
               <span className="text-xs text-gray-400 font-semibold uppercase tracking-wide w-20">{label}</span>
               {value
                 ? <a href={href} target="_blank" rel="noreferrer"
-                    className="text-sm truncate" style={{ color: isCandidate ? '#E65C00' : '#1D3557' }}>
+                    className="text-sm truncate" style={{ color: theme.primary }}>
                     {value}
                   </a>
                 : <em className="text-sm text-gray-300">Not set</em>

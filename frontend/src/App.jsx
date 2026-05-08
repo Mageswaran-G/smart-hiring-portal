@@ -9,6 +9,7 @@ import ProfilePage        from './pages/ProfilePage';
 import CandidateDashboard from './pages/candidate/CandidateDashboard';
 import CompanyDashboard   from './pages/company/CompanyDashboard';
 import AdminDashboard     from './pages/admin/AdminDashboard';
+import ErrorBoundary from './components/layout/ErrorBoundary';
 
 // Sends user to correct dashboard after login based on role
 const RoleRedirect = () => {
@@ -22,6 +23,7 @@ const RoleRedirect = () => {
 
 export default function App() {
   return (
+    <ErrorBoundary>
     <BrowserRouter>
       <AuthProvider>
         <Routes>
@@ -63,5 +65,6 @@ export default function App() {
         </Routes>
       </AuthProvider>
     </BrowserRouter>
+    </ErrorBoundary>
   );
 }

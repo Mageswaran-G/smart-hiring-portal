@@ -107,7 +107,7 @@ export default function EducationSection({ profile, isCandidate, onSave }) {
             </div>
             <div className="flex items-center gap-2 mt-4">
               <input type="checkbox" name="current" checked={form.current} onChange={handleChange}
-                className="w-4 h-4 cursor-pointer" style={{ accentColor: theme.button.includes('orange') ? '#E65C00' : '#1D3557' }} />
+                className="w-4 h-4 cursor-pointer" style={{ accentColor: theme.primary }}/>
               <label className="text-sm text-gray-600">Currently studying here</label>
             </div>
           </div>

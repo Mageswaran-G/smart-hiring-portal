@@ -1,5 +1,3 @@
-import { getTheme } from '../../utils/theme';
-
 export default function ProfileDetails({ profile, isCandidate, isCompany }) {
   return (
     <div className="bg-white rounded-2xl p-7 shadow-md">
