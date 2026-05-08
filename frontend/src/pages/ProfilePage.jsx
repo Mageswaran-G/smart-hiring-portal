@@ -17,6 +17,7 @@ import SocialLinksSection      from '../components/profile/sections/SocialLinksS
 import CompanyDetailsSection   from '../components/profile/sections/CompanyDetailsSection';
 import HeadlineSection from '../components/profile/sections/HeadlineSection';
 import OpenToWorkSection from '../components/profile/sections/OpenToWorkSection';
+import ResumeVisibilitySection from '../components/profile/sections/ResumeVisibilitySection';
 
 export default function ProfilePage() {
   const { user, logoutUser } = useAuth();
@@ -140,12 +141,19 @@ export default function ProfilePage() {
                 isCandidate={isCandidate}
                 isCompany={isCompany}
               />
+              <div className="flex flex-col gap-4">
               <ResumeSection
                 profile={profile}
                 isUploading={isUploading}
                 onUpload={handleResumeUpload}
                 isCandidate={isCandidate}
               />
+              <ResumeVisibilitySection
+                profile={profile}
+                isCandidate={isCandidate}
+                onSave={handleSectionSave}
+              />
+              </div>
             </div>
             <EducationSection
               profile={profile}
