@@ -207,18 +207,6 @@ export default function ProfilePage() {
               profile={profile}
               onProfileRefresh={fetchProfile}
             />
-            <CompanyCultureSection
-              profile={profile}
-              onSave={handleSectionSave}
-            />
-            <EmployeeBenefitsSection
-              profile={profile}
-              onSave={handleSectionSave}
-            />
-            <CompanyTechStackSection
-              profile={profile}
-              onSave={handleSectionSave}
-            />
             <RichTextAboutSection
               profile={profile}
               isCandidate={false}
@@ -233,14 +221,29 @@ export default function ProfilePage() {
               profile={profile}
               onSave={handleSectionSave}
             />
+            <CompanyCultureSection
+              profile={profile}
+              onSave={handleSectionSave}
+            />
+            <EmployeeBenefitsSection
+              profile={profile}
+              onSave={handleSectionSave}
+            />
+            <CompanyTechStackSection
+              profile={profile}
+              onSave={handleSectionSave}
+            />
             <SocialLinksSection
               profile={profile}
               isCandidate={false}
               onSave={handleSectionSave}
             />
+            <ProfileSlugSection
+              profile={profile}
+              onSave={handleSectionSave}
+            />
             <PrivacyControlsSection
               profile={profile}
-              isCandidate={false}
               onSave={handleSectionSave}
             />
           </>
