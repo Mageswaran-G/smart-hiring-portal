@@ -2,82 +2,105 @@ import { useState, useRef } from 'react';
 import { Plus, Star, Trash2, FileText, ExternalLink } from 'lucide-react';
 import { getTheme } from '../../../utils/theme';
 import { API } from '../../../services/authService';
-import { API_ENDPOINTS } from '../../../constants/api';
+
+// Fix URL — resume.url may already be full URL or just a path
+function buildUrl(url) {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  return `${import.meta.env.VITE_API_URL}${url}`;
+}
 
 function ResumeCard({ resume, index, theme, isDefault, onSetDefault, onDelete }) {
-  const sizeKB  = resume.size ? `${(resume.size / 1024).toFixed(0)} KB` : '';
-  const fileUrl = `${import.meta.env.VITE_API_URL}${resume.url}`;
+  const sizeKB = resume.size ? `${(resume.size / 1024).toFixed(0)} KB` : '';
+  const fileUrl = buildUrl(resume.url);
+  const fileType = resume.mimeType?.includes('pdf') ? 'PDF'
+    : resume.mimeType?.includes('word') || resume.mimeType?.includes('document') ? 'Word'
+    : 'File';
+  const uploadDate = resume.uploadedAt
+    ? new Date(resume.uploadedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+    : '';
 
   return (
-    <div className={`p-4 border-2 rounded-xl transition ${isDefault ? 'border-opacity-100' : 'border-gray-100 hover:border-gray-200'}`}
-      style={{ borderColor: isDefault ? theme.primary : undefined }}>
+    <div
+      className="flex items-center gap-3 p-4 rounded-xl border-2 transition"
+      style={{ borderColor: isDefault ? theme.primary : '#f3f4f6' }}>
 
-      <div className="flex items-start gap-3">
+      {/* File icon */}
+      <div
+        className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+        style={{ background: `${theme.primary}15`, color: theme.primary }}>
+        <FileText size={18} />
+      </div>
 
-        <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${theme.badge}`}>
-          <FileText size={16} />
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-0.5">
-            <p className="text-sm font-semibold text-gray-800 truncate">
-              {resume.label || resume.originalName || 'Resume'}
-            </p>
-            {isDefault && (
-              <span
-                className="text-xs px-2 py-0.5 rounded-full font-semibold shrink-0"
-                style={{ background: `${theme.primary}15`, color: theme.primary }}>
-                Default
-              </span>
-            )}
-          </div>
-          <p className="text-xs text-gray-400">
-            {resume.mimeType?.includes('pdf') ? 'PDF' : 'Word'}
-            {sizeKB ? ` · ${sizeKB}` : ''}
-            {resume.uploadedAt
-              ? ` · ${new Date(resume.uploadedAt).toLocaleDateString('en-IN')}`
-              : ''}
+      {/* Info */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 flex-wrap">
+          <p className="text-sm font-semibold text-gray-800 truncate">
+            {resume.label || resume.originalName || 'Resume'}
           </p>
+          {isDefault && (
+            <span
+              className="text-[10px] px-2 py-0.5 rounded-full font-bold shrink-0"
+              style={{ background: `${theme.primary}20`, color: theme.primary }}>
+              DEFAULT
+            </span>
+          )}
         </div>
+        <p className="text-xs text-gray-400 mt-0.5">
+          {[fileType, sizeKB, uploadDate].filter(Boolean).join(' · ')}
+        </p>
+      </div>
 
-        <div className="flex items-center gap-1 shrink-0 ml-1">
+      {/* Action buttons */}
+      <div className="flex items-center gap-1.5 shrink-0">
+
+        {/* View button — clear text + icon */}
+        {fileUrl ? (
           <a
             href={fileUrl}
             target="_blank"
             rel="noreferrer"
-            className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition no-underline">
-            <ExternalLink size={14} className="text-gray-400" />
+            className="inline-flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition no-underline text-gray-600">
+            <ExternalLink size={12} />
+            View
           </a>
-          {!isDefault && (
-            <button
-              onClick={() => onSetDefault(index)}
-              title="Set as default"
-              className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-50 hover:bg-yellow-50 transition cursor-pointer border-none">
-              <Star size={14} className="text-gray-400" />
-            </button>
-          )}
+        ) : null}
+
+        {/* Set as default — star icon */}
+        {!isDefault && (
           <button
-            onClick={() => onDelete(index)}
-            className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-50 hover:bg-red-50 transition cursor-pointer border-none">
-            <Trash2 size={14} className="text-red-400" />
+            onClick={() => onSetDefault(index)}
+            title="Set as default"
+            className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-50 hover:bg-yellow-50 transition cursor-pointer border-none">
+            <Star size={14} className="text-gray-400 hover:text-yellow-500" />
           </button>
-        </div>
+        )}
+
+        {/* Delete */}
+        <button
+          onClick={() => onDelete(index)}
+          title="Remove resume"
+          className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-50 hover:bg-red-50 transition cursor-pointer border-none">
+          <Trash2 size={14} className="text-red-400" />
+        </button>
       </div>
     </div>
   );
 }
 
 export default function MultipleResumesSection({ profile, isCandidate, onProfileRefresh }) {
-  const theme      = getTheme(isCandidate ? 'candidate' : 'company');
-  const fileRef    = useRef(null);
+  const theme   = getTheme(isCandidate ? 'candidate' : 'company');
+  const fileRef = useRef(null);
 
-  const [resumes,    setResumes]    = useState(profile?.resumes || []);
-  const [label,      setLabel]      = useState('');
-  const [showForm,   setShowForm]   = useState(false);
-  const [uploading,  setUploading]  = useState(false);
-  const [saving,     setSaving]     = useState(false);
-  const [error,      setError]      = useState('');
-  const [success,    setSuccess]    = useState('');
+  // Use profile resumes — always sync from profile prop
+  const currentResumes = profile?.resumes || [];
+
+  const [label,     setLabel]     = useState('');
+  const [showForm,  setShowForm]  = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [saving,    setSaving]    = useState(false);
+  const [error,     setError]     = useState('');
+  const [success,   setSuccess]   = useState('');
 
   const showMsg = (type, msg) => {
     if (type === 'success') { setSuccess(msg); setTimeout(() => setSuccess(''), 3000); }
@@ -87,33 +110,41 @@ export default function MultipleResumesSection({ profile, isCandidate, onProfile
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
-    if (!label.trim()) { showMsg('error', 'Please enter a label before uploading.'); return; }
+    if (!label.trim()) { showMsg('error', 'Please enter a label first.'); return; }
 
     try {
       setUploading(true);
       setError('');
 
+      // Step 1 — Upload file to server
       const formData = new FormData();
       formData.append('resume', file);
       formData.append('label', label.trim());
-
       const res = await API.post('/users/upload-resume', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
+      // Step 2 — Build new resume entry
+      const uploaded = res.data.data.resume;
       const newResume = {
-        ...res.data.data.resume,
-        label:     label.trim(),
-        isDefault: resumes.length === 0,
+        url:          uploaded.url          || '',
+        originalName: uploaded.originalName || file.name,
+        size:         uploaded.size         || file.size,
+        mimeType:     uploaded.mimeType     || file.type,
+        uploadedAt:   uploaded.uploadedAt   || new Date().toISOString(),
+        label:        label.trim(),
+        isDefault:    currentResumes.length === 0,
       };
 
-      const updated = [...resumes, newResume];
-      setResumes(updated);
+      // Step 3 — Save updated resumes array to MongoDB
+      const updatedResumes = [...currentResumes, newResume];
+      await API.put('/users/profile', { resumes: updatedResumes });
+
       setLabel('');
       setShowForm(false);
       showMsg('success', 'Resume uploaded successfully.');
 
+      // Step 4 — Refresh profile so UI shows new data
       if (onProfileRefresh) onProfileRefresh();
 
     } catch (err) {
@@ -125,57 +156,62 @@ export default function MultipleResumesSection({ profile, isCandidate, onProfile
   };
 
   const handleSetDefault = async (index) => {
-    const updated = resumes.map((r, i) => ({ ...r, isDefault: i === index }));
-    setResumes(updated);
+    const updated = currentResumes.map((r, i) => ({ ...r, isDefault: i === index }));
     setSaving(true);
     try {
       await API.put('/users/profile', { resumes: updated });
       showMsg('success', 'Default resume updated.');
+      if (onProfileRefresh) onProfileRefresh();
     } catch {
-      showMsg('error', 'Could not update default resume.');
+      showMsg('error', 'Could not update. Please try again.');
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (index) => {
-    const updated  = resumes.filter((_, i) => i !== index);
-    const hasDefault = updated.some(r => r.isDefault);
-    if (!hasDefault && updated.length > 0) updated[0].isDefault = true;
-    setResumes(updated);
+    const updated = currentResumes.filter((_, i) => i !== index);
+    // If deleted was default, set first as default
+    if (currentResumes[index]?.isDefault && updated.length > 0) {
+      updated[0].isDefault = true;
+    }
     setSaving(true);
     try {
       await API.put('/users/profile', { resumes: updated });
       showMsg('success', 'Resume removed.');
+      if (onProfileRefresh) onProfileRefresh();
     } catch {
-      showMsg('error', 'Could not remove resume.');
+      showMsg('error', 'Could not remove. Please try again.');
     } finally {
       setSaving(false);
     }
   };
 
-  const defaultIndex = resumes.findIndex(r => r.isDefault);
+  const defaultIndex = currentResumes.findIndex(r => r.isDefault);
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-md">
+    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
 
-      <div className="flex items-center justify-between mb-5">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="font-sora font-bold text-gray-900 text-lg">Resumes</h2>
+          <h2 className="font-sora font-bold text-gray-900 text-lg">Resume</h2>
           <p className="text-xs text-gray-400 mt-0.5">
-            {resumes.length} resume{resumes.length !== 1 ? 's' : ''} uploaded · Max 5
+            {currentResumes.length} of 5 uploaded
           </p>
         </div>
-        {resumes.length < 5 && !showForm && (
+        {currentResumes.length < 5 && !showForm && (
           <button
             onClick={() => setShowForm(true)}
-            className={`inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border cursor-pointer ${theme.buttonLight}`}>
+            className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border cursor-pointer transition"
+            style={{ borderColor: theme.primary, color: theme.primary }}>
             <Plus size={13} />
             Upload Resume
           </button>
         )}
       </div>
 
+      {/* Messages */}
       {success && (
         <div className="bg-green-50 border border-green-200 text-green-700 rounded-xl px-4 py-2.5 text-sm mb-4">
           {success}
@@ -187,16 +223,28 @@ export default function MultipleResumesSection({ profile, isCandidate, onProfile
         </div>
       )}
 
-      {resumes.length === 0 && !showForm ? (
-        <div className="bg-gray-50 rounded-xl p-6 text-center">
-          <p className="text-sm text-gray-400">No resumes uploaded yet.</p>
+      {/* Empty state */}
+      {currentResumes.length === 0 && !showForm && (
+        <div className="bg-gray-50 rounded-xl p-8 text-center">
+          <FileText size={32} className="text-gray-300 mx-auto mb-3" />
+          <p className="text-sm font-medium text-gray-400">No resume uploaded yet</p>
           <p className="text-xs text-gray-300 mt-1">
-            Upload different resumes for different job types.
+            Upload your resume so recruiters can find you
           </p>
+          <button
+            onClick={() => setShowForm(true)}
+            className="mt-4 inline-flex items-center gap-1.5 text-xs px-4 py-2 rounded-lg text-white cursor-pointer border-none"
+            style={{ background: theme.primary }}>
+            <Plus size={13} />
+            Upload Resume
+          </button>
         </div>
-      ) : (
-        <div className="flex flex-col gap-3 mb-3">
-          {resumes.map((resume, index) => (
+      )}
+
+      {/* Resume list */}
+      {currentResumes.length > 0 && (
+        <div className="flex flex-col gap-3">
+          {currentResumes.map((resume, index) => (
             <ResumeCard
               key={index}
               resume={resume}
@@ -207,28 +255,33 @@ export default function MultipleResumesSection({ profile, isCandidate, onProfile
               onDelete={handleDelete}
             />
           ))}
+          <p className="text-xs text-gray-300 mt-1">
+            The <span className="font-semibold text-gray-400">Default</span> resume is sent to recruiters automatically.
+            Click the star to change default.
+          </p>
         </div>
       )}
 
+      {/* Upload form */}
       {showForm && (
-        <div className="border border-gray-200 rounded-xl p-4 mt-2">
-          <p className="text-xs font-semibold text-gray-500 uppercase mb-3">
-            Upload New Resume
+        <div className="border border-gray-200 rounded-xl p-4 mt-3">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+            New Resume
           </p>
-
           <div className="mb-3">
-            <label className="block text-xs font-semibold text-gray-400 mb-1 uppercase">
-              Resume Label
+            <label className="block text-xs font-semibold text-gray-400 uppercase mb-1">
+              Label
             </label>
             <input
               value={label}
               onChange={e => setLabel(e.target.value)}
-              placeholder="e.g. Frontend Developer Resume"
-              className={`w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-800 outline-none ${theme.focus}`}
+              placeholder="e.g. Full Stack Resume, Frontend Resume"
+              className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-800 outline-none"
+              style={{ '--tw-ring-color': theme.primary }}
               autoFocus
             />
             <p className="text-xs text-gray-300 mt-1">
-              Give a clear name so you know which resume this is.
+              Name this resume so you can identify it easily
             </p>
           </div>
 
@@ -243,26 +296,22 @@ export default function MultipleResumesSection({ profile, isCandidate, onProfile
           <div className="flex gap-2">
             <button
               onClick={() => { setShowForm(false); setLabel(''); setError(''); }}
-              className="px-4 py-2 text-sm border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+              className="px-4 py-2 text-sm border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 text-gray-600">
               Cancel
             </button>
             <button
-              onClick={() => { if (!label.trim()) { showMsg('error', 'Enter a label first.'); return; } fileRef.current?.click(); }}
+              onClick={() => {
+                if (!label.trim()) { showMsg('error', 'Enter a label first.'); return; }
+                fileRef.current?.click();
+              }}
               disabled={uploading}
-              className={`flex-1 py-2 text-sm text-white rounded-lg border-none cursor-pointer ${theme.button}`}>
-              {uploading ? 'Uploading...' : 'Choose File and Upload'}
+              className="flex-1 py-2 text-sm text-white rounded-lg border-none cursor-pointer font-semibold"
+              style={{ background: uploading ? '#d1d5db' : theme.primary }}>
+              {uploading ? 'Uploading...' : 'Choose File & Upload'}
             </button>
           </div>
-
-          <p className="text-xs text-gray-300 mt-2 text-center">PDF, DOC, DOCX — Max 5MB</p>
-        </div>
-      )}
-
-      {resumes.length > 0 && (
-        <div className="mt-4 p-3 bg-gray-50 rounded-xl">
-          <p className="text-xs text-gray-400">
-            The resume marked as <span className="font-semibold text-gray-600">Default</span> will be sent to recruiters automatically.
-            Click the star icon on any resume to set it as default.
+          <p className="text-xs text-gray-300 mt-2 text-center">
+            PDF, DOC, DOCX — Max 5MB
           </p>
         </div>
       )}
