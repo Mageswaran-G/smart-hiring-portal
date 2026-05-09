@@ -34,6 +34,7 @@ exports.updateProfile = async (userId, updateData) => {
   // Company
   'companyName', 'companyWebsite', 'industry', 'companySize',
   'companyDescription', 'foundedYear', 'companyCity', 'companyState', 'companyCountry',
+  'coverBanner', 'hiringStatus', 'companyCulture', 'employeeBenefits', 'companyTechStack',
   // Photo
   'photoVisibility',
     'contactVisibility',
