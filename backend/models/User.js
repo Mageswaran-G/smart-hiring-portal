@@ -24,7 +24,8 @@ const userSchema = new mongoose.Schema({
 
   // ── Photo ──
   profilePhoto:    { type: String, default: '' },
-  photoVisibility: { type: String, enum: ['public', 'private'], default: 'public' },
+  photoVisibility:    { type: String, enum: ['public', 'private'], default: 'public' },
+  contactVisibility:  { type: String, enum: ['public', 'private'], default: 'public' },
 
   // ── Common fields — all roles ──
   bio:      { type: String, default: '', trim: true, maxlength: 1000 },

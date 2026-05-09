@@ -4,27 +4,26 @@ import { getTheme } from '../utils/theme';
 import { ROUTES } from '../constants/routes';
 import useProfile from '../hooks/useProfile';
 import ProfileSkeleton from '../components/ui/ProfileSkeleton';
-import ProfileHeader        from '../components/profile/ProfileHeader';
-import ProfileDetails       from '../components/profile/ProfileDetails';
-import ResumeSection        from '../components/profile/ResumeSection';
-import EditProfileForm      from '../components/profile/EditProfileForm';
-import RichTextAboutSection from '../components/profile/sections/RichTextAboutSection';
+import ProfileHeader           from '../components/profile/ProfileHeader';
+import ProfileDetails          from '../components/profile/ProfileDetails';
+import ResumeSection           from '../components/profile/ResumeSection';
+import EditProfileForm         from '../components/profile/EditProfileForm';
+import RichTextAboutSection    from '../components/profile/sections/RichTextAboutSection';
+import ContactInfoSection      from '../components/profile/sections/ContactInfoSection';
 import PersonalDetailsSection  from '../components/profile/sections/PersonalDetailsSection';
 import EducationSection        from '../components/profile/sections/EducationSection';
 import WorkHistorySection      from '../components/profile/sections/WorkHistorySection';
 import CareerPreferencesSection from '../components/profile/sections/CareerPreferencesSection';
 import SocialLinksSection      from '../components/profile/sections/SocialLinksSection';
 import CompanyDetailsSection   from '../components/profile/sections/CompanyDetailsSection';
-import HeadlineSection from '../components/profile/sections/HeadlineSection';
-import OpenToWorkSection from '../components/profile/sections/OpenToWorkSection';
 import ResumeVisibilitySection from '../components/profile/sections/ResumeVisibilitySection';
-import SkillsSection from '../components/profile/sections/SkillsSection';
-import CertificationsSection from '../components/profile/sections/CertificationsSection';
-import LanguagesSection from '../components/profile/sections/LanguagesSection';
-import PortfolioSection from '../components/profile/sections/PortfolioSection';
-import ProfileSlugSection from '../components/profile/sections/ProfileSlugSection';
-import MultipleResumesSection from '../components/profile/sections/MultipleResumesSection';
-import PrivacyControlsSection from '../components/profile/sections/PrivacyControlsSection';
+import SkillsSection           from '../components/profile/sections/SkillsSection';
+import CertificationsSection   from '../components/profile/sections/CertificationsSection';
+import LanguagesSection        from '../components/profile/sections/LanguagesSection';
+import PortfolioSection        from '../components/profile/sections/PortfolioSection';
+import ProfileSlugSection      from '../components/profile/sections/ProfileSlugSection';
+import MultipleResumesSection  from '../components/profile/sections/MultipleResumesSection';
+import PrivacyControlsSection  from '../components/profile/sections/PrivacyControlsSection';
 
 export default function ProfilePage() {
   const { user, logoutUser } = useAuth();
@@ -60,7 +59,6 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
 
-      {/* Nav */}
       <nav className="flex items-center justify-between bg-white px-4 py-3.5 border-b border-gray-100 sticky top-0 z-10">
         <div className="flex items-center gap-2 cursor-pointer"
           onClick={() => navigate(isCandidate ? ROUTES.CANDIDATE_DASHBOARD : ROUTES.COMPANY_DASHBOARD)}>
@@ -83,7 +81,6 @@ export default function ProfilePage() {
 
       <div className="max-w-4xl mx-auto px-6 py-8 flex flex-col gap-4">
 
-        {/* Profile header card */}
         <ProfileHeader
           profile={profile}
           isEditing={isEditing}
@@ -92,9 +89,9 @@ export default function ProfilePage() {
           onPhotoUpload={handlePhotoUpload}
           isUploadingPhoto={isUploadingPhoto}
           onVisibilityChange={handleVisibilityChange}
+          onSave={handleSectionSave}
         />
 
-        {/* Messages */}
         {successMsg && (
           <div className="bg-green-50 border border-green-200 text-green-700 rounded-xl px-4 py-3 text-sm">
             {successMsg}
@@ -106,7 +103,6 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* Edit form — shown when editing basic fields */}
         {isEditing && (
           <EditProfileForm
             formData={formData}
@@ -120,20 +116,15 @@ export default function ProfilePage() {
           />
         )}
 
-        {/* ── CANDIDATE SECTIONS ── */}
+        {/* CANDIDATE SECTIONS */}
         {isCandidate && !isEditing && (
           <>
-             <HeadlineSection
-              profile={profile}
-              isCandidate={isCandidate}
-              onSave={handleSectionSave}
-            />
-            <OpenToWorkSection
-              profile={profile}
-              isCandidate={isCandidate}
-              onSave={handleSectionSave}
-            />
             <RichTextAboutSection
+              profile={profile}
+              isCandidate={isCandidate}
+              onSave={handleSectionSave}
+            />
+            <ContactInfoSection
               profile={profile}
               isCandidate={isCandidate}
               onSave={handleSectionSave}
@@ -217,15 +208,15 @@ export default function ProfilePage() {
           </>
         )}
 
-        {/* ── COMPANY SECTIONS ── */}
+        {/* COMPANY SECTIONS */}
         {isCompany && !isEditing && (
           <>
-            <HeadlineSection
+            <RichTextAboutSection
               profile={profile}
               isCandidate={false}
               onSave={handleSectionSave}
             />
-            <RichTextAboutSection
+            <ContactInfoSection
               profile={profile}
               isCandidate={false}
               onSave={handleSectionSave}
@@ -235,6 +226,11 @@ export default function ProfilePage() {
               onSave={handleSectionSave}
             />
             <SocialLinksSection
+              profile={profile}
+              isCandidate={false}
+              onSave={handleSectionSave}
+            />
+            <PrivacyControlsSection
               profile={profile}
               isCandidate={false}
               onSave={handleSectionSave}

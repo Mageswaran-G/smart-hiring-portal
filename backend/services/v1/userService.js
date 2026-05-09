@@ -36,6 +36,7 @@ exports.updateProfile = async (userId, updateData) => {
   'companyDescription', 'foundedYear', 'companyCity', 'companyState', 'companyCountry',
   // Photo
   'photoVisibility',
+    'contactVisibility',
 
   'headline', 'openToWork', 'resumeVisibility', 'profileSlug', 'resumes',
   'certifications', 'languages', 'portfolioProjects', 'profileVisibility',
@@ -57,7 +58,7 @@ exports.updateProfile = async (userId, updateData) => {
   const user = await User.findByIdAndUpdate(
     userId,
     filteredData,
-    { new: true, runValidators: true }
+    { returnDocument: "after", runValidators: true }
   ).select('-password -refreshToken');
 
   if (!user) throw new AppError('User not found', 404);
@@ -90,7 +91,7 @@ exports.uploadResume = async (userId, file) => {
         uploadedAt:   new Date()
       }
     },
-    { new: true }
+    { returnDocument: "after" }
   ).select('-password -refreshToken');
 
   // Step 4 — ONLY delete old file AFTER DB update succeeds
@@ -138,7 +139,7 @@ exports.uploadProfilePhoto = async (userId, filePath) => {
   const user = await User.findByIdAndUpdate(
     userId,
     { profilePhoto: publicUrl },
-    { new: true }
+    { returnDocument: "after" }
   ).select('-password -refreshToken');
 
   return { user, publicUrl };
