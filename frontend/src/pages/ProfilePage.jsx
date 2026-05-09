@@ -22,6 +22,7 @@ import PortfolioSection        from '../components/profile/sections/PortfolioSec
 import ProfileSlugSection      from '../components/profile/sections/ProfileSlugSection';
 import MultipleResumesSection  from '../components/profile/sections/MultipleResumesSection';
 import PrivacyControlsSection  from '../components/profile/sections/PrivacyControlsSection';
+import CoverBannerSection from '../components/profile/sections/CoverBannerSection';
 
 export default function ProfilePage() {
   const { user, logoutUser } = useAuth();
