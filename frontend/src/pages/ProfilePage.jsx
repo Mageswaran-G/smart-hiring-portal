@@ -23,6 +23,7 @@ import ProfileSlugSection      from '../components/profile/sections/ProfileSlugS
 import MultipleResumesSection  from '../components/profile/sections/MultipleResumesSection';
 import PrivacyControlsSection  from '../components/profile/sections/PrivacyControlsSection';
 import CoverBannerSection from '../components/profile/sections/CoverBannerSection';
+import HiringStatusSection from '../components/profile/sections/HiringStatusSection';
 
 export default function ProfilePage() {
   const { user, logoutUser } = useAuth();
@@ -195,6 +196,10 @@ export default function ProfilePage() {
         {/* COMPANY SECTIONS */}
         {isCompany && !isEditing && (
           <>
+            <CoverBannerSection
+              profile={profile}
+              onProfileRefresh={fetchProfile}
+            />
             <RichTextAboutSection
               profile={profile}
               isCandidate={false}
