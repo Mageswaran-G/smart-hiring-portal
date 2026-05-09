@@ -81,7 +81,7 @@ export default function WorkHistorySection({ profile, isCandidate, onSave }) {
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1 uppercase font-semibold">Company</label>
-              <input name="company" value={form.company} onChange={handleChange} placeholder="e.g. Google, Amazon" className={inputClass} />
+              <input name="company" value={form.company} onChange={handleChange} placeholder="e.g. Google, Microsoft" className={inputClass} />
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1 uppercase font-semibold">Employment Type</label>

@@ -69,8 +69,7 @@ export default function useProfile() {
       setErrorMsg('');
 
       const allowedFields = [
-        'name', 'bio', 'location', 'phone',
-        'skills', 'education', 'experience',
+        'name', 'skills',
         'companyName', 'companyWebsite', 'industry'
       ];
 

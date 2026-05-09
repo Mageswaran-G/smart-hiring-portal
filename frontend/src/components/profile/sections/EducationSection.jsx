@@ -91,19 +91,19 @@ export default function EducationSection({ profile, isCandidate, onSave }) {
             </div>
             <div className="col-span-2">
               <label className="block text-xs text-gray-400 mb-1 uppercase font-semibold">Institution</label>
-              <input name="institution" value={form.institution} onChange={handleChange} placeholder="Anna University" className={inputClass} />
+              <input name="institution" value={form.institution} onChange={handleChange} placeholder="e.g. University of Delhi" className={inputClass} />
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1 uppercase font-semibold">Start Year</label>
-              <input name="startYear" value={form.startYear} onChange={handleChange} placeholder="2020" className={inputClass} />
+              <input name="startYear" value={form.startYear} onChange={handleChange} placeholder="e.g. 2020" className={inputClass} />
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1 uppercase font-semibold">End Year</label>
-              <input name="endYear" value={form.endYear} onChange={handleChange} placeholder="2024" disabled={form.current} className={inputClass} />
+              <input name="endYear" value={form.endYear} onChange={handleChange} placeholder="e.g. 2024" disabled={form.current} className={inputClass} />
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1 uppercase font-semibold">Grade / CGPA</label>
-              <input name="grade" value={form.grade} onChange={handleChange} placeholder="8.5 CGPA" className={inputClass} />
+              <input name="grade" value={form.grade} onChange={handleChange} placeholder="e.g. 8.5 CGPA" className={inputClass} />
             </div>
             <div className="flex items-center gap-2 mt-4">
               <input type="checkbox" name="current" checked={form.current} onChange={handleChange}

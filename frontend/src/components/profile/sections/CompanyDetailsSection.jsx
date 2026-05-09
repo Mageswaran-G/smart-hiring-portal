@@ -69,7 +69,7 @@ export default function CompanyDetailsSection({ profile, onSave }) {
       ) : (
         <div className="grid grid-cols-2 gap-3">
           {[
-            { label: 'Company Name',    name: 'companyName',    placeholder: 'e.g. Google, Amazon' },
+            { label: 'Company Name',    name: 'companyName',    placeholder: 'Your company name' },
             { label: 'Website',         name: 'companyWebsite', placeholder: 'https://yourcompany.com' },
             { label: 'Industry',        name: 'industry',       placeholder: 'Software' },
             { label: 'Company Size',    name: 'companySize',    placeholder: '10-50 employees' },
