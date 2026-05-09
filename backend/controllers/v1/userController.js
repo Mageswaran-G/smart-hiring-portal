@@ -78,6 +78,28 @@ exports.uploadResume = async (req, res, next) => {
 
 // ── UPLOAD PROFILE PHOTO ──────────────────────────────
 // Route: POST /api/v1/users/upload-photo
+exports.uploadCoverBanner = async (req, res, next) => {
+  try {
+    if (!req.file) return next(new AppError('Please upload an image', 400));
+
+    const isValid = validateFileSignature(req.file.path, req.file.mimetype);
+    if (!isValid) {
+      const fs = require("fs").promises;
+      await fs.unlink(req.file.path).catch(() => {});
+      return next(new AppError('Invalid image file', 400));
+    }
+
+    const { user, publicUrl } = await userService.uploadCoverBanner(req.user.id, req.file.path);
+    const fullUrl = `${process.env.BASE_URL || "http://localhost:8000"}${publicUrl}`;
+
+    res.status(200).json(
+      new ApiResponse(true, "Cover banner updated successfully", { bannerUrl: fullUrl })
+    );
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.uploadProfilePhoto = async (req, res, next) => {
   try {
     // Check file was sent

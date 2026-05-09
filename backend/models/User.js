@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
   phone:    { type: String, default: '', trim: true },
   city:     { type: String, default: '', trim: true },
   state:    { type: String, default: '', trim: true },
-  country:  { type: String, default: '', trim: true },
+  country:  { type: String, default: 'India', trim: true },
   gender:   { type: String, enum: ['male', 'female', 'other', 'prefer_not_to_say', ''], default: '' },
   dateOfBirth: { type: String, default: '' },
 
@@ -142,6 +142,13 @@ const userSchema = new mongoose.Schema({
   companyCity:        { type: String, default: '' },
   companyState:       { type: String, default: '' },
   companyCountry:     { type: String, default: '' },
+
+  // Company extended fields — Module 3
+  coverBanner:      { type: String, default: '' },
+  hiringStatus:     { type: Boolean, default: false },
+  companyCulture:   { type: String, default: '' },
+  employeeBenefits: { type: [String], default: [] },
+  companyTechStack: { type: [String], default: [] },
 
 }, { timestamps: true, versionKey: false });
 

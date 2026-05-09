@@ -111,6 +111,35 @@ exports.uploadResume = async (userId, file) => {
 // ── UPLOAD PROFILE PHOTO ──────────────────────────────
 // Saves profile photo path to MongoDB
 // Deletes old photo from disk if exists
+exports.uploadCoverBanner = async (userId, filePath) => {
+  const fs   = require('fs').promises;
+  const path = require('path');
+
+  const existingUser = await User.findById(userId);
+  if (!existingUser) throw new AppError('User not found', 404);
+
+  const fileName  = path.basename(filePath);
+  const publicUrl = `/uploads/profiles/${fileName}`;
+
+  // Delete old banner if exists
+  if (existingUser.coverBanner) {
+    const oldFileName  = path.basename(existingUser.coverBanner);
+    const allowedDir   = path.resolve('uploads/profiles');
+    const resolvedPath = path.resolve(path.join('uploads', 'profiles', oldFileName));
+    if (resolvedPath.startsWith(allowedDir)) {
+      await fs.unlink(resolvedPath).catch(() => {});
+    }
+  }
+
+  const user = await User.findByIdAndUpdate(
+    userId,
+    { coverBanner: publicUrl },
+    { returnDocument: "after" }
+  ).select('-password -refreshToken');
+
+  return { user, publicUrl };
+};
+
 exports.uploadProfilePhoto = async (userId, filePath) => {
   const fs   = require('fs').promises;
   const path = require('path');

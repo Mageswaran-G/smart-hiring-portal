@@ -15,41 +15,31 @@ exports.loginSchema = z.object({
 }).strict();
 
 // Profile update validation
+// NOTE: .strict() rejects any field not listed here
 exports.updateProfileSchema = z.object({
 
-  // New fields to add inside updateProfileSchema
+  // Profile header fields
+  name:             z.string().trim().min(1).max(100).optional(),
+  bio:              z.string().trim().max(1000).optional(),
   headline:         z.string().trim().max(120).optional(),
   openToWork:       z.boolean().optional(),
-  resumeVisibility: z.enum(['public', 'private']).optional(),
-  profileSlug:      z.string().trim().max(50).optional(),
+
+  // Visibility controls
   profileVisibility: z.enum(['public', 'private']).optional(),
+  photoVisibility:   z.enum(['public', 'private']).optional(),
+  resumeVisibility:  z.enum(['public', 'private']).optional(),
+  contactVisibility: z.enum(['public', 'private']).optional(),
 
-  certifications: z.array(z.object({
-    name:   z.string().trim().max(100).optional(),
-    issuer: z.string().trim().max(100).optional(),
-    year:   z.string().trim().max(10).optional(),
-    url:    z.string().trim().max(200).optional(),
-  })).optional(),
+  // Public profile slug
+  profileSlug: z.string().trim().max(50).optional(),
 
-  languages: z.array(z.object({
-    language:    z.string().trim().max(50).optional(),
-    proficiency: z.enum(['beginner', 'intermediate', 'advanced', 'native', '']).optional(),
-  })).optional(),
+  // Contact info
+  phone:   z.string().regex(/^[0-9+\-() ]{7,15}$/, 'Enter a valid phone number').optional(),
+  city:    z.string().trim().max(100).optional(),
+  state:   z.string().trim().max(100).optional(),
+  country: z.string().trim().max(100).optional(),
 
-  portfolioProjects: z.array(z.object({
-    title:       z.string().trim().max(100).optional(),
-    description: z.string().trim().max(500).optional(),
-    url:         z.string().trim().max(200).optional(),
-    tech:        z.string().trim().max(200).optional(),
-  })).optional(),
-
-  // Common fields
-  name:        z.string().trim().min(3).max(100).optional(),
-  bio:         z.string().trim().max(1000).optional(),
-  phone:       z.string().regex(/^[0-9+\-() ]{7,15}$/, 'Enter a valid phone number').optional(),
-  city:        z.string().trim().max(100).optional(),
-  state:       z.string().trim().max(100).optional(),
-  country:     z.string().trim().max(100).optional(),
+  // Personal details
   gender:      z.enum(['male', 'female', 'other', 'prefer_not_to_say', '']).optional(),
   dateOfBirth: z.string().trim().max(20).optional(),
 
@@ -58,8 +48,16 @@ exports.updateProfileSchema = z.object({
   github:    z.string().trim().max(200).optional(),
   portfolio: z.string().trim().max(200).optional(),
 
-  // Candidate fields
-  skills: z.array(z.string().trim().max(50)).max(20).optional(),
+  // Skills — accepts both plain strings and objects with name + proficiency
+  skills: z.array(
+    z.union([
+      z.string().trim().max(50),
+      z.object({
+        name:        z.string().trim().max(50),
+        proficiency: z.string().trim().max(20).optional(),
+      })
+    ])
+  ).max(20).optional(),
 
   // Education list
   educationList: z.array(z.object({
@@ -72,16 +70,53 @@ exports.updateProfileSchema = z.object({
     current:     z.boolean().optional(),
   })).optional(),
 
-  // Work history
+  // Work history — uses month + year dropdowns
   workHistory: z.array(z.object({
     company:     z.string().trim().max(200).optional(),
     role:        z.string().trim().max(200).optional(),
     type:        z.enum(['full-time', 'part-time', 'internship', 'freelance', '']).optional(),
+    startMonth:  z.string().trim().max(5).optional(),
+    startYear:   z.string().trim().max(5).optional(),
+    endMonth:    z.string().trim().max(5).optional(),
+    endYear:     z.string().trim().max(5).optional(),
     startDate:   z.string().trim().max(20).optional(),
     endDate:     z.string().trim().max(20).optional(),
     current:     z.boolean().optional(),
     description: z.string().trim().max(500).optional(),
   })).optional(),
+
+  // Certifications
+  certifications: z.array(z.object({
+    name:   z.string().trim().max(100).optional(),
+    issuer: z.string().trim().max(100).optional(),
+    year:   z.string().trim().max(10).optional(),
+    url:    z.string().trim().max(200).optional(),
+  })).optional(),
+
+  // Languages
+  languages: z.array(z.object({
+    language:    z.string().trim().max(50).optional(),
+    proficiency: z.string().trim().max(20).optional(),
+  })).optional(),
+
+  // Portfolio projects
+  portfolioProjects: z.array(z.object({
+    title:       z.string().trim().max(100).optional(),
+    description: z.string().trim().max(500).optional(),
+    url:         z.string().trim().max(200).optional(),
+    tech:        z.string().trim().max(200).optional(),
+  })).optional(),
+
+  // Resumes array — up to 5 resumes with labels
+  resumes: z.array(z.object({
+    url:          z.string().optional(),
+    originalName: z.string().optional(),
+    size:         z.number().optional(),
+    mimeType:     z.string().optional(),
+    uploadedAt:   z.string().optional(),
+    label:        z.string().max(100).optional(),
+    isDefault:    z.boolean().optional(),
+  })).max(5).optional(),
 
   // Career preferences
   jobType:            z.enum(['full-time', 'part-time', 'internship', 'any', '']).optional(),
@@ -89,6 +124,13 @@ exports.updateProfileSchema = z.object({
   expectedSalary:     z.string().trim().max(50).optional(),
   noticePeriod:       z.string().trim().max(50).optional(),
   preferredLocations: z.array(z.string().trim().max(100)).optional(),
+
+  // Company extended fields
+  coverBanner:      z.string().optional(),
+  hiringStatus:     z.boolean().optional(),
+  companyCulture:   z.string().trim().max(3000).optional(),
+  employeeBenefits: z.array(z.string().trim().max(100)).optional(),
+  companyTechStack: z.array(z.string().trim().max(50)).optional(),
 
   // Company fields
   companyName:        z.string().trim().max(100).optional(),
@@ -100,18 +142,5 @@ exports.updateProfileSchema = z.object({
   companyCity:        z.string().trim().max(100).optional(),
   companyState:       z.string().trim().max(100).optional(),
   companyCountry:     z.string().trim().max(100).optional(),
-
-  // Photo visibility
-  photoVisibility: z.enum(['public', 'private']).optional(),
-
-  resumes: z.array(z.object({
-    url:          z.string().optional(),
-    originalName: z.string().optional(),
-    size:         z.number().optional(),
-    mimeType:     z.string().optional(),
-    uploadedAt:   z.string().optional(),
-    label:        z.string().max(100).optional(),
-    isDefault:    z.boolean().optional(),
-  })).max(5).optional(),
 
 }).strict();

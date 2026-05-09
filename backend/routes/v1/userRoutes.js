@@ -36,4 +36,14 @@ router.post(
   userController.uploadProfilePhoto     // controller function
 );
 
+// POST upload company cover banner — company only
+router.post(
+  '/upload-banner',
+  uploadLimiter,
+  verifyToken,
+  authorizeRole('company'),
+  upload.single('banner'),
+  userController.uploadCoverBanner
+);
+
 module.exports = router;
