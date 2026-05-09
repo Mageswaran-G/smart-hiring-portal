@@ -155,21 +155,21 @@ export default function ContactInfoSection({ profile, isCandidate, onSave }) {
 
           <div>
             <label className="block text-xs font-semibold text-gray-400 mb-1 uppercase">Phone</label>
-            <input name="phone" value={form.phone} onChange={handleChange} placeholder="+91 9876543210" className={inputClass} />
+            <input name="phone" value={form.phone} onChange={handleChange} placeholder="+91 xxxxxxxxx" className={inputClass} />
           </div>
 
           <div className="grid grid-cols-3 gap-3">
             <div>
               <label className="block text-xs font-semibold text-gray-400 mb-1 uppercase">City</label>
-              <input name="city" value={form.city} onChange={handleChange} placeholder="Chennai" className={inputClass} />
+              <input name="city" value={form.city} onChange={handleChange} placeholder="eg.Chennai" className={inputClass} />
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-400 mb-1 uppercase">State</label>
-              <input name="state" value={form.state} onChange={handleChange} placeholder="Tamil Nadu" className={inputClass} />
+              <input name="state" value={form.state} onChange={handleChange} placeholder="eg.Tamil Nadu" className={inputClass} />
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-400 mb-1 uppercase">Country</label>
-              <input name="country" value={form.country} onChange={handleChange} placeholder="India" className={inputClass} />
+              <input name="country" value={form.country} onChange={handleChange} placeholder="eg.India" className={inputClass} />
             </div>
           </div>
 

@@ -12,7 +12,7 @@ export default function PersonalDetailsSection({ profile, isCandidate, onSave })
     gender:      profile?.gender      || '',
     city:        profile?.city        || '',
     state:       profile?.state       || '',
-    country:     profile?.country     || 'India',
+    country:     profile?.country     || '',
     phone:       profile?.phone       || '',
   });
 
@@ -44,7 +44,7 @@ export default function PersonalDetailsSection({ profile, isCandidate, onSave })
       gender:      profile?.gender      || '',
       city:        profile?.city        || '',
       state:       profile?.state       || '',
-      country:     profile?.country     || 'India',
+      country:     profile?.country     || '',
       phone:       profile?.phone       || '',
     });
     clearDraft();
@@ -112,19 +112,19 @@ export default function PersonalDetailsSection({ profile, isCandidate, onSave })
           </div>
           <div>
             <label className="block text-xs font-semibold text-gray-400 mb-1 uppercase">Phone</label>
-            <input type="text" name="phone" value={form.phone} onChange={handleChange} placeholder="+91 9876543210" className={inputClass} />
+            <input type="text" name="phone" value={form.phone} onChange={handleChange} placeholder="+91 xxxxxxxxx" className={inputClass} />
           </div>
           <div>
             <label className="block text-xs font-semibold text-gray-400 mb-1 uppercase">City</label>
-            <input type="text" name="city" value={form.city} onChange={handleChange} placeholder="Chennai" className={inputClass} />
+            <input type="text" name="city" value={form.city} onChange={handleChange} placeholder="eg.Chennai" className={inputClass} />
           </div>
           <div>
             <label className="block text-xs font-semibold text-gray-400 mb-1 uppercase">State</label>
-            <input type="text" name="state" value={form.state} onChange={handleChange} placeholder="Tamil Nadu" className={inputClass} />
+            <input type="text" name="state" value={form.state} onChange={handleChange} placeholder="eg.Tamil Nadu" className={inputClass} />
           </div>
           <div>
             <label className="block text-xs font-semibold text-gray-400 mb-1 uppercase">Country</label>
-            <input type="text" name="country" value={form.country} onChange={handleChange} placeholder="India" className={inputClass} />
+            <input type="text" name="country" value={form.country} onChange={handleChange} placeholder="eg.India" className={inputClass} />
           </div>
 
           <div className="col-span-2 flex items-center justify-between mt-2">
