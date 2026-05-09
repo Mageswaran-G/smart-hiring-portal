@@ -24,6 +24,7 @@ import MultipleResumesSection  from '../components/profile/sections/MultipleResu
 import PrivacyControlsSection  from '../components/profile/sections/PrivacyControlsSection';
 import CoverBannerSection from '../components/profile/sections/CoverBannerSection';
 import HiringStatusSection from '../components/profile/sections/HiringStatusSection';
+import CompanyCultureSection from '../components/profile/sections/CompanyCultureSection';
 
 export default function ProfilePage() {
   const { user, logoutUser } = useAuth();
@@ -203,6 +204,10 @@ export default function ProfilePage() {
             <HiringStatusSection
               profile={profile}
               onProfileRefresh={fetchProfile}
+            />
+            <CompanyCultureSection
+              profile={profile}
+              onSave={handleSectionSave}
             />
             <RichTextAboutSection
               profile={profile}
