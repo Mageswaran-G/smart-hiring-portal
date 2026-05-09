@@ -24,15 +24,14 @@ const userSchema = new mongoose.Schema({
 
   // ── Photo ──
   profilePhoto:    { type: String, default: '' },
-  photoVisibility:    { type: String, enum: ['public', 'private'], default: 'public' },
-  contactVisibility:  { type: String, enum: ['public', 'private'], default: 'public' },
+  photoVisibility: { type: String, enum: ['public', 'private'], default: 'public' },
 
   // ── Common fields — all roles ──
   bio:      { type: String, default: '', trim: true, maxlength: 1000 },
   phone:    { type: String, default: '', trim: true },
   city:     { type: String, default: '', trim: true },
   state:    { type: String, default: '', trim: true },
-  country:  { type: String, default: 'India', trim: true },
+  country:  { type: String, default: '', trim: true },
   gender:   { type: String, enum: ['male', 'female', 'other', 'prefer_not_to_say', ''], default: '' },
   dateOfBirth: { type: String, default: '' },
 
@@ -42,7 +41,7 @@ const userSchema = new mongoose.Schema({
   portfolio: { type: String, default: '', trim: true },
 
   // ── Candidate only fields ──
-  skills: { type: [String], default: [] },
+  skills: { type: [mongoose.Schema.Types.Mixed], default: [] },
 
   // Education — array of entries
   educationList: [{
@@ -142,7 +141,7 @@ const userSchema = new mongoose.Schema({
   foundedYear:        { type: String, default: '' },
   companyCity:        { type: String, default: '' },
   companyState:       { type: String, default: '' },
-  companyCountry:     { type: String, default: 'India' },
+  companyCountry:     { type: String, default: '' },
 
 }, { timestamps: true, versionKey: false });
 
