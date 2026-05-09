@@ -200,6 +200,10 @@ export default function ProfilePage() {
               profile={profile}
               onProfileRefresh={fetchProfile}
             />
+            <HiringStatusSection
+              profile={profile}
+              onProfileRefresh={fetchProfile}
+            />
             <RichTextAboutSection
               profile={profile}
               isCandidate={false}
