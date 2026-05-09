@@ -59,7 +59,7 @@ exports.updateProfileSchema = z.object({
   portfolio: z.string().trim().max(200).optional(),
 
   // Candidate fields
-  skills: z.array(z.union([z.string().trim().max(50), z.object({ name: z.string().trim().max(50), proficiency: z.string().trim().max(20).optional() })])).max(20).optional(),
+  skills: z.array(z.string().trim().max(50)).max(20).optional(),
 
   // Education list
   educationList: z.array(z.object({
@@ -102,7 +102,16 @@ exports.updateProfileSchema = z.object({
   companyCountry:     z.string().trim().max(100).optional(),
 
   // Photo visibility
-  contactVisibility: z.enum(["public", "private"]).optional(),
   photoVisibility: z.enum(['public', 'private']).optional(),
+
+  resumes: z.array(z.object({
+    url:          z.string().optional(),
+    originalName: z.string().optional(),
+    size:         z.number().optional(),
+    mimeType:     z.string().optional(),
+    uploadedAt:   z.string().optional(),
+    label:        z.string().max(100).optional(),
+    isDefault:    z.boolean().optional(),
+  })).max(5).optional(),
 
 }).strict();
