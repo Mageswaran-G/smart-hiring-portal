@@ -3,10 +3,9 @@ import { useAuth } from '../context/AuthContext';
 import { getTheme } from '../utils/theme';
 import { ROUTES } from '../constants/routes';
 import useProfile from '../hooks/useProfile';
-import ProfileSkeleton from '../components/ui/ProfileSkeleton';
+import ProfileSkeleton         from '../components/ui/ProfileSkeleton';
 import ProfileHeader           from '../components/profile/ProfileHeader';
 import ProfileDetails          from '../components/profile/ProfileDetails';
-import ResumeSection           from '../components/profile/ResumeSection';
 import EditProfileForm         from '../components/profile/EditProfileForm';
 import RichTextAboutSection    from '../components/profile/sections/RichTextAboutSection';
 import ContactInfoSection      from '../components/profile/sections/ContactInfoSection';
@@ -16,7 +15,6 @@ import WorkHistorySection      from '../components/profile/sections/WorkHistoryS
 import CareerPreferencesSection from '../components/profile/sections/CareerPreferencesSection';
 import SocialLinksSection      from '../components/profile/sections/SocialLinksSection';
 import CompanyDetailsSection   from '../components/profile/sections/CompanyDetailsSection';
-import ResumeVisibilitySection from '../components/profile/sections/ResumeVisibilitySection';
 import SkillsSection           from '../components/profile/sections/SkillsSection';
 import CertificationsSection   from '../components/profile/sections/CertificationsSection';
 import LanguagesSection        from '../components/profile/sections/LanguagesSection';
@@ -35,16 +33,13 @@ export default function ProfilePage() {
     isEditing,    setIsEditing,
     isLoading,
     isSaving,
-    isUploading,
     isUploadingPhoto,
     successMsg,
     errorMsg,
     fetchProfile,
     handleChange,
-    handleSkillsChange,
     handleSave,
     handleCancel,
-    handleResumeUpload,
     handlePhotoUpload,
     handleVisibilityChange,
     handleSectionSave,
@@ -110,7 +105,6 @@ export default function ProfilePage() {
             isCompany={isCompany}
             isSaving={isSaving}
             onChange={handleChange}
-            onSkillsChange={handleSkillsChange}
             onSave={handleSave}
             onCancel={handleCancel}
           />
@@ -140,17 +134,6 @@ export default function ProfilePage() {
               isCompany={isCompany}
             />
             <SkillsSection
-              profile={profile}
-              isCandidate={isCandidate}
-              onSave={handleSectionSave}
-            />
-            <ResumeSection
-              profile={profile}
-              isUploading={isUploading}
-              onUpload={handleResumeUpload}
-              isCandidate={isCandidate}
-            />
-            <ResumeVisibilitySection
               profile={profile}
               isCandidate={isCandidate}
               onSave={handleSectionSave}
