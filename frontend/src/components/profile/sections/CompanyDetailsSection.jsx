@@ -13,7 +13,7 @@ export default function CompanyDetailsSection({ profile, onSave }) {
     foundedYear:        profile?.foundedYear        || '',
     companyCity:        profile?.companyCity        || '',
     companyState:       profile?.companyState       || '',
-    companyCountry:     profile?.companyCountry     || 'India',
+    companyCountry:     profile?.companyCountry     || '',
     companyDescription: profile?.companyDescription || '',
   });
 

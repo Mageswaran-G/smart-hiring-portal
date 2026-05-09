@@ -16,7 +16,7 @@ router.get('/profile/:slug', asyncHandler(async (req, res) => {
 
   // If user has made profile private — do not show it publicly
   if (user.profileVisibility === 'private') {
-    throw new AppError('This profile is not available.', 403);
+  throw new AppError('This profile is not available.', 403);
   }
 
   // Only include photo if photoVisibility is public
