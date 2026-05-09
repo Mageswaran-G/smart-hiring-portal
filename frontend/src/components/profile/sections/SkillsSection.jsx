@@ -35,13 +35,12 @@ function SkillTag({ skill, theme, onRemove }) {
 export default function SkillsSection({ profile, isCandidate, onSave }) {
   const theme = getTheme(isCandidate ? 'candidate' : 'company');
 
-  const [skills,     setSkills]     = useState(
-    Array.isArray(profile?.skills)
-      ? profile.skills.map(s =>
-          typeof s === 'string' ? { name: s, level: 'intermediate' } : s
-        )
-      : []
-  );
+  const initSkills = Array.isArray(profile?.skills)
+    ? profile.skills.map(s => typeof s === 'string' ? { name: s, level: 'intermediate' } : s)
+    : [];
+
+  const [skills,     setSkills]     = useState(initSkills);
+  const [savedSkills, setSavedSkills] = useState(initSkills);
   const [newSkill,   setNewSkill]   = useState('');
   const [newLevel,   setNewLevel]   = useState('intermediate');
   const [saving,     setSaving]     = useState(false);
@@ -69,14 +68,11 @@ export default function SkillsSection({ profile, isCandidate, onSave }) {
   const handleSave = async () => {
     setSaving(true);
     await onSave({ skills });
+    setSavedSkills([...skills]);
     setSaving(false);
   };
 
-  const hasChanges = JSON.stringify(skills) !== JSON.stringify(
-    Array.isArray(profile?.skills)
-      ? profile.skills.map(s => typeof s === 'string' ? { name: s, level: 'intermediate' } : s)
-      : []
-  );
+  const hasChanges = JSON.stringify(skills) !== JSON.stringify(savedSkills);
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-md">
