@@ -19,15 +19,27 @@ router.get('/profile/:slug', asyncHandler(async (req, res) => {
     throw new AppError('This profile is not available.', 403);
   }
 
+  // Only include photo if photoVisibility is public
+  const photo = user.photoVisibility !== 'private' ? user.profilePhoto : null;
+
+  // Only include contact info if contactVisibility is public
+  const contactFields = user.contactVisibility !== 'private'
+    ? { phone: user.phone, city: user.city, state: user.state, country: user.country }
+    : {};
+
   const publicProfile = {
+    // Always shown
     name:              user.name,
     headline:          user.headline,
     bio:               user.bio,
-    profilePhoto:      user.profilePhoto,
     role:              user.role,
-    city:              user.city,
-    state:             user.state,
-    country:           user.country,
+    profileSlug:       user.profileSlug,
+    profilePhoto:      photo,
+
+    // Contact info — shown only if contactVisibility is public
+    ...contactFields,
+
+    // Career info — always shown
     skills:            user.skills,
     educationList:     user.educationList,
     workHistory:       user.workHistory,
@@ -39,10 +51,11 @@ router.get('/profile/:slug', asyncHandler(async (req, res) => {
     portfolio:         user.portfolio,
     jobType:           user.jobType,
     locationType:      user.locationType,
+
+    // Company info — always shown
     companyName:       user.companyName,
     industry:          user.industry,
     companyWebsite:    user.companyWebsite,
-    profileSlug:       user.profileSlug,
   };
 
   res.status(200).json({
