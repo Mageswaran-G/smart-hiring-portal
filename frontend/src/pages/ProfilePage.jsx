@@ -26,6 +26,7 @@ import CoverBannerSection from '../components/profile/sections/CoverBannerSectio
 import HiringStatusSection from '../components/profile/sections/HiringStatusSection';
 import CompanyCultureSection from '../components/profile/sections/CompanyCultureSection';
 import EmployeeBenefitsSection from '../components/profile/sections/EmployeeBenefitsSection';
+import CompanyTechStackSection from '../components/profile/sections/CompanyTechStackSection';
 
 export default function ProfilePage() {
   const { user, logoutUser } = useAuth();
@@ -211,6 +212,10 @@ export default function ProfilePage() {
               onSave={handleSectionSave}
             />
             <EmployeeBenefitsSection
+              profile={profile}
+              onSave={handleSectionSave}
+            />
+            <CompanyTechStackSection
               profile={profile}
               onSave={handleSectionSave}
             />
