@@ -173,7 +173,7 @@ export default function PortfolioSection({ profile, isCandidate, onSave }) {
                 name="title"
                 value={form.title}
                 onChange={handleChange}
-                placeholder="Smart Hiring Portal"
+                placeholder="e.g. Smart City"
                 className={inputClass}
                 autoFocus
               />

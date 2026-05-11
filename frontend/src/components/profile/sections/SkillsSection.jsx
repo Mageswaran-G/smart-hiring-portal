@@ -4,14 +4,18 @@ import { getTheme } from '../../../utils/theme';
 
 const PROFICIENCY_LEVELS = ['beginner', 'intermediate', 'advanced', 'expert'];
 
+
 // Single skill tag — shows name, level badge, remove button
 function SkillTag({ skill, theme, onRemove }) {
+ 
   const levelColors = {
     beginner:     'bg-gray-100 text-gray-500',
     intermediate: 'bg-blue-50 text-blue-600',
     advanced:     'bg-orange-50 text-orange-600',
     expert:       'bg-green-50 text-green-600',
   };
+
+
 
   return (
     <div className="inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full pl-3 pr-2 py-1.5 shadow-sm">
@@ -34,7 +38,7 @@ function SkillTag({ skill, theme, onRemove }) {
 
 export default function SkillsSection({ profile, isCandidate, onSave }) {
   const theme = getTheme(isCandidate ? 'candidate' : 'company');
-
+  
   const initSkills = Array.isArray(profile?.skills)
     ? profile.skills.map(s => typeof s === 'string' ? { name: s, level: 'intermediate' } : s)
     : [];
@@ -173,3 +177,5 @@ export default function SkillsSection({ profile, isCandidate, onSave }) {
     </div>
   );
 }
+
+  

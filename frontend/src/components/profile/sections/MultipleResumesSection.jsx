@@ -10,7 +10,7 @@ function buildUrl(url) {
   return `${import.meta.env.VITE_API_URL}${url}`;
 }
 
-function ResumeCard({ resume, index, theme, isDefault, onSetDefault, onDelete }) {
+function ResumeCard({ resume, theme, isDefault, onSetDefault, onDelete }) {
   const sizeKB = resume.size ? `${(resume.size / 1024).toFixed(0)} KB` : '';
   const fileUrl = buildUrl(resume.url);
   const fileType = resume.mimeType?.includes('pdf') ? 'PDF'
@@ -54,7 +54,7 @@ function ResumeCard({ resume, index, theme, isDefault, onSetDefault, onDelete })
       {/* Action buttons */}
       <div className="flex items-center gap-1.5 shrink-0">
 
-        {/* View button — clear text + icon */}
+        {/* View button */}
         {fileUrl ? (
           <a
             href={fileUrl}
@@ -66,19 +66,19 @@ function ResumeCard({ resume, index, theme, isDefault, onSetDefault, onDelete })
           </a>
         ) : null}
 
-        {/* Set as default — star icon */}
+        {/* Set as default — pass resume.url instead of index */}
         {!isDefault && (
           <button
-            onClick={() => onSetDefault(index)}
+            onClick={() => onSetDefault(resume.url)}
             title="Set as default"
             className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-50 hover:bg-yellow-50 transition cursor-pointer border-none">
             <Star size={14} className="text-gray-400 hover:text-yellow-500" />
           </button>
         )}
 
-        {/* Delete */}
+        {/* Delete — pass resume.url instead of index */}
         <button
-          onClick={() => onDelete(index)}
+          onClick={() => onDelete(resume.url)}
           title="Remove resume"
           className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-50 hover:bg-red-50 transition cursor-pointer border-none">
           <Trash2 size={14} className="text-red-400" />
@@ -92,7 +92,6 @@ export default function MultipleResumesSection({ profile, isCandidate, onProfile
   const theme   = getTheme(isCandidate ? 'candidate' : 'company');
   const fileRef = useRef(null);
 
-  // Use profile resumes — always sync from profile prop
   const currentResumes = profile?.resumes || [];
 
   const [label,     setLabel]     = useState('');
@@ -116,7 +115,6 @@ export default function MultipleResumesSection({ profile, isCandidate, onProfile
       setUploading(true);
       setError('');
 
-      // Step 1 — Upload file to server
       const formData = new FormData();
       formData.append('resume', file);
       formData.append('label', label.trim());
@@ -124,7 +122,6 @@ export default function MultipleResumesSection({ profile, isCandidate, onProfile
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      // Step 2 — Build new resume entry
       const uploaded = res.data.data.resume;
       const newResume = {
         url:          uploaded.url          || '',
@@ -136,15 +133,12 @@ export default function MultipleResumesSection({ profile, isCandidate, onProfile
         isDefault:    currentResumes.length === 0,
       };
 
-      // Step 3 — Save updated resumes array to MongoDB
       const updatedResumes = [...currentResumes, newResume];
       await API.put('/users/profile', { resumes: updatedResumes });
 
       setLabel('');
       setShowForm(false);
       showMsg('success', 'Resume uploaded successfully.');
-
-      // Step 4 — Refresh profile so UI shows new data
       if (onProfileRefresh) onProfileRefresh();
 
     } catch (err) {
@@ -155,8 +149,9 @@ export default function MultipleResumesSection({ profile, isCandidate, onProfile
     }
   };
 
-  const handleSetDefault = async (index) => {
-    const updated = currentResumes.map((r, i) => ({ ...r, isDefault: i === index }));
+  // Uses url to find the correct resume — not index
+  const handleSetDefault = async (url) => {
+    const updated = currentResumes.map((r) => ({ ...r, isDefault: r.url === url }));
     setSaving(true);
     try {
       await API.put('/users/profile', { resumes: updated });
@@ -169,10 +164,13 @@ export default function MultipleResumesSection({ profile, isCandidate, onProfile
     }
   };
 
-  const handleDelete = async (index) => {
-    const updated = currentResumes.filter((_, i) => i !== index);
-    // If deleted was default, set first as default
-    if (currentResumes[index]?.isDefault && updated.length > 0) {
+  // Uses url to find the correct resume — not index
+  const handleDelete = async (url) => {
+    const deletedResume = currentResumes.find((r) => r.url === url);
+    const updated = currentResumes.filter((r) => r.url !== url);
+
+    // If deleted resume was default, make the first one default
+    if (deletedResume?.isDefault && updated.length > 0) {
       updated[0].isDefault = true;
     }
     setSaving(true);
@@ -187,7 +185,10 @@ export default function MultipleResumesSection({ profile, isCandidate, onProfile
     }
   };
 
-  const defaultIndex = currentResumes.findIndex(r => r.isDefault);
+  // Sort by upload date — keeps order stable always
+  const sortedResumes = [...currentResumes].sort(
+    (a, b) => new Date(a.uploadedAt) - new Date(b.uploadedAt)
+  );
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
@@ -242,15 +243,14 @@ export default function MultipleResumesSection({ profile, isCandidate, onProfile
       )}
 
       {/* Resume list */}
-      {currentResumes.length > 0 && (
+      {sortedResumes.length > 0 && (
         <div className="flex flex-col gap-3">
-          {currentResumes.map((resume, index) => (
+          {sortedResumes.map((resume) => (
             <ResumeCard
-              key={index}
+              key={resume.url}
               resume={resume}
-              index={index}
               theme={theme}
-              isDefault={index === defaultIndex}
+              isDefault={resume.isDefault}
               onSetDefault={handleSetDefault}
               onDelete={handleDelete}
             />
@@ -277,7 +277,6 @@ export default function MultipleResumesSection({ profile, isCandidate, onProfile
               onChange={e => setLabel(e.target.value)}
               placeholder="e.g. Full Stack Resume, Frontend Resume"
               className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-800 outline-none"
-              style={{ '--tw-ring-color': theme.primary }}
               autoFocus
             />
             <p className="text-xs text-gray-300 mt-1">

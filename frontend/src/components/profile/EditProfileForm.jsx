@@ -12,30 +12,23 @@ export default function EditProfileForm({
       <h2 className="font-sora font-bold text-gray-900 text-base mb-5">Edit Profile</h2>
 
       <div className="flex flex-col gap-4">
+
+        {/* Full Name */}
         <div>
           <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Full Name</label>
           <input name="name" value={formData.name || ''} onChange={onChange}
             placeholder="Enter your full name" className={input} />
         </div>
 
-        {isCandidate && (
-          <div>
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Skills</label>
-            <input
-              name="skills"
-              value={
-                Array.isArray(formData.skills)
-                  ? formData.skills.map(s => typeof s === 'string' ? s : s.name).join(', ')
-                  : formData.skills || ''
-              }
-              onChange={onChange}
-              placeholder="e.g. React, Node.js, Python"
-              className={input}
-            />
-            <p className="text-xs text-gray-300 mt-1">Separate skills with a comma</p>
-          </div>
-        )}
+        {/* Bio */}
+        <div>
+          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Bio</label>
+          <textarea name="bio" value={formData.bio || ''} onChange={onChange}
+            placeholder="Write a short summary about yourself"
+            rows={3} className={`${input} resize-y`} />
+        </div>
 
+        {/* Company-only fields */}
         {isCompany && (
           <>
             <div>
@@ -57,7 +50,7 @@ export default function EditProfileForm({
         )}
 
         <p className="text-xs text-gray-300 italic">
-          Edit bio, contact info, education and other details in the sections below.
+          Edit contact info, skills, education and other details in the sections below.
         </p>
 
         <div className="flex gap-3 justify-end pt-2 border-t border-gray-50">

@@ -5,7 +5,6 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
-
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/v1/authRoutes');
 const userRoutes = require('./routes/v1/userRoutes');
@@ -13,8 +12,7 @@ const { errorHandler } = require('./middleware/errorMiddleware');
 const xssMiddleware = require('./middleware/xssMiddleware');
 const logger = require('./utils/logger');
 const publicRoutes = require('./routes/v1/publicRoutes');
-
-
+const jobRoutes = require('./routes/v1/jobRoutes');
 
 dotenv.config();
 
@@ -36,12 +34,9 @@ app.use(express.json());
 app.use('/uploads', (req, res, next) => {
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
   next();
-}, express.static('uploads'));
+}, express.static(require('path').join(__dirname, 'uploads')));
+
 app.use(cookieParser());
-
-
-
-
 app.use(xssMiddleware);
 
 // Request logging with IP
@@ -80,6 +75,7 @@ app.use('/api/v1/auth/refresh', refreshLimiter);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/public', publicRoutes);
+app.use('/api/v1/jobs', jobRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

@@ -146,11 +146,11 @@ export default function ProfileHeader({
                 {openToWork
                   ? <span className="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 rounded-full px-2.5 py-0.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
-                      <span className="text-[10px] font-semibold text-green-700">Open to Work</span>
+                      <span className="text-[10px] font-semibold text-green-700">Ready to Work</span>
                     </span>
                   : <span className="inline-flex items-center gap-1.5 border border-dashed border-gray-200 rounded-full px-2.5 py-0.5 hover:border-gray-300 transition">
                       <span className="w-1.5 h-1.5 rounded-full bg-gray-300 inline-block" />
-                      <span className="text-[10px] text-gray-400">Open to Work</span>
+                      <span className="text-[10px] text-gray-400">Ready to Work</span>
                     </span>
                 }
               </button>

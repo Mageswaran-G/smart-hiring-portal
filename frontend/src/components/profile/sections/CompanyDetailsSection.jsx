@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { getTheme } from '../../../utils/theme';
 
 export default function CompanyDetailsSection({ profile, onSave }) {
-  const theme = getTheme('company'); // always navy for company
+  const theme = getTheme('company');
   const [editing, setEditing] = useState(false);
   const [saving,  setSaving]  = useState(false);
   const [form, setForm] = useState({
@@ -19,6 +19,13 @@ export default function CompanyDetailsSection({ profile, onSave }) {
 
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 
+  // ✅ Block keys that are not numbers (for number-only fields)
+  const allowNumbersOnly = e => {
+    const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'];
+    if (allowed.includes(e.key)) return; // allow control keys
+    if (!/^\d$/.test(e.key)) e.preventDefault(); // block anything not a digit
+  };
+
   const handleSave = async () => {
     setSaving(true);
     await onSave(form);
@@ -27,6 +34,24 @@ export default function CompanyDetailsSection({ profile, onSave }) {
   };
 
   const inputClass = `w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-800 outline-none ${theme.focus}`;
+
+  // ✅ Field config — added type and onKeyDown for number fields
+  const fields = [
+    { label: 'Company Name',  name: 'companyName',    placeholder: 'Your company name' },
+    { label: 'Website',       name: 'companyWebsite', placeholder: 'https://yourcompany.com' },
+    { label: 'Industry',      name: 'industry',       placeholder: 'e.g. Software' },
+    { label: 'Company Size',  name: 'companySize',    placeholder: 'e.g. 10-50 employees' },
+    {
+      label: 'Founded Year',
+      name: 'foundedYear',
+      placeholder: 'e.g. 2020',
+      type: 'number',           // ✅ number input type
+      onKeyDown: allowNumbersOnly, // ✅ block letters
+    },
+    { label: 'City',    name: 'companyCity',    placeholder: 'e.g. Chennai' },
+    { label: 'State',   name: 'companyState',   placeholder: 'e.g. Tamil Nadu' },
+    { label: 'Country', name: 'companyCountry', placeholder: 'e.g. India' },
+  ];
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-md">
@@ -43,14 +68,14 @@ export default function CompanyDetailsSection({ profile, onSave }) {
       {!editing ? (
         <div className="grid grid-cols-2 gap-3">
           {[
-            { label: 'Company Name',    value: profile?.companyName },
-            { label: 'Website',         value: profile?.companyWebsite },
-            { label: 'Industry',        value: profile?.industry },
-            { label: 'Company Size',    value: profile?.companySize },
-            { label: 'Founded Year',    value: profile?.foundedYear },
-            { label: 'City',            value: profile?.companyCity },
-            { label: 'State',           value: profile?.companyState },
-            { label: 'Country',         value: profile?.companyCountry },
+            { label: 'Company Name',  value: profile?.companyName },
+            { label: 'Website',       value: profile?.companyWebsite },
+            { label: 'Industry',      value: profile?.industry },
+            { label: 'Company Size',  value: profile?.companySize },
+            { label: 'Founded Year',  value: profile?.foundedYear },
+            { label: 'City',          value: profile?.companyCity },
+            { label: 'State',         value: profile?.companyState },
+            { label: 'Country',       value: profile?.companyCountry },
           ].map(({ label, value }) => (
             <div key={label}>
               <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide">{label}</p>
@@ -68,20 +93,19 @@ export default function CompanyDetailsSection({ profile, onSave }) {
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-3">
-          {[
-            { label: 'Company Name',    name: 'companyName',    placeholder: 'Your company name' },
-            { label: 'Website',         name: 'companyWebsite', placeholder: 'https://yourcompany.com' },
-            { label: 'Industry',        name: 'industry',       placeholder: 'Software' },
-            { label: 'Company Size',    name: 'companySize',    placeholder: '10-50 employees' },
-            { label: 'Founded Year',    name: 'foundedYear',    placeholder: '2020' },
-            { label: 'City',            name: 'companyCity',    placeholder: 'Chennai' },
-            { label: 'State',           name: 'companyState',   placeholder: 'Tamil Nadu' },
-            { label: 'Country',         name: 'companyCountry', placeholder: 'India' },
-          ].map(({ label, name, placeholder }) => (
+          {fields.map(({ label, name, placeholder, type = 'text', onKeyDown }) => (
             <div key={name}>
               <label className="block text-xs font-semibold text-gray-400 mb-1 uppercase">{label}</label>
-              <input name={name} value={form[name]} onChange={handleChange}
-                placeholder={placeholder} className={inputClass} />
+              <input
+                name={name}
+                value={form[name]}
+                onChange={handleChange}
+                placeholder={placeholder}
+                type={type}
+                onKeyDown={onKeyDown}
+                // ✅ Hide the number up/down arrows (spinner)
+                className={`${inputClass} [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
+              />
             </div>
           ))}
           <div className="col-span-2">
