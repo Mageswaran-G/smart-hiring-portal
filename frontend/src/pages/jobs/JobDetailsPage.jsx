@@ -49,13 +49,18 @@ export default function JobDetailsPage() {
   // Check if job is already saved (candidates only)
   useEffect(() => {
     if (!user || user.role !== 'candidate') return;
-    const checkSaved = async () => {
+
+    const checkApplied = async () => {
       try {
-        const res = await API.get(API_ENDPOINTS.SAVED_JOB_IDS);
-        setIsSaved(res.data.data.includes(id));
+        const res = await API.get(API_ENDPOINTS.MY_APPLICATIONS);
+        const myApps = res.data.data || [];
+        // Check if any of my applications is for this job
+        const alreadyApplied = myApps.some(app => app.job?._id === id);
+        setApplied(alreadyApplied);
       } catch (_) {}
     };
-    checkSaved();
+
+    checkApplied();
   }, [id, user]);
 
   // Apply handler
