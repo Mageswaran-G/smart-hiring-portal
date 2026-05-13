@@ -1,8 +1,9 @@
-import { getMyApplications }     from '../../services/applicationService';
-import { APPLICATION_STATUS }    from '../../constants/applicationStatus';
-import EmptyState                from '../../components/ui/EmptyState';
-import { Briefcase }             from 'lucide-react';
-import toast                     from 'react-hot-toast';
+import toast                          from 'react-hot-toast';
+import PageHeader                     from '../../components/ui/PageHeader';
+import EmptyState                     from '../../components/ui/EmptyState';
+import { APPLICATION_STATUS }         from '../../constants/applicationStatus';
+import { getMyApplications }          from '../../services/applicationService';
+import { Briefcase, MapPin, Calendar } from 'lucide-react';
 
 export default function CandidateApplicationsPage() {
 
@@ -14,8 +15,8 @@ export default function CandidateApplicationsPage() {
   useEffect(() => {
     const fetch = async () => {
       try {
-        const data = await getMyApplications();   // ← clean service call
-        setApplications(data.data);
+        const data = await getMyApplications(); // returns array directly
+        setApplications(data);
       } catch (err) {
         toast.error('Failed to load applications');
       } finally {
@@ -29,22 +30,11 @@ export default function CandidateApplicationsPage() {
     <DashboardLayout>
 
       {/* Header */}
-      <div className="bg-white rounded-2xl p-8 shadow-md mb-6 flex items-center gap-4">
-        <button
-          onClick={() => navigate(ROUTES.CANDIDATE_DASHBOARD)}
-          className="text-gray-400 hover:text-gray-600 transition"
-        >
-          <ArrowLeft size={22} />
-        </button>
-        <div>
-          <h1 className="font-sora text-2xl font-bold text-gray-900">
-            My Applications
-          </h1>
-          <p className="text-sm text-gray-400 mt-1">
-            Track all jobs you have applied to
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="My Applications"
+        subtitle="Track all jobs you have applied to"
+        backRoute={ROUTES.CANDIDATE_DASHBOARD}
+      />
 
       {/* Loading */}
       {loading && (
@@ -59,12 +49,13 @@ export default function CandidateApplicationsPage() {
       {/* Empty */}
       {!loading && !error && applications.length === 0 && (
         <EmptyState
-          icon={<Briefcase size={32} />}
-          title="No applications yet"
-          subtitle="Browse jobs and hit Apply Now to get started"
-          actionLabel="Browse Jobs"
-          onAction={() => navigate(ROUTES.PUBLIC_JOBS)}
-        />
+        icon={<Briefcase size={32} />}
+        title="No applications yet"
+        subtitle="Browse jobs and hit Apply Now to get started"
+        actionLabel="Browse Jobs"
+        onAction={() => navigate(ROUTES.PUBLIC_JOBS)}
+        variant="candidate"
+      />
       )}
 
       {/* Applications List */}

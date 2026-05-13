@@ -1,15 +1,15 @@
-// CompanyApplicationsPage.jsx
-// Company sees all applicants for their jobs
-// Can filter by job, update application status, view resume
+// CompanyApplicationsPage.jsx — clean version
 
+import { useEffect, useState, useMemo }   from 'react';
+import { useNavigate }                    from 'react-router-dom';
+import { Users, Mail, MapPin, FileText }  from 'lucide-react';
+import toast                             from 'react-hot-toast';
+import DashboardLayout                   from '../../components/layout/DashboardLayout';
+import PageHeader                        from '../../components/ui/PageHeader';
+import EmptyState                        from '../../components/ui/EmptyState';
+import { ROUTES }                        from '../../constants/routes';
+import { APPLICATION_STATUS, APPLICATION_STATUS_OPTIONS } from '../../constants/applicationStatus';
 import { getCompanyApplications, updateApplicationStatus } from '../../services/applicationService';
-import { APPLICATION_STATUS, APPLICATION_STATUS_OPTIONS }  from '../../constants/applicationStatus';
-import EmptyState from '../../components/ui/EmptyState';
-import toast      from 'react-hot-toast';
-import { ArrowLeft, Users, Mail, MapPin, FileText } from 'lucide-react';
-
-
-
 
 export default function CompanyApplicationsPage() {
 
@@ -17,23 +17,25 @@ export default function CompanyApplicationsPage() {
 
   const [applications, setApplications] = useState([]);
   const [loading,      setLoading]      = useState(true);
-  const [error,        setError]        = useState('');
   const [filterJob,    setFilterJob]    = useState('all');
   const [updating,     setUpdating]     = useState(null);
 
-  // Fetch all applications on mount
-  const fetchApplications = async () => {
-    try {
-      const data = await getCompanyApplications();    // ← clean
-      setApplications(data.data);
-    } catch (err) {
-      toast.error('Failed to load applications');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // ── Fetch on mount ─────────────────────────────────
+  useEffect(() => {
+    const fetchApplications = async () => {
+      try {
+        const data = await getCompanyApplications(); // returns array directly
+        setApplications(data);
+      } catch (err) {
+        toast.error('Failed to load applications');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchApplications();
+  }, []);
 
-  // Build unique job list for filter dropdown
+  // ── Filter options ──────────────────────────────────
   const jobOptions = useMemo(() => {
     const seen = new Map();
     applications.forEach((app) => {
@@ -44,23 +46,22 @@ export default function CompanyApplicationsPage() {
     return Array.from(seen.entries());
   }, [applications]);
 
-  // Filtered list based on selected job
   const filtered = useMemo(() => {
     if (filterJob === 'all') return applications;
     return applications.filter((app) => app.job?._id === filterJob);
   }, [applications, filterJob]);
 
-  // Update status
+  // ── Status update ───────────────────────────────────
   const handleStatusChange = async (applicationId, newStatus) => {
     setUpdating(applicationId);
     try {
-      await updateApplicationStatus(applicationId, newStatus);   // ← clean
-      setApplications(prev =>
-        prev.map(app =>
+      await updateApplicationStatus(applicationId, newStatus);
+      setApplications((prev) =>
+        prev.map((app) =>
           app._id === applicationId ? { ...app, status: newStatus } : app
         )
       );
-      toast.success(`Status updated to ${APPLICATION_STATUS[newStatus]?.label}`);
+      toast.success(`Moved to ${APPLICATION_STATUS[newStatus]?.label}`);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to update status');
     } finally {
@@ -72,56 +73,51 @@ export default function CompanyApplicationsPage() {
     <DashboardLayout>
 
       {/* Header */}
-      <div className="bg-white rounded-2xl p-8 shadow-md mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate(ROUTES.COMPANY_DASHBOARD)}
-            className="text-gray-400 hover:text-gray-600 transition"
-          >
-            <ArrowLeft size={22} />
-          </button>
-          <div>
-            <h1 className="font-sora text-2xl font-bold text-gray-900">
-              Applicants
-            </h1>
-            <p className="text-sm text-gray-400 mt-1">
-              {filtered.length} application{filtered.length !== 1 ? 's' : ''}
-              {filterJob !== 'all' ? ' for this job' : ' total'}
-            </p>
-          </div>
-        </div>
-
-        {/* Filter by job */}
-        {jobOptions.length > 1 && (
-          <select
-            value={filterJob}
-            onChange={(e) => setFilterJob(e.target.value)}
-            className="border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-300"
-          >
-            <option value="all">All Jobs</option>
-            {jobOptions.map(([id, title]) => (
-              <option key={id} value={id}>{title}</option>
-            ))}
-          </select>
-        )}
-      </div>
+      <PageHeader
+        title="Applicants"
+        subtitle={`${filtered.length} application${filtered.length !== 1 ? 's' : ''}${filterJob !== 'all' ? ' for this job' : ' total'}`}
+        backRoute={ROUTES.COMPANY_DASHBOARD}
+        rightContent={
+          jobOptions.length > 1 ? (
+            <select
+              value={filterJob}
+              onChange={(e) => setFilterJob(e.target.value)}
+              className="border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-300"
+            >
+              <option value="all">All Jobs</option>
+              {jobOptions.map(([id, title]) => (
+                <option key={id} value={id}>{title}</option>
+              ))}
+            </select>
+          ) : null
+        }
+      />
 
       {/* Loading */}
       {loading && (
-        <div className="text-gray-400 text-sm p-4">Loading applicants...</div>
-      )}
-
-      {/* Error */}
-      {error && (
-        <div className="text-red-500 text-sm p-4">{error}</div>
+        <div className="flex flex-col gap-4">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="bg-white rounded-2xl p-6 animate-pulse border border-gray-100">
+              <div className="flex gap-4">
+                <div className="w-12 h-12 bg-gray-200 rounded-full shrink-0" />
+                <div className="flex-1">
+                  <div className="h-4 bg-gray-200 rounded w-1/4 mb-2" />
+                  <div className="h-3 bg-gray-100 rounded w-1/3 mb-2" />
+                  <div className="h-3 bg-gray-100 rounded w-1/2" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
       {/* Empty */}
-      {!loading && !error && filtered.length === 0 && (
-          <EmptyState
+      {!loading && filtered.length === 0 && (
+        <EmptyState
           icon={<Users size={32} />}
           title="No applicants yet"
           subtitle="Applications will appear here once candidates apply"
+          variant="company"
         />
       )}
 
@@ -135,10 +131,9 @@ export default function CompanyApplicationsPage() {
             >
               <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
 
-                {/* Left — candidate info */}
+                {/* Candidate info */}
                 <div className="flex items-start gap-4">
 
-                  {/* Avatar */}
                   <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center shrink-0 overflow-hidden">
                     {app.candidate?.profilePhoto ? (
                       <img
@@ -154,25 +149,20 @@ export default function CompanyApplicationsPage() {
                   </div>
 
                   <div>
-                    {/* Name */}
                     <p className="font-sora font-bold text-gray-900">
                       {app.candidate?.name || 'Unknown'}
                     </p>
-
-                    {/* Email */}
                     <p className="text-sm text-gray-400 flex items-center gap-1 mt-0.5">
                       <Mail size={13} />
                       {app.candidate?.email || '—'}
                     </p>
-
-                    {/* Headline */}
                     {app.candidate?.headline && (
-                      <p className="text-sm text-gray-500 mt-1">
+                      <p className="text-sm text-gray-500 mt-1 max-w-md truncate">
                         {app.candidate.headline}
                       </p>
                     )}
 
-                    {/* View Resume — shows only if candidate had a resume when they applied */}
+                    {/* Resume link */}
                     {app.resume ? (
                       <a
                         href={`${import.meta.env.VITE_API_URL}${app.resume}`}
@@ -184,12 +174,9 @@ export default function CompanyApplicationsPage() {
                         View Resume
                       </a>
                     ) : (
-                      <p className="text-xs text-gray-400 mt-2">
-                        No resume uploaded
-                      </p>
+                      <p className="text-xs text-gray-400 mt-2">No resume uploaded</p>
                     )}
 
-                    {/* Job + location + date */}
                     <div className="flex flex-wrap gap-3 mt-3 text-sm text-gray-400">
                       <span className="font-medium text-gray-600">
                         {app.job?.title || '—'}
@@ -199,33 +186,24 @@ export default function CompanyApplicationsPage() {
                           <MapPin size={13} /> {app.job.location}
                         </span>
                       )}
-                      <span className="text-gray-300">
+                      <span>
                         Applied {new Date(app.createdAt).toLocaleDateString()}
                       </span>
                     </div>
 
-                    {/* Cover letter */}
                     {app.coverLetter && (
                       <p className="mt-3 text-sm text-gray-500 bg-gray-50 rounded-lg px-3 py-2 max-w-lg">
                         "{app.coverLetter}"
                       </p>
                     )}
                   </div>
-
                 </div>
 
-                {/* Right — status control */}
+                {/* Status control */}
                 <div className="flex flex-col items-end gap-2 shrink-0">
-
-                  {/* Current status badge */}
-                  <span className={`
-                    px-3 py-1 rounded-full text-xs font-bold
-                    ${APPLICATION_STATUS[app.status]?.color || 'bg-gray-100 text-gray-600'}
-                  `}>
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${APPLICATION_STATUS[app.status]?.color || 'bg-gray-100 text-gray-600'}`}>
                     {APPLICATION_STATUS[app.status]?.label || app.status}
                   </span>
-
-                  {/* Status dropdown */}
                   <select
                     value={app.status}
                     disabled={updating === app._id}
@@ -238,11 +216,9 @@ export default function CompanyApplicationsPage() {
                       </option>
                     ))}
                   </select>
-
                   {updating === app._id && (
                     <span className="text-xs text-gray-400">Saving...</span>
                   )}
-
                 </div>
 
               </div>

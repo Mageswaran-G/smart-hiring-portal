@@ -1,7 +1,9 @@
-import { getSavedJobs, unsaveJob } from '../../services/savedJobService';
-import EmptyState                  from '../../components/ui/EmptyState';
-import { Bookmark }                from 'lucide-react';
-import toast                       from 'react-hot-toast';
+import toast                            from 'react-hot-toast';
+import PageHeader                       from '../../components/ui/PageHeader';
+import EmptyState                       from '../../components/ui/EmptyState';
+import { getSavedJobs, unsaveJob }      from '../../services/savedJobService';
+import { Bookmark, MapPin, Briefcase }  from 'lucide-react';
+
 
 export default function SavedJobsPage() {
 
@@ -21,36 +23,31 @@ export default function SavedJobsPage() {
     }
   };
 
-  const handleUnsave = async (jobId) => {
-    try {
-      await unsaveJob(jobId);               // ← clean service call
-      setSaved(prev => prev.filter(s => s.job?._id !== jobId));
-      toast.success('Job removed from saved');
-    } catch (err) {
-      toast.error('Failed to remove saved job');
-    }
-  };
+  
+
+  useEffect(() => {
+  const fetch = async () => {
+      try {
+        const data = await getSavedJobs(); // returns array directly
+        setSaved(data);
+      } catch (err) {
+        toast.error('Failed to load saved jobs');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetch();
+  }, []);
 
   return (
     <DashboardLayout>
 
       {/* Header */}
-      <div className="bg-white rounded-2xl p-8 shadow-md mb-6 flex items-center gap-4">
-        <button
-          onClick={() => navigate(ROUTES.CANDIDATE_DASHBOARD)}
-          className="text-gray-400 hover:text-gray-600 transition"
-        >
-          <ArrowLeft size={22} />
-        </button>
-        <div>
-          <h1 className="font-sora text-2xl font-bold text-gray-900">
-            Saved Jobs
-          </h1>
-          <p className="text-sm text-gray-400 mt-1">
-            Jobs you bookmarked to apply later
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="Saved Jobs"
+        subtitle="Jobs you bookmarked to apply later"
+        backRoute={ROUTES.CANDIDATE_DASHBOARD}
+      />
 
       {loading && <p className="text-gray-400 text-sm p-4">Loading...</p>}
       {error   && <p className="text-red-500 text-sm p-4">{error}</p>}
@@ -63,6 +60,7 @@ export default function SavedJobsPage() {
           subtitle="Click the bookmark icon on any job to save it here"
           actionLabel="Browse Jobs"
           onAction={() => navigate(ROUTES.PUBLIC_JOBS)}
+          variant="candidate"
         />
       )}
 
