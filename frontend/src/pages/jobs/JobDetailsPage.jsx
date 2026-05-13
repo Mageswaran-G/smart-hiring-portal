@@ -12,6 +12,8 @@ import { getJobById, applyToJob } from '../../services/jobService';
 import { useAuth } from '../../context/AuthContext';
 import { API } from '../../services/authService';
 import { API_ENDPOINTS } from '../../constants/api';
+import ApplyModal from '../../components/jobs/ApplyModal';
+
 
 export default function JobDetailsPage() {
 
@@ -24,6 +26,9 @@ export default function JobDetailsPage() {
   const [applying, setApplying] = useState(false);
   const [isSaved,  setIsSaved]  = useState(false);
   const [saving,   setSaving]   = useState(false);
+
+  const [showApplyModal, setShowApplyModal] = useState(false);
+  const [applied, setApplied] = useState(false); 
 
   // Fetch job details
   useEffect(() => {
@@ -54,15 +59,13 @@ export default function JobDetailsPage() {
   }, [id, user]);
 
   // Apply handler
-  const handleApply = async () => {
-    if (!user) {
-      alert('Please log in to apply for this job.');
-      return;
-    }
+  const handleApply = async (coverLetter) => {
     try {
       setApplying(true);
-      const response = await applyToJob(id, 'I am interested in this role');
-      alert(response.message);
+      await applyToJob(id, coverLetter);
+      setApplied(true);
+      setShowApplyModal(false);
+      alert('Application submitted successfully!');
     } catch (error) {
       alert(error.response?.data?.message || 'Application failed');
     } finally {
@@ -264,24 +267,33 @@ export default function JobDetailsPage() {
           )}
 
           {/* Apply button */}
-          <button
-            onClick={handleApply}
-            disabled={applying}
-            className="
-              bg-green-600
-              hover:bg-green-700
-              disabled:opacity-60
-              disabled:cursor-not-allowed
-              text-white
-              font-semibold
-              px-8 py-3
-              rounded-xl
-              transition-colors
-            "
-          >
-            {applying ? 'Submitting...' : 'Apply Now'}
-          </button>
+          {user?.role === 'candidate' && (
+            <>
+              <button
+                onClick={() => setShowApplyModal(true)}
+                disabled={applied || applying}
+                className="
+                  bg-green-600 hover:bg-green-700
+                  disabled:opacity-60 disabled:cursor-not-allowed
+                  text-white font-semibold
+                  px-8 py-3 rounded-xl transition-colors
+                "
+              >
+                {applied ? '✓ Applied' : 'Apply Now'}
+              </button>
 
+              {/* Apply Modal */}
+              {showApplyModal && (
+                <ApplyModal
+                  jobTitle={job.title}
+                  loading={applying}
+                  onConfirm={handleApply}
+                  onClose={() => setShowApplyModal(false)}
+                />
+              )}
+            </>
+          )}
+          
         </div>
 
       </div>
