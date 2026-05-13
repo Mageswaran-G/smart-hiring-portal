@@ -13,6 +13,8 @@ const xssMiddleware = require('./middleware/xssMiddleware');
 const logger = require('./utils/logger');
 const publicRoutes = require('./routes/v1/publicRoutes');
 const jobRoutes = require('./routes/v1/jobRoutes');
+const applicationRoutes = require('./routes/v1/applicationRoutes');
+const savedJobRoutes = require('./routes/v1/savedJobRoutes');
 
 dotenv.config();
 
@@ -76,6 +78,8 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/public', publicRoutes);
 app.use('/api/v1/jobs', jobRoutes);
+app.use('/api/v1/applications', applicationRoutes);
+app.use('/api/v1/saved', savedJobRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

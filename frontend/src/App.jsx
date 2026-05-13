@@ -1,18 +1,25 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import CompanyJobsPage from './pages/company/CompanyJobsPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ROUTES } from './constants/routes';
-import ProtectedRoute     from './components/layout/ProtectedRoute';
-import RoleRoute          from './components/layout/RoleRoute';
-import LoginPage          from './pages/LoginPage';
-import SignupPage         from './pages/SignupPage';
-import ProfilePage        from './pages/ProfilePage';
-import CandidateDashboard from './pages/candidate/CandidateDashboard';
-import CompanyDashboard   from './pages/company/CompanyDashboard';
-import AdminDashboard     from './pages/admin/AdminDashboard';
-import ErrorBoundary from './components/layout/ErrorBoundary';
-import PublicProfilePage from './pages/PublicProfilePage';
+import ProtectedRoute         from './components/layout/ProtectedRoute';
+import RoleRoute              from './components/layout/RoleRoute';
+import LoginPage              from './pages/LoginPage';
+import SignupPage             from './pages/SignupPage';
+import ProfilePage            from './pages/ProfilePage';
+import CandidateDashboard     from './pages/candidate/CandidateDashboard';
+import CandidateApplicationsPage from './pages/candidate/CandidateApplicationsPage'; // ← ADD
+import CompanyDashboard       from './pages/company/CompanyDashboard';
+import AdminDashboard         from './pages/admin/AdminDashboard';
+import ErrorBoundary          from './components/layout/ErrorBoundary';
+import PublicProfilePage      from './pages/PublicProfilePage';
+import CreateJobPage          from './pages/company/CreateJobPage';
+import EditJobPage            from './pages/company/EditJobPage';
+import PublicJobsPage         from './pages/jobs/PublicJobsPage';
+import JobDetailsPage         from './pages/jobs/JobDetailsPage';
+import CompanyApplicationsPage from './pages/company/CompanyApplicationsPage';
+import SavedJobsPage from './pages/candidate/SavedJobsPage'; 
 
-// Sends user to correct dashboard after login based on role
 const RoleRedirect = () => {
   const { user } = useAuth();
   if (!user) return <Navigate to={ROUTES.LOGIN} />;
@@ -31,7 +38,7 @@ export default function App() {
           <Route path={ROUTES.HOME}      element={<Navigate to={ROUTES.LOGIN} />} />
           <Route path={ROUTES.LOGIN}     element={<LoginPage />} />
           <Route path={ROUTES.SIGNUP}    element={<SignupPage />} />
-          <Route path="/p/:slug" element={<PublicProfilePage />} />
+          <Route path="/p/:slug"         element={<PublicProfilePage />} />
           <Route path={ROUTES.DASHBOARD} element={
             <ProtectedRoute><RoleRedirect /></ProtectedRoute>
           } />
@@ -40,6 +47,15 @@ export default function App() {
             <ProtectedRoute>
               <RoleRoute allowedRoles={['candidate']}>
                 <CandidateDashboard />
+              </RoleRoute>
+            </ProtectedRoute>
+          } />
+
+          {/* ← ADD THIS ROUTE */}
+          <Route path={ROUTES.CANDIDATE_APPLICATIONS} element={
+            <ProtectedRoute>
+              <RoleRoute allowedRoles={['candidate']}>
+                <CandidateApplicationsPage />
               </RoleRoute>
             </ProtectedRoute>
           } />
@@ -63,6 +79,49 @@ export default function App() {
           <Route path={ROUTES.PROFILE} element={
             <ProtectedRoute><ProfilePage /></ProtectedRoute>
           } />
+          <Route path={ROUTES.COMPANY_JOBS} element={
+            <ProtectedRoute>
+              <RoleRoute allowedRoles={['company']}>
+                <CompanyJobsPage />
+              </RoleRoute>
+            </ProtectedRoute>
+          } />
+
+          <Route path={ROUTES.COMPANY_JOB_CREATE} element={
+            <ProtectedRoute>
+              <RoleRoute allowedRoles={['company']}>
+                <CreateJobPage />
+              </RoleRoute>
+            </ProtectedRoute>
+          } />
+
+          <Route path={ROUTES.COMPANY_JOB_EDIT} element={
+            <ProtectedRoute>
+              <RoleRoute allowedRoles={['company']}>
+                <EditJobPage />
+              </RoleRoute>
+            </ProtectedRoute>
+          } />
+
+          <Route path={ROUTES.COMPANY_APPLICATIONS} element={
+            <ProtectedRoute>
+              <RoleRoute allowedRoles={['company']}>
+                <CompanyApplicationsPage />
+              </RoleRoute>
+            </ProtectedRoute>
+          } />
+
+          <Route path={ROUTES.SAVED_JOBS} element={
+            <ProtectedRoute>
+              <RoleRoute allowedRoles={['candidate']}>
+                <SavedJobsPage />
+              </RoleRoute>
+            </ProtectedRoute>
+          } />
+
+          <Route path={ROUTES.PUBLIC_JOBS}  element={<PublicJobsPage />} />
+          <Route path={ROUTES.JOB_DETAILS}  element={<JobDetailsPage />} />
+
         </Routes>
       </AuthProvider>
     </BrowserRouter>

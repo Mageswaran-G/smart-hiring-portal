@@ -55,16 +55,16 @@ export default function CompanyDashboard() {
         <DashboardCard
           icon={<FileSearch size={24} />}
           title="Job Postings"
-          description="Feature under development"
+          description="Create and manage your job listings"
+          onClick={() => navigate(ROUTES.COMPANY_JOBS)}
           accentColor={theme.primary}
-          disabled
         />
         <DashboardCard
           icon={<Users size={24} />}
           title="Applicants"
-          description="Feature under development"
+          description="Review and manage candidates"
+          onClick={() => navigate(ROUTES.COMPANY_APPLICATIONS)}
           accentColor={theme.primary}
-          disabled
         />
       </div>
 

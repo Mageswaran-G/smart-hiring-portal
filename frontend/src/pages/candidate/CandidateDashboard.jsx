@@ -5,6 +5,7 @@ import { getTheme } from '../../utils/theme';
 import { User, Briefcase, FileText } from 'lucide-react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import DashboardCard from '../../components/ui/DashboardCard';
+import { Bookmark } from 'lucide-react';
 
 export default function CandidateDashboard() {
   const { user, profile } = useAuth();
@@ -44,7 +45,8 @@ export default function CandidateDashboard() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
         <DashboardCard
           icon={<User size={24} />}
           title="My Profile"
@@ -52,20 +54,31 @@ export default function CandidateDashboard() {
           onClick={() => navigate(ROUTES.PROFILE)}
           accentColor={theme.primary}
         />
+
         <DashboardCard
           icon={<Briefcase size={24} />}
           title="Job Listings"
-          description="Feature under development"
+          description="Browse and apply for open positions"
+          onClick={() => navigate(ROUTES.PUBLIC_JOBS)}
           accentColor={theme.primary}
-          disabled
         />
+
+        <DashboardCard
+          icon={<Bookmark size={24} />}
+          title="Saved Jobs"
+          description="Jobs you bookmarked to apply later"
+          onClick={() => navigate(ROUTES.SAVED_JOBS)}
+          accentColor={theme.primary}
+        />
+
         <DashboardCard
           icon={<FileText size={24} />}
           title="Applications"
-          description="Feature under development"
+          description="Track your submitted applications"
+          onClick={() => navigate(ROUTES.CANDIDATE_APPLICATIONS)}
           accentColor={theme.primary}
-          disabled
         />
+
       </div>
 
     </DashboardLayout>

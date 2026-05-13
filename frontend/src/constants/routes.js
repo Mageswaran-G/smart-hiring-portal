@@ -1,14 +1,26 @@
-// All frontend routes in one place
-// Instead of writing '/candidate/dashboard' everywhere
-// we use ROUTES.CANDIDATE_DASHBOARD
-
 export const ROUTES = {
   HOME:                '/',
   LOGIN:               '/login',
   SIGNUP:              '/signup',
   DASHBOARD:           '/dashboard',
   PROFILE:             '/profile',
-  CANDIDATE_DASHBOARD: '/candidate/dashboard',
-  COMPANY_DASHBOARD:   '/company/dashboard',
-  ADMIN_DASHBOARD:     '/admin/dashboard',
+
+  // Candidate
+  CANDIDATE_DASHBOARD:     '/candidate/dashboard',
+  CANDIDATE_APPLICATIONS:  '/candidate/applications',
+  SAVED_JOBS:              '/candidate/saved-jobs',     
+
+  // Company
+  COMPANY_DASHBOARD:       '/company/dashboard',
+  COMPANY_JOBS:            '/company/jobs',
+  COMPANY_JOB_CREATE:      '/company/jobs/create',
+  COMPANY_JOB_EDIT:        '/company/jobs/:id/edit',
+  COMPANY_APPLICATIONS:    '/company/applications',
+
+  // Admin
+  ADMIN_DASHBOARD:         '/admin/dashboard',
+
+  // Public
+  JOB_DETAILS:             '/jobs/:id',
+  PUBLIC_JOBS:             '/jobs',
 };
