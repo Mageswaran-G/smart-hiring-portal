@@ -2,9 +2,9 @@
 // All application-related business logic
 
 const Application = require('../../models/Application');
-const Job = require('../../models/Job');
-const User = require('../../models/User');
-const AppError = require('../../utils/AppError');
+const Job         = require('../../models/Job');
+const User        = require('../../models/User');
+const AppError    = require('../../utils/AppError');
 
 
 // ─────────────────────────────────────────────────────
@@ -13,9 +13,9 @@ const AppError = require('../../utils/AppError');
 // ─────────────────────────────────────────────────────
 exports.applyToJob = async (req, res, next) => {
   try {
-    const { jobId }      = req.params;
+    const { jobId }       = req.params;
     const { coverLetter } = req.body;
-    const candidateId    = req.user.id;
+    const candidateId     = req.user.id;
 
     // Step 1 — check job exists and is active
     const job = await Job.findById(jobId);
@@ -29,27 +29,32 @@ exports.applyToJob = async (req, res, next) => {
     // Step 2 — check not already applied
     const alreadyApplied = await Application.findOne({
       candidate: candidateId,
-      job: jobId,
+      job:       jobId,
     });
     if (alreadyApplied) {
       return next(new AppError('You already applied for this job', 400));
     }
 
-    // Step 3 — Fix: get resume from DB, NOT from req.user
-    // req.user only has id, role, email from JWT — resume is NOT in JWT
-    const userProfile = await User.findById(candidateId).select('resumeUrl');
-    const resume = userProfile?.resumeUrl || '';
+    // Step 3 — get resume URL from DB
+    // FIXED: User model field is resume.url (nested object), NOT resumeUrl
+    // We also check resumes array (multiple resumes) — use the default one first
+    const userProfile = await User.findById(candidateId).select('resume resumes');
+
+    const resumeUrl =
+      userProfile?.resume?.url ||                                  // single resume
+      userProfile?.resumes?.find(r => r.isDefault)?.url ||        // default from multiple
+      userProfile?.resumes?.[0]?.url ||                           // first from multiple
+      '';                                                          // fallback empty
 
     // Step 4 — create the application
     const application = await Application.create({
       candidate:   candidateId,
       job:         jobId,
       coverLetter: coverLetter || '',
-      resume:      resume,
+      resume:      resumeUrl,
     });
 
-    // Step 5 — increment job's application count
-    // $inc is atomic — safe even if 100 users apply at same time
+    // Step 5 — increment job's application count atomically
     await Job.findByIdAndUpdate(jobId, {
       $inc: { applicationsCount: 1 }
     });
@@ -76,10 +81,10 @@ exports.getMyApplications = async (req, res, next) => {
 
     const applications = await Application.find({ candidate: candidateId })
       .populate({
-        path: 'job',
+        path:   'job',
         select: 'title location jobType workMode experienceLevel isActive postedBy',
         populate: {
-          path: 'postedBy',
+          path:   'postedBy',
           select: 'companyName',
         },
       })
@@ -87,7 +92,7 @@ exports.getMyApplications = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      data: applications,
+      data:    applications,
     });
 
   } catch (error) {
@@ -114,7 +119,7 @@ exports.getCompanyApplications = async (req, res, next) => {
     const jobIds = jobs.map((j) => j._id);
 
     // Step 2 — find all applications for those jobs
-    // $in = MongoDB "is in this array" operator
+    // $in = MongoDB "value must be in this array" operator
     const applications = await Application.find({ job: { $in: jobIds } })
       .populate('job',       'title location jobType workMode')
       .populate('candidate', 'name email profilePhoto headline')
@@ -122,7 +127,7 @@ exports.getCompanyApplications = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      data: applications,
+      data:    applications,
     });
 
   } catch (error) {
@@ -138,8 +143,8 @@ exports.getCompanyApplications = async (req, res, next) => {
 exports.updateApplicationStatus = async (req, res, next) => {
   try {
     const { applicationId } = req.params;
-    const { status }         = req.body;
-    const companyId          = req.user.id;
+    const { status }        = req.body;
+    const companyId         = req.user.id;
 
     const validStatuses = ['applied', 'reviewing', 'shortlisted', 'rejected', 'hired'];
 
@@ -156,7 +161,7 @@ exports.updateApplicationStatus = async (req, res, next) => {
       return next(new AppError('Application not found', 404));
     }
 
-    // Security check — only the company who owns the job can update
+    // Security — only the company who owns the job can update
     if (application.job.postedBy.toString() !== companyId) {
       return next(new AppError('Not authorized to update this application', 403));
     }

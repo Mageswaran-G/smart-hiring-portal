@@ -1,3 +1,7 @@
+// PublicJobCard.jsx
+// Shows one job on the public listing page
+// Bookmark button for candidates only
+
 import { MapPin, Briefcase, Bookmark } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../constants/routes';
@@ -9,7 +13,7 @@ export default function PublicJobCard({ job, isSaved = false, onToggleSave }) {
   return (
     <div className="rounded-2xl bg-white border border-gray-100 p-5 shadow-sm hover:shadow-md transition relative">
 
-      {/* Bookmark button — top right, only if onToggleSave provided */}
+      {/* Bookmark button — top right, candidates only */}
       {onToggleSave && (
         <button
           onClick={(e) => {
@@ -31,9 +35,9 @@ export default function PublicJobCard({ job, isSaved = false, onToggleSave }) {
         {job.title}
       </h2>
 
-      {/* Company */}
+      {/* FIXED: job.postedBy not job.company */}
       <p className="mt-1 text-sm text-gray-500">
-        {job.company?.companyName || 'Company'}
+        {job.postedBy?.companyName || 'Company'}
       </p>
 
       {/* Location */}
@@ -61,12 +65,12 @@ export default function PublicJobCard({ job, isSaved = false, onToggleSave }) {
         {job.openings} opening{job.openings > 1 ? 's' : ''}
       </div>
 
-      {/* Description */}
+      {/* Description preview */}
       <p className="mt-4 line-clamp-3 text-sm text-gray-600">
         {job.description}
       </p>
 
-      {/* Button */}
+      {/* View Details button */}
       <button
         onClick={() => navigate(ROUTES.JOB_DETAILS.replace(':id', job._id))}
         className="mt-5 w-full rounded-xl bg-blue-900 py-2.5 text-sm font-semibold text-white hover:bg-blue-800 transition"

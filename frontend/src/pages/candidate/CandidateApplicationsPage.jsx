@@ -12,7 +12,13 @@ export default function CandidateApplicationsPage() {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
+  const STATUS_CONFIG = {
+    applied:     { label: 'Applied',     color: 'bg-yellow-100 text-yellow-700' },
+    reviewing:   { label: 'Reviewing',   color: 'bg-blue-100 text-blue-700'    },
+    shortlisted: { label: 'Shortlisted', color: 'bg-purple-100 text-purple-700'},
+    rejected:    { label: 'Rejected',    color: 'bg-red-100 text-red-700'      },
+    hired:       { label: 'Hired',       color: 'bg-green-100 text-green-700'  },
+  };
   useEffect(() => {
     const fetchApplications = async () => {
       try {
@@ -111,14 +117,9 @@ export default function CandidateApplicationsPage() {
                 {/* Status Badge */}
                 <span className={`
                   px-3 py-1 rounded-full text-xs font-bold
-                  ${app.status === 'accepted'  ? 'bg-green-100 text-green-700'  : ''}
-                  ${app.status === 'rejected'  ? 'bg-red-100 text-red-700'    : ''}
-                  ${app.status === 'pending' || !app.status ? 'bg-yellow-100 text-yellow-700' : ''}
-                  ${app.status === 'reviewed'  ? 'bg-blue-100 text-blue-700'   : ''}
+                  ${STATUS_CONFIG[app.status]?.color || 'bg-gray-100 text-gray-600'}
                 `}>
-                  {app.status
-                    ? app.status.charAt(0).toUpperCase() + app.status.slice(1)
-                    : 'Pending'}
+                  {STATUS_CONFIG[app.status]?.label || app.status}
                 </span>
 
                 {/* Job Type Badge */}

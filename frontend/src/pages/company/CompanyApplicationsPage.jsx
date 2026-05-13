@@ -1,12 +1,16 @@
+// CompanyApplicationsPage.jsx
+// Company sees all applicants for their jobs
+// Can filter by job, update application status, view resume
+
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Users, Mail, MapPin } from 'lucide-react';
+import { ArrowLeft, Users, Mail, MapPin, FileText } from 'lucide-react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { API } from '../../services/authService';
 import { API_ENDPOINTS } from '../../constants/api';
 import { ROUTES } from '../../constants/routes';
 
-// Status config — label, colors
+// Status config — label + color for each status
 const STATUS_CONFIG = {
   applied:     { label: 'Applied',     color: 'bg-yellow-100 text-yellow-700' },
   reviewing:   { label: 'Reviewing',   color: 'bg-blue-100 text-blue-700'    },
@@ -25,7 +29,7 @@ export default function CompanyApplicationsPage() {
   const [loading,      setLoading]      = useState(true);
   const [error,        setError]        = useState('');
   const [filterJob,    setFilterJob]    = useState('all');
-  const [updating,     setUpdating]     = useState(null); // applicationId being updated
+  const [updating,     setUpdating]     = useState(null);
 
   // Fetch all applications on mount
   useEffect(() => {
@@ -39,7 +43,6 @@ export default function CompanyApplicationsPage() {
         setLoading(false);
       }
     };
-
     fetchApplications();
   }, []);
 
@@ -51,7 +54,7 @@ export default function CompanyApplicationsPage() {
         seen.set(app.job._id, app.job.title);
       }
     });
-    return Array.from(seen.entries()); // [[id, title], ...]
+    return Array.from(seen.entries());
   }, [applications]);
 
   // Filtered list based on selected job
@@ -60,7 +63,7 @@ export default function CompanyApplicationsPage() {
     return applications.filter((app) => app.job?._id === filterJob);
   }, [applications, filterJob]);
 
-  // Update status handler
+  // Update status
   const handleStatusChange = async (applicationId, newStatus) => {
     setUpdating(applicationId);
     try {
@@ -68,7 +71,6 @@ export default function CompanyApplicationsPage() {
         API_ENDPOINTS.UPDATE_APPLICATION_STATUS(applicationId),
         { status: newStatus }
       );
-      // Update locally — no need to re-fetch
       setApplications((prev) =>
         prev.map((app) =>
           app._id === applicationId ? { ...app, status: newStatus } : app
@@ -86,7 +88,6 @@ export default function CompanyApplicationsPage() {
 
       {/* Header */}
       <div className="bg-white rounded-2xl p-8 shadow-md mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate(ROUTES.COMPANY_DASHBOARD)}
@@ -105,7 +106,7 @@ export default function CompanyApplicationsPage() {
           </div>
         </div>
 
-        {/* Filter by Job */}
+        {/* Filter by job */}
         {jobOptions.length > 1 && (
           <select
             value={filterJob}
@@ -118,7 +119,6 @@ export default function CompanyApplicationsPage() {
             ))}
           </select>
         )}
-
       </div>
 
       {/* Loading */}
@@ -143,9 +143,7 @@ export default function CompanyApplicationsPage() {
       )}
 
       {/* Applications list */}
-      
       {!loading && filtered.length > 0 && (
-        
         <div className="flex flex-col gap-4">
           {filtered.map((app) => (
             <div
@@ -154,7 +152,7 @@ export default function CompanyApplicationsPage() {
             >
               <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
 
-                {/* Candidate info */}
+                {/* Left — candidate info */}
                 <div className="flex items-start gap-4">
 
                   {/* Avatar */}
@@ -173,20 +171,42 @@ export default function CompanyApplicationsPage() {
                   </div>
 
                   <div>
+                    {/* Name */}
                     <p className="font-sora font-bold text-gray-900">
                       {app.candidate?.name || 'Unknown'}
                     </p>
+
+                    {/* Email */}
                     <p className="text-sm text-gray-400 flex items-center gap-1 mt-0.5">
                       <Mail size={13} />
                       {app.candidate?.email || '—'}
                     </p>
+
+                    {/* Headline */}
                     {app.candidate?.headline && (
                       <p className="text-sm text-gray-500 mt-1">
                         {app.candidate.headline}
                       </p>
                     )}
 
-                    {/* Job + location */}
+                    {/* View Resume — shows only if candidate had a resume when they applied */}
+                    {app.resume ? (
+                      <a
+                        href={`${import.meta.env.VITE_API_URL}${app.resume}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 mt-2 text-xs text-blue-600 hover:text-blue-800 border border-blue-200 hover:border-blue-400 px-3 py-1.5 rounded-lg transition font-medium"
+                      >
+                        <FileText size={13} />
+                        View Resume
+                      </a>
+                    ) : (
+                      <p className="text-xs text-gray-400 mt-2">
+                        No resume uploaded
+                      </p>
+                    )}
+
+                    {/* Job + location + date */}
                     <div className="flex flex-wrap gap-3 mt-3 text-sm text-gray-400">
                       <span className="font-medium text-gray-600">
                         {app.job?.title || '—'}
@@ -209,13 +229,9 @@ export default function CompanyApplicationsPage() {
                     )}
                   </div>
 
-                  
-
                 </div>
 
-                
-
-                {/* Status control */}
+                {/* Right — status control */}
                 <div className="flex flex-col items-end gap-2 shrink-0">
 
                   {/* Current status badge */}
@@ -249,15 +265,8 @@ export default function CompanyApplicationsPage() {
               </div>
             </div>
           ))}
-
-          
         </div>
-
-        
       )}
-
-      
-
 
     </DashboardLayout>
   );
