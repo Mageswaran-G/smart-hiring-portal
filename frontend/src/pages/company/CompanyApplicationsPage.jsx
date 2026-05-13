@@ -143,7 +143,9 @@ export default function CompanyApplicationsPage() {
       )}
 
       {/* Applications list */}
+      
       {!loading && filtered.length > 0 && (
+        
         <div className="flex flex-col gap-4">
           {filtered.map((app) => (
             <div
@@ -207,7 +209,11 @@ export default function CompanyApplicationsPage() {
                     )}
                   </div>
 
+                  
+
                 </div>
+
+                
 
                 {/* Status control */}
                 <div className="flex flex-col items-end gap-2 shrink-0">
@@ -243,8 +249,15 @@ export default function CompanyApplicationsPage() {
               </div>
             </div>
           ))}
+
+          
         </div>
+
+        
       )}
+
+      
+
 
     </DashboardLayout>
   );

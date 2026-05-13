@@ -1,6 +1,10 @@
 // PublicJobsPage.jsx
 // Public job listing with search, filter, and pagination
 
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, LayoutDashboard } from 'lucide-react';
+import { ROUTES } from '../../constants/routes';
+
 import { useEffect, useState, useCallback } from 'react';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { getAllJobs } from '../../services/jobService';
@@ -46,6 +50,8 @@ export default function PublicJobsPage() {
 
   const { user } = useAuth();
   const isCandidate = user?.role === 'candidate';
+
+  const navigate = useNavigate();
 
   // ── State ────────────────────────────────────────
   const [jobs,       setJobs]       = useState([]);
@@ -142,6 +148,18 @@ export default function PublicJobsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+
+      <div className="bg-white border-b border-gray-100 px-6 py-3 flex items-center gap-3">
+        {user && (
+          <button
+            onClick={() => navigate(ROUTES.DASHBOARD)}
+            className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 transition"
+          >
+            <LayoutDashboard size={16} />
+            Dashboard
+          </button>
+        )}
+      </div>
 
       {/* ── Header ── */}
       <div className="bg-white border-b border-gray-100 px-6 py-6">
