@@ -1,34 +1,26 @@
-import toast                            from 'react-hot-toast';
-import PageHeader                       from '../../components/ui/PageHeader';
-import EmptyState                       from '../../components/ui/EmptyState';
-import { getSavedJobs, unsaveJob }      from '../../services/savedJobService';
-import { Bookmark, MapPin, Briefcase }  from 'lucide-react';
+// SavedJobsPage.jsx — complete correct file
 
+import { useState, useEffect }              from 'react';  // ← ADDED
+import { useNavigate }                      from 'react-router-dom';
+import { Bookmark, MapPin, Briefcase }      from 'lucide-react';
+import toast                                from 'react-hot-toast';
+import DashboardLayout                      from '../../components/layout/DashboardLayout'; // ← ADDED
+import PageHeader                           from '../../components/ui/PageHeader';
+import EmptyState                           from '../../components/ui/EmptyState';
+import { getSavedJobs, unsaveJob }          from '../../services/savedJobService';
+import { ROUTES }                           from '../../constants/routes';
 
 export default function SavedJobsPage() {
 
   const navigate = useNavigate();
+
   const [saved,   setSaved]   = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState('');
-
-  const fetchSaved = async () => {
-    try {
-      const data = await getSavedJobs();    // ← clean service call
-      setSaved(data.data);
-    } catch (err) {
-      toast.error('Failed to load saved jobs');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  
 
   useEffect(() => {
-  const fetch = async () => {
+    const fetch = async () => {
       try {
-        const data = await getSavedJobs(); // returns array directly
+        const data = await getSavedJobs();
         setSaved(data);
       } catch (err) {
         toast.error('Failed to load saved jobs');
@@ -39,22 +31,45 @@ export default function SavedJobsPage() {
     fetch();
   }, []);
 
+  // ← ADDED — was missing entirely
+  const handleUnsave = async (jobId) => {
+    try {
+      await unsaveJob(jobId);
+      setSaved(prev => prev.filter(s => s.job?._id !== jobId));
+      toast.success('Job removed from saved');
+    } catch (err) {
+      toast.error('Failed to remove saved job');
+    }
+  };
+
   return (
     <DashboardLayout>
 
-      {/* Header */}
       <PageHeader
         title="Saved Jobs"
         subtitle="Jobs you bookmarked to apply later"
         backRoute={ROUTES.CANDIDATE_DASHBOARD}
       />
 
-      {loading && <p className="text-gray-400 text-sm p-4">Loading...</p>}
-      {error   && <p className="text-red-500 text-sm p-4">{error}</p>}
+      {/* Loading skeleton */}
+      {loading && (
+        <div className="flex flex-col gap-4">
+          {[1, 2].map(i => (
+            <div key={i} className="bg-white rounded-2xl p-6 animate-pulse border border-gray-100">
+              <div className="h-4 bg-gray-200 rounded w-1/3 mb-2" />
+              <div className="h-3 bg-gray-100 rounded w-1/4 mb-3" />
+              <div className="flex gap-2">
+                <div className="h-6 bg-gray-100 rounded-full w-20" />
+                <div className="h-6 bg-gray-100 rounded-full w-16" />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Empty */}
-      {!loading && !error && saved.length === 0 && (
-          <EmptyState
+      {!loading && saved.length === 0 && (
+        <EmptyState
           icon={<Bookmark size={32} />}
           title="No saved jobs yet"
           subtitle="Click the bookmark icon on any job to save it here"
@@ -110,9 +125,7 @@ export default function SavedJobsPage() {
                     Remove
                   </button>
                   <button
-                    onClick={() =>
-                      navigate(ROUTES.JOB_DETAILS.replace(':id', job._id))
-                    }
+                    onClick={() => navigate(ROUTES.JOB_DETAILS.replace(':id', job._id))}
                     className="bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-2 rounded-xl text-sm transition"
                   >
                     Apply Now

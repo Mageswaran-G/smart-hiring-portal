@@ -1,21 +1,27 @@
-import toast                          from 'react-hot-toast';
-import PageHeader                     from '../../components/ui/PageHeader';
-import EmptyState                     from '../../components/ui/EmptyState';
-import { APPLICATION_STATUS }         from '../../constants/applicationStatus';
-import { getMyApplications }          from '../../services/applicationService';
-import { Briefcase, MapPin, Calendar } from 'lucide-react';
+// CandidateApplicationsPage.jsx — complete correct file
+
+import { useState, useEffect }            from 'react';  // ← ADDED
+import { useNavigate }                    from 'react-router-dom';
+import { Briefcase, MapPin, Calendar }    from 'lucide-react';
+import toast                              from 'react-hot-toast';
+import DashboardLayout                    from '../../components/layout/DashboardLayout'; // ← ADDED
+import PageHeader                         from '../../components/ui/PageHeader';
+import EmptyState                         from '../../components/ui/EmptyState';
+import { APPLICATION_STATUS }             from '../../constants/applicationStatus';
+import { getMyApplications }              from '../../services/applicationService';
+import { ROUTES }                         from '../../constants/routes';
 
 export default function CandidateApplicationsPage() {
 
   const navigate = useNavigate();
+
   const [applications, setApplications] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  
+  const [loading,      setLoading]      = useState(true);
+
   useEffect(() => {
     const fetch = async () => {
       try {
-        const data = await getMyApplications(); // returns array directly
+        const data = await getMyApplications();
         setApplications(data);
       } catch (err) {
         toast.error('Failed to load applications');
@@ -29,36 +35,41 @@ export default function CandidateApplicationsPage() {
   return (
     <DashboardLayout>
 
-      {/* Header */}
       <PageHeader
         title="My Applications"
         subtitle="Track all jobs you have applied to"
         backRoute={ROUTES.CANDIDATE_DASHBOARD}
       />
 
-      {/* Loading */}
+      {/* Loading skeleton */}
       {loading && (
-        <div className="text-gray-400 text-sm p-4">Loading applications...</div>
-      )}
-
-      {/* Error */}
-      {error && (
-        <div className="text-red-500 text-sm p-4">{error}</div>
+        <div className="flex flex-col gap-4">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="bg-white rounded-2xl p-6 animate-pulse border border-gray-100">
+              <div className="h-4 bg-gray-200 rounded w-1/3 mb-2" />
+              <div className="h-3 bg-gray-100 rounded w-1/4 mb-3" />
+              <div className="flex gap-3">
+                <div className="h-3 bg-gray-100 rounded w-20" />
+                <div className="h-3 bg-gray-100 rounded w-24" />
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
       {/* Empty */}
-      {!loading && !error && applications.length === 0 && (
+      {!loading && applications.length === 0 && (
         <EmptyState
-        icon={<Briefcase size={32} />}
-        title="No applications yet"
-        subtitle="Browse jobs and hit Apply Now to get started"
-        actionLabel="Browse Jobs"
-        onAction={() => navigate(ROUTES.PUBLIC_JOBS)}
-        variant="candidate"
-      />
+          icon={<Briefcase size={32} />}
+          title="No applications yet"
+          subtitle="Browse jobs and hit Apply Now to get started"
+          actionLabel="Browse Jobs"
+          onAction={() => navigate(ROUTES.PUBLIC_JOBS)}
+          variant="candidate"
+        />
       )}
 
-      {/* Applications List */}
+      {/* Applications list */}
       {!loading && applications.length > 0 && (
         <div className="flex flex-col gap-4">
           {applications.map((app) => (
