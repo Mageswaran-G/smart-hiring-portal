@@ -5,6 +5,7 @@ import DashboardLayout from '../../components/layout/DashboardLayout';
 import { API } from '../../services/authService';
 import { API_ENDPOINTS } from '../../constants/api';
 import { ROUTES } from '../../constants/routes';
+import { APPLICATION_STATUS } from '../../constants/applicationStatus';
 
 export default function CandidateApplicationsPage() {
 
@@ -12,13 +13,7 @@ export default function CandidateApplicationsPage() {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const STATUS_CONFIG = {
-    applied:     { label: 'Applied',     color: 'bg-yellow-100 text-yellow-700' },
-    reviewing:   { label: 'Reviewing',   color: 'bg-blue-100 text-blue-700'    },
-    shortlisted: { label: 'Shortlisted', color: 'bg-purple-100 text-purple-700'},
-    rejected:    { label: 'Rejected',    color: 'bg-red-100 text-red-700'      },
-    hired:       { label: 'Hired',       color: 'bg-green-100 text-green-700'  },
-  };
+  
   useEffect(() => {
     const fetchApplications = async () => {
       try {

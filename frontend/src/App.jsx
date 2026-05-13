@@ -19,6 +19,8 @@ import PublicJobsPage         from './pages/jobs/PublicJobsPage';
 import JobDetailsPage         from './pages/jobs/JobDetailsPage';
 import CompanyApplicationsPage from './pages/company/CompanyApplicationsPage';
 import SavedJobsPage from './pages/candidate/SavedJobsPage'; 
+import { Toaster } from 'react-hot-toast';
+
 
 const RoleRedirect = () => {
   const { user } = useAuth();
@@ -124,6 +126,24 @@ export default function App() {
 
         </Routes>
       </AuthProvider>
+               
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 3000,
+              style: {
+                borderRadius: '12px',
+                fontSize: '14px',
+                fontWeight: '500',
+              },
+              success: {
+                style: { background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0' },
+              },
+              error: {
+                style: { background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' },
+              },
+            }}
+          />
     </BrowserRouter>
     </ErrorBoundary>
   );

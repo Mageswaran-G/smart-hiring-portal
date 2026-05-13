@@ -13,6 +13,7 @@ import { API_ENDPOINTS } from '../../constants/api';
 import { useAuth } from '../../context/AuthContext';
 import PublicJobCard from '../../components/jobs/PublicJobCard';
 import { JOB_TYPES, WORK_MODES, EXPERIENCE_LEVELS } from '../../constants/jobConstants';
+import toast from 'react-hot-toast';
 
 // Default filter state — one place, easy to reset
 const DEFAULT_FILTERS = {
@@ -142,7 +143,7 @@ export default function PublicJobsPage() {
         setSavedIds(prev => new Set(prev).add(jobId));
       }
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to update saved jobs');
+      toast.error(err.response?.data?.message || 'Failed to update saved jobs');
     }
   }, [savedIds]);
 

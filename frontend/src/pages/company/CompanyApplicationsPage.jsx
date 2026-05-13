@@ -9,17 +9,11 @@ import DashboardLayout from '../../components/layout/DashboardLayout';
 import { API } from '../../services/authService';
 import { API_ENDPOINTS } from '../../constants/api';
 import { ROUTES } from '../../constants/routes';
+import toast from 'react-hot-toast';
+import { APPLICATION_STATUS, APPLICATION_STATUS_OPTIONS } from '../../constants/applicationStatus';
 
-// Status config — label + color for each status
-const STATUS_CONFIG = {
-  applied:     { label: 'Applied',     color: 'bg-yellow-100 text-yellow-700' },
-  reviewing:   { label: 'Reviewing',   color: 'bg-blue-100 text-blue-700'    },
-  shortlisted: { label: 'Shortlisted', color: 'bg-purple-100 text-purple-700'},
-  rejected:    { label: 'Rejected',    color: 'bg-red-100 text-red-700'      },
-  hired:       { label: 'Hired',       color: 'bg-green-100 text-green-700'  },
-};
 
-const STATUS_OPTIONS = Object.keys(STATUS_CONFIG);
+
 
 export default function CompanyApplicationsPage() {
 
@@ -76,8 +70,11 @@ export default function CompanyApplicationsPage() {
           app._id === applicationId ? { ...app, status: newStatus } : app
         )
       );
+      
+      toast.success(`Status updated to ${APPLICATION_STATUS[newStatus]?.label}`);
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to update status');
+      
+      toast.error(err.response?.data?.message || 'Failed to update status');
     } finally {
       setUpdating(null);
     }

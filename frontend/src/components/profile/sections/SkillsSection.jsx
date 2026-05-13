@@ -1,13 +1,11 @@
-// SkillsSection.jsx — full corrected file
-
+// SkillsSection.jsx
 import { useState } from 'react';
-import { X, Plus } from 'lucide-react';
+import { X, Plus, Loader2 } from 'lucide-react';
 import { getTheme } from '../../../utils/theme';
 
 const PROFICIENCY_LEVELS = ['beginner', 'intermediate', 'advanced', 'expert'];
 
-// Single skill tag
-function SkillTag({ skill, theme, onRemove }) {
+function SkillTag({ skill, theme, onRemove, removing }) {
 
   const levelColors = {
     beginner:     'bg-gray-100 text-gray-500',
@@ -20,18 +18,23 @@ function SkillTag({ skill, theme, onRemove }) {
     <div className="inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full pl-3 pr-2 py-1.5 shadow-sm">
       <span className="text-sm font-medium text-gray-800">{skill.name}</span>
 
-      {/* FIXED: skill.proficiency not skill.level */}
       {skill.proficiency && (
         <span className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${levelColors[skill.proficiency] || levelColors.beginner}`}>
           {skill.proficiency}
         </span>
       )}
 
+      {/* X button — auto saves on click */}
       <button
         onClick={() => onRemove(skill.name)}
-        className="w-4 h-4 rounded-full bg-gray-100 hover:bg-red-100 flex items-center justify-center cursor-pointer border-none transition"
+        disabled={removing}
+        className="w-4 h-4 rounded-full bg-gray-100 hover:bg-red-100 flex items-center justify-center cursor-pointer border-none transition disabled:opacity-40"
       >
-        <X size={10} className="text-gray-400 hover:text-red-500" />
+        {removing ? (
+          <Loader2 size={9} className="text-gray-400 animate-spin" />
+        ) : (
+          <X size={10} className="text-gray-400 hover:text-red-500" />
+        )}
       </button>
     </div>
   );
@@ -40,7 +43,6 @@ function SkillTag({ skill, theme, onRemove }) {
 export default function SkillsSection({ profile, isCandidate, onSave }) {
   const theme = getTheme(isCandidate ? 'candidate' : 'company');
 
-  // FIXED: map to proficiency not level
   const initSkills = Array.isArray(profile?.skills)
     ? profile.skills.map(s =>
         typeof s === 'string'
@@ -49,13 +51,14 @@ export default function SkillsSection({ profile, isCandidate, onSave }) {
       )
     : [];
 
-  const [skills,      setSkills]      = useState(initSkills);
-  const [savedSkills, setSavedSkills] = useState(initSkills);
-  const [newSkill,    setNewSkill]    = useState('');
-  const [newLevel,    setNewLevel]    = useState('intermediate');
-  const [saving,      setSaving]      = useState(false);
-  const [showInput,   setShowInput]   = useState(false);
-  const [error,       setError]       = useState('');
+  const [skills,     setSkills]     = useState(initSkills);
+  const [savedSkills,setSavedSkills]= useState(initSkills);
+  const [newSkill,   setNewSkill]   = useState('');
+  const [newLevel,   setNewLevel]   = useState('intermediate');
+  const [saving,     setSaving]     = useState(false);
+  const [removing,   setRemoving]   = useState(false);
+  const [showInput,  setShowInput]  = useState(false);
+  const [error,      setError]      = useState('');
 
   const handleAdd = () => {
     const trimmed = newSkill.trim();
@@ -65,18 +68,23 @@ export default function SkillsSection({ profile, isCandidate, onSave }) {
       return;
     }
     if (skills.length >= 20) { setError('Maximum 20 skills allowed.'); return; }
-
-    // FIXED: use proficiency not level
     setSkills(prev => [...prev, { name: trimmed, proficiency: newLevel }]);
     setNewSkill('');
     setError('');
     setShowInput(false);
   };
 
-  const handleRemove = (name) => {
-    setSkills(prev => prev.filter(s => s.name !== name));
+  // FIX: auto-save immediately when skill is removed
+  const handleRemove = async (name) => {
+    const updated = skills.filter(s => s.name !== name);
+    setSkills(updated);         // update UI instantly
+    setRemoving(true);
+    await onSave({ skills: updated });  // save to backend immediately
+    setSavedSkills(updated);    // sync saved state
+    setRemoving(false);
   };
 
+  // Manual save — only for adding new skills
   const handleSave = async () => {
     setSaving(true);
     await onSave({ skills });
@@ -84,7 +92,9 @@ export default function SkillsSection({ profile, isCandidate, onSave }) {
     setSaving(false);
   };
 
-  const hasChanges = JSON.stringify(skills) !== JSON.stringify(savedSkills);
+  // Only show Save button when skills are ADDED (not removed — that auto-saves)
+  const hasNewSkills = skills.length > savedSkills.length ||
+    skills.some((s, i) => savedSkills[i]?.name !== s.name || savedSkills[i]?.proficiency !== s.proficiency);
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-md">
@@ -114,6 +124,7 @@ export default function SkillsSection({ profile, isCandidate, onSave }) {
               skill={skill}
               theme={theme}
               onRemove={handleRemove}
+              removing={removing}
             />
           ))}
         </div>
@@ -132,7 +143,6 @@ export default function SkillsSection({ profile, isCandidate, onSave }) {
           <p className="text-xs font-semibold text-gray-500 uppercase mb-3">
             Add New Skill
           </p>
-
           <div className="grid grid-cols-[1fr_auto] gap-2 mb-2">
             <input
               type="text"
@@ -154,9 +164,7 @@ export default function SkillsSection({ profile, isCandidate, onSave }) {
             </select>
           </div>
 
-          {error && (
-            <p className="text-xs text-red-500 mb-2">{error}</p>
-          )}
+          {error && <p className="text-xs text-red-500 mb-2">{error}</p>}
 
           <div className="flex gap-2 justify-end">
             <button
@@ -175,8 +183,8 @@ export default function SkillsSection({ profile, isCandidate, onSave }) {
         </div>
       )}
 
-      {/* Save button */}
-      {hasChanges && (
+      {/* Save button — for adding new skills */}
+      {hasNewSkills && (
         <div className="flex justify-end">
           <button
             onClick={handleSave}

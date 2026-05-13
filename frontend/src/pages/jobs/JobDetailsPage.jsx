@@ -16,6 +16,8 @@ import { API_ENDPOINTS }   from '../../constants/api';
 import { ROUTES }          from '../../constants/routes';
 import ApplyModal          from '../../components/jobs/ApplyModal';
 
+import toast from 'react-hot-toast';
+
 // ── Days remaining helper ────────────────────────────
 function getDaysLeft(deadline) {
   if (!deadline) return null;
@@ -89,14 +91,14 @@ export default function JobDetailsPage() {
       setApplied(true);
       setShowApplyModal(false);
     } catch (err) {
-      alert(err.response?.data?.message || 'Application failed');
+      toast.error(err.response?.data?.message || 'Application failed');
     } finally {
       setApplying(false);
     }
   };
 
   const handleToggleSave = async () => {
-    if (!user) { alert('Please log in to save jobs.'); return; }
+    if (!user) { toast.error('Please log in to save jobs.'); return; }
     try {
       setSaving(true);
       if (isSaved) {
@@ -107,7 +109,7 @@ export default function JobDetailsPage() {
         setIsSaved(true);
       }
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to update');
+      toast.error(err.response?.data?.message || 'Failed to update');
     } finally {
       setSaving(false);
     }

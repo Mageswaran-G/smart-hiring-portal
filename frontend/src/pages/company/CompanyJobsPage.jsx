@@ -10,6 +10,7 @@ import JobCard from '../../components/jobs/JobCard';
 import Button from '../../components/ui/Button';
 import { getMyJobs, updateJobStatus, deleteJob } from '../../services/jobService';
 import { ROUTES } from '../../constants/routes';
+import toast from 'react-hot-toast';
 
 export default function CompanyJobsPage() {
   const navigate = useNavigate();
@@ -42,9 +43,9 @@ export default function CompanyJobsPage() {
       prev.map(job => job._id === id ? { ...job, isActive } : job)
     );
     // Simple feedback — shows green or red message
-    alert(isActive ? 'Job is now Active — visible to candidates' : 'Job is now Inactive — hidden from candidates');
+    toast.success(isActive ? 'Job is now Active — visible to candidates' : 'Job is now Inactive — hidden from candidates');
   } catch (err) {
-    alert('Failed to update status. Try again.');
+    toast.success('Failed to update status. Try again.');
   }
   };
 
@@ -58,7 +59,7 @@ export default function CompanyJobsPage() {
       // Remove from local state
       setJobs(prev => prev.filter(job => job._id !== id));
     } catch (err) {
-      alert('Failed to delete job. Try again.');
+      toast.success('Failed to delete job. Try again.');
     }
   };
 

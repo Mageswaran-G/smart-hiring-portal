@@ -5,6 +5,7 @@ import DashboardLayout from '../../components/layout/DashboardLayout';
 import { API } from '../../services/authService';
 import { API_ENDPOINTS } from '../../constants/api';
 import { ROUTES } from '../../constants/routes';
+import toast from 'react-hot-toast';
 
 export default function SavedJobsPage() {
 
@@ -32,7 +33,7 @@ export default function SavedJobsPage() {
       await API.delete(API_ENDPOINTS.UNSAVE_JOB(jobId));
       setSaved((prev) => prev.filter((s) => s.job?._id !== jobId));
     } catch (err) {
-      alert('Failed to remove saved job');
+      toast.error('Failed to remove saved job');
     }
   };
 
