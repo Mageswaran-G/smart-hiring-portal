@@ -1,11 +1,8 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Briefcase, MapPin, Calendar, ArrowLeft } from 'lucide-react';
-import DashboardLayout from '../../components/layout/DashboardLayout';
-import { API } from '../../services/authService';
-import { API_ENDPOINTS } from '../../constants/api';
-import { ROUTES } from '../../constants/routes';
-import { APPLICATION_STATUS } from '../../constants/applicationStatus';
+import { getMyApplications }     from '../../services/applicationService';
+import { APPLICATION_STATUS }    from '../../constants/applicationStatus';
+import EmptyState                from '../../components/ui/EmptyState';
+import { Briefcase }             from 'lucide-react';
+import toast                     from 'react-hot-toast';
 
 export default function CandidateApplicationsPage() {
 
@@ -15,18 +12,17 @@ export default function CandidateApplicationsPage() {
   const [error, setError] = useState('');
   
   useEffect(() => {
-    const fetchApplications = async () => {
+    const fetch = async () => {
       try {
-        const res = await API.get(API_ENDPOINTS.MY_APPLICATIONS);
-        setApplications(res.data.data);
+        const data = await getMyApplications();   // ← clean service call
+        setApplications(data.data);
       } catch (err) {
-        setError('Failed to load applications.');
+        toast.error('Failed to load applications');
       } finally {
         setLoading(false);
       }
     };
-
-    fetchApplications();
+    fetch();
   }, []);
 
   return (
@@ -62,19 +58,13 @@ export default function CandidateApplicationsPage() {
 
       {/* Empty */}
       {!loading && !error && applications.length === 0 && (
-        <div className="bg-white rounded-2xl p-10 shadow-sm text-center">
-          <Briefcase size={40} className="mx-auto text-gray-300 mb-3" />
-          <p className="text-gray-500 font-medium">No applications yet</p>
-          <p className="text-gray-400 text-sm mt-1">
-            Browse jobs and hit Apply Now to get started
-          </p>
-          <button
-            onClick={() => navigate(ROUTES.PUBLIC_JOBS)}
-            className="mt-5 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-2.5 rounded-xl transition-colors text-sm"
-          >
-            Browse Jobs
-          </button>
-        </div>
+        <EmptyState
+          icon={<Briefcase size={32} />}
+          title="No applications yet"
+          subtitle="Browse jobs and hit Apply Now to get started"
+          actionLabel="Browse Jobs"
+          onAction={() => navigate(ROUTES.PUBLIC_JOBS)}
+        />
       )}
 
       {/* Applications List */}
@@ -112,9 +102,9 @@ export default function CandidateApplicationsPage() {
                 {/* Status Badge */}
                 <span className={`
                   px-3 py-1 rounded-full text-xs font-bold
-                  ${STATUS_CONFIG[app.status]?.color || 'bg-gray-100 text-gray-600'}
+                  ${APPLICATION_STATUS[app.status]?.color || 'bg-gray-100 text-gray-600'}
                 `}>
-                  {STATUS_CONFIG[app.status]?.label || app.status}
+                  {APPLICATION_STATUS[app.status]?.label || app.status}
                 </span>
 
                 {/* Job Type Badge */}

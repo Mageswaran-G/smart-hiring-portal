@@ -2,15 +2,11 @@
 // Company sees all applicants for their jobs
 // Can filter by job, update application status, view resume
 
-import { useEffect, useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { getCompanyApplications, updateApplicationStatus } from '../../services/applicationService';
+import { APPLICATION_STATUS, APPLICATION_STATUS_OPTIONS }  from '../../constants/applicationStatus';
+import EmptyState from '../../components/ui/EmptyState';
+import toast      from 'react-hot-toast';
 import { ArrowLeft, Users, Mail, MapPin, FileText } from 'lucide-react';
-import DashboardLayout from '../../components/layout/DashboardLayout';
-import { API } from '../../services/authService';
-import { API_ENDPOINTS } from '../../constants/api';
-import { ROUTES } from '../../constants/routes';
-import toast from 'react-hot-toast';
-import { APPLICATION_STATUS, APPLICATION_STATUS_OPTIONS } from '../../constants/applicationStatus';
 
 
 
@@ -26,19 +22,16 @@ export default function CompanyApplicationsPage() {
   const [updating,     setUpdating]     = useState(null);
 
   // Fetch all applications on mount
-  useEffect(() => {
-    const fetchApplications = async () => {
-      try {
-        const res = await API.get(API_ENDPOINTS.COMPANY_APPLICATIONS);
-        setApplications(res.data.data);
-      } catch (err) {
-        setError('Failed to load applications.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchApplications();
-  }, []);
+  const fetchApplications = async () => {
+    try {
+      const data = await getCompanyApplications();    // ← clean
+      setApplications(data.data);
+    } catch (err) {
+      toast.error('Failed to load applications');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Build unique job list for filter dropdown
   const jobOptions = useMemo(() => {
@@ -61,19 +54,14 @@ export default function CompanyApplicationsPage() {
   const handleStatusChange = async (applicationId, newStatus) => {
     setUpdating(applicationId);
     try {
-      await API.patch(
-        API_ENDPOINTS.UPDATE_APPLICATION_STATUS(applicationId),
-        { status: newStatus }
-      );
-      setApplications((prev) =>
-        prev.map((app) =>
+      await updateApplicationStatus(applicationId, newStatus);   // ← clean
+      setApplications(prev =>
+        prev.map(app =>
           app._id === applicationId ? { ...app, status: newStatus } : app
         )
       );
-      
       toast.success(`Status updated to ${APPLICATION_STATUS[newStatus]?.label}`);
     } catch (err) {
-      
       toast.error(err.response?.data?.message || 'Failed to update status');
     } finally {
       setUpdating(null);
@@ -130,13 +118,11 @@ export default function CompanyApplicationsPage() {
 
       {/* Empty */}
       {!loading && !error && filtered.length === 0 && (
-        <div className="bg-white rounded-2xl p-10 shadow-sm text-center">
-          <Users size={40} className="mx-auto text-gray-300 mb-3" />
-          <p className="text-gray-500 font-medium">No applicants yet</p>
-          <p className="text-gray-400 text-sm mt-1">
-            Applications will appear here once candidates apply
-          </p>
-        </div>
+          <EmptyState
+          icon={<Users size={32} />}
+          title="No applicants yet"
+          subtitle="Applications will appear here once candidates apply"
+        />
       )}
 
       {/* Applications list */}
@@ -234,9 +220,9 @@ export default function CompanyApplicationsPage() {
                   {/* Current status badge */}
                   <span className={`
                     px-3 py-1 rounded-full text-xs font-bold
-                    ${STATUS_CONFIG[app.status]?.color || 'bg-gray-100 text-gray-600'}
+                    ${APPLICATION_STATUS[app.status]?.color || 'bg-gray-100 text-gray-600'}
                   `}>
-                    {STATUS_CONFIG[app.status]?.label || app.status}
+                    {APPLICATION_STATUS[app.status]?.label || app.status}
                   </span>
 
                   {/* Status dropdown */}
@@ -246,9 +232,9 @@ export default function CompanyApplicationsPage() {
                     onChange={(e) => handleStatusChange(app._id, e.target.value)}
                     className="border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-300 disabled:opacity-50"
                   >
-                    {STATUS_OPTIONS.map((s) => (
+                    {APPLICATION_STATUS_OPTIONS.map((s) => (
                       <option key={s} value={s}>
-                        {STATUS_CONFIG[s].label}
+                        {APPLICATION_STATUS[s].label}
                       </option>
                     ))}
                   </select>

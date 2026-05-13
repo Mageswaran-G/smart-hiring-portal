@@ -1,11 +1,7 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Bookmark, MapPin, Briefcase } from 'lucide-react';
-import DashboardLayout from '../../components/layout/DashboardLayout';
-import { API } from '../../services/authService';
-import { API_ENDPOINTS } from '../../constants/api';
-import { ROUTES } from '../../constants/routes';
-import toast from 'react-hot-toast';
+import { getSavedJobs, unsaveJob } from '../../services/savedJobService';
+import EmptyState                  from '../../components/ui/EmptyState';
+import { Bookmark }                from 'lucide-react';
+import toast                       from 'react-hot-toast';
 
 export default function SavedJobsPage() {
 
@@ -14,24 +10,22 @@ export default function SavedJobsPage() {
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState('');
 
-  useEffect(() => {
-    const fetchSaved = async () => {
-      try {
-        const res = await API.get(API_ENDPOINTS.SAVED_JOBS);
-        setSaved(res.data.data);
-      } catch (err) {
-        setError('Failed to load saved jobs.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchSaved();
-  }, []);
+  const fetchSaved = async () => {
+    try {
+      const data = await getSavedJobs();    // ← clean service call
+      setSaved(data.data);
+    } catch (err) {
+      toast.error('Failed to load saved jobs');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleUnsave = async (jobId) => {
     try {
-      await API.delete(API_ENDPOINTS.UNSAVE_JOB(jobId));
-      setSaved((prev) => prev.filter((s) => s.job?._id !== jobId));
+      await unsaveJob(jobId);               // ← clean service call
+      setSaved(prev => prev.filter(s => s.job?._id !== jobId));
+      toast.success('Job removed from saved');
     } catch (err) {
       toast.error('Failed to remove saved job');
     }
@@ -63,19 +57,13 @@ export default function SavedJobsPage() {
 
       {/* Empty */}
       {!loading && !error && saved.length === 0 && (
-        <div className="bg-white rounded-2xl p-10 shadow-sm text-center">
-          <Bookmark size={40} className="mx-auto text-gray-300 mb-3" />
-          <p className="text-gray-500 font-medium">No saved jobs yet</p>
-          <p className="text-gray-400 text-sm mt-1">
-            Click the bookmark icon on any job to save it here
-          </p>
-          <button
-            onClick={() => navigate(ROUTES.PUBLIC_JOBS)}
-            className="mt-5 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-2.5 rounded-xl transition-colors text-sm"
-          >
-            Browse Jobs
-          </button>
-        </div>
+          <EmptyState
+          icon={<Bookmark size={32} />}
+          title="No saved jobs yet"
+          subtitle="Click the bookmark icon on any job to save it here"
+          actionLabel="Browse Jobs"
+          onAction={() => navigate(ROUTES.PUBLIC_JOBS)}
+        />
       )}
 
       {/* Saved jobs list */}
