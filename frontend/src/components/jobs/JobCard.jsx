@@ -3,10 +3,11 @@
 // Has edit, toggle active, delete buttons
 
 import { useNavigate } from 'react-router-dom';
-import { Pencil, Trash2, MapPin, Briefcase, Users } from 'lucide-react';
+
 import JobStatusBadge from './JobStatusBadge';
 import Button from '../ui/Button';
 import { ROUTES } from '../../constants/routes';
+import { Pencil, Trash2, MapPin, Briefcase, Users, FileText } from 'lucide-react';
 
 export default function JobCard({ job, onToggleStatus, onDelete }) {
   const navigate = useNavigate();
@@ -43,6 +44,10 @@ export default function JobCard({ job, onToggleStatus, onDelete }) {
         <span className="flex items-center gap-1">
           <Users size={14} />
           {job.openings} opening{job.openings !== 1 ? 's' : ''}
+        </span>
+        <span className="flex items-center gap-1 text-blue-500">
+          <FileText size={14} />
+          {job.applicationsCount || 0} applied
         </span>
         <span className="flex items-center gap-1">
           <Briefcase size={14} />
