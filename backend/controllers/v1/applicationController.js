@@ -38,6 +38,9 @@ exports.applyToJob = async (req, res, next) => {
       coverLetter: coverLetter || '',
       resume: req.user.resume || '',
     });
+    
+    // increment job's application count
+    await Job.findByIdAndUpdate(jobId, { $inc: { applicationsCount: 1 } });
 
     return res.status(201).json({
       success: true,
