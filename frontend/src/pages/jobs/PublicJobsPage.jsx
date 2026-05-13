@@ -21,6 +21,27 @@ const DEFAULT_FILTERS = {
   limit: 9,
 };
 
+// Small removable filter pill
+function FilterPill({ label, onRemove }) {
+  return (
+    <span className="
+      flex items-center gap-1.5
+      bg-blue-50 text-blue-700
+      text-xs font-semibold
+      px-3 py-1.5 rounded-full
+      border border-blue-100
+    ">
+      {label}
+      <button
+        onClick={onRemove}
+        className="hover:text-blue-900 transition"
+      >
+        <X size={12} />
+      </button>
+    </span>
+  );
+}
+
 export default function PublicJobsPage() {
 
   const { user } = useAuth();
@@ -261,6 +282,44 @@ export default function PublicJobsPage() {
 
           </div>
         </div>
+
+        {/* Active filter pills — show below the filter bar */}
+        {hasActiveFilters && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            <span className="text-xs text-gray-400 self-center">Active filters:</span>
+
+            {filters.search && (
+              <FilterPill
+                label={`Search: "${filters.search}"`}
+                onRemove={() => handleFilterChange('search', '')}
+              />
+            )}
+            {filters.location && (
+              <FilterPill
+                label={`Location: ${filters.location}`}
+                onRemove={() => handleFilterChange('location', '')}
+              />
+            )}
+            {filters.jobType && (
+              <FilterPill
+                label={`Type: ${filters.jobType}`}
+                onRemove={() => handleFilterChange('jobType', '')}
+              />
+            )}
+            {filters.workMode && (
+              <FilterPill
+                label={`Mode: ${filters.workMode}`}
+                onRemove={() => handleFilterChange('workMode', '')}
+              />
+            )}
+            {filters.experienceLevel && (
+              <FilterPill
+                label={`Level: ${filters.experienceLevel}`}
+                onRemove={() => handleFilterChange('experienceLevel', '')}
+              />
+            )}
+          </div>
+        )}
 
         {/* ── Loading skeleton ── */}
         {loading && (
