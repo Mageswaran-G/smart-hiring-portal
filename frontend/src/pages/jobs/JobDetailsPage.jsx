@@ -1,3 +1,6 @@
+// JobDetailsPage.jsx
+// Single job view — save, apply with cover letter modal
+
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
@@ -14,28 +17,25 @@ import { API } from '../../services/authService';
 import { API_ENDPOINTS } from '../../constants/api';
 import ApplyModal from '../../components/jobs/ApplyModal';
 
-
 export default function JobDetailsPage() {
 
   const { id } = useParams();
   const { user } = useAuth();
 
-  const [job,      setJob]      = useState(null);
-  const [loading,  setLoading]  = useState(true);
-  const [error,    setError]    = useState('');
-  const [applying, setApplying] = useState(false);
-  const [isSaved,  setIsSaved]  = useState(false);
-  const [saving,   setSaving]   = useState(false);
+  const [job,           setJob]           = useState(null);
+  const [loading,       setLoading]       = useState(true);
+  const [error,         setError]         = useState('');
+  const [applying,      setApplying]      = useState(false);
+  const [isSaved,       setIsSaved]       = useState(false);
+  const [saving,        setSaving]        = useState(false);
+  const [showApplyModal,setShowApplyModal] = useState(false);
+  const [applied,       setApplied]       = useState(false);
 
-  const [showApplyModal, setShowApplyModal] = useState(false);
-  const [applied, setApplied] = useState(false); 
-
-  // Fetch job details
+  // ── 1. Fetch job details ─────────────────────────────
   useEffect(() => {
     const fetchJob = async () => {
       try {
         const response = await getJobById(id);
-        console.log('Single Job:', response);
         setJob(response.data);
       } catch (err) {
         setError('Failed to load job');
@@ -46,7 +46,24 @@ export default function JobDetailsPage() {
     fetchJob();
   }, [id]);
 
-  // Check if job is already saved (candidates only)
+  // ── 2. Check if job is already SAVED ─────────────────
+  // Fix: this useEffect was missing — isSaved was never set from API
+  useEffect(() => {
+    if (!user || user.role !== 'candidate') return;
+
+    const checkSaved = async () => {
+      try {
+        const res = await API.get(API_ENDPOINTS.SAVED_JOB_IDS);
+        // res.data.data is array of job ID strings
+        setIsSaved(res.data.data.includes(id));
+      } catch (_) {}
+    };
+
+    checkSaved();
+  }, [id, user]);
+
+  // ── 3. Check if already APPLIED ──────────────────────
+  // Fix: separate useEffect — does NOT replace checkSaved
   useEffect(() => {
     if (!user || user.role !== 'candidate') return;
 
@@ -54,7 +71,7 @@ export default function JobDetailsPage() {
       try {
         const res = await API.get(API_ENDPOINTS.MY_APPLICATIONS);
         const myApps = res.data.data || [];
-        // Check if any of my applications is for this job
+        // Check if any application's job ID matches this job
         const alreadyApplied = myApps.some(app => app.job?._id === id);
         setApplied(alreadyApplied);
       } catch (_) {}
@@ -63,7 +80,7 @@ export default function JobDetailsPage() {
     checkApplied();
   }, [id, user]);
 
-  // Apply handler
+  // ── Apply handler ────────────────────────────────────
   const handleApply = async (coverLetter) => {
     try {
       setApplying(true);
@@ -78,7 +95,7 @@ export default function JobDetailsPage() {
     }
   };
 
-  // Save / Unsave handler
+  // ── Save / Unsave handler ────────────────────────────
   const handleToggleSave = async () => {
     if (!user) {
       alert('Please log in to save jobs.');
@@ -100,78 +117,59 @@ export default function JobDetailsPage() {
     }
   };
 
-  // Loading
+  // ── Loading / Error / Not found states ──────────────
   if (loading) {
-    return <div className="p-10 text-gray-500">Loading job details...</div>;
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-gray-400 text-sm">Loading job details...</p>
+      </div>
+    );
   }
 
-  // Error
   if (error) {
-    return <div className="p-10 text-red-500">{error}</div>;
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-red-500 text-sm">{error}</p>
+      </div>
+    );
   }
 
-  // No job
   if (!job) {
-    return <div className="p-10 text-gray-500">Job not found</div>;
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-gray-400 text-sm">Job not found</p>
+      </div>
+    );
   }
 
   return (
-
     <div className="min-h-screen bg-gray-50">
-
       <div className="max-w-4xl mx-auto px-6 py-10">
 
-        {/* Top Card */}
-        <div className="
-          rounded-3xl
-          bg-white
-          border border-gray-100
-          shadow-sm
-          p-8
-        ">
+        {/* ── Top Card ── */}
+        <div className="rounded-3xl bg-white border border-gray-100 shadow-sm p-8">
 
           {/* Title */}
-          <h1 className="
-            font-sora
-            text-4xl
-            font-bold
-            text-gray-900
-          ">
+          <h1 className="font-sora text-4xl font-bold text-gray-900">
             {job.title}
           </h1>
 
-          {/* Company */}
+          {/* Fix: job.postedBy NOT job.company */}
           <p className="mt-2 text-lg text-gray-500">
-            {job.company?.companyName || 'Company'}
+            {job.postedBy?.companyName || 'Company'}
           </p>
 
           {/* Tags */}
           <div className="mt-6 flex flex-wrap gap-3">
-
-            <span className="
-              rounded-full bg-blue-100
-              px-4 py-1.5
-              text-sm font-semibold text-blue-700
-            ">
+            <span className="rounded-full bg-blue-100 px-4 py-1.5 text-sm font-semibold text-blue-700">
               {job.jobType}
             </span>
-
-            <span className="
-              rounded-full bg-purple-100
-              px-4 py-1.5
-              text-sm font-semibold text-purple-700
-            ">
+            <span className="rounded-full bg-purple-100 px-4 py-1.5 text-sm font-semibold text-purple-700">
               {job.workMode}
             </span>
-
-            <span className="
-              rounded-full bg-orange-100
-              px-4 py-1.5
-              text-sm font-semibold text-orange-700
-            ">
+            <span className="rounded-full bg-orange-100 px-4 py-1.5 text-sm font-semibold text-orange-700">
               {job.experienceLevel}
             </span>
-
           </div>
 
           {/* Info Grid */}
@@ -214,34 +212,36 @@ export default function JobDetailsPage() {
             </div>
 
           </div>
-
         </div>
 
-        {/* Description */}
-        <div className="
-          mt-6
-          rounded-3xl
-          bg-white
-          border border-gray-100
-          shadow-sm
-          p-8
-        ">
-
-          <h2 className="
-            font-sora
-            text-2xl
-            font-bold
-            text-gray-900
-            mb-5
-          ">
+        {/* ── Description ── */}
+        <div className="mt-6 rounded-3xl bg-white border border-gray-100 shadow-sm p-8">
+          <h2 className="font-sora text-2xl font-bold text-gray-900 mb-5">
             Job Description
           </h2>
-
           <p className="leading-8 text-gray-700 whitespace-pre-line">
             {job.description}
           </p>
-
         </div>
+
+        {/* ── Skills Required (show if exists) ── */}
+        {job.skillsRequired?.length > 0 && (
+          <div className="mt-6 rounded-3xl bg-white border border-gray-100 shadow-sm p-8">
+            <h2 className="font-sora text-2xl font-bold text-gray-900 mb-5">
+              Skills Required
+            </h2>
+            <div className="flex flex-wrap gap-2">
+              {job.skillsRequired.map((skill, i) => (
+                <span
+                  key={i}
+                  className="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full text-sm font-medium"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* ── Save + Apply Buttons ── */}
         <div className="mt-6 flex justify-end gap-3">
@@ -271,7 +271,7 @@ export default function JobDetailsPage() {
             </button>
           )}
 
-          {/* Apply button */}
+          {/* Apply button — candidates only */}
           {user?.role === 'candidate' && (
             <>
               <button
@@ -298,13 +298,10 @@ export default function JobDetailsPage() {
               )}
             </>
           )}
-          
+
         </div>
 
       </div>
-
     </div>
-
   );
-
 }

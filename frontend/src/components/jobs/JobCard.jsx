@@ -1,98 +1,82 @@
-// JobCard.jsx
-// Shows one job in company dashboard
-// Has edit, toggle active, delete buttons
+// PublicJobCard.jsx
+// Shows one job on the public listing page
+// Bookmark button for candidates only
 
+import { MapPin, Briefcase, Bookmark } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
-import JobStatusBadge from './JobStatusBadge';
-import Button from '../ui/Button';
 import { ROUTES } from '../../constants/routes';
-import { Pencil, Trash2, MapPin, Briefcase, Users, FileText } from 'lucide-react';
 
-export default function JobCard({ job, onToggleStatus, onDelete }) {
+export default function PublicJobCard({ job, isSaved = false, onToggleSave }) {
+
   const navigate = useNavigate();
 
-  // Format date nicely
-  const formatDate = (dateStr) => {
-    if (!dateStr) return 'No deadline';
-    return new Date(dateStr).toLocaleDateString('en-IN', {
-      day: 'numeric', month: 'short', year: 'numeric'
-    });
-  };
-
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition">
+    <div
+      onClick={() => navigate(ROUTES.JOB_DETAILS.replace(':id', job._id))}
+      className="
+        rounded-2xl bg-white border border-gray-100
+        p-5 shadow-sm hover:shadow-md
+        transition relative cursor-pointer
+      "
+    >
 
-      {/* Top row — title + badges */}
-      <div className="mb-3">
-        <h3 className="font-sora font-bold text-gray-900 text-base leading-snug mb-2">
-            {job.title}
-        </h3>
-        <div className="flex flex-wrap gap-1.5">
-            <JobStatusBadge type="status"   value={job.status} />
-            <JobStatusBadge type="workMode" value={job.workMode} />
-            <JobStatusBadge type="jobType"  value={job.jobType} />
-        </div>
-        </div>
+      {/* Bookmark button — top right, only if onToggleSave provided */}
+      {onToggleSave && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation(); // stop card click from firing
+            onToggleSave(job._id);
+          }}
+          title={isSaved ? 'Remove from saved' : 'Save job'}
+          className="absolute top-4 right-4 text-gray-400 hover:text-orange-500 transition"
+        >
+          <Bookmark
+            size={20}
+            className={isSaved ? 'fill-orange-500 text-orange-500' : ''}
+          />
+        </button>
+      )}
 
-      {/* Info row */}
-      <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-4">
-        <span className="flex items-center gap-1">
-          <MapPin size={14} />
-          {job.location}
+      {/* Title */}
+      <h2 className="font-sora text-xl font-bold text-gray-900 pr-8">
+        {job.title}
+      </h2>
+
+      {/* Fix: job.postedBy NOT job.company */}
+      <p className="mt-1 text-sm text-gray-500">
+        {job.postedBy?.companyName || 'Company'}
+      </p>
+
+      {/* Location */}
+      <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
+        <MapPin size={15} />
+        {job.location}
+      </div>
+
+      {/* Tags */}
+      <div className="mt-4 flex flex-wrap gap-2">
+        <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+          {job.jobType}
         </span>
-        <span className="flex items-center gap-1">
-          <Users size={14} />
-          {job.openings} opening{job.openings !== 1 ? 's' : ''}
+        <span className="rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700">
+          {job.workMode}
         </span>
-        <span className="flex items-center gap-1 text-blue-500">
-          <FileText size={14} />
-          {job.applicationsCount || 0} applied
-        </span>
-        <span className="flex items-center gap-1">
-          <Briefcase size={14} />
+        <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700">
           {job.experienceLevel}
         </span>
       </div>
 
-      {/* Deadline */}
-      <p className="text-xs text-gray-400 mb-4">
-        Deadline: {formatDate(job.deadline)}
-      </p>
-
-      {/* Active toggle */}
-      <div className="flex items-center gap-2 mb-4">
-        <button
-          onClick={() => onToggleStatus(job._id, !job.isActive)}
-          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-            job.isActive ? 'bg-green-500' : 'bg-gray-300'
-          }`}
-        >
-          <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${
-            job.isActive ? 'translate-x-4' : 'translate-x-1'
-          }`} />
-        </button>
-        <span className="text-xs text-gray-500">
-          {job.isActive ? 'Active' : 'Inactive'}
-        </span>
+      {/* Openings */}
+      <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
+        <Briefcase size={15} />
+        {job.openings} opening{job.openings !== 1 ? 's' : ''}
       </div>
 
-      {/* Action buttons */}
-      <div className="flex gap-2">
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => navigate(ROUTES.COMPANY_JOB_EDIT.replace(':id', job._id))}
-        >
-          <Pencil size={13} /> Edit
-        </Button>
-        <Button
-          size="sm"
-          variant="danger"
-          onClick={() => onDelete(job._id)}
-        >
-          <Trash2 size={13} /> Delete
-        </Button>
+      {/* View Details link */}
+      <div className="mt-4 pt-4 border-t border-gray-100">
+        <span className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition">
+          View Details →
+        </span>
       </div>
 
     </div>
