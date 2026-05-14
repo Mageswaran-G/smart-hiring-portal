@@ -2,10 +2,10 @@
 const express = require('express');
 const router = express.Router();
 
-// ✅ Import verifyToken from authMiddleware
+// Import verifyToken from authMiddleware
 const { verifyToken } = require('../../middleware/authMiddleware');
 
-// ✅ Import authorize from roleMiddleware
+//  Import authorize from roleMiddleware
 const { authorize } = require('../../middleware/roleMiddleware');
 
 // Validator
@@ -22,7 +22,14 @@ const {
   getMyJobs,
 } = require('../../controllers/v1/jobController');
 
-// ⚠️ MUST be before /:id — otherwise Express thinks "my-jobs" is an ID
+router.get(
+  '/company/dashboard-stats',
+  verifyToken,
+  authorizeRole('company'),
+  jobController.getCompanyDashboardStats
+);
+
+// /:id — otherwise Express thinks "my-jobs" is an ID
 router.get('/company/my-jobs', verifyToken, authorize('company'), getMyJobs);
 
 // PUBLIC — no token needed

@@ -26,6 +26,8 @@ export const API_ENDPOINTS = {
   COMPANY_APPLICATIONS:      '/applications/company',
   UPDATE_APPLICATION_STATUS: (id) => `/applications/${id}/status`,
 
+  COMPANY_DASHBOARD_STATS: '/jobs/company/dashboard-stats',
+
   // Saved Jobs
   SAVED_JOBS:       '/saved',
   SAVED_JOB_IDS:    '/saved/ids',

@@ -54,3 +54,8 @@ export const applyToJob = async (jobId, coverLetter = '') => {
   const response = await API.post(API_ENDPOINTS.APPLY_TO_JOB(jobId), { coverLetter });
   return response.data;
 };
+
+export const getCompanyDashboardStats = async () => {
+  const res = await API.get(API_ENDPOINTS.COMPANY_DASHBOARD_STATS);
+  return res.data.data;
+};

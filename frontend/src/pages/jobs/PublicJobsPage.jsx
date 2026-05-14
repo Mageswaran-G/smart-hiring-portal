@@ -4,7 +4,7 @@
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, LayoutDashboard } from 'lucide-react';
 import { ROUTES } from '../../constants/routes';
-
+import { useDebounce } from '../../hooks/useDebounce';
 import { useEffect, useState, useCallback } from 'react';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { getAllJobs } from '../../services/jobService';
@@ -62,6 +62,8 @@ export default function PublicJobsPage() {
   const [filters,    setFilters]    = useState(DEFAULT_FILTERS);
   const [pagination, setPagination] = useState(null);
 
+  const debouncedSearch = useDebounce(filters.search, 400);
+  
   // ── Fetch jobs whenever filters change ───────────
   const fetchJobs = useCallback(async (currentFilters) => {
     try {

@@ -7,6 +7,8 @@ import DashboardLayout            from '../../components/layout/DashboardLayout'
 import { ROUTES }                 from '../../constants/routes';
 import { getMyJobs }              from '../../services/jobService';
 import { getCompanyApplications } from '../../services/applicationService';
+import { getCompanyDashboardStats } from '../../services/jobService';
+
 import {
   Building2, Briefcase, Users,
   Plus, Star, CheckCircle2,
@@ -23,20 +25,8 @@ export default function CompanyDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [jobs, apps] = await Promise.all([
-          getMyJobs(),
-          getCompanyApplications(),
-        ]);
-        const jobList = jobs.data  || [];
-        const appList = apps       || [];
-        setStats({
-          totalJobs:   jobList.length,
-          activeJobs:  jobList.filter(j => j.isActive).length,
-          totalApps:   appList.length,
-          shortlisted: appList.filter(a => a.status === 'shortlisted').length,
-          hired:       appList.filter(a => a.status === 'hired').length,
-          applied:     appList.filter(a => a.status === 'applied').length,
-        });
+        const data = await getCompanyDashboardStats(); // ← single clean call
+        setStats(data);
       } catch {
         // non-critical
       } finally {

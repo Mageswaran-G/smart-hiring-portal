@@ -297,3 +297,56 @@ module.exports = {
   updateJobStatus,
   getMyJobs,
 };
+
+// GET /api/v1/jobs/company/dashboard-stats
+// Returns real aggregated stats for company dashboard
+exports.getCompanyDashboardStats = async (req, res, next) => {
+  try {
+    const companyId = req.user.id;
+
+    // All jobs for this company
+    const jobs = await Job.find({
+      postedBy:  companyId,
+      isDeleted: false,
+    }).select('isActive status applicationsCount');
+
+    // All applications for this company's jobs
+    const jobIds = jobs.map(j => j._id);
+
+    const Application = require('../../models/Application');
+
+    const [appStats] = await Application.aggregate([
+      { $match: { job: { $in: jobIds } } },
+      {
+        $group: {
+          _id:         null,
+          total:       { $sum: 1 },
+          applied:     { $sum: { $cond: [{ $eq: ['$status', 'applied']     }, 1, 0] } },
+          reviewing:   { $sum: { $cond: [{ $eq: ['$status', 'reviewing']   }, 1, 0] } },
+          shortlisted: { $sum: { $cond: [{ $eq: ['$status', 'shortlisted'] }, 1, 0] } },
+          rejected:    { $sum: { $cond: [{ $eq: ['$status', 'rejected']    }, 1, 0] } },
+          hired:       { $sum: { $cond: [{ $eq: ['$status', 'hired']       }, 1, 0] } },
+        }
+      }
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        totalJobs:        jobs.length,
+        activeJobs:       jobs.filter(j => j.isActive).length,
+        draftJobs:        jobs.filter(j => j.status === 'draft').length,
+        publishedJobs:    jobs.filter(j => j.status === 'published').length,
+        totalApps:        appStats?.total       || 0,
+        applied:          appStats?.applied     || 0,
+        reviewing:        appStats?.reviewing   || 0,
+        shortlisted:      appStats?.shortlisted || 0,
+        rejected:         appStats?.rejected    || 0,
+        hired:            appStats?.hired       || 0,
+      }
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};

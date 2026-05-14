@@ -10,6 +10,7 @@ import EmptyState                                          from '../../component
 import { ROUTES }                                          from '../../constants/routes';
 import { APPLICATION_STATUS, APPLICATION_STATUS_OPTIONS }  from '../../constants/applicationStatus';
 import { getCompanyApplications, updateApplicationStatus } from '../../services/applicationService';
+import { useDebounce } from '../../hooks/useDebounce';
 
 export default function CompanyApplicationsPage() {
 
@@ -21,6 +22,8 @@ export default function CompanyApplicationsPage() {
   const [filterStatus,  setFilterStatus]  = useState('all');  
   const [searchName,    setSearchName]    = useState('');     
   const [updating,      setUpdating]      = useState(null);
+
+  const debouncedSearch = useDebounce(searchName, 300);
 
   useEffect(() => {
     const fetch = async () => {
@@ -50,27 +53,20 @@ export default function CompanyApplicationsPage() {
   // 3-level filtering: job → status → name search
   const filtered = useMemo(() => {
     let result = applications;
-
-    // Filter by job
     if (filterJob !== 'all') {
-      result = result.filter((app) => app.job?._id === filterJob);
+      result = result.filter(app => app.job?._id === filterJob);
     }
-
-    // Filter by status
     if (filterStatus !== 'all') {
-      result = result.filter((app) => app.status === filterStatus);
+      result = result.filter(app => app.status === filterStatus);
     }
-
-    // Search by candidate name
-    if (searchName.trim()) {
-      const q = searchName.toLowerCase();
-      result = result.filter((app) =>
+    if (debouncedSearch.trim()) {          // ← use debounced value
+      const q = debouncedSearch.toLowerCase();
+      result = result.filter(app =>
         app.candidate?.name?.toLowerCase().includes(q)
       );
     }
-
     return result;
-  }, [applications, filterJob, filterStatus, searchName]);
+  }, [applications, filterJob, filterStatus, debouncedSearch]);
 
   const handleStatusChange = async (applicationId, newStatus) => {
     setUpdating(applicationId);
@@ -224,15 +220,29 @@ export default function CompanyApplicationsPage() {
                     )}
 
                     {app.resume ? (
-                      <a
-                        href={`${import.meta.env.VITE_API_URL}${app.resume}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 mt-2 text-xs text-blue-600 hover:text-blue-800 border border-blue-200 hover:border-blue-400 px-3 py-1.5 rounded-lg transition font-medium"
-                      >
-                        <FileText size={13} />
-                        View Resume
-                      </a>
+                      <div className="flex items-center gap-2 mt-2">
+
+                        {/* View — opens in new tab */}
+                        <a
+                          href={`${import.meta.env.VITE_API_URL}${app.resume}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-800 border border-blue-200 hover:border-blue-400 px-3 py-1.5 rounded-lg transition font-medium"
+                        >
+                          <FileText size={13} />
+                          View
+                        </a>
+
+                        {/* Download — forces browser download */}
+                        <a
+                          href={`${import.meta.env.VITE_API_URL}${app.resume}`}
+                          download
+                          className="inline-flex items-center gap-1.5 text-xs text-gray-600 hover:text-gray-800 border border-gray-200 hover:border-gray-400 px-3 py-1.5 rounded-lg transition font-medium"
+                        >
+                          ↓ Download
+                        </a>
+
+                      </div>
                     ) : (
                       <p className="text-xs text-gray-400 mt-2">No resume uploaded</p>
                     )}
