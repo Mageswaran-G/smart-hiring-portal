@@ -1,20 +1,22 @@
 // useDebounce.js
-// Waits for user to stop typing before returning the value
-// delay = how many milliseconds to wait
+// Simple hook — waits X milliseconds before returning new value
+// Example: user types "React" fast → waits 400ms → returns "React"
 
 import { useState, useEffect } from 'react';
 
 export function useDebounce(value, delay = 400) {
+
   const [debouncedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {
-    // Start a timer when value changes
+    // Set a timer
     const timer = setTimeout(() => {
-      setDebouncedValue(value);
+      setDebouncedValue(value);  // update AFTER delay
     }, delay);
 
-    // Cancel the timer if value changes again before delay
+    // If value changes again BEFORE delay — cancel the old timer
     return () => clearTimeout(timer);
+
   }, [value, delay]);
 
   return debouncedValue;

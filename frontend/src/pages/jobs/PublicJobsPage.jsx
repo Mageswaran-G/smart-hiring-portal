@@ -63,7 +63,7 @@ export default function PublicJobsPage() {
   const [pagination, setPagination] = useState(null);
 
   const debouncedSearch = useDebounce(filters.search, 400);
-  
+
   // ── Fetch jobs whenever filters change ───────────
   const fetchJobs = useCallback(async (currentFilters) => {
     try {
@@ -98,10 +98,23 @@ export default function PublicJobsPage() {
     fetchSaved();
   }, [isCandidate]);
 
-  // Fetch jobs whenever filters change
+  // Fetch jobs when filters change
+  // BUT for search text — wait for debounce (400ms after typing stops)
   useEffect(() => {
-    fetchJobs(filters);
-  }, [filters, fetchJobs]);
+    const paramsToUse = {
+      ...filters,
+      search: debouncedSearch,  // use debounced search, not instant one
+    };
+    fetchJobs(paramsToUse);
+  }, [
+    debouncedSearch,          // search — debounced (waits 400ms)
+    filters.jobType,          // dropdowns — instant
+    filters.workMode,         // dropdowns — instant
+    filters.experienceLevel,  // dropdowns — instant
+    filters.location,         // location — instant
+    filters.page,             // pagination — instant
+    fetchJobs
+  ]);
 
   // ── Handlers ─────────────────────────────────────
 
