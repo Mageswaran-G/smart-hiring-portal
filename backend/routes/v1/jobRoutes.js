@@ -1,17 +1,12 @@
-// jobRoutes.js
+// jobRoutes
+
 const express = require('express');
-const router = express.Router();
+const router  = express.Router();
 
-// Import verifyToken from authMiddleware
 const { verifyToken } = require('../../middleware/authMiddleware');
-
-//  Import authorize from roleMiddleware
-const { authorize } = require('../../middleware/roleMiddleware');
-
-// Validator
+const { authorize }   = require('../../middleware/roleMiddleware');
 const { validateJobInput } = require('../../validators/jobValidator');
 
-// Controller
 const {
   createJob,
   getAllJobs,
@@ -20,26 +15,28 @@ const {
   deleteJob,
   updateJobStatus,
   getMyJobs,
+  getCompanyDashboardStats,  
 } = require('../../controllers/v1/jobController');
 
+// Dashboard stats — must be before /:id route
 router.get(
   '/company/dashboard-stats',
   verifyToken,
-  authorizeRole('company'),
-  jobController.getCompanyDashboardStats
+  authorize('company'),         
+  getCompanyDashboardStats      
 );
 
-// /:id — otherwise Express thinks "my-jobs" is an ID
+// My jobs — must be before /:id route
 router.get('/company/my-jobs', verifyToken, authorize('company'), getMyJobs);
 
-// PUBLIC — no token needed
-router.get('/', getAllJobs);
+// PUBLIC
+router.get('/',    getAllJobs);
 router.get('/:id', getJobById);
 
-// COMPANY ONLY — token required
-router.post('/', verifyToken, authorize('company'), validateJobInput, createJob);
-router.put('/:id', verifyToken, authorize('company'), validateJobInput, updateJob);
-router.delete('/:id', verifyToken, authorize('company'), deleteJob);
+// COMPANY ONLY
+router.post('/',          verifyToken, authorize('company'), validateJobInput, createJob);
+router.put('/:id',        verifyToken, authorize('company'), validateJobInput, updateJob);
+router.delete('/:id',     verifyToken, authorize('company'), deleteJob);
 router.patch('/:id/status', verifyToken, authorize('company'), updateJobStatus);
 
 module.exports = router;
