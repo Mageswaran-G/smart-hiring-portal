@@ -95,10 +95,10 @@ export default function CompanyApplicationsPage() {
       />
 
       {/* ── Search + Filter Bar ── */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-6 flex flex-wrap gap-3 items-center">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-6 flex flex-col sm:flex-row flex-wrap gap-3 items-start sm:items-center">
 
         {/* Search by name */}
-        <div className="relative flex-1 min-w-[200px]">
+        <div className="relative w-full sm:flex-1 sm:min-w-[200px]">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
@@ -187,7 +187,7 @@ export default function CompanyApplicationsPage() {
               key={app._id}
               className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
             >
-              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+              <div className="flex flex-col gap-4">
 
                 {/* Candidate info */}
                 <div className="flex items-start gap-4">
@@ -266,7 +266,7 @@ export default function CompanyApplicationsPage() {
                 </div>
 
                 {/* Status control */}
-                <div className="flex flex-col items-end gap-2 shrink-0">
+                <div className="flex flex-row md:flex-col items-center md:items-end gap-3 md:gap-2 shrink-0 pt-2 border-t border-gray-100 md:border-0 md:pt-0">
                   <span className={`px-3 py-1 rounded-full text-xs font-bold ${APPLICATION_STATUS[app.status]?.color || 'bg-gray-100 text-gray-600'}`}>
                     {APPLICATION_STATUS[app.status]?.label || app.status}
                   </span>

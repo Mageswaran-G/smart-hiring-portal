@@ -71,7 +71,7 @@ export default function CandidateDashboard() {
           </div>
 
           {/* Right — Profile completion + action */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 flex-wrap">
 
             {/* Profile completion ring */}
             <div className="flex flex-col items-center">

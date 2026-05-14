@@ -195,7 +195,7 @@ export default function PublicJobsPage() {
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-6">
 
           {/* Search row */}
-          <form onSubmit={handleSearchSubmit} className="flex gap-3 mb-4">
+          <form onSubmit={handleSearchSubmit} className="flex gap-2 mb-4">
             <div className="relative flex-1">
               <Search
                 size={18}
@@ -229,7 +229,7 @@ export default function PublicJobsPage() {
           </form>
 
           {/* Filter dropdowns row */}
-          <div className="flex flex-wrap gap-3 items-center">
+          <div className="flex flex-wrap gap-2 items-center">
 
             <SlidersHorizontal size={16} className="text-gray-400 shrink-0" />
 
@@ -243,7 +243,7 @@ export default function PublicJobsPage() {
                 border border-gray-200 rounded-lg
                 px-3 py-2 text-sm text-gray-700
                 focus:outline-none focus:ring-2 focus:ring-blue-500
-                min-w-[160px]
+                w-full sm:min-w-[160px] sm:w-auto
               "
             />
 

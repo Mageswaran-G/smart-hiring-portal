@@ -1,35 +1,33 @@
-// jobController.js
-// All job-related business logic lives here
-const mongoose = require('mongoose');
-const Job = require('../../models/Job');
+// jobController
+const mongoose    = require('mongoose');
+const Job         = require('../../models/Job');
+const Application = require('../../models/Application');
 
 // ─────────────────────────────────────────
 // CREATE JOB — Company only
-// POST /api/v1/jobs
 // ─────────────────────────────────────────
 const createJob = async (req, res) => {
   try {
-    // Whitelist — only safe fields
     const allowedFields = {
-      title: req.body.title,
-      description: req.body.description,
-      location: req.body.location,
-      jobType: req.body.jobType,
-      workMode: req.body.workMode,
-      salary: req.body.salary,
-      skillsRequired: req.body.skillsRequired,
-      experienceLevel: req.body.experienceLevel,
-      deadline: req.body.deadline,
-      openings: req.body.openings,
-      requirements: req.body.requirements,
+      title:            req.body.title,
+      description:      req.body.description,
+      location:         req.body.location,
+      jobType:          req.body.jobType,
+      workMode:         req.body.workMode,
+      salary:           req.body.salary,
+      skillsRequired:   req.body.skillsRequired,
+      experienceLevel:  req.body.experienceLevel,
+      deadline:         req.body.deadline,
+      openings:         req.body.openings,
+      requirements:     req.body.requirements,
       responsibilities: req.body.responsibilities,
-      benefits: req.body.benefits,
-      status: req.body.status,
+      benefits:         req.body.benefits,
+      status:           req.body.status,
     };
 
     const job = await Job.create({
       ...allowedFields,
-      postedBy: req.user.id, // from JWT — cannot be overridden
+      postedBy: req.user.id,
     });
 
     res.status(201).json({
@@ -44,63 +42,48 @@ const createJob = async (req, res) => {
 
 // ─────────────────────────────────────────
 // GET ALL JOBS — Public
-// GET /api/v1/jobs
-// Supports: search, filter, pagination
 // ─────────────────────────────────────────
 const getAllJobs = async (req, res) => {
   try {
     const {
-      search,
-      jobType,
-      workMode,
-      location,
-      experienceLevel,
-      page = 1,
-      limit = 10,
+      search, jobType, workMode,
+      location, experienceLevel,
+      page = 1, limit = 10,
     } = req.query;
 
-    // Build filter — only show public, active, not deleted jobs
     const filter = {
       isDeleted: false,
-      isActive: true,
-      status: 'published',
+      isActive:  true,
+      status:    'published',
     };
 
-    // Text search — uses the index we created
-    if (search) {
-      filter.$text = { $search: search };
-    }
-
-    // Exact match filters
-    if (jobType) filter.jobType = jobType;
-    if (workMode) filter.workMode = workMode;
+    if (search)          filter.$text          = { $search: search };
+    if (jobType)         filter.jobType        = jobType;
+    if (workMode)        filter.workMode       = workMode;
     if (experienceLevel) filter.experienceLevel = experienceLevel;
-
-    // Partial match for location — "Chennai" finds "Chennai, TN"
     if (location) {
-    const escapedLocation = location.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    filter.location = new RegExp(escapedLocation, 'i');
+      const escaped = location.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      filter.location = new RegExp(escaped, 'i');
     }
 
-    // Pagination math
-    const pageNumber = Math.max(Number(page) || 1, 1);
+    const pageNumber  = Math.max(Number(page) || 1, 1);
     const limitNumber = Math.min(Number(limit) || 10, 50);
-    const skip = (pageNumber - 1) * limitNumber;
-    const total = await Job.countDocuments(filter);
+    const skip        = (pageNumber - 1) * limitNumber;
+    const total       = await Job.countDocuments(filter);
 
     const jobs = await Job.find(filter)
-      .populate('postedBy', 'companyName profilePhoto') // get company info
-      .sort({ createdAt: -1 }) // newest first
+      .populate('postedBy', 'companyName profilePhoto')
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNumber);
 
     res.json({
       success: true,
-      count: jobs.length,
+      count:   jobs.length,
       pagination: {
         total,
-        page: pageNumber,
-        pages: Math.ceil(total / limitNumber),
+        page:    pageNumber,
+        pages:   Math.ceil(total / limitNumber),
         hasNext: pageNumber < Math.ceil(total / limitNumber),
       },
       data: jobs,
@@ -112,7 +95,6 @@ const getAllJobs = async (req, res) => {
 
 // ─────────────────────────────────────────
 // GET SINGLE JOB — Public
-// GET /api/v1/jobs/:id
 // ─────────────────────────────────────────
 const getJobById = async (req, res) => {
   try {
@@ -120,15 +102,12 @@ const getJobById = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid job ID' });
     }
     const job = await Job.findOne({
-      _id: req.params.id,
+      _id:       req.params.id,
       isDeleted: false,
     }).populate('postedBy', 'companyName profilePhoto industry companyWebsite');
 
     if (!job) {
-      return res.status(404).json({
-        success: false,
-        message: 'Job not found',
-      });
+      return res.status(404).json({ success: false, message: 'Job not found' });
     }
 
     res.json({ success: true, data: job });
@@ -139,34 +118,30 @@ const getJobById = async (req, res) => {
 
 // ─────────────────────────────────────────
 // UPDATE JOB — Company owner only
-// PUT /api/v1/jobs/:id
 // ─────────────────────────────────────────
 const updateJob = async (req, res) => {
   try {
-    // Fix — validate MongoDB ID format first
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ success: false, message: 'Invalid job ID' });
     }
 
-    // Whitelist — cannot update postedBy, isDeleted, applicationsCount
     const allowedUpdates = {
-      title: req.body.title,
-      description: req.body.description,
-      location: req.body.location,
-      jobType: req.body.jobType,
-      workMode: req.body.workMode,
-      salary: req.body.salary,
-      skillsRequired: req.body.skillsRequired,
-      experienceLevel: req.body.experienceLevel,
-      deadline: req.body.deadline,
-      openings: req.body.openings,
-      requirements: req.body.requirements,
+      title:            req.body.title,
+      description:      req.body.description,
+      location:         req.body.location,
+      jobType:          req.body.jobType,
+      workMode:         req.body.workMode,
+      salary:           req.body.salary,
+      skillsRequired:   req.body.skillsRequired,
+      experienceLevel:  req.body.experienceLevel,
+      deadline:         req.body.deadline,
+      openings:         req.body.openings,
+      requirements:     req.body.requirements,
       responsibilities: req.body.responsibilities,
-      benefits: req.body.benefits,
-      status: req.body.status,
+      benefits:         req.body.benefits,
+      status:           req.body.status,
     };
 
-    // Remove undefined fields — don't overwrite with undefined
     Object.keys(allowedUpdates).forEach(
       (key) => allowedUpdates[key] === undefined && delete allowedUpdates[key]
     );
@@ -192,8 +167,6 @@ const updateJob = async (req, res) => {
 
 // ─────────────────────────────────────────
 // SOFT DELETE JOB — Company owner only
-// DELETE /api/v1/jobs/:id
-// isDeleted: true — never remove from DB
 // ─────────────────────────────────────────
 const deleteJob = async (req, res) => {
   try {
@@ -213,10 +186,7 @@ const deleteJob = async (req, res) => {
       });
     }
 
-    res.json({
-      success: true,
-      message: 'Job deleted successfully',
-    });
+    res.json({ success: true, message: 'Job deleted successfully' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -224,14 +194,10 @@ const deleteJob = async (req, res) => {
 
 // ─────────────────────────────────────────
 // UPDATE JOB STATUS — Company owner only
-// PATCH /api/v1/jobs/:id/status
-// Body: { isActive: true/false } or { status: 'published' }
 // ─────────────────────────────────────────
 const updateJobStatus = async (req, res) => {
   try {
     const { isActive, status } = req.body;
-
-    // Build only what was sent
     const updateData = {};
     if (typeof isActive === 'boolean') updateData.isActive = isActive;
     if (status) updateData.status = status;
@@ -256,11 +222,7 @@ const updateJobStatus = async (req, res) => {
       });
     }
 
-    res.json({
-      success: true,
-      message: 'Job status updated',
-      data: job,
-    });
+    res.json({ success: true, message: 'Job status updated', data: job });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -268,52 +230,34 @@ const updateJobStatus = async (req, res) => {
 
 // ─────────────────────────────────────────
 // GET MY JOBS — Company sees only own jobs
-// GET /api/v1/jobs/company/my-jobs
 // ─────────────────────────────────────────
 const getMyJobs = async (req, res) => {
   try {
     const jobs = await Job.find({
-      postedBy: req.user.id,
+      postedBy:  req.user.id,
       isDeleted: false,
-    }).sort({ createdAt: -1 }); // newest first
+    }).sort({ createdAt: -1 });
 
-    res.json({
-      success: true,
-      count: jobs.length,
-      data: jobs,
-    });
+    res.json({ success: true, count: jobs.length, data: jobs });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// Export all functions
-module.exports = {
-  createJob,
-  getAllJobs,
-  getJobById,
-  updateJob,
-  deleteJob,
-  updateJobStatus,
-  getMyJobs,
-};
-
+// ─────────────────────────────────────────
+// COMPANY DASHBOARD STATS
 // GET /api/v1/jobs/company/dashboard-stats
-// Returns real aggregated stats for company dashboard
-exports.getCompanyDashboardStats = async (req, res, next) => {
+// ─────────────────────────────────────────
+const getCompanyDashboardStats = async (req, res, next) => {
   try {
     const companyId = req.user.id;
 
-    // All jobs for this company
     const jobs = await Job.find({
       postedBy:  companyId,
       isDeleted: false,
     }).select('isActive status applicationsCount');
 
-    // All applications for this company's jobs
     const jobIds = jobs.map(j => j._id);
-
-    const Application = require('../../models/Application');
 
     const [appStats] = await Application.aggregate([
       { $match: { job: { $in: jobIds } } },
@@ -333,20 +277,33 @@ exports.getCompanyDashboardStats = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       data: {
-        totalJobs:        jobs.length,
-        activeJobs:       jobs.filter(j => j.isActive).length,
-        draftJobs:        jobs.filter(j => j.status === 'draft').length,
-        publishedJobs:    jobs.filter(j => j.status === 'published').length,
-        totalApps:        appStats?.total       || 0,
-        applied:          appStats?.applied     || 0,
-        reviewing:        appStats?.reviewing   || 0,
-        shortlisted:      appStats?.shortlisted || 0,
-        rejected:         appStats?.rejected    || 0,
-        hired:            appStats?.hired       || 0,
+        totalJobs:     jobs.length,
+        activeJobs:    jobs.filter(j => j.isActive).length,
+        draftJobs:     jobs.filter(j => j.status === 'draft').length,
+        publishedJobs: jobs.filter(j => j.status === 'published').length,
+        totalApps:     appStats?.total       || 0,
+        applied:       appStats?.applied     || 0,
+        reviewing:     appStats?.reviewing   || 0,
+        shortlisted:   appStats?.shortlisted || 0,
+        rejected:      appStats?.rejected    || 0,
+        hired:         appStats?.hired       || 0,
       }
     });
-
   } catch (error) {
     next(error);
   }
+};
+
+// ─────────────────────────────────────────
+// EXPORTS — all functions declared above
+// ─────────────────────────────────────────
+module.exports = {
+  createJob,
+  getAllJobs,
+  getJobById,
+  updateJob,
+  deleteJob,
+  updateJobStatus,
+  getMyJobs,
+  getCompanyDashboardStats,   // ← works now because const declared above
 };

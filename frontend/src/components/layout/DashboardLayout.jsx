@@ -146,7 +146,7 @@ export default function DashboardLayout({ children }) {
       </nav>
 
       {/* ── Page Content ── */}
-      <main className="mx-auto max-w-5xl px-6 py-12">
+      <main className="mx-auto max-w-5xl px-4 md:px-6 py-6 md:py-10">
         {children}
       </main>
 

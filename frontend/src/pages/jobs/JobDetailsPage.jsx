@@ -145,7 +145,7 @@ export default function JobDetailsPage() {
     <div className="min-h-screen bg-gray-50">
 
       {/* ── Top nav bar ── */}
-      <div className="bg-white border-b border-gray-100 px-6 py-3 flex items-center gap-2 text-sm text-gray-500">
+      <div className="bg-white border-b border-gray-100 px-4 md:px-6 py-3 flex items-center gap-2 text-sm text-gray-500">
         <button
           onClick={() => navigate(ROUTES.PUBLIC_JOBS)}
           className="flex items-center gap-1.5 hover:text-gray-800 transition"

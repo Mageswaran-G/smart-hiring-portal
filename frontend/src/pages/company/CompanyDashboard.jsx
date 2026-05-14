@@ -90,7 +90,7 @@ export default function CompanyDashboard() {
 
             {/* Quick stat pill */}
             {stats && (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="flex items-center gap-1.5 bg-white/20 text-white text-xs font-semibold px-3 py-1.5 rounded-full">
                   <Briefcase size={12} />
                   {stats.totalJobs} job{stats.totalJobs !== 1 ? 's' : ''}
