@@ -5,8 +5,7 @@ import { useNavigate }            from 'react-router-dom';
 import { useAuth }                from '../../context/AuthContext';
 import DashboardLayout            from '../../components/layout/DashboardLayout';
 import { ROUTES }                 from '../../constants/routes';
-import { getMyJobs }              from '../../services/jobService';
-import { getCompanyApplications } from '../../services/applicationService';
+
 import { getCompanyDashboardStats } from '../../services/jobService';
 
 import {
