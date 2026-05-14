@@ -76,40 +76,53 @@ export default function ProfileHeader({
 
               {/* Headline - inline editable */}
               {editingHeadline ? (
-                <div className="flex items-center gap-2 mt-1.5">
-                  <input
-                    value={headline}
-                    onChange={e => setHeadline(e.target.value)}
-                    placeholder="e.g. Full Stack Developer"
-                    maxLength={100}
-                    autoFocus
-                    onKeyDown={e => {
-                      if (e.key === 'Enter') handleHeadlineSave();
-                      if (e.key === 'Escape') handleHeadlineCancel();
-                    }}
-                    className="flex-1 text-sm border-b outline-none py-0.5 text-gray-700 bg-transparent"
-                    style={{ borderBottomColor: theme.primary }}
-                  />
-                  <button onClick={handleHeadlineSave} disabled={savingHeadline}
-                    className="w-6 h-6 rounded-full flex items-center justify-center text-white cursor-pointer border-none shrink-0"
-                    style={{ background: theme.primary }}>
-                    <Check size={11} />
+              <div className="mt-1.5 flex flex-col gap-2">
+
+                {/* Input — full width */}
+                <input
+                  value={headline}
+                  onChange={e => setHeadline(e.target.value)}
+                  placeholder="e.g. Full Stack Developer"
+                  maxLength={100}
+                  autoFocus
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') handleHeadlineSave();
+                    if (e.key === 'Escape') handleHeadlineCancel();
+                  }}
+                  className="w-full text-sm border rounded-lg px-3 py-2 outline-none text-gray-700 bg-white"
+                  style={{ borderColor: theme.primary }}
+                />
+
+                {/* Save + Cancel — full visible buttons below input */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleHeadlineSave}
+                    disabled={savingHeadline}
+                    className="flex-1 text-xs font-semibold text-white py-2 rounded-lg border-none cursor-pointer"
+                    style={{ background: theme.primary }}
+                  >
+                    {savingHeadline ? 'Saving...' : 'Save'}
                   </button>
-                  <button onClick={handleHeadlineCancel}
-                    className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center cursor-pointer border-none shrink-0">
-                    <X size={11} className="text-gray-500" />
+                  <button
+                    onClick={handleHeadlineCancel}
+                    className="flex-1 text-xs font-semibold text-gray-600 py-2 rounded-lg border border-gray-200 bg-white cursor-pointer"
+                  >
+                    Cancel
                   </button>
                 </div>
+
+              </div>
               ) : (
                 <button onClick={() => setEditingHeadline(true)}
                   className="block text-left mt-1 cursor-pointer border-none bg-transparent p-0 group">
                   {profile?.headline
-                    ? <p className="text-sm text-gray-500 group-hover:text-gray-700 transition break-words leading-snug">
+                    ? 
+                      <p className="text-sm text-gray-500 break-words leading-snug">
                         {profile.headline}
-                        <span className="text-[10px] text-gray-300 ml-1.5 group-hover:text-gray-400">✎</span>
+                        <span className="text-[10px] text-orange-300 ml-1.5">✎</span>
                       </p>
-                    : <p className="text-xs text-gray-300 group-hover:text-gray-400 transition">
-                        + Add a headline
+                    : <p className="text-xs text-orange-400 font-medium">
+                        + Tap to add headline
                       </p>
                   }
                 </button>
