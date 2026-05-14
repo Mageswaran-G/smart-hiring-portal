@@ -104,7 +104,7 @@ export default function ProfileHeader({
                 <button onClick={() => setEditingHeadline(true)}
                   className="block text-left mt-1 cursor-pointer border-none bg-transparent p-0 group">
                   {profile?.headline
-                    ? <p className="text-sm text-gray-500 group-hover:text-gray-700 transition">
+                    ? <p className="text-sm text-gray-500 group-hover:text-gray-700 transition break-words leading-snug">
                         {profile.headline}
                         <span className="text-[10px] text-gray-300 ml-1.5 group-hover:text-gray-400">✎</span>
                       </p>

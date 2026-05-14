@@ -52,17 +52,24 @@ function Field({ label, value, link }) {
   if (!value) return null;
 
   return (
-    <div className="flex py-3 border-b border-gray-50 last:border-0">
-      <span className="w-36 shrink-0 text-xs font-semibold text-gray-400 uppercase tracking-wide pt-0.5">
+    <div className="flex flex-col sm:flex-row py-3 gap-0.5 sm:gap-0 border-b border-gray-50 last:border-0">
+
+      {/* Label — full width on mobile, fixed width on desktop */}
+      <span className="w-full sm:w-36 shrink-0 text-xs font-semibold text-gray-400 uppercase tracking-wide">
         {label}
       </span>
-      <span className="flex-1 text-sm text-gray-800 leading-relaxed capitalize-first break-all">
+
+      {/* Value — break-words not break-all */}
+      <span className="flex-1 text-sm text-gray-800 leading-relaxed break-words">
         {link
           ? <a href={value} target="_blank" rel="noreferrer"
-              className="text-orange-500 hover:underline">{value}</a>
+                className="text-orange-500 hover:underline break-all">
+              {value}
+            </a>
           : value
         }
       </span>
+
     </div>
   );
 }

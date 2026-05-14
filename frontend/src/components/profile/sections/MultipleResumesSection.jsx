@@ -11,78 +11,93 @@ function buildUrl(url) {
 }
 
 function ResumeCard({ resume, theme, isDefault, onSetDefault, onDelete }) {
-  const sizeKB = resume.size ? `${(resume.size / 1024).toFixed(0)} KB` : '';
-  const fileUrl = buildUrl(resume.url);
-  const fileType = resume.mimeType?.includes('pdf') ? 'PDF'
+  const sizeKB     = resume.size ? `${(resume.size / 1024).toFixed(0)} KB` : '';
+  const fileUrl    = buildUrl(resume.url);
+  const fileType   = resume.mimeType?.includes('pdf') ? 'PDF'
     : resume.mimeType?.includes('word') || resume.mimeType?.includes('document') ? 'Word'
     : 'File';
   const uploadDate = resume.uploadedAt
-    ? new Date(resume.uploadedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+    ? new Date(resume.uploadedAt).toLocaleDateString('en-IN', {
+        day: 'numeric', month: 'short', year: 'numeric'
+      })
     : '';
 
   return (
     <div
-      className="flex items-center gap-3 p-4 rounded-xl border-2 transition"
-      style={{ borderColor: isDefault ? theme.primary : '#f3f4f6' }}>
+      className="p-4 rounded-xl border-2 transition"
+      style={{ borderColor: isDefault ? theme.primary : '#f3f4f6' }}
+    >
 
-      {/* File icon */}
-      <div
-        className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
-        style={{ background: `${theme.primary}15`, color: theme.primary }}>
-        <FileText size={18} />
-      </div>
+      {/* Top row — icon + name + default badge */}
+      <div className="flex items-start gap-3">
 
-      {/* Info */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <p className="text-sm font-semibold text-gray-800 truncate">
-            {resume.label || resume.originalName || 'Resume'}
-          </p>
-          {isDefault && (
-            <span
-              className="text-[10px] px-2 py-0.5 rounded-full font-bold shrink-0"
-              style={{ background: `${theme.primary}20`, color: theme.primary }}>
-              DEFAULT
-            </span>
-          )}
+        {/* File icon */}
+        <div
+          className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+          style={{ background: `${theme.primary}15`, color: theme.primary }}
+        >
+          <FileText size={18} />
         </div>
-        <p className="text-xs text-gray-400 mt-0.5">
-          {[fileType, sizeKB, uploadDate].filter(Boolean).join(' · ')}
-        </p>
-      </div>
 
-      {/* Action buttons */}
-      <div className="flex items-center gap-1.5 shrink-0">
+        {/* Info — takes all remaining width */}
+        <div className="flex-1 min-w-0">
 
-        {/* View button */}
-        {fileUrl ? (
-          <a
-            href={fileUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition no-underline text-gray-600">
-            <ExternalLink size={12} />
-            View
-          </a>
-        ) : null}
+          {/* Name + DEFAULT badge */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="text-sm font-semibold text-gray-800 break-words">
+              {resume.label || resume.originalName || 'Resume'}
+            </p>
+            {isDefault && (
+              <span
+                className="text-[10px] px-2 py-0.5 rounded-full font-bold shrink-0"
+                style={{ background: `${theme.primary}20`, color: theme.primary }}
+              >
+                DEFAULT
+              </span>
+            )}
+          </div>
 
-        {/* Set as default — pass resume.url instead of index */}
-        {!isDefault && (
-          <button
-            onClick={() => onSetDefault(resume.url)}
-            title="Set as default"
-            className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-50 hover:bg-yellow-50 transition cursor-pointer border-none">
-            <Star size={14} className="text-gray-400 hover:text-yellow-500" />
-          </button>
-        )}
+          {/* File info — type · size · date */}
+          <p className="text-xs text-gray-400 mt-0.5">
+            {[fileType, sizeKB, uploadDate].filter(Boolean).join(' · ')}
+          </p>
 
-        {/* Delete — pass resume.url instead of index */}
-        <button
-          onClick={() => onDelete(resume.url)}
-          title="Remove resume"
-          className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-50 hover:bg-red-50 transition cursor-pointer border-none">
-          <Trash2 size={14} className="text-red-400" />
-        </button>
+          {/* Action buttons — below info on mobile */}
+          <div className="flex items-center gap-2 mt-2.5 flex-wrap">
+
+            {fileUrl && (
+              <a
+                href={fileUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition no-underline text-gray-600"
+              >
+                <ExternalLink size={11} />
+                View
+              </a>
+            )}
+
+            {!isDefault && (
+              <button
+                onClick={() => onSetDefault(resume.url)}
+                title="Set as default"
+                className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-50 hover:bg-yellow-50 transition cursor-pointer border-none"
+              >
+                <Star size={14} className="text-gray-400 hover:text-yellow-500" />
+              </button>
+            )}
+
+            <button
+              onClick={() => onDelete(resume.url)}
+              title="Remove resume"
+              className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-50 hover:bg-red-50 transition cursor-pointer border-none"
+            >
+              <Trash2 size={14} className="text-red-400" />
+            </button>
+
+          </div>
+        </div>
+
       </div>
     </div>
   );
