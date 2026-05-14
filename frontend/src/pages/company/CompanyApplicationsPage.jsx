@@ -114,7 +114,7 @@ export default function CompanyApplicationsPage() {
           <select
             value={filterJob}
             onChange={(e) => setFilterJob(e.target.value)}
-            className="border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white"
+            className="w-full sm:w-auto border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white"
           >
             <option value="all">All Jobs</option>
             {jobOptions.map(([id, title]) => (
@@ -127,7 +127,7 @@ export default function CompanyApplicationsPage() {
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white"
+          className="w-full sm:w-auto border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white"
         >
           <option value="all">All Statuses</option>
           {APPLICATION_STATUS_OPTIONS.map((s) => (

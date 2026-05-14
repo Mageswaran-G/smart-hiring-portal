@@ -71,7 +71,7 @@ export default function PersonalDetailsSection({ profile, isCandidate, onSave })
       </div>
 
       {!editing ? (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {[
             { label: 'Date of Birth', value: profile?.dateOfBirth },
             { label: 'Gender',        value: profile?.gender?.replace('_', ' ') },
@@ -89,7 +89,7 @@ export default function PersonalDetailsSection({ profile, isCandidate, onSave })
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {hasDraft && (
             <div className="col-span-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-1">
               <p className="text-xs text-amber-600 font-medium">Draft restored from previous session.</p>
@@ -127,7 +127,7 @@ export default function PersonalDetailsSection({ profile, isCandidate, onSave })
             <input type="text" name="country" value={form.country} onChange={handleChange} placeholder="e.g. India, USA" className={inputClass} />
           </div>
 
-          <div className="col-span-2 flex items-center justify-between mt-2">
+          <div className="col-span-1 sm:col-span-2 flex items-center justify-between mt-2">
             {savedAt && (
               <p className="text-xs text-gray-300">
                 Draft saved at {savedAt.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
