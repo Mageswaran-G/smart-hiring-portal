@@ -20,8 +20,8 @@ export const getJobById = async (id) => {
 
 // Get company's own jobs — company only
 export const getMyJobs = async () => {
-  const response = await API.get(API_ENDPOINTS.MY_JOBS);
-  return response.data;
+  const res = await API.get(API_ENDPOINTS.MY_JOBS);
+  return res.data.data;     
 };
 
 // Create new job — company only

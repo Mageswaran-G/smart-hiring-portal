@@ -62,10 +62,14 @@ function Field({ label, value, link }) {
       {/* Value — break-words not break-all */}
       <span className="flex-1 text-sm text-gray-800 leading-relaxed break-words">
         {link
-          ? <a href={value} target="_blank" rel="noreferrer"
-                className="text-orange-500 hover:underline break-all">
-              {value}
-            </a>
+          ? <a 
+                href={value.startsWith('http') ? value : `https://${value}`}
+                target="_blank"
+                rel="noreferrer"
+                className="text-orange-500 hover:underline break-all"
+              >
+                {value}
+              </a>
           : value
         }
       </span>

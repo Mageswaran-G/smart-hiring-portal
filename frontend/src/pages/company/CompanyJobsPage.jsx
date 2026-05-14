@@ -11,6 +11,9 @@ import Button from '../../components/ui/Button';
 import { getMyJobs, updateJobStatus, deleteJob } from '../../services/jobService';
 import { ROUTES } from '../../constants/routes';
 import toast from 'react-hot-toast';
+import EmptyState from '../../components/ui/EmptyState';
+
+
 
 export default function CompanyJobsPage() {
   const navigate = useNavigate();
@@ -27,7 +30,7 @@ export default function CompanyJobsPage() {
     try {
       setLoading(true);
       const data = await getMyJobs();
-      setJobs(data.data || []);
+      setJobs(data || []);   
     } catch (err) {
       setError('Failed to load jobs. Please try again.');
     } finally {
@@ -45,7 +48,7 @@ export default function CompanyJobsPage() {
     // Simple feedback — shows green or red message
     toast.success(isActive ? 'Job is now Active — visible to candidates' : 'Job is now Inactive — hidden from candidates');
   } catch (err) {
-    toast.success('Failed to update status. Try again.');
+    toast.error('Failed to update status. Try again.');
   }
   };
 
@@ -59,7 +62,7 @@ export default function CompanyJobsPage() {
       // Remove from local state
       setJobs(prev => prev.filter(job => job._id !== id));
     } catch (err) {
-      toast.success('Failed to delete job. Try again.');
+      toast.error('Failed to delete job. Try again.');
     }
   };
 
@@ -105,19 +108,15 @@ export default function CompanyJobsPage() {
       )}
 
       {/* Empty state */}
-      {!loading && !error && jobs.length === 0 && (
-        <div className="text-center py-20">
-          <Briefcase size={48} className="mx-auto text-gray-300 mb-4" />
-          <h3 className="font-sora font-bold text-gray-700 text-lg mb-2">
-            No jobs posted yet
-          </h3>
-          <p className="text-gray-400 text-sm mb-6">
-            Post your first job to start receiving applications
-          </p>
-          <Button onClick={() => navigate(ROUTES.COMPANY_JOB_CREATE)}>
-            <Plus size={16} /> Post Your First Job
-          </Button>
-        </div>
+      {jobs.length === 0 && !loading && (
+        <EmptyState
+          icon={<Briefcase size={32} />}
+          title="No jobs posted yet"
+          subtitle="Create your first job listing to start receiving applications"
+          actionLabel="Post New Job"
+          onAction={() => navigate(ROUTES.COMPANY_JOB_CREATE)}
+          variant="company"
+        />
       )}
 
       {/* Jobs grid */}
