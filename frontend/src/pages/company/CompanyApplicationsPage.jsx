@@ -1,41 +1,42 @@
-// CompanyApplicationsPage.jsx — clean version
+// CompanyApplicationsPage
 
-import { useEffect, useState, useMemo }   from 'react';
-import { useNavigate }                    from 'react-router-dom';
-import { Users, Mail, MapPin, FileText }  from 'lucide-react';
-import toast                             from 'react-hot-toast';
-import DashboardLayout                   from '../../components/layout/DashboardLayout';
-import PageHeader                        from '../../components/ui/PageHeader';
-import EmptyState                        from '../../components/ui/EmptyState';
-import { ROUTES }                        from '../../constants/routes';
-import { APPLICATION_STATUS, APPLICATION_STATUS_OPTIONS } from '../../constants/applicationStatus';
+import { useEffect, useState, useMemo }                    from 'react';
+import { useNavigate }                                     from 'react-router-dom';
+import { Users, Mail, MapPin, FileText, Search }           from 'lucide-react';
+import toast                                               from 'react-hot-toast';
+import DashboardLayout                                     from '../../components/layout/DashboardLayout';
+import PageHeader                                          from '../../components/ui/PageHeader';
+import EmptyState                                          from '../../components/ui/EmptyState';
+import { ROUTES }                                          from '../../constants/routes';
+import { APPLICATION_STATUS, APPLICATION_STATUS_OPTIONS }  from '../../constants/applicationStatus';
 import { getCompanyApplications, updateApplicationStatus } from '../../services/applicationService';
 
 export default function CompanyApplicationsPage() {
 
   const navigate = useNavigate();
 
-  const [applications, setApplications] = useState([]);
-  const [loading,      setLoading]      = useState(true);
-  const [filterJob,    setFilterJob]    = useState('all');
-  const [updating,     setUpdating]     = useState(null);
+  const [applications,  setApplications]  = useState([]);
+  const [loading,       setLoading]       = useState(true);
+  const [filterJob,     setFilterJob]     = useState('all');
+  const [filterStatus,  setFilterStatus]  = useState('all');  
+  const [searchName,    setSearchName]    = useState('');     
+  const [updating,      setUpdating]      = useState(null);
 
-  // ── Fetch on mount ─────────────────────────────────
   useEffect(() => {
-    const fetchApplications = async () => {
+    const fetch = async () => {
       try {
-        const data = await getCompanyApplications(); // returns array directly
+        const data = await getCompanyApplications();
         setApplications(data);
-      } catch (err) {
+      } catch {
         toast.error('Failed to load applications');
       } finally {
         setLoading(false);
       }
     };
-    fetchApplications();
+    fetch();
   }, []);
 
-  // ── Filter options ──────────────────────────────────
+  // Unique job options for job filter dropdown
   const jobOptions = useMemo(() => {
     const seen = new Map();
     applications.forEach((app) => {
@@ -46,12 +47,31 @@ export default function CompanyApplicationsPage() {
     return Array.from(seen.entries());
   }, [applications]);
 
+  // 3-level filtering: job → status → name search
   const filtered = useMemo(() => {
-    if (filterJob === 'all') return applications;
-    return applications.filter((app) => app.job?._id === filterJob);
-  }, [applications, filterJob]);
+    let result = applications;
 
-  // ── Status update ───────────────────────────────────
+    // Filter by job
+    if (filterJob !== 'all') {
+      result = result.filter((app) => app.job?._id === filterJob);
+    }
+
+    // Filter by status
+    if (filterStatus !== 'all') {
+      result = result.filter((app) => app.status === filterStatus);
+    }
+
+    // Search by candidate name
+    if (searchName.trim()) {
+      const q = searchName.toLowerCase();
+      result = result.filter((app) =>
+        app.candidate?.name?.toLowerCase().includes(q)
+      );
+    }
+
+    return result;
+  }, [applications, filterJob, filterStatus, searchName]);
+
   const handleStatusChange = async (applicationId, newStatus) => {
     setUpdating(applicationId);
     try {
@@ -63,7 +83,7 @@ export default function CompanyApplicationsPage() {
       );
       toast.success(`Moved to ${APPLICATION_STATUS[newStatus]?.label}`);
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to update status');
+      toast.error(err.response?.data?.message || 'Failed to update');
     } finally {
       setUpdating(null);
     }
@@ -72,28 +92,66 @@ export default function CompanyApplicationsPage() {
   return (
     <DashboardLayout>
 
-      {/* Header */}
       <PageHeader
         title="Applicants"
-        subtitle={`${filtered.length} application${filtered.length !== 1 ? 's' : ''}${filterJob !== 'all' ? ' for this job' : ' total'}`}
+        subtitle={`${filtered.length} result${filtered.length !== 1 ? 's' : ''}`}
         backRoute={ROUTES.COMPANY_DASHBOARD}
-        rightContent={
-          jobOptions.length > 1 ? (
-            <select
-              value={filterJob}
-              onChange={(e) => setFilterJob(e.target.value)}
-              className="border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-300"
-            >
-              <option value="all">All Jobs</option>
-              {jobOptions.map(([id, title]) => (
-                <option key={id} value={id}>{title}</option>
-              ))}
-            </select>
-          ) : null
-        }
       />
 
-      {/* Loading */}
+      {/* ── Search + Filter Bar ── */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-6 flex flex-wrap gap-3 items-center">
+
+        {/* Search by name */}
+        <div className="relative flex-1 min-w-[200px]">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search candidate name..."
+            value={searchName}
+            onChange={(e) => setSearchName(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-300"
+          />
+        </div>
+
+        {/* Filter by job */}
+        {jobOptions.length > 1 && (
+          <select
+            value={filterJob}
+            onChange={(e) => setFilterJob(e.target.value)}
+            className="border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white"
+          >
+            <option value="all">All Jobs</option>
+            {jobOptions.map(([id, title]) => (
+              <option key={id} value={id}>{title}</option>
+            ))}
+          </select>
+        )}
+
+        {/* Filter by status */}
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+          className="border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white"
+        >
+          <option value="all">All Statuses</option>
+          {APPLICATION_STATUS_OPTIONS.map((s) => (
+            <option key={s} value={s}>{APPLICATION_STATUS[s].label}</option>
+          ))}
+        </select>
+
+        {/* Clear filters */}
+        {(filterJob !== 'all' || filterStatus !== 'all' || searchName) && (
+          <button
+            onClick={() => { setFilterJob('all'); setFilterStatus('all'); setSearchName(''); }}
+            className="text-sm text-red-500 hover:text-red-700 border border-red-200 hover:border-red-400 px-3 py-2 rounded-xl transition"
+          >
+            Clear
+          </button>
+        )}
+
+      </div>
+
+      {/* Loading skeletons */}
       {loading && (
         <div className="flex flex-col gap-4">
           {[1, 2, 3].map(i => (
@@ -115,8 +173,12 @@ export default function CompanyApplicationsPage() {
       {!loading && filtered.length === 0 && (
         <EmptyState
           icon={<Users size={32} />}
-          title="No applicants yet"
-          subtitle="Applications will appear here once candidates apply"
+          title="No applicants found"
+          subtitle={
+            searchName || filterJob !== 'all' || filterStatus !== 'all'
+              ? 'Try adjusting your search or filters'
+              : 'Applications will appear here once candidates apply'
+          }
           variant="company"
         />
       )}
@@ -133,7 +195,6 @@ export default function CompanyApplicationsPage() {
 
                 {/* Candidate info */}
                 <div className="flex items-start gap-4">
-
                   <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center shrink-0 overflow-hidden">
                     {app.candidate?.profilePhoto ? (
                       <img
@@ -162,7 +223,6 @@ export default function CompanyApplicationsPage() {
                       </p>
                     )}
 
-                    {/* Resume link */}
                     {app.resume ? (
                       <a
                         href={`${import.meta.env.VITE_API_URL}${app.resume}`}
@@ -178,17 +238,13 @@ export default function CompanyApplicationsPage() {
                     )}
 
                     <div className="flex flex-wrap gap-3 mt-3 text-sm text-gray-400">
-                      <span className="font-medium text-gray-600">
-                        {app.job?.title || '—'}
-                      </span>
+                      <span className="font-medium text-gray-600">{app.job?.title || '—'}</span>
                       {app.job?.location && (
                         <span className="flex items-center gap-1">
                           <MapPin size={13} /> {app.job.location}
                         </span>
                       )}
-                      <span>
-                        Applied {new Date(app.createdAt).toLocaleDateString()}
-                      </span>
+                      <span>Applied {new Date(app.createdAt).toLocaleDateString()}</span>
                     </div>
 
                     {app.coverLetter && (
@@ -211,9 +267,7 @@ export default function CompanyApplicationsPage() {
                     className="border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-300 disabled:opacity-50"
                   >
                     {APPLICATION_STATUS_OPTIONS.map((s) => (
-                      <option key={s} value={s}>
-                        {APPLICATION_STATUS[s].label}
-                      </option>
+                      <option key={s} value={s}>{APPLICATION_STATUS[s].label}</option>
                     ))}
                   </select>
                   {updating === app._id && (
