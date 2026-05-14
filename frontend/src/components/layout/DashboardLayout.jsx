@@ -1,125 +1,113 @@
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { ROUTES } from '../../constants/routes';
-import DashboardSkeleton from '../ui/DashboardSkeleton';
+// DashboardLayout.jsx 
 
-// Role-based navbar configuration
-const NAV_CONFIG = {
-  candidate: {
-    logo: 'bg-orange-500',
-    button: 'bg-orange-500 hover:bg-orange-600',
-    outline: 'border border-orange-400 text-orange-500 hover:bg-orange-50',
-    showProfile: true,
-  },
-
-  company: {
-    logo: 'bg-blue-900',
-    button: 'bg-blue-900 hover:bg-blue-800',
-    outline: 'border border-blue-900 text-blue-900 hover:bg-blue-50',
-    showProfile: true,
-  },
-
-  admin: {
-    logo: 'bg-purple-700',
-    button: 'bg-purple-700 hover:bg-purple-800',
-    outline: 'border border-purple-700 text-purple-700 hover:bg-purple-50',
-    showProfile: false,
-  },
-};
+import { useNavigate }  from 'react-router-dom';
+import { useAuth }      from '../../context/AuthContext';
+import { ROUTES }       from '../../constants/routes';
+import { LogOut, User } from 'lucide-react';
 
 export default function DashboardLayout({ children }) {
-  const navigate = useNavigate();
 
-  const {
-    user,
-    logoutUser,
-    isLoading,
-  } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate         = useNavigate();
 
-  // Show loading skeleton while auth initializes
-  if (isLoading) {
-    return <DashboardSkeleton />;
-  }
-
-  // Get dashboard route based on role
-  const getHomeRoute = () => {
-    if (user?.role === 'company') {
-      return ROUTES.COMPANY_DASHBOARD;
-    }
-
-    if (user?.role === 'candidate') {
-      return ROUTES.CANDIDATE_DASHBOARD;
-    }
-
-    if (user?.role === 'admin') {
-      return ROUTES.ADMIN_DASHBOARD;
-    }
-
-    return ROUTES.LOGIN;
+  const handleLogout = () => {
+    logout();
+    navigate(ROUTES.LOGIN);
   };
 
-  const config = NAV_CONFIG[user?.role] || NAV_CONFIG.candidate;
+  // Avatar — show photo if exists, else show initial
+  const initial      = user?.name?.charAt(0)?.toUpperCase() || '?';
+  const profilePhoto = user?.profilePhoto;
+
+  // Role colors
+  const roleConfig = {
+    candidate: { label: 'Candidate', dot: 'bg-orange-400', badge: 'text-orange-600 bg-orange-50 border-orange-100' },
+    company:   { label: 'Company',   dot: 'bg-blue-400',   badge: 'text-blue-600   bg-blue-50   border-blue-100'   },
+    admin:     { label: 'Admin',     dot: 'bg-red-400',    badge: 'text-red-600    bg-red-50     border-red-100'    },
+  };
+  const role = roleConfig[user?.role] || roleConfig.candidate;
 
   return (
     <div className="min-h-screen bg-gray-50">
 
-      {/* Top Navbar */}
-      <nav className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white px-6 py-4 shadow-sm">
+      {/* ── Top Nav Bar ── */}
+      <header className="bg-white border-b border-gray-100 sticky top-0 z-40 shadow-sm">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
 
-        {/* Left side */}
-        <div
-          onClick={() => navigate(getHomeRoute())}
-          className="flex cursor-pointer items-center gap-2"
-        >
-          <span
-            className={`
-              ${config.logo}
-              font-sora
-              flex h-9 w-9 items-center justify-center
-              rounded-lg text-base font-extrabold text-white
-            `}
+          {/* Left — Logo */}
+          <div
+            className="flex items-center gap-2.5 cursor-pointer"
+            onClick={() => navigate(ROUTES.DASHBOARD)}
           >
-            HP
-          </span>
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm font-sora">HP</span>
+            </div>
+            <span className="font-sora font-bold text-gray-900 text-lg">
+              HirePortal
+            </span>
+          </div>
 
-          <span className="font-sora text-lg font-bold text-gray-900">
-            HirePortal
-          </span>
-        </div>
+          {/* Right — User Info + Actions */}
+          <div className="flex items-center gap-3">
 
-        {/* Right side */}
-        <div className="flex items-center gap-3">
+            {/* User name + role — hidden on small screens */}
+            <div className="hidden md:flex flex-col items-end">
+              <p className="text-sm font-semibold text-gray-800 leading-tight">
+                {user?.name || 'User'}
+              </p>
+              <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${role.badge}`}>
+                <span className={`inline-block w-1.5 h-1.5 rounded-full mr-1 ${role.dot}`} />
+                {role.label}
+              </span>
+            </div>
 
-          {/* Profile button */}
-          {config.showProfile && (
+            {/* Avatar */}
+            <div
+              onClick={() => navigate(ROUTES.PROFILE)}
+              className="w-9 h-9 rounded-full overflow-hidden cursor-pointer border-2 border-gray-100 hover:border-blue-300 transition shrink-0"
+              title="My Profile"
+            >
+              {profilePhoto ? (
+                <img
+                  src={`${import.meta.env.VITE_API_URL}${profilePhoto}`}
+                  alt={user?.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className={`w-full h-full flex items-center justify-center text-white font-bold text-sm
+                  ${user?.role === 'company' ? 'bg-blue-600' : user?.role === 'admin' ? 'bg-red-600' : 'bg-orange-500'}`}
+                >
+                  {initial}
+                </div>
+              )}
+            </div>
+
+            {/* My Profile button */}
             <button
               onClick={() => navigate(ROUTES.PROFILE)}
-              className={`
-                ${config.outline}
-                rounded-lg px-4 py-2 text-sm transition
-              `}
+              className="hidden md:flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 border border-gray-200 hover:border-gray-300 px-3 py-1.5 rounded-xl transition"
             >
+              <User size={14} />
               My Profile
             </button>
-          )}
 
-          {/* Logout button */}
-          <button
-            onClick={logoutUser}
-            className={`
-              ${config.button}
-              rounded-lg border-none px-4 py-2
-              text-sm font-semibold text-white transition
-            `}
-          >
-            Logout
-          </button>
+            {/* Logout */}
+            <button
+              onClick={handleLogout}
+              className={`flex items-center gap-1.5 text-sm font-semibold text-white px-4 py-1.5 rounded-xl transition
+                ${user?.role === 'company' ? 'bg-blue-600 hover:bg-blue-700' : user?.role === 'admin' ? 'bg-red-600 hover:bg-red-700' : 'bg-orange-500 hover:bg-orange-600'}`}
+            >
+              <LogOut size={14} />
+              <span className="hidden md:inline">Logout</span>
+            </button>
+
+          </div>
 
         </div>
-      </nav>
+      </header>
 
-      {/* Main page content */}
-      <main className="mx-auto max-w-5xl px-6 py-12">
+      {/* ── Page Content ── */}
+      <main className="max-w-7xl mx-auto px-6 py-8">
         {children}
       </main>
 
