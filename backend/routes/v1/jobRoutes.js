@@ -7,11 +7,11 @@ const { verifyToken }      = require('../../middleware/authMiddleware');
 const { authorize }        = require('../../middleware/roleMiddleware');
 const { validateJobInput } = require('../../validators/jobValidator');
 
-// All functions imported correctly
 const {
   createJob,
   getAllJobs,
   getJobById,
+  getJobBySlug,
   updateJob,
   deleteJob,
   updateJobStatus,
@@ -19,7 +19,9 @@ const {
   getCompanyDashboardStats,  
 } = require('../../controllers/v1/jobController');
 
-// Dashboard stats — MUST be before /:id route
+router.get('/slug/:slug', getJobBySlug);
+
+// Dashboard stats 
 router.get(
   '/company/dashboard-stats',
   verifyToken,
@@ -27,7 +29,7 @@ router.get(
   getCompanyDashboardStats    
 );
 
-// My jobs — MUST be before /:id route
+// My jobs 
 router.get('/company/my-jobs', verifyToken, authorize('company'), getMyJobs);
 
 // PUBLIC

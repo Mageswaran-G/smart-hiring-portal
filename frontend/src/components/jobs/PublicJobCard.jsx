@@ -72,7 +72,7 @@ export default function PublicJobCard({ job, isSaved = false, onToggleSave }) {
 
       {/* View Details button */}
       <button
-        onClick={() => navigate(ROUTES.JOB_DETAILS.replace(':id', job._id))}
+        onClick={() => navigate(ROUTES.JOB_DETAILS.replace(':slug', job.slug || job._id))}
         className="mt-5 w-full rounded-xl bg-blue-900 py-2.5 text-sm font-semibold text-white hover:bg-blue-800 transition"
       >
         View Details

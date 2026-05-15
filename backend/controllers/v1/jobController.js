@@ -6,6 +6,7 @@ const Application = require('../../models/Application');
 // ─────────────────────────────────────────
 // CREATE JOB — Company only
 // ─────────────────────────────────────────
+const generateSlug = require('../../utils/generateSlug'); 
 const createJob = async (req, res) => {
   try {
     const allowedFields = {
@@ -29,6 +30,9 @@ const createJob = async (req, res) => {
       ...allowedFields,
       postedBy: req.user.id,
     });
+
+    job.slug = generateSlug(job.title, job.location, job._id);
+    await job.save();
 
     res.status(201).json({
       success: true,
@@ -294,6 +298,28 @@ const getCompanyDashboardStats = async (req, res, next) => {
   }
 };
 
+// GET /api/v1/jobs/slug/:slug
+// Public route — find job by SEO slug
+const getJobBySlug = async (req, res) => {
+  try {
+    const job = await Job.findOne({
+      slug:      req.params.slug,
+      isDeleted: false,
+    }).populate('postedBy', 'companyName profilePhoto industry companyWebsite isVerified');
+
+    if (!job) {
+      return res.status(404).json({
+        success: false,
+        message: 'Job not found',
+      });
+    }
+
+    res.json({ success: true, data: job });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // ─────────────────────────────────────────
 // EXPORTS — all functions declared above
 // ─────────────────────────────────────────
@@ -301,6 +327,7 @@ module.exports = {
   createJob,
   getAllJobs,
   getJobById,
+  getJobBySlug, 
   updateJob,
   deleteJob,
   updateJobStatus,

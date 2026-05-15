@@ -2,6 +2,15 @@ const mongoose = require('mongoose');
 const { JOB_TYPES, WORK_MODES, EXPERIENCE_LEVELS, JOB_STATUS } = require('../utils/constants');
 const jobSchema = new mongoose.Schema(
   {
+
+    slug: {
+      type:      String,
+      unique:    true,
+      sparse:    true,    // allows null/undefined during creation
+      lowercase: true,
+      index:     true,    // fast lookup by slug
+    },
+
     title: {
       type: String,
       required: [true, 'Job title is required'],

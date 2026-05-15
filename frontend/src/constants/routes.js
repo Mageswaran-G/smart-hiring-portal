@@ -21,6 +21,6 @@ export const ROUTES = {
   ADMIN_DASHBOARD:         '/admin/dashboard',
 
   // Public
-  JOB_DETAILS:             '/jobs/:id',
+  JOB_DETAILS:             '/jobs/:slug',
   PUBLIC_JOBS:             '/jobs',
 };

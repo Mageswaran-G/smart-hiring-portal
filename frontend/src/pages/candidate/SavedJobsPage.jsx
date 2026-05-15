@@ -125,7 +125,7 @@ export default function SavedJobsPage() {
                     Remove
                   </button>
                   <button
-                    onClick={() => navigate(ROUTES.JOB_DETAILS.replace(':id', job._id))}
+                    onClick={() => navigate(ROUTES.JOB_DETAILS.replace(':slug', job.slug || job._id))}
                     className="bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-2 rounded-xl text-sm transition"
                   >
                     Apply Now

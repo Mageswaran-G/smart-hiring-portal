@@ -18,6 +18,8 @@ export const API_ENDPOINTS = {
   JOB_STATUS:        (id) => `/jobs/${id}/status`,
   MY_JOBS:           '/jobs/company/my-jobs',
 
+  JOB_BY_SLUG: (slug) => `/jobs/slug/${slug}`,
+
   // Applications — Candidate
   APPLY_TO_JOB:     (jobId) => `/applications/${jobId}/apply`,
   MY_APPLICATIONS:  '/applications/my',

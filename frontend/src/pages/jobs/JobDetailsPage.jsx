@@ -8,8 +8,8 @@ import {
   Bookmark, ArrowLeft, Clock, Building2,
   CheckCircle2, ChevronRight
 } from 'lucide-react';
+import { getJobBySlug , applyToJob } from '../../services/jobService'; 
 
-import { getJobById, applyToJob } from '../../services/jobService';
 import { useAuth }         from '../../context/AuthContext';
 import { API }             from '../../services/authService';
 import { API_ENDPOINTS }   from '../../constants/api';
@@ -31,10 +31,9 @@ function getDaysLeft(deadline) {
 
 export default function JobDetailsPage() {
 
-  const { id }   = useParams();
+  const { slug } = useParams(); 
   const navigate = useNavigate();
   const { user } = useAuth();
-
   const [job,            setJob]            = useState(null);
   const [loading,        setLoading]        = useState(true);
   const [error,          setError]          = useState('');
@@ -43,12 +42,13 @@ export default function JobDetailsPage() {
   const [saving,         setSaving]         = useState(false);
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [applied,        setApplied]        = useState(false);
+  const jobId = job?._id;
 
   // 1. Fetch job
   useEffect(() => {
     const fetch = async () => {
       try {
-        const res = await getJobById(id);
+        const res = await getJobBySlug(slug);
         setJob(res.data);
       } catch {
         setError('Failed to load job');
@@ -57,7 +57,7 @@ export default function JobDetailsPage() {
       }
     };
     fetch();
-  }, [id]);
+  }, [slug]); 
 
   // 2. Check saved
   useEffect(() => {
@@ -65,7 +65,7 @@ export default function JobDetailsPage() {
     const check = async () => {
       try {
         const res = await API.get(API_ENDPOINTS.SAVED_JOB_IDS);
-        setIsSaved(res.data.data.includes(id));
+        setIsSaved(res.data.data.includes(jobId));
       } catch (_) {}
     };
     check();
@@ -78,7 +78,7 @@ export default function JobDetailsPage() {
       try {
         const res  = await API.get(API_ENDPOINTS.MY_APPLICATIONS);
         const apps = res.data.data || [];
-        setApplied(apps.some(a => a.job?._id === id));
+        setApplied(apps.some(a => a.job?._id === jobId));
       } catch (_) {}
     };
     check();
@@ -87,7 +87,7 @@ export default function JobDetailsPage() {
   const handleApply = async (coverLetter) => {
     try {
       setApplying(true);
-      await applyToJob(id, coverLetter);
+      await applyToJob(jobId, coverLetter);
       setApplied(true);
       setShowApplyModal(false);
     } catch (err) {
@@ -102,10 +102,10 @@ export default function JobDetailsPage() {
     try {
       setSaving(true);
       if (isSaved) {
-        await API.delete(API_ENDPOINTS.UNSAVE_JOB(id));
+        await API.delete(API_ENDPOINTS.UNSAVE_JOB(jobId));
         setIsSaved(false);
       } else {
-        await API.post(API_ENDPOINTS.SAVE_JOB(id));
+        await API.post(API_ENDPOINTS.SAVE_JOB(jobId));
         setIsSaved(true);
       }
     } catch (err) {
