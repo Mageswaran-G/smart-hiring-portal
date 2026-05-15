@@ -4,8 +4,15 @@ const Job         = require('../../models/Job');
 const Application = require('../../models/Application');
 const sanitizeHtml = require('sanitize-html');
 const sanitizeDescription = (html) => sanitizeHtml(html || '', {
-  allowedTags:       ['p','strong','em','h2','ul','ol','li','br','hr'],
-  allowedAttributes: {},
+  allowedTags: [
+    'p', 'strong', 'em', 'h2', 'h3',
+    'ul', 'ol', 'li', 'br', 'hr',
+    'blockquote', 'code', 'pre',
+    'a',
+  ],
+  allowedAttributes: {
+    'a': ['href', 'target', 'rel'],  // allow links with href only
+  },
 });
 
 // ─────────────────────────────────────────

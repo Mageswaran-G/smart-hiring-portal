@@ -80,12 +80,17 @@ const refreshLimiter = rateLimit({
 app.use('/api/v1/auth/signup', authLimiter);
 app.use('/api/v1/auth/login', authLimiter);
 app.use('/api/v1/auth/refresh', refreshLimiter);
+
+
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/public', publicRoutes);
-app.use('/api/v1/jobs', jobRoutes);
+app.use('/api/v1/jobs',         jobRoutes);
+
+
 app.use('/api/v1/applications', applicationRoutes);
 app.use('/api/v1/saved', savedJobRoutes);
+
 app.use('/api/v1/jobs',         jobActionLimiter);
 app.use('/api/v1/applications', jobActionLimiter);
 app.use('/api/v1/saved',        jobActionLimiter);
