@@ -5,6 +5,7 @@
 import { useState } from 'react';
 import Button from '../ui/Button';
 import { JOB_TYPES, WORK_MODES, EXPERIENCE_LEVELS } from '../../constants/jobConstants';
+import RichTextEditor from '../ui/RichTextEditor';
 
 // Empty form — default values
 const emptyForm = {
@@ -162,13 +163,10 @@ export default function JobForm({ mode = 'create', initialData = null, onSubmit,
         <label className="block text-sm font-semibold text-gray-700 mb-1">
           Description <span className="text-red-500">*</span>
         </label>
-        <textarea
-          name="description"
+        <RichTextEditor
           value={form.description}
-          onChange={handleChange}
-          rows={4}
-          placeholder="Describe the role, what they will do..."
-          className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+          onChange={(html) => setForm(prev => ({ ...prev, description: html }))}
+          placeholder="Describe the role, responsibilities and what you are looking for..."
         />
       </div>
 

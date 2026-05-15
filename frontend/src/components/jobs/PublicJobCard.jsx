@@ -9,6 +9,11 @@ import { ROUTES } from '../../constants/routes';
 export default function PublicJobCard({ job, isSaved = false, onToggleSave }) {
 
   const navigate = useNavigate();
+  // Strips HTML tags for plain text preview
+  const stripHtml = (html) => {
+    if (!html) return '';
+    return html.replace(/<[^>]*>/g, '').trim();
+  };
 
   return (
     <div className="rounded-2xl bg-white border border-gray-100 p-5 shadow-sm hover:shadow-md transition relative">
@@ -67,7 +72,7 @@ export default function PublicJobCard({ job, isSaved = false, onToggleSave }) {
 
       {/* Description preview */}
       <p className="mt-4 line-clamp-3 text-sm text-gray-600">
-        {job.description}
+        {stripHtml(job.description)}
       </p>
 
       {/* View Details button */}
