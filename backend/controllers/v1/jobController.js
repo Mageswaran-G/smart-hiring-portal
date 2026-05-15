@@ -302,10 +302,21 @@ const getCompanyDashboardStats = async (req, res, next) => {
 // Public route — find job by SEO slug
 const getJobBySlug = async (req, res) => {
   try {
-    const job = await Job.findOne({
-      slug:      req.params.slug,
+    const param = req.params.slug;
+
+    // First try finding by slug (new jobs)
+    let job = await Job.findOne({
+      slug:      param,
       isDeleted: false,
     }).populate('postedBy', 'companyName profilePhoto industry companyWebsite isVerified');
+
+    // Fallback: if not found by slug, try by _id (old jobs without slug)
+    if (!job && mongoose.Types.ObjectId.isValid(param)) {
+      job = await Job.findOne({
+        _id:       param,
+        isDeleted: false,
+      }).populate('postedBy', 'companyName profilePhoto industry companyWebsite isVerified');
+    }
 
     if (!job) {
       return res.status(404).json({
@@ -315,6 +326,7 @@ const getJobBySlug = async (req, res) => {
     }
 
     res.json({ success: true, data: job });
+
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
