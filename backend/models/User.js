@@ -143,12 +143,15 @@ const userSchema = new mongoose.Schema({
   companyState:       { type: String, default: '' },
   companyCountry:     { type: String, default: '' },
 
-  // Company extended fields — Module 3
+  // Company extended fields
   coverBanner:      { type: String, default: '' },
   hiringStatus:     { type: Boolean, default: false },
   companyCulture:   { type: String, default: '' },
   employeeBenefits: { type: [String], default: [] },
   companyTechStack: { type: [String], default: [] },
+
+  isVerified:  { type: Boolean, default: false },
+  verifiedAt:  { type: Date },
 
 }, { timestamps: true, versionKey: false });
 

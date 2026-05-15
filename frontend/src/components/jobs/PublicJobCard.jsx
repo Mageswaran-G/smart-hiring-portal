@@ -40,10 +40,17 @@ export default function PublicJobCard({ job, isSaved = false, onToggleSave }) {
         {job.title}
       </h2>
 
-      {/* FIXED: job.postedBy not job.company */}
-      <p className="mt-1 text-sm text-gray-500">
-        {job.postedBy?.companyName || 'Company'}
-      </p>
+      {/* job.postedBy not job.company */}
+      <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+        <p className="text-sm text-gray-500">
+          {job.postedBy?.companyName || 'Company'}
+        </p>
+        {job.postedBy?.isVerified && (
+          <span className="inline-flex items-center gap-0.5 text-[10px] bg-blue-50 text-blue-600 border border-blue-100 px-1.5 py-0.5 rounded-full font-semibold">
+            ✓ Verified
+          </span>
+        )}
+      </div>
 
       {/* Location */}
       <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">

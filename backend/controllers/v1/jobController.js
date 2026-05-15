@@ -76,7 +76,7 @@ const getAllJobs = async (req, res) => {
     const total       = await Job.countDocuments(filter);
 
     const jobs = await Job.find(filter)
-      .populate('postedBy', 'companyName profilePhoto')
+      .populate('postedBy', 'companyName profilePhoto isVerified')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNumber);
@@ -108,7 +108,7 @@ const getJobById = async (req, res) => {
     const job = await Job.findOne({
       _id:       req.params.id,
       isDeleted: false,
-    }).populate('postedBy', 'companyName profilePhoto industry companyWebsite');
+    }).populate('postedBy', 'companyName profilePhoto industry companyWebsite isVerified');
 
     if (!job) {
       return res.status(404).json({ success: false, message: 'Job not found' });
