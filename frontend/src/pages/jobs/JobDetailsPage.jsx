@@ -189,6 +189,14 @@ export default function JobDetailsPage() {
                     <Building2 size={15} className="text-blue-500" />
                     {companyName}
                   </span>
+                  {job.postedBy?.isVerified && (
+                    <span className="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-600 border border-blue-100 px-2.5 py-0.5 rounded-full font-semibold">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      Verified
+                    </span>
+                  )}
                   <span className="text-gray-300">•</span>
                   <span className="flex items-center gap-1.5 text-gray-500">
                     <MapPin size={15} className="text-gray-400" />
