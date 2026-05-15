@@ -143,6 +143,8 @@ const getJobById = async (req, res) => {
     const job = await Job.findOne({
       _id:       req.params.id,
       isDeleted: false,
+      isActive:  true,         
+      status:    'published', 
     }).populate('postedBy', 'companyName profilePhoto industry companyWebsite isVerified');
 
     if (!job) {

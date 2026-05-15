@@ -26,11 +26,20 @@ exports.errorHandler = (err, req, res, next) => {
     });
   }
 
-  // MongoDB duplicate key
+  // MongoDB duplicate key — smart messages per field
   if (err.code === 11000) {
+    const key = Object.keys(err.keyPattern || {}).join('_');
+
+    const messages = {
+      'candidate_1_job_1': 'You have already applied for this job',
+      'user_1_job_1':      'You have already saved this job',
+      'slug':              'A job with this title already exists',
+      'email':             'An account with this email already exists',
+    };
+
     return res.status(400).json({
       success: false,
-      message: 'Email already exists'
+      message: messages[key] || 'Duplicate entry detected',
     });
   }
 
