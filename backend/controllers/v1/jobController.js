@@ -2,6 +2,11 @@
 const mongoose    = require('mongoose');
 const Job         = require('../../models/Job');
 const Application = require('../../models/Application');
+const sanitizeHtml = require('sanitize-html');
+const sanitizeDescription = (html) => sanitizeHtml(html || '', {
+  allowedTags:       ['p','strong','em','h2','ul','ol','li','br','hr'],
+  allowedAttributes: {},
+});
 
 // ─────────────────────────────────────────
 // CREATE JOB — Company only
@@ -11,7 +16,7 @@ const createJob = async (req, res) => {
   try {
     const allowedFields = {
       title:            req.body.title,
-      description:      req.body.description,
+      description:      sanitizeDescription(req.body.description), 
       location:         req.body.location,
       jobType:          req.body.jobType,
       workMode:         req.body.workMode,
@@ -131,7 +136,7 @@ const updateJob = async (req, res) => {
 
     const allowedUpdates = {
       title:            req.body.title,
-      description:      req.body.description,
+      description:      sanitizeDescription(req.body.description), 
       location:         req.body.location,
       jobType:          req.body.jobType,
       workMode:         req.body.workMode,
