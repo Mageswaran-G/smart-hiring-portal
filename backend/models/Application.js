@@ -53,6 +53,11 @@ applicationSchema.index(
   { unique: true }
 );
 
+ApplicationSchema.index(
+  { candidate: 1, job: 1 },
+  { unique: true }   // one candidate can only apply once per job
+);
+
 module.exports = mongoose.model(
   'Application',
   applicationSchema

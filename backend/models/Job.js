@@ -84,11 +84,15 @@ const jobSchema = new mongoose.Schema(
     //  Default deadline 30 days from now
     deadline: {
       type: Date,
-      default: () => {
-        const date = new Date();
-        date.setDate(date.getDate() + 30); // 30 days from today
-        return date;
-      },
+      validate: {
+        validator: function(date) {
+          // Allow no deadline (undefined/null)
+          // If deadline set, it must be in the future
+          if (!date) return true;
+          return date > new Date();
+        },
+        message: 'Application deadline must be a future date',
+      }
     },
 
     openings: {

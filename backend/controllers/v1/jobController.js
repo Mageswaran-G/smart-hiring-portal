@@ -159,7 +159,7 @@ const updateJob = async (req, res) => {
 
     const allowedUpdates = {
       title:            req.body.title,
-      description:      sanitizeDescription(req.body.description), 
+      description:      sanitizeDescription(req.body.description),
       location:         req.body.location,
       jobType:          req.body.jobType,
       workMode:         req.body.workMode,
@@ -174,6 +174,7 @@ const updateJob = async (req, res) => {
       status:           req.body.status,
     };
 
+    // Remove undefined fields
     Object.keys(allowedUpdates).forEach(
       (key) => allowedUpdates[key] === undefined && delete allowedUpdates[key]
     );
@@ -190,6 +191,13 @@ const updateJob = async (req, res) => {
         message: 'Job not found or you are not authorized',
       });
     }
+
+    // ── ADD: Regenerate slug if title or location changed ──
+    if (req.body.title || req.body.location) {
+      job.slug = generateSlug(job.title, job.location, job._id);
+      await job.save();
+    }
+    // ── END ADD ──
 
     res.json({ success: true, message: 'Job updated successfully', data: job });
   } catch (error) {
@@ -332,29 +340,31 @@ const getJobBySlug = async (req, res) => {
   try {
     const param = req.params.slug;
 
-    // First try finding by slug (new jobs)
     let job = await Job.findOne({
       slug:      param,
       isDeleted: false,
+      isActive:  true,          
+      status:    'published',    
     }).populate('postedBy', 'companyName profilePhoto industry companyWebsite isVerified');
 
-    // Fallback: if not found by slug, try by _id (old jobs without slug)
+    // Fallback for old jobs without slug
     if (!job && mongoose.Types.ObjectId.isValid(param)) {
       job = await Job.findOne({
         _id:       param,
         isDeleted: false,
+        isActive:  true,        
+        status:    'published',  
       }).populate('postedBy', 'companyName profilePhoto industry companyWebsite isVerified');
     }
 
     if (!job) {
       return res.status(404).json({
         success: false,
-        message: 'Job not found',
+        message: 'Job not found or no longer available',
       });
     }
 
     res.json({ success: true, data: job });
-
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

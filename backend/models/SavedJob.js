@@ -19,4 +19,9 @@ const savedJobSchema = new mongoose.Schema({
 // Prevent saving same job twice
 savedJobSchema.index({ candidate: 1, job: 1 }, { unique: true });
 
+SavedJobSchema.index(
+  { user: 1, job: 1 },
+  { unique: true }   // one user can only save a job once
+);
+
 module.exports = mongoose.model('SavedJob', savedJobSchema);

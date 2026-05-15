@@ -22,8 +22,18 @@ exports.applyToJob = async (req, res, next) => {
     if (!job) {
       return next(new AppError('Job not found', 404));
     }
+
+
     if (!job.isActive) {
       return next(new AppError('This job is not accepting applications', 400));
+    }
+
+    if (job.status !== 'published') {
+      return next(new AppError('This job is no longer accepting applications', 400));
+    }
+
+    if (job.deadline && new Date(job.deadline) < new Date()) {
+      return next(new AppError('Application deadline has passed', 400));
     }
 
     // Step 2 — check not already applied
