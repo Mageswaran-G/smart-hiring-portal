@@ -7,11 +7,21 @@ const sanitizeDescription = (html) => sanitizeHtml(html || '', {
   allowedTags: [
     'p', 'strong', 'em', 'h2', 'h3',
     'ul', 'ol', 'li', 'br', 'hr',
-    'blockquote', 'code', 'pre',
-    'a',
+    'blockquote', 'code', 'pre', 'a',
   ],
   allowedAttributes: {
-    'a': ['href', 'target', 'rel'],  // allow links with href only
+    'a': ['href'],  
+  },
+  // Force rel="noopener noreferrer" on ALL links — prevents tabnabbing
+  transformTags: {
+    'a': (tagName, attribs) => ({
+      tagName: 'a',
+      attribs: {
+        ...attribs,
+        target: '_blank',
+        rel:    'noopener noreferrer',
+      },
+    }),
   },
 });
 

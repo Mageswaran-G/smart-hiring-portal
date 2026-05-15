@@ -35,7 +35,7 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(express.json());
+app.use(express.json({ limit: '1mb' }));
 
 // Serve uploaded files with CORS headers
 // This allows frontend (port 5173) to load images from backend (port 8000)

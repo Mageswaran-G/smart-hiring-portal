@@ -2,7 +2,7 @@ const logger = require('../utils/logger');
 const multer = require('multer');
 
 exports.errorHandler = (err, req, res, next) => {
-  logger.error(err.message);
+  logger.error(err.stack || err.message);
 
   // Multer file size error
   if (err instanceof multer.MulterError) {
