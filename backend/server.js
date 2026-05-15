@@ -15,6 +15,7 @@ const publicRoutes = require('./routes/v1/publicRoutes');
 const jobRoutes = require('./routes/v1/jobRoutes');
 const applicationRoutes = require('./routes/v1/applicationRoutes');
 const savedJobRoutes = require('./routes/v1/savedJobRoutes');
+const { startCronJobs } = require('./utils/cronJobs'); 
 
 dotenv.config();
 
@@ -97,6 +98,7 @@ const PORT = config.port;
 const startServer = async () => {
   try {
     await connectDB();
+    startCronJobs(); 
     app.listen(PORT, () => {
       logger.info(`Server running on port ${PORT}`);
     });
