@@ -16,6 +16,11 @@ const jobRoutes = require('./routes/v1/jobRoutes');
 const applicationRoutes = require('./routes/v1/applicationRoutes');
 const savedJobRoutes = require('./routes/v1/savedJobRoutes');
 const { startCronJobs } = require('./utils/cronJobs'); 
+const jobActionLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,  // 15 minutes
+  max: 30,                    // 30 job actions per 15 min
+  message: { success: false, message: 'Too many requests, slow down.' }
+});
 
 dotenv.config();
 
@@ -81,6 +86,9 @@ app.use('/api/v1/public', publicRoutes);
 app.use('/api/v1/jobs', jobRoutes);
 app.use('/api/v1/applications', applicationRoutes);
 app.use('/api/v1/saved', savedJobRoutes);
+app.use('/api/v1/jobs',         jobActionLimiter);
+app.use('/api/v1/applications', jobActionLimiter);
+app.use('/api/v1/saved',        jobActionLimiter);
 
 // Health check
 app.get('/health', (req, res) => {

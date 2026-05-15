@@ -58,24 +58,20 @@ const jobSchema = new mongoose.Schema(
 
     // Structured salary with validation
     salary: {
-      min: {
-        type: Number,
-        default: 0,
-        min: [0, 'Min salary cannot be negative'],
-      },
+      min: { type: Number, default: 0 },
       max: {
-        type: Number,
-        default: 0,
-        
+        type:     Number,
+        default:  0,
+        validate: {
+          validator: function(max) {
+            // max must be >= min (or 0 if not set)
+            return max === 0 || max >= this.salary.min;
+          },
+          message: 'Maximum salary must be greater than minimum salary'
+        }
       },
-      currency: {
-        type: String,
-        default: 'INR',
-      },
-      isDisclosed: {
-        type: Boolean,
-        default: false,
-      },
+      currency:    { type: String, default: 'INR' },
+      isDisclosed: { type: Boolean, default: false },
     },
 
     experienceLevel: {
