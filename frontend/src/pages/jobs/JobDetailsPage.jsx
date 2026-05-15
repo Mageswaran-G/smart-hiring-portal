@@ -250,7 +250,7 @@ export default function JobDetailsPage() {
                 Job Description
               </h2>
               <div
-                className="prose prose-sm max-w-none text-gray-700 leading-8"
+                className="job-description text-gray-700"
                 dangerouslySetInnerHTML={{ __html: job.description }}
               />
             </div>
