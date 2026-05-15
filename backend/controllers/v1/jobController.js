@@ -57,7 +57,8 @@ const getAllJobs = async (req, res) => {
     const {
       search, jobType, workMode,
       location, experienceLevel,
-      page = 1, limit = 10,
+      cursor,               // ← NEW: last job _id from previous page
+      limit = 9,            // ← default 9 per load
     } = req.query;
 
     const filter = {
@@ -66,36 +67,58 @@ const getAllJobs = async (req, res) => {
       status:    'published',
     };
 
-    if (search)          filter.$text          = { $search: search };
-    if (jobType)         filter.jobType        = jobType;
-    if (workMode)        filter.workMode       = workMode;
+    if (search)          filter.$text           = { $search: search };
+    if (jobType)         filter.jobType         = jobType;
+    if (workMode)        filter.workMode        = workMode;
     if (experienceLevel) filter.experienceLevel = experienceLevel;
     if (location) {
       const escaped = location.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       filter.location = new RegExp(escaped, 'i');
     }
 
-    const pageNumber  = Math.max(Number(page) || 1, 1);
-    const limitNumber = Math.min(Number(limit) || 10, 50);
-    const skip        = (pageNumber - 1) * limitNumber;
-    const total       = await Job.countDocuments(filter);
+    // Cursor: only fetch jobs OLDER than the cursor _id
+    // MongoDB _id contains timestamp — newest first means _id < cursor
+    if (cursor && mongoose.Types.ObjectId.isValid(cursor)) {
+      filter._id = { $lt: new mongoose.Types.ObjectId(cursor) };
+    }
 
+    const limitNumber = Math.min(Number(limit) || 9, 50);
+
+    // Fetch one extra to know if there are more jobs
     const jobs = await Job.find(filter)
       .populate('postedBy', 'companyName profilePhoto isVerified')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limitNumber);
+      .sort({ _id: -1 })         // newest first using _id (no separate createdAt needed)
+      .limit(limitNumber + 1)    // fetch +1 to check hasMore
+      .lean();                   // .lean() for performance — returns plain JS object
+
+    // Check if more jobs exist
+    const hasMore   = jobs.length > limitNumber;
+    const result    = hasMore ? jobs.slice(0, limitNumber) : jobs;
+
+    // Next cursor = last job's _id in current result
+    const nextCursor = hasMore ? result[result.length - 1]._id : null;
+
+    // Total count (for display — "X jobs found")
+    const total = await Job.countDocuments({
+      isDeleted: false,
+      isActive:  true,
+      status:    'published',
+      ...(search ? { $text: { $search: search } } : {}),
+      ...(jobType ? { jobType } : {}),
+      ...(workMode ? { workMode } : {}),
+      ...(experienceLevel ? { experienceLevel } : {}),
+      ...(location ? { location: new RegExp(location.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') } : {}),
+    });
 
     res.json({
       success: true,
-      count:   jobs.length,
+      count:   result.length,
       pagination: {
         total,
-        page:    pageNumber,
-        pages:   Math.ceil(total / limitNumber),
-        hasNext: pageNumber < Math.ceil(total / limitNumber),
+        hasMore,
+        nextCursor,         // frontend sends this on next "Load More" click
       },
-      data: jobs,
+      data: result,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
