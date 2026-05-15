@@ -69,7 +69,7 @@ export default function JobDetailsPage() {
       } catch (_) {}
     };
     check();
-  }, [id, user]);
+  }, [slug, user]);
 
   // 3. Check applied
   useEffect(() => {
@@ -82,7 +82,7 @@ export default function JobDetailsPage() {
       } catch (_) {}
     };
     check();
-  }, [id, user]);
+  }, [slug, user]);
 
   const handleApply = async (coverLetter) => {
     try {
