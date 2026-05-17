@@ -21,6 +21,7 @@ const jobActionLimiter = rateLimit({
   max: 30,                    // 30 job actions per 15 min
   message: { success: false, message: 'Too many requests, slow down.' }
 });
+const adminRoutes = require('./routes/v1/adminRoutes');
 
 dotenv.config();
 
@@ -93,7 +94,7 @@ app.use('/api/v1/jobs',         jobRoutes);
 app.use('/api/v1/applications', applicationRoutes);
 app.use('/api/v1/saved', savedJobRoutes);
 
-
+app.use('/api/v1/admin', adminRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

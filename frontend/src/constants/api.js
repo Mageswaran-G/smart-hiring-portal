@@ -35,4 +35,7 @@ export const API_ENDPOINTS = {
   SAVED_JOB_IDS:    '/saved/ids',
   SAVE_JOB:         (jobId) => `/saved/${jobId}`,
   UNSAVE_JOB:       (jobId) => `/saved/${jobId}`,
+
+  ADMIN_STATS: '/admin/stats',
+
 };
