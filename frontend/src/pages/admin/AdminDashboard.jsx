@@ -496,6 +496,9 @@ export default function AdminDashboard() {
         </div>
       </header>
 
+      {/* ── Overview Tab Content — only shows when activeTab is overview ── */}
+      {activeTab === 'overview' && <>
+
       {/* ── Desktop Hero ── */}
       <section style={{ background:C.grad, padding:'44px 32px 52px' }}>
         <div style={{ maxWidth:1200, margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'space-between', gap:32 }}>
@@ -767,6 +770,8 @@ export default function AdminDashboard() {
           </div>
         </div>
       </main>
+
+      </> }  {/* ── End overview tab ── */}
 
       {/* ── Companies Tab Panel ───────────────────────────────── */}
       {activeTab === 'companies' && (
