@@ -1,284 +1,252 @@
-import { useState } from "react";
-import { useNavigate, Link, useLocation } from "react-router-dom";
-import {
-  Menu,
-  X,
-  LogOut,
-  User,
-  LayoutDashboard,
-  Briefcase,
-  BookMarked,
-  FileText,
-  Building2,
-  PlusCircle,
-  Users,
-  BarChart3,
-  Shield,
-  ChevronRight,
-} from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
-import { ROUTES } from "../../constants/routes";
+// DashboardLayout.jsx
+// TOP navigation bar — no left sidebar
+// Shows: Logo | Nav links | User avatar | Logout
+// Auto-detects role from AuthContext (no need to pass role prop from pages)
 
-// ─── Theme config per role ───────────────────────────────────────
-const THEME = {
-  candidate: {
-    primary: "bg-orange-500",
-    primaryHover: "hover:bg-orange-600",
-    primaryText: "text-orange-500",
-    primaryBorder: "border-orange-500",
-    primaryLight: "bg-orange-50",
-    primaryLightText: "text-orange-700",
-    activeLink: "bg-orange-500/10 text-orange-600 border-l-2 border-orange-500",
-    hoverLink: "hover:bg-orange-50 hover:text-orange-600",
-    mobilePrimary: "bg-orange-500",
-    ring: "ring-orange-400",
-    badgeBg: "bg-orange-100",
-    badgeText: "text-orange-700",
-    dot: "bg-orange-500",
-    label: "Candidate",
-  },
-  company: {
-    primary: "bg-[#1a3a5c]",
-    primaryHover: "hover:bg-[#0f2d4a]",
-    primaryText: "text-[#1a3a5c]",
-    primaryBorder: "border-[#1a3a5c]",
-    primaryLight: "bg-blue-50",
-    primaryLightText: "text-[#1a3a5c]",
-    activeLink: "bg-blue-900/10 text-[#1a3a5c] border-l-2 border-[#1a3a5c]",
-    hoverLink: "hover:bg-blue-50 hover:text-[#1a3a5c]",
-    mobilePrimary: "bg-[#1a3a5c]",
-    ring: "ring-blue-800",
-    badgeBg: "bg-blue-100",
-    badgeText: "text-blue-900",
-    dot: "bg-blue-800",
-    label: "Company",
-  },
-  admin: {
-    primary: "bg-purple-700",
-    primaryHover: "hover:bg-purple-800",
-    primaryText: "text-purple-700",
-    primaryBorder: "border-purple-600",
-    primaryLight: "bg-purple-50",
-    primaryLightText: "text-purple-700",
-    activeLink: "bg-purple-700/10 text-purple-700 border-l-2 border-purple-600",
-    hoverLink: "hover:bg-purple-50 hover:text-purple-700",
-    mobilePrimary: "bg-purple-700",
-    ring: "ring-purple-500",
-    badgeBg: "bg-purple-100",
-    badgeText: "text-purple-700",
-    dot: "bg-purple-600",
-    label: "Admin",
-  },
+import { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import {
+  LayoutDashboard, Briefcase, Bookmark, FileText,
+  User, Users, PlusCircle, Building2, BarChart3,
+  Shield, LogOut, Menu, X,
+} from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { ROUTES } from '../../constants/routes';
+
+// ─── Colors per role ─────────────────────────────────────────
+const COLORS = {
+  candidate : { primary:'#ea580c', light:'#fff7ed', badge:'#ffd7b0', text:'#ea580c' },
+  company   : { primary:'#1e3a5f', light:'#eff6ff', badge:'#bfdbfe', text:'#1e3a5f' },
+  admin     : { primary:'#7c3aed', light:'#f5f3ff', badge:'#ddd6fe', text:'#7c3aed' },
 };
 
-// ─── Nav links per role ───────────────────────────────────────────
+// ─── Nav links per role ──────────────────────────────────────
 const NAV_LINKS = {
   candidate: [
-    { label: "Dashboard", icon: LayoutDashboard, path: ROUTES.CANDIDATE_DASHBOARD },
-    { label: "My Profile", icon: User, path: ROUTES.PROFILE },
-    { label: "Browse Jobs", icon: Briefcase, path: ROUTES.PUBLIC_JOBS },
-    { label: "My Applications", icon: FileText, path: ROUTES.CANDIDATE_APPLICATIONS },
-    { label: "Saved Jobs", icon: BookMarked, path: ROUTES.SAVED_JOBS },
+    { label:'Dashboard',    Icon:LayoutDashboard, path:ROUTES.CANDIDATE_DASHBOARD    },
+    { label:'Browse Jobs',  Icon:Briefcase,        path:ROUTES.PUBLIC_JOBS            },
+    { label:'Saved Jobs',   Icon:Bookmark,         path:ROUTES.SAVED_JOBS             },
+    { label:'Applications', Icon:FileText,          path:ROUTES.CANDIDATE_APPLICATIONS },
+    { label:'My Profile',   Icon:User,             path:ROUTES.PROFILE                },
   ],
   company: [
-    { label: "Dashboard", icon: LayoutDashboard, path: ROUTES.COMPANY_DASHBOARD },
-    { label: "My Profile", icon: Building2, path: ROUTES.PROFILE },
-    { label: "Post a Job", icon: PlusCircle, path: ROUTES.COMPANY_JOB_CREATE },
-    { label: "My Jobs", icon: Briefcase, path: ROUTES.COMPANY_JOBS },
-    { label: "Applications", icon: Users, path: ROUTES.COMPANY_APPLICATIONS },
+    { label:'Dashboard',   Icon:LayoutDashboard, path:ROUTES.COMPANY_DASHBOARD   },
+    { label:'My Jobs',     Icon:Briefcase,        path:ROUTES.COMPANY_JOBS        },
+    { label:'Applicants',  Icon:Users,            path:ROUTES.COMPANY_APPLICATIONS },
+    { label:'Post a Job',  Icon:PlusCircle,       path:ROUTES.COMPANY_JOB_CREATE  },
+    { label:'My Profile',  Icon:Building2,        path:ROUTES.PROFILE             },
   ],
   admin: [
-    { label: "Dashboard", icon: LayoutDashboard, path: ROUTES.ADMIN_DASHBOARD },
-    { label: "Users", icon: Users, path: ROUTES.ADMIN_USERS || "/admin/users" },
-    { label: "Jobs", icon: Briefcase, path: ROUTES.ADMIN_JOBS || "/admin/jobs" },
-    { label: "Analytics", icon: BarChart3, path: ROUTES.ADMIN_ANALYTICS || "/admin/analytics" },
+    { label:'Dashboard',  Icon:LayoutDashboard, path:ROUTES.ADMIN_DASHBOARD },
+    { label:'Companies',  Icon:Building2,        path:ROUTES.ADMIN_DASHBOARD },
+    { label:'Users',      Icon:Users,            path:ROUTES.ADMIN_DASHBOARD },
+    { label:'Analytics',  Icon:BarChart3,        path:ROUTES.ADMIN_DASHBOARD },
   ],
 };
 
-// ─── Helper: get first letter for avatar ─────────────────────────
-function getInitial(name) {
-  if (!name) return "?";
-  return name.charAt(0).toUpperCase();
-}
-
-// ─── Logo color map ───────────────────────────────────────────────
-const LOGO_COLORS = {
-  candidate: "text-orange-500",
-  company: "text-[#1a3a5c]",
-  admin: "text-purple-700",
-};
-
-// ─── Component ───────────────────────────────────────────────────
-export default function DashboardLayout({ children, role }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+export default function DashboardLayout({ children }) {
   const { user, profile, logoutUser } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const navigate  = useNavigate();
+  const location  = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  // ── Auto-detect role from user if prop not passed ──────────
-  // This fixes the bug where company pages showed candidate menu
-  // because the `role` prop was not being passed from pages.
-  // Now: if role prop is missing, we use user.role from AuthContext.
-  const actualRole = role || user?.role || 'candidate';
+  // Auto-detect role — no prop needed from pages
+  const role   = user?.role || 'candidate';
+  const colors = COLORS[role]   || COLORS.candidate;
+  const links  = NAV_LINKS[role] || NAV_LINKS.candidate;
 
-  const theme    = THEME[actualRole]    || THEME.candidate;
-  const links    = NAV_LINKS[actualRole] || NAV_LINKS.candidate;
-  const logoColor = LOGO_COLORS[actualRole] || LOGO_COLORS.candidate;
+  const name      = profile?.name || user?.name || 'User';
+  const photo     = profile?.photo || null;
+  const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
 
   const handleLogout = async () => {
-    await logoutUser();
+    try { await logoutUser(); } catch {}
     navigate(ROUTES.LOGIN);
   };
 
   const isActive = (path) => location.pathname === path;
 
-  const displayName = profile?.name || user?.name || "User";
-  const photoUrl = profile?.photo || null;
-
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* ── Mobile overlay ── */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+    <div style={{ minHeight:'100vh', background:'#f9fafb', fontFamily:'system-ui,-apple-system,sans-serif' }}>
 
-      {/* ── Sidebar ── */}
-      <aside
-        className={`
-          fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-50
-          transform transition-transform duration-300 ease-in-out
-          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-          lg:translate-x-0 lg:static lg:shadow-md
-          flex flex-col
-        `}
-      >
-        {/* Sidebar Header */}
-        <div className={`${theme.primary} px-5 py-4 flex items-center justify-between`}>
-          <Link
-            to={links[0].path}
-            className="flex items-center gap-2"
-            onClick={() => setSidebarOpen(false)}
-          >
-            <Shield size={22} className="text-white" />
-            <span className="text-white font-bold text-lg tracking-tight">
-              HirePortal
-            </span>
-          </Link>
-          <button
-            className="lg:hidden text-white/80 hover:text-white"
-            onClick={() => setSidebarOpen(false)}
-          >
-            <X size={20} />
-          </button>
-        </div>
+      {/* ══════════════════════════════════════════════════════
+          TOP NAVIGATION BAR — desktop
+          Shows: Logo | Nav links | User avatar | Role | Logout
+          ══════════════════════════════════════════════════════ */}
+      <header style={{
+        position : 'sticky',
+        top      : 0,
+        zIndex   : 50,
+        height   : 60,
+        background: 'rgba(255,255,255,0.97)',
+        backdropFilter: 'blur(12px)',
+        borderBottom: '1px solid #e5e7eb',
+        display  : 'flex',
+        alignItems: 'center',
+        padding  : '0 24px',
+        gap      : 16,
+      }}>
 
-        {/* User info in sidebar */}
-        <div className="px-4 py-4 border-b border-gray-100">
-          <div className="flex items-center gap-3">
-            {photoUrl ? (
-              <img
-                src={photoUrl}
-                alt={displayName}
-                className={`w-10 h-10 rounded-full object-cover ring-2 ${theme.ring}`}
-              />
-            ) : (
-              <div
-                className={`w-10 h-10 rounded-full ${theme.primary} flex items-center justify-center text-white font-bold text-sm ring-2 ring-white shadow`}
-              >
-                {getInitial(displayName)}
-              </div>
-            )}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-gray-800 truncate">
-                {displayName}
-              </p>
-              <span
-                className={`inline-block text-xs px-2 py-0.5 rounded-full font-medium ${theme.badgeBg} ${theme.badgeText} mt-0.5`}
-              >
-                <span className={`inline-block w-1.5 h-1.5 rounded-full ${theme.dot} mr-1 align-middle`} />
-                {theme.label}
-              </span>
-            </div>
+        {/* Logo */}
+        <Link
+          to={links[0].path}
+          style={{ display:'flex', alignItems:'center', gap:8, textDecoration:'none', flexShrink:0, marginRight:8 }}
+        >
+          <div style={{ width:34, height:34, borderRadius:10, background:colors.primary, display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <Shield size={18} color="#fff" />
           </div>
-        </div>
+          <span style={{ fontWeight:900, fontSize:17, color:'#111827', letterSpacing:'-0.4px' }}>
+            HirePortal
+          </span>
+        </Link>
 
-        {/* Nav links */}
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          {links.map(({ label, icon: Icon, path }) => (
-            <Link
-              key={path}
-              to={path}
-              onClick={() => setSidebarOpen(false)}
-              className={`
-                flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
-                transition-all duration-150 group
-                ${isActive(path)
-                  ? `${theme.activeLink} font-semibold`
-                  : `text-gray-600 ${theme.hoverLink}`
-                }
-              `}
-            >
-              <Icon
-                size={18}
-                className={`flex-shrink-0 ${isActive(path) ? theme.primaryText : "text-gray-400 group-hover:" + theme.primaryText}`}
-              />
-              {label}
-              {isActive(path) && (
-                <ChevronRight size={14} className={`ml-auto ${theme.primaryText}`} />
-              )}
-            </Link>
-          ))}
+        {/* ── Desktop Nav links ── */}
+        <nav style={{ display:'flex', gap:2, flex:1, alignItems:'center' }} className="desktop-nav">
+          {links.map(({ label, Icon, path }) => {
+            const active = isActive(path);
+            return (
+              <Link
+                key={path}
+                to={path}
+                style={{
+                  display    : 'flex',
+                  alignItems : 'center',
+                  gap        : 6,
+                  padding    : '6px 12px',
+                  borderRadius: 8,
+                  textDecoration: 'none',
+                  fontSize   : 13,
+                  fontWeight : active ? 700 : 500,
+                  color      : active ? colors.primary : '#6b7280',
+                  background : active ? `${colors.primary}12` : 'transparent',
+                  transition : 'all 0.15s',
+                }}
+              >
+                <Icon size={14} strokeWidth={active ? 2.5 : 1.8} />
+                {label}
+              </Link>
+            );
+          })}
         </nav>
 
-        {/* Logout at bottom */}
-        <div className="px-3 py-4 border-t border-gray-100">
+        {/* ── Right: User + Role + Logout ── */}
+        <div style={{ display:'flex', alignItems:'center', gap:12, flexShrink:0 }}>
+
+          {/* User info */}
+          <div style={{ textAlign:'right' }}>
+            <p style={{ fontSize:13, fontWeight:700, color:'#111827', margin:0, lineHeight:1.2 }}>{name}</p>
+            <p style={{ fontSize:11, fontWeight:600, color:colors.primary, margin:0 }}>{roleLabel}</p>
+          </div>
+
+          {/* Avatar */}
+          {photo
+            ? <img src={photo} alt="" style={{ width:36, height:36, borderRadius:'50%', objectFit:'cover', border:`2px solid ${colors.badge}`, flexShrink:0 }} />
+            : <div style={{ width:36, height:36, borderRadius:'50%', background:colors.primary, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:14, flexShrink:0 }}>
+                {name[0].toUpperCase()}
+              </div>
+          }
+
+          {/* Logout — desktop */}
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all duration-150 group"
+            style={{ display:'flex', alignItems:'center', gap:6, padding:'7px 14px', borderRadius:9, border:'1px solid #e5e7eb', background:'#fff', color:'#6b7280', fontSize:13, fontWeight:600, cursor:'pointer' }}
           >
-            <LogOut size={18} className="text-gray-400 group-hover:text-red-500 flex-shrink-0" />
-            Logout
+            <LogOut size={14} /> Logout
+          </button>
+
+          {/* Hamburger — mobile only */}
+          <button
+            onClick={() => setMenuOpen(v => !v)}
+            className="mobile-menu-btn"
+            style={{ display:'none', padding:6, border:'none', background:'transparent', cursor:'pointer' }}
+          >
+            {menuOpen ? <X size={22} color="#374151" /> : <Menu size={22} color="#374151" />}
           </button>
         </div>
-      </aside>
+      </header>
 
-      {/* ── Main content ── */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Top bar (mobile only) */}
-        <header className="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-30 shadow-sm">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="text-gray-600 hover:text-gray-900 p-1"
-          >
-            <Menu size={22} />
-          </button>
-          <div className="flex items-center gap-2">
-            <Shield size={18} className={logoColor} />
-            <span className={`font-bold text-base ${logoColor}`}>HirePortal</span>
-          </div>
-          {photoUrl ? (
-            <img
-              src={photoUrl}
-              alt={displayName}
-              className={`w-8 h-8 rounded-full object-cover ring-2 ${theme.ring}`}
-            />
-          ) : (
-            <div
-              className={`w-8 h-8 rounded-full ${theme.primary} flex items-center justify-center text-white font-bold text-xs`}
-            >
-              {getInitial(displayName)}
+      {/* ══════════════════════════════════════════════════════
+          MOBILE DROPDOWN MENU
+          Opens when hamburger is tapped on small screens
+          ══════════════════════════════════════════════════════ */}
+      {menuOpen && (
+        <div style={{
+          position : 'fixed',
+          top      : 60,
+          left     : 0,
+          right    : 0,
+          background: '#fff',
+          borderBottom: '1px solid #e5e7eb',
+          zIndex   : 49,
+          padding  : '12px 16px 20px',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+        }}>
+          {/* User row */}
+          <div style={{ display:'flex', alignItems:'center', gap:12, padding:'10px 12px', background:'#f9fafb', borderRadius:12, marginBottom:12 }}>
+            {photo
+              ? <img src={photo} alt="" style={{ width:40, height:40, borderRadius:'50%', objectFit:'cover', border:`2px solid ${colors.badge}` }} />
+              : <div style={{ width:40, height:40, borderRadius:'50%', background:colors.primary, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:16 }}>{name[0].toUpperCase()}</div>
+            }
+            <div>
+              <p style={{ fontSize:14, fontWeight:700, color:'#111827', margin:0 }}>{name}</p>
+              <p style={{ fontSize:11, fontWeight:600, color:colors.primary, margin:0 }}>{roleLabel}</p>
             </div>
-          )}
-        </header>
+          </div>
 
-        {/* Page content */}
-        <main className="flex-1 overflow-auto">
-          {children}
-        </main>
-      </div>
+          {/* Nav links */}
+          <div style={{ display:'flex', flexDirection:'column', gap:2 }}>
+            {links.map(({ label, Icon, path }) => {
+              const active = isActive(path);
+              return (
+                <Link
+                  key={path}
+                  to={path}
+                  onClick={() => setMenuOpen(false)}
+                  style={{
+                    display    : 'flex',
+                    alignItems : 'center',
+                    gap        : 10,
+                    padding    : '11px 14px',
+                    borderRadius: 10,
+                    textDecoration: 'none',
+                    fontSize   : 14,
+                    fontWeight : active ? 700 : 500,
+                    color      : active ? colors.primary : '#374151',
+                    background : active ? `${colors.primary}12` : 'transparent',
+                  }}
+                >
+                  <Icon size={18} strokeWidth={active ? 2.5 : 1.8} color={active ? colors.primary : '#6b7280'} />
+                  {label}
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Logout */}
+          <button
+            onClick={handleLogout}
+            style={{ width:'100%', marginTop:12, display:'flex', alignItems:'center', justifyContent:'center', gap:8, padding:'12px', borderRadius:10, border:'1px solid #fecaca', background:'#fef2f2', color:'#dc2626', fontSize:14, fontWeight:700, cursor:'pointer' }}
+          >
+            <LogOut size={16} /> Sign Out
+          </button>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════
+          PAGE CONTENT
+          ══════════════════════════════════════════════════════ */}
+      <main>
+        {children}
+      </main>
+
+      {/* ── Responsive CSS ── */}
+      <style>{`
+        @media (max-width: 768px) {
+          .desktop-nav { display: none !important; }
+          .mobile-menu-btn { display: flex !important; }
+        }
+      `}</style>
+
     </div>
   );
 }

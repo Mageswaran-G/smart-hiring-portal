@@ -4,15 +4,20 @@ import { API, setTokenGetter, logoutAPI } from '../services/authService';
 const AuthContext = createContext();
 
 // ─── Normalize profile from backend ──────────────────────────
-// Backend stores: profilePhoto
-// Frontend uses:  profile.photo (for simplicity everywhere)
-// This function maps profilePhoto → photo so both always work
+// Backend stores: profilePhoto = '/uploads/profiles/file-xxx.jpeg'
+// Frontend needs: 'http://localhost:8000/uploads/profiles/file-xxx.jpeg'
+// Without the full URL the browser tries localhost:5173/uploads → broken image
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 const normalizeProfile = (data) => {
   if (!data) return null;
+  const raw = data.profilePhoto || data.photo || '';
   return {
     ...data,
-    // map profilePhoto → photo so dashboards can use profile.photo
-    photo: data.profilePhoto || data.photo || '',
+    // Build full URL so <img src={profile.photo}> always works
+    photo: raw
+      ? (raw.startsWith('http') ? raw : `${BACKEND_URL}${raw}`)
+      : '',
   };
 };
 
