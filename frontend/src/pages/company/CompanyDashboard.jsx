@@ -5,7 +5,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DashboardLayout from '../../components/layout/DashboardLayout';
 import {
   LayoutDashboard, Briefcase, Users, PlusCircle, User,
   LogOut, ChevronRight, Building2, MapPin, CheckCircle,
@@ -235,7 +234,18 @@ export default function CompanyDashboard() {
           getCompanyApplications(),
           getMyJobs(),
         ]);
-        setStats(statsData || {});
+
+        // Backend returns: totalJobs, activeJobs, totalApps, shortlisted, hired
+        // Dashboard reads: total,     activeCount, applications, shortlisted, hired
+        // Map them correctly here so hero and stats show real numbers
+        const raw = statsData || {};
+        setStats({
+          total:        raw.totalJobs   || 0,
+          activeCount:  raw.activeJobs  || 0,
+          applications: raw.totalApps   || 0,
+          shortlisted:  raw.shortlisted || 0,
+          hired:        raw.hired       || 0,
+        });
         setApplications(Array.isArray(appsData) ? appsData : []);
         setJobs(Array.isArray(jobsData) ? jobsData : []);
       } catch (err) {
@@ -433,41 +443,35 @@ export default function CompanyDashboard() {
   }
 
   // ════════════════════════════════════════════════════════════
-  // DESKTOP LAYOUT — wrapped in DashboardLayout for sidebar nav
+  // DESKTOP LAYOUT
+  // DashboardLayout (top nav) already provides: logo, links, user, logout
+  // This header only shows: tab switcher + Post New Job button
   // ════════════════════════════════════════════════════════════
   return (
-    <DashboardLayout>
     <div style={{ minHeight:'100vh', background:C.gray50, fontFamily:'system-ui,-apple-system,sans-serif' }}>
 
-      {/* ── Desktop Tab Bar — logo/user/logout in sidebar now ── */}
-      <header style={{ position:'sticky', top:0, zIndex:50, background:'rgba(255,255,255,0.96)', backdropFilter:'blur(12px)', borderBottom:`1px solid ${C.gray200}`, height:52, padding:'0 24px', display:'flex', alignItems:'center', gap:4 }}>
-
-        <nav style={{ display:'flex', gap:2, flex:1 }}>
-          {[
-            { key:'overview', label:'Overview',   Icon:LayoutDashboard },
-            { key:'jobs',     label:'My Jobs',    Icon:Briefcase },
-            { key:'apps',     label:'Applicants', Icon:Users },
-          ].map(({ key, label, Icon }) => {
-            const isActive = activeTab === key;
-            const badge = key==='jobs' ? jobs.length : key==='apps' ? applications.length : 0;
-            return (
-              <button key={key} onClick={() => handleTab(key)} style={{ display:'flex', alignItems:'center', gap:6, padding:'7px 13px', borderRadius:9, border:'none', cursor:'pointer', fontSize:13, fontWeight: isActive ? 700 : 500, background: isActive ? `${C.primary}14` : 'transparent', color: isActive ? C.primary : C.gray500, transition:'all 0.15s' }}>
-                <Icon size={14} strokeWidth={isActive ? 2.5 : 1.8} />
-                {label}
-                {badge > 0 && (
-                  <span style={{ background:C.primary, color:'#fff', fontSize:10, fontWeight:700, borderRadius:9999, minWidth:17, height:17, display:'flex', alignItems:'center', justifyContent:'center', padding:'0 3px' }}>
-                    {badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </nav>
-
-        <button onClick={() => navigate(ROUTES.COMPANY_JOB_CREATE)} style={{ display:'flex', alignItems:'center', gap:7, background:C.primary, color:'#fff', border:'none', borderRadius:10, padding:'8px 16px', fontSize:13, fontWeight:700, cursor:'pointer', boxShadow:'0 2px 8px rgba(30,58,95,0.3)' }}>
+      {/* ── Tab bar + Post New Job ── */}
+      <div style={{ background:'#fff', borderBottom:`1px solid ${C.gray200}`, padding:'0 32px', display:'flex', alignItems:'center', gap:4 }}>
+        {[
+          { key:'overview', label:'Overview',   Icon:LayoutDashboard },
+          { key:'jobs',     label:'My Jobs',    Icon:Briefcase },
+          { key:'apps',     label:'Applicants', Icon:Users },
+        ].map(({ key, label, Icon }) => {
+          const isActive = activeTab === key;
+          const badge = key==='jobs' ? jobs.length : key==='apps' ? applications.length : 0;
+          return (
+            <button key={key} onClick={() => handleTab(key)} style={{ display:'flex', alignItems:'center', gap:6, padding:'14px 14px', border:'none', borderBottom: isActive ? `2px solid ${C.primary}` : '2px solid transparent', cursor:'pointer', fontSize:13, fontWeight: isActive ? 700 : 500, background:'transparent', color: isActive ? C.primary : C.gray500, transition:'all 0.15s', marginBottom:'-1px' }}>
+              <Icon size={14} strokeWidth={isActive ? 2.5 : 1.8} />
+              {label}
+              {badge > 0 && <span style={{ background:C.primary, color:'#fff', fontSize:10, fontWeight:700, borderRadius:9999, minWidth:17, height:17, display:'flex', alignItems:'center', justifyContent:'center', padding:'0 3px' }}>{badge}</span>}
+            </button>
+          );
+        })}
+        <div style={{ flex:1 }} />
+        <button onClick={() => navigate(ROUTES.COMPANY_JOB_CREATE)} style={{ display:'flex', alignItems:'center', gap:7, background:C.primary, color:'#fff', border:'none', borderRadius:9, padding:'8px 16px', fontSize:13, fontWeight:700, cursor:'pointer' }}>
           <PlusCircle size={14} /> Post New Job
         </button>
-      </header>
+      </div>
 
       {/* ── Desktop Hero ── */}
       <section style={{ background:C.grad, padding:'44px 32px 52px' }}>
@@ -725,6 +729,5 @@ export default function CompanyDashboard() {
         </div>
       </main>
     </div>
-    </DashboardLayout>
   );
 }
