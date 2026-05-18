@@ -1,47 +1,35 @@
-// MiniBarChart
-// Small bar chart for weekly job views / application trends
+//MiniBarChart
+// Small SVG bar chart for analytics cards
+// Props: data (number[]), color, w, h, gap (space between bars)
+
+import React from 'react';
 
 export default function MiniBarChart({
-  data   = [],   // [{ label:'M', value:5, dim:false }, ...]
-  color  = '#16a34a',
-  height = 60,
-  width  = 280,
+  data  = [],
+  color = '#1e3a5f',
+  w     = 120,
+  h     = 48,
+  gap   = 3,
 }) {
-  if (!data.length) return null;
+  if (!data || data.length === 0) return null;
 
-  const max     = Math.max(...data.map(d => d.value)) || 1;
-  const barW    = Math.floor(width / data.length) - 4;
-  const gap     = 4;
+  const max      = Math.max(...data, 1);
+  const barWidth = (w - (data.length - 1) * gap) / data.length;
 
   return (
-    <svg width={width} height={height + 18} viewBox={`0 0 ${width} ${height + 18}`}>
-      {data.map((d, i) => {
-        const barH  = (d.value / max) * height;
-        const x     = i * (barW + gap);
-        const y     = height - barH;
-        const fill  = d.dim ? `${color}40` : color;
-
+    <svg width={w} height={h} style={{ display: 'block' }}>
+      {data.map((val, i) => {
+        const barH   = Math.max(3, (val / max) * (h - 4));
+        const x      = i * (barWidth + gap);
+        const y      = h - barH;
+        const isLast = i === data.length - 1;
         return (
-          <g key={i}>
-            {/* Bar */}
-            <rect
-              x={x} y={y}
-              width={barW} height={barH}
-              rx={3}
-              fill={fill}
-            />
-            {/* Label */}
-            <text
-              x={x + barW / 2}
-              y={height + 14}
-              textAnchor="middle"
-              fontSize="9"
-              fill={d.dim ? '#9ca3af' : '#6b7280'}
-              fontFamily="Inter, sans-serif"
-            >
-              {d.label}
-            </text>
-          </g>
+          <rect key={i}
+            x={x} y={y} width={barWidth} height={barH}
+            rx={3} ry={3}
+            fill={color}
+            opacity={isLast ? 1 : 0.3 + (val / max) * 0.5}
+          />
         );
       })}
     </svg>

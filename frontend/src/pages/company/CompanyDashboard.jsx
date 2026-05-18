@@ -1,396 +1,745 @@
 // CompanyDashboard
+// Navy theme — #1e3a5f / #152d4a
+// Self-contained: inline ProgressRing, Sparkline, MiniBarChart
+// Fully responsive: desktop grid layout + mobile stacked + bottom tab bar
 
-import { useEffect, useState }       from 'react';
-import { useNavigate }               from 'react-router-dom';
-import { useAuth }                   from '../../context/AuthContext';
-import { ROUTES }                    from '../../constants/routes';
-import { getCompanyDashboardStats }  from '../../services/jobService';
-import { getCompanyApplications }    from '../../services/applicationService';
-import { getMyJobs }                 from '../../services/jobService';
-import Sparkline                     from '../../components/charts/Sparkline';
-import MiniBarChart                  from '../../components/charts/MiniBarChart';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  LayoutDashboard, Briefcase, Users, PlusCircle, User,
+  LogOut, ChevronRight, Building2, MapPin, CheckCircle,
+  Star, ArrowRight, TrendingUp, Eye, FileText, Clock,
+  BarChart3, ShieldCheck,
+} from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { getCompanyDashboardStats, getMyJobs } from '../../services/jobService';
+import { getCompanyApplications, updateApplicationStatus } from '../../services/applicationService';
+import { ROUTES } from '../../constants/routes';
+import useIsMobile from '../../hooks/useIsMobile';
 
-const CO = '#16a34a';
-const CO_DEEP = '#15803d';
+// ─── Brand Colors ────────────────────────────────────────────
+const C = {
+  primary  : '#1e3a5f',
+  mid      : '#1e40af',
+  dark     : '#152d4a',
+  accent   : '#3b82f6',
+  light    : '#eff6ff',
+  border   : '#bfdbfe',
+  grad     : 'linear-gradient(135deg, #0a1628 0%, #152d4a 30%, #1e3a5f 60%, #1e40af 100%)',
+  white    : '#ffffff',
+  gray50   : '#f9fafb',
+  gray100  : '#f3f4f6',
+  gray200  : '#e5e7eb',
+  gray300  : '#d1d5db',
+  gray400  : '#9ca3af',
+  gray500  : '#6b7280',
+  gray600  : '#4b5563',
+  gray700  : '#374151',
+  gray800  : '#1f2937',
+  gray900  : '#111827',
+};
 
-function Avatar({ name = '', size = 32, bg = CO }) {
+// ─── Application status config ───────────────────────────────
+const STATUS = {
+  applied     : { label:'Applied',     color:'#92400e', bg:'#fef3c7' },
+  reviewing   : { label:'Reviewing',   color:'#1e40af', bg:'#dbeafe' },
+  shortlisted : { label:'Shortlisted', color:'#5b21b6', bg:'#ede9fe' },
+  rejected    : { label:'Rejected',    color:'#991b1b', bg:'#fee2e2' },
+  hired       : { label:'Hired',       color:'#065f46', bg:'#d1fae5' },
+};
+
+const STATUS_OPTIONS = ['reviewing','shortlisted','hired','rejected'];
+
+// ─── Helper: time ago ────────────────────────────────────────
+function timeAgo(date) {
+  if (!date) return '';
+  const d = Math.floor((Date.now() - new Date(date).getTime()) / 86400000);
+  if (d === 0) return 'Today';
+  if (d === 1) return '1d ago';
+  if (d < 30)  return `${d}d ago`;
+  return `${Math.floor(d/30)}mo ago`;
+}
+
+// ─── Inline ProgressRing ─────────────────────────────────────
+function ProgressRing({ value = 0, size = 80, stroke = 8, color = C.accent, bg = 'rgba(255,255,255,0.18)', textColor = '#fff' }) {
+  const r = (size - stroke) / 2;
+  const circ = 2 * Math.PI * r;
+  const offset = circ - (Math.min(100, Math.max(0, value)) / 100) * circ;
   return (
-    <div style={{
-      width: size, height: size, borderRadius: '50%', background: bg,
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      color: '#fff', fontWeight: 700, fontSize: size * 0.38,
-      fontFamily: 'Sora, sans-serif', flexShrink: 0,
-    }}>{name.charAt(0).toUpperCase() || '?'}</div>
+    <div style={{ position:'relative', width:size, height:size, flexShrink:0 }}>
+      <svg width={size} height={size} style={{ transform:'rotate(-90deg)' }}>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={bg} strokeWidth={stroke} />
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={stroke}
+          strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
+          style={{ transition:'stroke-dashoffset 0.7s ease' }} />
+      </svg>
+      <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}>
+        <span style={{ fontSize:size*0.21, fontWeight:800, color:textColor, lineHeight:1 }}>{value}%</span>
+        <span style={{ fontSize:size*0.13, color:textColor, opacity:0.7, lineHeight:1, marginTop:1 }}>hired</span>
+      </div>
+    </div>
   );
 }
-function Pill({ children, color = CO }) {
-  return <span style={{ display:'inline-flex', padding:'2px 8px', borderRadius:8, fontSize:10.5, fontWeight:700, background:`${color}18`, color }}>{children}</span>;
-}
-function Dot({ color = '#22c55e', size = 7 }) {
-  return <span style={{ display:'inline-block', width:size, height:size, borderRadius:'50%', background:color }} />;
+
+// ─── Inline Sparkline ────────────────────────────────────────
+function Sparkline({ data = [], color = C.accent, w = 100, h = 38, id = 'co' }) {
+  if (!data || data.length < 2) return null;
+  const max = Math.max(...data); const min = Math.min(...data); const range = max - min || 1;
+  const pts = data.map((v, i) => ({
+    x: +((i / (data.length - 1)) * w).toFixed(2),
+    y: +((h - 4) - ((v - min) / range) * (h - 8)).toFixed(2),
+  }));
+  const line = `M ${pts.map(p => `${p.x} ${p.y}`).join(' L ')}`;
+  const area = `${line} L ${w} ${h} L 0 ${h} Z`;
+  const gId  = `sg-comp-${id}`;
+  return (
+    <svg width={w} height={h} style={{ display:'block', overflow:'visible' }}>
+      <defs>
+        <linearGradient id={gId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stopColor={color} stopOpacity="0.28" />
+          <stop offset="100%" stopColor={color} stopOpacity="0.02" />
+        </linearGradient>
+      </defs>
+      <path d={area} fill={`url(#${gId})`} />
+      <path d={line} fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx={pts[pts.length-1].x} cy={pts[pts.length-1].y} r="2.5" fill={color} />
+    </svg>
+  );
 }
 
+// ─── Inline Mini Bar Chart ───────────────────────────────────
+function MiniBarChart({ data = [], color = C.accent, w = 100, h = 44 }) {
+  if (!data || data.length === 0) return null;
+  const max = Math.max(...data, 1);
+  const gap = 3;
+  const bw  = (w - (data.length - 1) * gap) / data.length;
+  return (
+    <svg width={w} height={h} style={{ display:'block' }}>
+      {data.map((v, i) => {
+        const bh = Math.max(3, (v / max) * (h - 4));
+        return (
+          <rect key={i} x={i*(bw+gap)} y={h-bh} width={bw} height={bh}
+            rx={3} fill={color} opacity={i===data.length-1 ? 1 : 0.3+(v/max)*0.5} />
+        );
+      })}
+    </svg>
+  );
+}
+
+// ─── Mobile Bottom Tab Bar ───────────────────────────────────
+const MOB_TABS = [
+  { key:'overview', label:'Home',     Icon:LayoutDashboard },
+  { key:'jobs',     label:'My Jobs',  Icon:Briefcase },
+  { key:'post',     label:'Post Job', Icon:PlusCircle },
+  { key:'apps',     label:'Applicants', Icon:Users },
+  { key:'profile',  label:'Profile',  Icon:User },
+];
+
+function MTabBar({ active, onTab, jobCount, appCount }) {
+  return (
+    <nav style={{ position:'fixed', bottom:0, left:0, right:0, zIndex:60, background:'rgba(255,255,255,0.97)', backdropFilter:'blur(14px)', borderTop:`1px solid ${C.gray200}`, display:'flex', paddingBottom:'env(safe-area-inset-bottom)' }}>
+      {MOB_TABS.map(({ key, label, Icon }) => {
+        const isActive = active === key;
+        const badge = key==='jobs' ? jobCount : key==='apps' ? appCount : 0;
+        return (
+          <button key={key} onClick={() => onTab(key)} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:2, padding:'10px 4px 6px', background:'none', border:'none', cursor:'pointer', color: isActive ? C.primary : C.gray400, position:'relative', transition:'color 0.15s' }}>
+            {isActive && <span style={{ position:'absolute', top:0, left:'50%', transform:'translateX(-50%)', width:24, height:3, background:C.primary, borderRadius:'0 0 3px 3px' }} />}
+            <div style={{ position:'relative' }}>
+              <Icon size={20} strokeWidth={isActive ? 2.5 : 1.8} />
+              {badge > 0 && (
+                <span style={{ position:'absolute', top:-5, right:-7, background:C.primary, color:'#fff', fontSize:9, fontWeight:700, borderRadius:9999, minWidth:14, height:14, display:'flex', alignItems:'center', justifyContent:'center', padding:'0 3px' }}>
+                  {badge > 99 ? '99+' : badge}
+                </span>
+              )}
+            </div>
+            <span style={{ fontSize:10, fontWeight: isActive ? 700 : 400, lineHeight:1 }}>{label}</span>
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
+
+// ─── Loading Screen ──────────────────────────────────────────
+function LoadingScreen() {
+  return (
+    <div style={{ minHeight:'100vh', background:C.gray50, display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:12 }}>
+      <div style={{ width:40, height:40, border:`3px solid ${C.border}`, borderTopColor:C.primary, borderRadius:'50%', animation:'spin 0.8s linear infinite' }} />
+      <p style={{ color:C.gray400, fontSize:14 }}>Loading dashboard…</p>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+}
+
+// ─── Avatar Helper ───────────────────────────────────────────
+function CompanyAvatar({ profile, size = 60, border = '3px solid rgba(255,255,255,0.4)' }) {
+  if (profile?.photo) {
+    return <img src={profile.photo} alt="" style={{ width:size, height:size, borderRadius:'50%', objectFit:'cover', border, flexShrink:0 }} />;
+  }
+  const letter = (profile?.companyName || profile?.name || 'C')[0].toUpperCase();
+  return (
+    <div style={{ width:size, height:size, borderRadius:16, background:'rgba(255,255,255,0.2)', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:900, fontSize:size*0.38, border, flexShrink:0, letterSpacing:'-1px' }}>
+      {letter}
+    </div>
+  );
+}
+
+// ─── Status Dropdown ─────────────────────────────────────────
+function StatusDropdown({ appId, current, onUpdate }) {
+  const [loading, setLoading] = useState(false);
+  const s = STATUS[current] || STATUS.applied;
+
+  const handleChange = async (e) => {
+    const newStatus = e.target.value;
+    if (newStatus === current) return;
+    setLoading(true);
+    try {
+      await updateApplicationStatus(appId, newStatus);
+      onUpdate(appId, newStatus);
+    } catch (err) {
+      console.error('Status update error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <select value={current} onChange={handleChange} disabled={loading}
+      style={{ background:s.bg, color:s.color, fontSize:11, fontWeight:700, border:'none', borderRadius:8, padding:'4px 8px', cursor:'pointer', outline:'none', opacity: loading ? 0.6 : 1 }}>
+      <option value="applied">Applied</option>
+      {STATUS_OPTIONS.map(st => (
+        <option key={st} value={st}>{STATUS[st].label}</option>
+      ))}
+    </select>
+  );
+}
+
+// ─── Main Component ──────────────────────────────────────────
 export default function CompanyDashboard() {
-
-  const { user, profile, logoutUser } = useAuth();
   const navigate = useNavigate();
+  const { profile, logoutUser } = useAuth();
+  const isMobile = useIsMobile();
 
-  const [activeTab, setActiveTab] = useState('overview');
-  const [stats,     setStats]     = useState(null);
-  const [apps,      setApps]      = useState([]);
-  const [topJob,    setTopJob]    = useState(null);
-  const [loading,   setLoading]   = useState(true);
-
-  const companyName = profile?.companyName || user?.name || 'Company';
+  const [activeTab,    setActiveTab]    = useState('overview');
+  const [stats,        setStats]        = useState({ total:0, applications:0, shortlisted:0, hired:0, activeCount:0 });
+  const [applications, setApplications] = useState([]);
+  const [jobs,         setJobs]         = useState([]);
+  const [loading,      setLoading]      = useState(true);
 
   useEffect(() => {
-    const fetchAll = async () => {
+    (async () => {
       try {
         const [statsData, appsData, jobsData] = await Promise.all([
           getCompanyDashboardStats(),
           getCompanyApplications(),
           getMyJobs(),
         ]);
-        setStats(statsData);
-        setApps(appsData.slice(0, 4));
-        if (jobsData && jobsData.length > 0) {
-          setTopJob(jobsData[0]);
-        }
+        setStats(statsData || {});
+        setApplications(Array.isArray(appsData) ? appsData : []);
+        setJobs(Array.isArray(jobsData) ? jobsData : []);
       } catch (err) {
-        console.error(err);
+        console.error('CompanyDashboard load error:', err);
       } finally {
         setLoading(false);
       }
-    };
-    fetchAll();
+    })();
   }, []);
 
-  const handleLogout = async () => { await logoutUser(); navigate(ROUTES.LOGIN); };
-
-  const statCards = stats ? [
-    { label: 'Total Jobs',    value: stats.totalJobs,   sub: `${stats.activeJobs} active`,  trend:[0,0,1,1,2,2,stats.totalJobs],   icon:'💼', color: CO },
-    { label: 'Applications', value: stats.totalApps,   sub: `${stats.applied} new`,        trend:[0,1,1,2,2,3,stats.totalApps],   icon:'👥', color:'#ea580c' },
-    { label: 'Shortlisted',  value: stats.shortlisted, sub: 'candidates',                  trend:[0,0,0,1,1,1,stats.shortlisted], icon:'⭐', color:'#a855f7' },
-    { label: 'Hired',        value: stats.hired,       sub: 'this cycle',                  trend:[0,0,0,0,0,0,stats.hired],       icon:'✓',  color:'#0891b2' },
-  ] : [];
-
-  const pipeline = stats ? [
-    { stage: 'Applied',     count: stats.applied     || 0, color: CO,        width: 100 },
-    { stage: 'Reviewing',   count: stats.reviewing   || 0, color: '#0891b2', width: 70  },
-    { stage: 'Shortlisted', count: stats.shortlisted || 0, color: '#ea580c', width: 40  },
-    { stage: 'Hired',       count: stats.hired       || 0, color: '#a855f7', width: 15  },
-  ] : [];
-
-  const statusColors = {
-    applied:     { c: CO,        label: 'New' },
-    reviewing:   { c: '#0891b2', label: 'Reviewing' },
-    shortlisted: { c: '#ea580c', label: 'Shortlisted' },
-    rejected:    { c: '#ef4444', label: 'Rejected' },
-    hired:       { c: '#a855f7', label: 'Hired' },
+  const handleTab = (key) => {
+    if (key === 'jobs')    { navigate(ROUTES.COMPANY_JOBS);         return; }
+    if (key === 'post')    { navigate(ROUTES.COMPANY_JOB_CREATE);   return; }
+    if (key === 'apps')    { navigate(ROUTES.COMPANY_APPLICATIONS); return; }
+    if (key === 'profile') { navigate(ROUTES.PROFILE);              return; }
+    setActiveTab(key);
   };
 
-  return (
-    <div style={{ minHeight: '100vh', background: '#fafaf7', fontFamily: 'Inter, sans-serif', color: '#0a0a14' }}>
+  const handleLogout = async () => {
+    try { await logoutUser(); } catch {}
+    navigate(ROUTES.LOGIN);
+  };
 
-      {/* ── Nav ── */}
-      <header style={{
-        height: 64, background: '#fff', borderBottom: '1px solid #ececec',
-        display: 'flex', alignItems: 'center', padding: '0 32px', gap: 16,
-        position: 'sticky', top: 0, zIndex: 40,
-      }}>
-        <div onClick={() => navigate(ROUTES.COMPANY_DASHBOARD)}
-          style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-          <div style={{
-            width: 34, height: 34, borderRadius: 10, background: CO,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#fff', fontWeight: 800, fontSize: 14, fontFamily: 'Sora, sans-serif',
-          }}>HP</div>
-          <span style={{ fontFamily: 'Sora, sans-serif', fontWeight: 800, fontSize: 17, letterSpacing: '-0.5px' }}>HirePortal</span>
-          <span style={{ display:'inline-flex', alignItems:'center', gap:5, padding:'3px 10px', borderRadius:100, marginLeft:6, background:`${CO}15`, color:CO, fontSize:11, fontWeight:700 }}>
-            <Dot color={CO} size={6}/> Company
-          </span>
-        </div>
+  const handleStatusUpdate = (appId, newStatus) => {
+    setApplications(prev => prev.map(a => a._id === appId ? { ...a, status: newStatus } : a));
+  };
 
-        <nav style={{ display: 'flex', gap: 2, marginLeft: 16 }}>
-          {[
-            { id: 'overview',  label: 'Overview' },
-            { id: 'jobs',      label: 'Job Postings', badge: stats?.totalJobs || null },
-            { id: 'applicants',label: 'Applicants',   badge: stats?.totalApps || null },
-          ].map(n => (
-            <button key={n.id} onClick={() => {
-              setActiveTab(n.id);
-              if (n.id === 'jobs')       navigate(ROUTES.COMPANY_JOBS);
-              if (n.id === 'applicants') navigate(ROUTES.COMPANY_APPLICATIONS);
-            }} style={{
-              padding: '6px 13px', borderRadius: 8, border: 'none', cursor: 'pointer',
-              background: activeTab === n.id ? '#0a0a14' : 'transparent',
-              color: activeTab === n.id ? '#fff' : '#4b5563',
-              fontSize: 13, fontWeight: activeTab === n.id ? 600 : 500,
-              fontFamily: 'Inter, sans-serif', display: 'inline-flex', alignItems: 'center', gap: 6,
-            }}>
-              {n.label}
-              {n.badge ? <span style={{ background: activeTab === n.id ? CO : '#f0fdf4', color: activeTab === n.id ? '#fff' : CO, fontSize:10, fontWeight:700, padding:'1px 6px', borderRadius:8 }}>{n.badge}</span> : null}
-            </button>
-          ))}
-        </nav>
+  // Derived
+  const hireRate = stats.applications > 0 ? Math.round((stats.hired / stats.applications) * 100) : 0;
+  const appTrend  = [3, 5, 4, 8, 7, 9, stats.applications || 0];
+  const jobTrend  = [1, 1, 2, 2, 3, 3, stats.total || 0];
+  const shortTrend = [0, 1, 1, 2, 3, 3, stats.shortlisted || 0];
+  const hireTrend  = [0, 0, 0, 1, 1, 1, stats.hired || 0];
 
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button onClick={() => navigate(ROUTES.COMPANY_JOB_CREATE)} style={{
-            padding: '7px 16px', borderRadius: 8, background: CO, color: '#fff',
-            border: 'none', cursor: 'pointer', fontSize: 12.5, fontWeight: 600,
-          }}>+ Post New Job</button>
-          <div onClick={() => navigate(ROUTES.PROFILE)} style={{ display:'flex', alignItems:'center', gap:8, cursor:'pointer' }}>
-            <Avatar name={companyName} size={34} bg={CO} />
-            <div style={{ lineHeight: 1.2 }}>
-              <div style={{ fontSize: 13, fontWeight: 600 }}>{companyName}</div>
-              <div style={{ fontSize: 10, color: '#888' }}>Company</div>
+  if (loading) return <LoadingScreen />;
+
+  // ════════════════════════════════════════════════════════════
+  // MOBILE LAYOUT
+  // ════════════════════════════════════════════════════════════
+  if (isMobile) {
+    return (
+      <div style={{ minHeight:'100vh', background:C.gray50, paddingBottom:72, fontFamily:'system-ui,-apple-system,sans-serif' }}>
+
+        {/* ── Mobile Header ── */}
+        <header style={{ background:'#fff', borderBottom:`1px solid ${C.gray200}`, height:56, padding:'0 16px', display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:40 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+            <div style={{ width:32, height:32, borderRadius:8, background:C.grad, display:'flex', alignItems:'center', justifyContent:'center' }}>
+              <Building2 size={16} color="#fff" />
+            </div>
+            <span style={{ fontWeight:900, fontSize:17, color:C.gray900, letterSpacing:'-0.3px' }}>HirePortal</span>
+          </div>
+          <button onClick={() => navigate(ROUTES.COMPANY_JOB_CREATE)} style={{ background:C.primary, color:'#fff', border:'none', borderRadius:8, padding:'7px 13px', fontSize:12, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', gap:5 }}>
+            <PlusCircle size={14} /> Post Job
+          </button>
+        </header>
+
+        {/* ── Mobile Hero ── */}
+        <section style={{ background:C.grad, padding:'20px 16px 24px' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:14 }}>
+            <CompanyAvatar profile={profile} size={52} />
+            <div style={{ minWidth:0 }}>
+              <p style={{ color:'rgba(255,255,255,0.72)', fontSize:11, margin:'0 0 2px', fontWeight:500 }}>Company Dashboard</p>
+              <h1 style={{ color:'#fff', fontWeight:900, fontSize:20, margin:'0 0 3px', lineHeight:1.1, letterSpacing:'-0.4px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                {profile?.companyName || profile?.name || 'Company'}
+              </h1>
+              {profile?.industry && (
+                <span style={{ background:'rgba(255,255,255,0.2)', color:'rgba(255,255,255,0.9)', fontSize:10, fontWeight:700, borderRadius:9999, padding:'2px 9px' }}>
+                  {profile.industry}
+                </span>
+              )}
             </div>
           </div>
-          <button onClick={handleLogout} style={{
-            padding: '7px 14px', borderRadius: 8, background: CO,
-            color: '#fff', border: 'none', cursor: 'pointer', fontSize: 12.5, fontWeight: 600,
-          }}>Logout</button>
+
+          {/* Quick stat pills */}
+          <div style={{ display:'flex', gap:8 }}>
+            {[
+              { label:`${stats.total||0} Jobs`,     bg:'rgba(255,255,255,0.2)' },
+              { label:`${stats.applications||0} Applications`, bg:'rgba(255,255,255,0.14)' },
+              { label:`${stats.hired||0} Hired`,    bg:'rgba(59,130,246,0.35)' },
+            ].map(({ label, bg }) => (
+              <span key={label} style={{ background:bg, color:'#fff', fontSize:11, fontWeight:700, borderRadius:9999, padding:'4px 11px', border:'1px solid rgba(255,255,255,0.18)' }}>
+                {label}
+              </span>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Mobile Stats 2×2 ── */}
+        <section style={{ padding:'14px 14px 0' }}>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+            {[
+              { label:'Total Jobs',    value:stats.total||0,        color:C.primary, Icon:Briefcase, trend:jobTrend,  id:'j' },
+              { label:'Applications',  value:stats.applications||0, color:'#8b5cf6', Icon:FileText,  trend:appTrend,  id:'a' },
+              { label:'Shortlisted',   value:stats.shortlisted||0,  color:'#0891b2', Icon:Star,      trend:shortTrend,id:'sh' },
+              { label:'Hired',         value:stats.hired||0,        color:'#059669', Icon:CheckCircle,trend:hireTrend, id:'h' },
+            ].map(({ label, value, color, Icon, trend, id }) => (
+              <div key={label} style={{ background:'#fff', borderRadius:14, padding:'14px 14px 10px', boxShadow:'0 1px 4px rgba(0,0,0,0.06)', border:`1px solid ${C.gray100}` }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:8 }}>
+                  <div style={{ width:34, height:34, borderRadius:9, background:`${color}14`, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <Icon size={17} color={color} />
+                  </div>
+                  <span style={{ fontSize:26, fontWeight:900, color:C.gray900, lineHeight:1 }}>{value}</span>
+                </div>
+                <Sparkline data={trend} color={color} w={72} h={28} id={id} />
+                <p style={{ fontSize:11, color:C.gray400, margin:'6px 0 0', fontWeight:600 }}>{label}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Mobile Quick Actions ── */}
+        <section style={{ padding:'14px 14px 0' }}>
+          <p style={{ fontSize:13, fontWeight:700, color:C.gray700, margin:'0 0 10px' }}>Quick Actions</p>
+          <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+            {[
+              { label:'Post New Job',      desc:'Create a job listing',       Icon:PlusCircle, route:ROUTES.COMPANY_JOB_CREATE,   color:C.primary },
+              { label:'Manage Jobs',       desc:`${jobs.length} total jobs`,   Icon:Briefcase,  route:ROUTES.COMPANY_JOBS,         color:'#8b5cf6' },
+              { label:'View Applicants',   desc:`${applications.length} applicants`, Icon:Users, route:ROUTES.COMPANY_APPLICATIONS, color:'#0891b2' },
+              { label:'Company Profile',   desc:'Update company info',         Icon:User,       route:ROUTES.PROFILE,              color:'#059669' },
+            ].map(({ label, desc, Icon, route, color }) => (
+              <button key={label} onClick={() => navigate(route)} style={{ background:'#fff', border:`1px solid ${C.gray100}`, borderRadius:14, padding:'14px 16px', display:'flex', alignItems:'center', gap:14, cursor:'pointer', textAlign:'left', boxShadow:'0 1px 3px rgba(0,0,0,0.05)' }}>
+                <div style={{ width:42, height:42, borderRadius:12, background:`${color}12`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                  <Icon size={20} color={color} />
+                </div>
+                <div>
+                  <p style={{ fontSize:13, fontWeight:700, color:C.gray900, margin:'0 0 1px' }}>{label}</p>
+                  <p style={{ fontSize:11, color:C.gray400, margin:0 }}>{desc}</p>
+                </div>
+                <ChevronRight size={16} color={C.gray300} style={{ marginLeft:'auto' }} />
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Mobile Recent Applicants ── */}
+        <section style={{ padding:'14px 14px 0' }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
+            <p style={{ fontSize:13, fontWeight:700, color:C.gray700, margin:0 }}>Recent Applicants</p>
+            <button onClick={() => navigate(ROUTES.COMPANY_APPLICATIONS)} style={{ display:'flex', alignItems:'center', gap:2, background:'none', border:'none', color:C.accent, fontSize:12, fontWeight:700, cursor:'pointer' }}>
+              View all <ChevronRight size={12} />
+            </button>
+          </div>
+
+          {applications.length === 0 ? (
+            <div style={{ background:'#fff', borderRadius:14, padding:'24px 16px', textAlign:'center', border:`1px solid ${C.gray100}` }}>
+              <Users size={28} color={C.gray200} style={{ margin:'0 auto 10px' }} />
+              <p style={{ color:C.gray500, fontSize:13, margin:'0 0 12px' }}>No applicants yet.<br/>Post a job to get started!</p>
+              <button onClick={() => navigate(ROUTES.COMPANY_JOB_CREATE)} style={{ background:C.primary, color:'#fff', border:'none', borderRadius:9, padding:'9px 18px', fontSize:13, fontWeight:700, cursor:'pointer' }}>
+                Post a Job
+              </button>
+            </div>
+          ) : (
+            <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+              {applications.slice(0, 5).map(app => {
+                const s = STATUS[app.status] || STATUS.applied;
+                return (
+                  <div key={app._id} style={{ background:'#fff', borderRadius:14, padding:'13px 14px', border:`1px solid ${C.gray100}`, boxShadow:'0 1px 4px rgba(0,0,0,0.04)' }}>
+                    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:8 }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:10, flex:1, minWidth:0 }}>
+                        {app.candidate?.photo
+                          ? <img src={app.candidate.photo} alt="" style={{ width:34, height:34, borderRadius:'50%', objectFit:'cover', flexShrink:0 }} />
+                          : <div style={{ width:34, height:34, borderRadius:'50%', background:`${C.primary}14`, display:'flex', alignItems:'center', justifyContent:'center', color:C.primary, fontWeight:800, fontSize:13, flexShrink:0 }}>
+                              {(app.candidate?.name||'?')[0].toUpperCase()}
+                            </div>
+                        }
+                        <div style={{ minWidth:0 }}>
+                          <p style={{ fontWeight:700, fontSize:13, color:C.gray900, margin:'0 0 1px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                            {app.candidate?.name || 'Candidate'}
+                          </p>
+                          <p style={{ fontSize:11, color:C.gray400, margin:0, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                            {app.job?.title || 'Job'}
+                          </p>
+                        </div>
+                      </div>
+                      <StatusDropdown appId={app._id} current={app.status} onUpdate={handleStatusUpdate} />
+                    </div>
+                    <p style={{ fontSize:10, color:C.gray300, margin:'7px 0 0' }}>{timeAgo(app.createdAt)}</p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
+        {/* ── Mobile Logout ── */}
+        <section style={{ padding:'14px 14px 0' }}>
+          <button onClick={handleLogout} style={{ width:'100%', background:'#fff', border:`1px solid ${C.gray200}`, borderRadius:14, padding:'14px', display:'flex', alignItems:'center', justifyContent:'center', gap:8, color:'#ef4444', fontSize:14, fontWeight:700, cursor:'pointer' }}>
+            <LogOut size={18} /> Sign Out
+          </button>
+        </section>
+
+        <MTabBar active={activeTab} onTab={handleTab} jobCount={jobs.length} appCount={applications.length} />
+      </div>
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════
+  // DESKTOP LAYOUT
+  // ════════════════════════════════════════════════════════════
+  return (
+    <div style={{ minHeight:'100vh', background:C.gray50, fontFamily:'system-ui,-apple-system,sans-serif' }}>
+
+      {/* ── Desktop Header ── */}
+      <header style={{ position:'sticky', top:0, zIndex:50, background:'rgba(255,255,255,0.96)', backdropFilter:'blur(12px)', borderBottom:`1px solid ${C.gray200}`, height:64, padding:'0 32px', display:'flex', alignItems:'center', gap:24 }}>
+
+        <div style={{ display:'flex', alignItems:'center', gap:10, flexShrink:0, marginRight:16 }}>
+          <div style={{ width:38, height:38, borderRadius:11, background:C.grad, display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 10px rgba(30,58,95,0.4)' }}>
+            <Building2 size={19} color="#fff" />
+          </div>
+          <span style={{ fontWeight:900, fontSize:19, color:C.gray900, letterSpacing:'-0.4px' }}>HirePortal</span>
+        </div>
+
+        <nav style={{ display:'flex', gap:4, flex:1 }}>
+          {[
+            { key:'overview', label:'Overview',    Icon:LayoutDashboard },
+            { key:'jobs',     label:'My Jobs',     Icon:Briefcase },
+            { key:'apps',     label:'Applicants',  Icon:Users },
+            { key:'profile',  label:'Company Profile', Icon:User },
+          ].map(({ key, label, Icon }) => {
+            const isActive = activeTab === key;
+            const badge = key==='jobs' ? jobs.length : key==='apps' ? applications.length : 0;
+            return (
+              <button key={key} onClick={() => handleTab(key)} style={{ display:'flex', alignItems:'center', gap:7, padding:'8px 14px', borderRadius:10, border:'none', cursor:'pointer', fontSize:13, fontWeight: isActive ? 700 : 500, background: isActive ? `${C.primary}14` : 'transparent', color: isActive ? C.primary : C.gray500, transition:'all 0.15s' }}>
+                <Icon size={15} strokeWidth={isActive ? 2.5 : 1.8} />
+                {label}
+                {badge > 0 && (
+                  <span style={{ background:C.primary, color:'#fff', fontSize:10, fontWeight:700, borderRadius:9999, minWidth:17, height:17, display:'flex', alignItems:'center', justifyContent:'center', padding:'0 3px' }}>
+                    {badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
+
+        <div style={{ display:'flex', alignItems:'center', gap:14, flexShrink:0 }}>
+          <button onClick={() => navigate(ROUTES.COMPANY_JOB_CREATE)} style={{ display:'flex', alignItems:'center', gap:7, background:C.primary, color:'#fff', border:'none', borderRadius:11, padding:'10px 18px', fontSize:14, fontWeight:700, cursor:'pointer', boxShadow:'0 2px 8px rgba(30,58,95,0.3)' }}>
+            <PlusCircle size={16} /> Post New Job
+          </button>
+          <div style={{ textAlign:'right' }}>
+            <p style={{ fontSize:13, fontWeight:800, color:C.gray900, margin:0, lineHeight:1.2 }}>{profile?.companyName || profile?.name || 'Company'}</p>
+            <p style={{ fontSize:11, color:C.primary, margin:0, fontWeight:600 }}>Company</p>
+          </div>
+          <CompanyAvatar profile={profile} size={38} border={`2px solid ${C.border}`} />
+          <button onClick={handleLogout} style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 14px', borderRadius:10, border:`1px solid ${C.gray200}`, background:'#fff', color:C.gray600, fontSize:13, fontWeight:600, cursor:'pointer' }}>
+            <LogOut size={14} /> Logout
+          </button>
         </div>
       </header>
 
-      {/* ── Content ── */}
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '28px 32px 48px' }}>
+      {/* ── Desktop Hero ── */}
+      <section style={{ background:C.grad, padding:'44px 32px 52px' }}>
+        <div style={{ maxWidth:1200, margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'space-between', gap:32 }}>
 
-        {/* HERO */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 18, marginBottom: 20 }}>
-          <div style={{
-            background: `linear-gradient(125deg, ${CO_DEEP} 0%, ${CO} 60%, #84cc16 110%)`,
-            borderRadius: 24, padding: '28px 32px', color: '#fff',
-            position: 'relative', overflow: 'hidden', minHeight: 220,
-            display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-          }}>
-            <div style={{ position:'absolute', right:-40, top:-40, width:200, height:200, borderRadius:'50%', border:'1px solid rgba(255,255,255,0.15)' }} />
-            <div style={{ position: 'relative' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
-                <div style={{
-                  width: 60, height: 60, borderRadius: 14,
-                  background: 'rgba(255,255,255,0.18)', border: '1.5px solid rgba(255,255,255,0.3)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontFamily: 'Sora, sans-serif', fontWeight: 800, fontSize: 24, flexShrink: 0,
-                }}>{companyName.charAt(0).toUpperCase()}</div>
-                <div>
-                  <div style={{ fontSize: 12, opacity: 0.8 }}>Welcome back,</div>
-                  <div style={{ fontFamily:'Sora,sans-serif', fontWeight:800, fontSize:26, letterSpacing:'-1px', lineHeight:1.1 }}>{companyName}</div>
-                  <div style={{ fontSize: 12, opacity: 0.75, marginTop: 2 }}>{user?.email}</div>
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                {profile?.industry && (
-                  <span style={{ padding:'4px 12px', borderRadius:100, fontSize:11.5, background:'rgba(255,255,255,0.18)', border:'1px solid rgba(255,255,255,0.2)' }}>
-                    🏢 {profile.industry}
-                  </span>
-                )}
-                {user?.isVerified && (
-                  <span style={{ padding:'4px 12px', borderRadius:100, fontSize:11.5, background:'rgba(255,255,255,0.18)', border:'1px solid rgba(255,255,255,0.2)' }}>
-                    ✓ Verified
-                  </span>
-                )}
-              </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 16, position: 'relative' }}>
-              <button onClick={() => navigate(ROUTES.COMPANY_JOB_CREATE)} style={{
-                padding:'10px 20px', borderRadius:10, fontSize:13, fontWeight:600,
-                background:'#fff', color:CO_DEEP, border:'none', cursor:'pointer',
-              }}>+ Post New Job →</button>
-              <button onClick={() => navigate(ROUTES.COMPANY_APPLICATIONS)} style={{
-                padding:'10px 16px', borderRadius:10, fontSize:13, fontWeight:500,
-                background:'rgba(255,255,255,0.15)', color:'#fff',
-                border:'1px solid rgba(255,255,255,0.25)', cursor:'pointer',
-              }}>View Applicants</button>
-              {stats && (
-                <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
-                  {[
-                    { icon:'💼', label:`${stats.totalJobs} jobs` },
-                    { icon:'👥', label:`${stats.totalApps} applicants` },
-                  ].map((p,i) => (
-                    <span key={i} style={{ padding:'6px 12px', borderRadius:100, fontSize:11.5, fontWeight:600, background:'rgba(255,255,255,0.18)', display:'inline-flex', alignItems:'center', gap:5 }}>
-                      {p.icon} {p.label}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Hiring funnel */}
-          <div style={{ background:'#0a0a14', color:'#fff', borderRadius:24, padding:'22px', position:'relative', overflow:'hidden' }}>
-            <div style={{ position:'absolute', bottom:-40, right:-40, width:140, height:140, borderRadius:'50%', background:`radial-gradient(circle, ${CO}55, transparent 70%)` }} />
-            <div style={{ fontSize:10, color:'#bbf7d0', fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', marginBottom:14, position:'relative' }}>Hiring Funnel</div>
-            <div style={{ display:'flex', flexDirection:'column', gap:8, position:'relative', marginBottom:14 }}>
-              {pipeline.map(p => (
-                <div key={p.stage} style={{ display:'flex', alignItems:'center', gap:10 }}>
-                  <div style={{ flex:1, position:'relative', height:26 }}>
-                    <div style={{
-                      width:`${p.width}%`, height:'100%', borderRadius:6,
-                      background:`linear-gradient(90deg, ${p.color}, ${p.color}88)`,
-                      display:'flex', alignItems:'center', paddingLeft:10,
-                      fontSize:11.5, fontWeight:600, color:'#fff',
-                    }}>{p.stage}</div>
-                  </div>
-                  <span style={{ fontFamily:'Sora,sans-serif', fontWeight:700, fontSize:15, minWidth:20, textAlign:'right' }}>{p.count}</span>
-                </div>
-              ))}
-            </div>
-            {stats && (
-              <div style={{ padding:'9px 12px', background:'rgba(22,163,74,0.15)', border:'1px solid rgba(22,163,74,0.3)', borderRadius:10, fontSize:11.5, position:'relative', display:'flex', alignItems:'center', gap:8 }}>
-                <Dot color={CO} />
-                <span>
-                  {stats.totalApps > 0
-                    ? `Conversion: ${Math.round((stats.shortlisted/stats.totalApps)*100)}% applied → shortlisted`
-                    : 'No applications yet'}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* STAT CARDS */}
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:20 }}>
-          {loading ? [1,2,3,4].map(i => (
-            <div key={i} style={{ background:'#fff', borderRadius:18, padding:'18px', border:'1px solid #ececec', height:110 }} />
-          )) : statCards.map((s,i) => (
-            <div key={i} style={{ background:'#fff', borderRadius:18, padding:'18px 18px 14px', border:'1px solid #ececec' }}>
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
-                <div style={{ width:36, height:36, borderRadius:10, background:`${s.color}13`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:15 }}>{s.icon}</div>
-                <Sparkline data={s.trend} color={s.color} width={60} height={24} />
-              </div>
-              <div style={{ fontFamily:'Sora,sans-serif', fontSize:30, fontWeight:800, letterSpacing:'-1.5px', lineHeight:1, marginBottom:4 }}>{s.value}</div>
-              <div style={{ fontSize:12.5, color:'#0a0a14', fontWeight:500, marginBottom:2 }}>{s.label}</div>
-              <div style={{ fontSize:11, color:s.color, fontWeight:600 }}>{s.sub}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* BOTTOM */}
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 300px', gap:18 }}>
-
-          {/* Left */}
-          <div style={{ display:'flex', flexDirection:'column', gap:18 }}>
-            {/* Quick Actions */}
+          <div style={{ display:'flex', alignItems:'center', gap:22 }}>
+            <CompanyAvatar profile={profile} size={86} border="3px solid rgba(255,255,255,0.45)" />
             <div>
-              <div style={{ fontFamily:'Sora,sans-serif', fontSize:15, fontWeight:700, marginBottom:12 }}>Quick Actions</div>
-              <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:5 }}>
+                <p style={{ color:'rgba(255,255,255,0.7)', fontSize:13, margin:0, fontWeight:500 }}>Company Dashboard</p>
+                {profile?.isVerified && (
+                  <span style={{ display:'flex', alignItems:'center', gap:4, background:'rgba(59,130,246,0.35)', color:'#bfdbfe', fontSize:11, fontWeight:700, borderRadius:9999, padding:'2px 10px', border:'1px solid rgba(59,130,246,0.4)' }}>
+                    <ShieldCheck size={11} /> Verified
+                  </span>
+                )}
+              </div>
+              <h1 style={{ color:'#fff', fontWeight:900, fontSize:32, margin:'0 0 6px', lineHeight:1.1, letterSpacing:'-0.8px' }}>
+                {profile?.companyName || profile?.name || 'Company'}
+              </h1>
+              {profile?.industry && (
+                <p style={{ color:'rgba(255,255,255,0.8)', fontSize:14, margin:'0 0 12px' }}>
+                  {profile.industry}{profile?.companySize ? ` · ${profile.companySize} employees` : ''}
+                </p>
+              )}
+              <div style={{ display:'flex', gap:10 }}>
                 {[
-                  { title:'Company Profile', desc:'Update company info',        icon:'🏢', route: ROUTES.PROFILE },
-                  { title:'Job Postings',    desc:'Manage listings',             icon:'💼', route: ROUTES.COMPANY_JOBS, badge: stats?.totalJobs || null },
-                  { title:'Applicants',      desc:'Review candidates',           icon:'👥', route: ROUTES.COMPANY_APPLICATIONS, badge: stats?.totalApps || null },
-                ].map((a,i) => (
-                  <div key={i} onClick={() => navigate(a.route)} style={{
-                    background:'#fff', borderRadius:16, padding:'18px', border:'1px solid #ececec',
-                    cursor:'pointer', position:'relative', overflow:'hidden',
-                  }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = CO; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = '#ececec'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-                    <div style={{ position:'absolute', top:0, left:0, width:'100%', height:3, background:CO, opacity:0.7 }} />
-                    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:20 }}>
-                      <div style={{ width:40, height:40, borderRadius:10, background:`${CO}13`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:18 }}>{a.icon}</div>
-                      {a.badge ? <Pill color={CO}>{a.badge}</Pill> : null}
-                    </div>
-                    <div style={{ fontFamily:'Sora,sans-serif', fontWeight:700, fontSize:14, marginBottom:4 }}>{a.title}</div>
-                    <div style={{ fontSize:11.5, color:'#666', lineHeight:1.5, marginBottom:10 }}>{a.desc}</div>
-                    <div style={{ color:CO, fontSize:11.5, fontWeight:600 }}>Open →</div>
-                  </div>
+                  { label:`${stats.total||0} Jobs Posted`,      bg:'rgba(255,255,255,0.18)' },
+                  { label:`${stats.activeCount||0} Active`,      bg:'rgba(255,255,255,0.12)' },
+                  { label:`${stats.applications||0} Applicants`, bg:'rgba(59,130,246,0.3)' },
+                ].map(({ label, bg }) => (
+                  <span key={label} style={{ background:bg, color:'rgba(255,255,255,0.92)', fontSize:12, fontWeight:700, borderRadius:9999, padding:'4px 13px', border:'1px solid rgba(255,255,255,0.18)' }}>
+                    {label}
+                  </span>
                 ))}
               </div>
             </div>
-
-            {/* Recent Applications */}
-            <div style={{ background:'#fff', borderRadius:18, padding:'20px 22px', border:'1px solid #ececec' }}>
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
-                <div>
-                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:15, fontWeight:700 }}>Recent Applications</div>
-                  <div style={{ fontSize:11.5, color:'#888', marginTop:2 }}>{apps.length} awaiting review</div>
-                </div>
-                <button onClick={() => navigate(ROUTES.COMPANY_APPLICATIONS)} style={{ background:'transparent', color:CO, border:'none', cursor:'pointer', fontSize:12.5, fontWeight:600 }}>View all →</button>
-              </div>
-              {apps.length === 0 ? (
-                <div style={{ textAlign:'center', padding:'24px 0', color:'#888', fontSize:13 }}>No applications yet</div>
-              ) : (
-                <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-                  {apps.map(a => {
-                    const s = statusColors[a.status] || { c: '#888', label: a.status };
-                    return (
-                      <div key={a._id} style={{ display:'flex', alignItems:'center', gap:12, padding:'11px 13px', background:'#fafaf7', borderRadius:12, cursor:'pointer' }}
-                        onMouseEnter={e => e.currentTarget.style.background='#f3f3ef'}
-                        onMouseLeave={e => e.currentTarget.style.background='#fafaf7'}>
-                        <Avatar name={a.candidate?.name || '?'} size={40} bg={CO} />
-                        <div style={{ flex:1, minWidth:0 }}>
-                          <div style={{ display:'flex', alignItems:'center', gap:7, marginBottom:2 }}>
-                            <span style={{ fontFamily:'Sora,sans-serif', fontWeight:600, fontSize:13 }}>{a.candidate?.name || 'Unknown'}</span>
-                            <Pill color={s.c}>{s.label}</Pill>
-                          </div>
-                          <div style={{ fontSize:11.5, color:'#666' }}>Applied for <strong>{a.job?.title}</strong> · {new Date(a.createdAt).toLocaleDateString()}</div>
-                        </div>
-                        <button style={{ padding:'5px 12px', borderRadius:7, background:CO, color:'#fff', border:'none', cursor:'pointer', fontSize:11.5, fontWeight:600 }}>Review</button>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
           </div>
 
-          {/* Right — Top Job */}
-          <div style={{ display:'flex', flexDirection:'column', gap:18 }}>
-            {topJob && (
-              <div style={{ background:'#fff', borderRadius:18, padding:'18px 20px', border:'1px solid #ececec' }}>
-                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
-                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:700 }}>Top Job Post</div>
-                  <Pill color="#ea580c">🔥 HOT</Pill>
+          {/* Hiring Funnel Panel */}
+          <div style={{ background:'rgba(0,0,0,0.22)', borderRadius:22, padding:'22px 28px', backdropFilter:'blur(10px)', border:'1px solid rgba(255,255,255,0.1)', flexShrink:0, minWidth:280 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
+              <p style={{ color:'rgba(255,255,255,0.75)', fontSize:12, margin:0, fontWeight:600 }}>Hiring Funnel</p>
+              <ProgressRing value={hireRate} size={52} stroke={5} color={C.accent} bg="rgba(255,255,255,0.15)" textColor="#fff" />
+            </div>
+            {[
+              { label:'Total Applied',  value:stats.applications||0, bar:100 },
+              { label:'Reviewing',      value:applications.filter(a=>a.status==='reviewing').length, bar:stats.applications>0 ? Math.round((applications.filter(a=>a.status==='reviewing').length/(stats.applications||1))*100) : 0 },
+              { label:'Shortlisted',    value:stats.shortlisted||0,  bar:stats.applications>0 ? Math.round(((stats.shortlisted||0)/(stats.applications||1))*100) : 0 },
+              { label:'Hired',          value:stats.hired||0,        bar:hireRate },
+            ].map(({ label, value, bar }) => (
+              <div key={label} style={{ marginBottom:10 }}>
+                <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
+                  <span style={{ fontSize:11, color:'rgba(255,255,255,0.72)', fontWeight:500 }}>{label}</span>
+                  <span style={{ fontSize:12, color:'#fff', fontWeight:700 }}>{value}</span>
                 </div>
-                <div style={{ fontFamily:'Sora,sans-serif', fontWeight:600, fontSize:14, marginBottom:14 }}>{topJob.title}</div>
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:14 }}>
-                  {[
-                    { l:'Applications', v: topJob.applicationsCount || 0 },
-                    { l:'Location',     v: topJob.location || '—' },
-                    { l:'Type',         v: topJob.jobType || '—' },
-                    { l:'Status',       v: topJob.status || '—' },
-                  ].map((m,i) => (
-                    <div key={i} style={{ padding:'9px 11px', background:'#fafaf7', borderRadius:10 }}>
-                      <div style={{ fontFamily:'Sora,sans-serif', fontWeight:700, fontSize:16, letterSpacing:'-0.5px', lineHeight:1 }}>{m.v}</div>
-                      <div style={{ fontSize:10.5, color:'#888', marginTop:3 }}>{m.l}</div>
-                    </div>
-                  ))}
+                <div style={{ height:5, background:'rgba(255,255,255,0.12)', borderRadius:9999, overflow:'hidden' }}>
+                  <div style={{ width:`${bar}%`, height:'100%', background: label==='Hired' ? '#22c55e' : 'rgba(255,255,255,0.55)', borderRadius:9999, transition:'width 0.8s ease' }} />
                 </div>
-                <MiniBarChart
-                  data={[
-                    {label:'M',value:2},{label:'T',value:3},{label:'W',value:topJob.applicationsCount||0},
-                    {label:'T',value:2},{label:'F',value:3},{label:'S',value:1,dim:true},{label:'S',value:0,dim:true},
-                  ]}
-                  color={CO} height={55} width={240}
-                />
               </div>
-            )}
+            ))}
+          </div>
+        </div>
+      </section>
 
-            {/* Activity */}
-            <div style={{ background:'#fff', borderRadius:18, padding:'18px 20px', border:'1px solid #ececec', flex:1 }}>
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
-                <div style={{ fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:700 }}>Activity</div>
-                <Dot color="#22c55e" />
-              </div>
-              {apps.length === 0 ? (
-                <div style={{ color:'#888', fontSize:12, textAlign:'center', padding:'20px 0' }}>No recent activity</div>
-              ) : apps.map((a,i) => (
-                <div key={a._id} style={{ display:'flex', gap:10 }}>
-                  <div style={{ display:'flex', flexDirection:'column', alignItems:'center' }}>
-                    <div style={{ width:8, height:8, borderRadius:'50%', background:CO, marginTop:5 }} />
-                    {i < apps.length-1 && <div style={{ width:1, flex:1, background:'#ececec', margin:'3px 0' }} />}
-                  </div>
-                  <div style={{ flex:1, paddingBottom:12 }}>
-                    <div style={{ fontSize:12, lineHeight:1.45 }}>{a.candidate?.name} applied for {a.job?.title}</div>
-                    <div style={{ fontSize:10.5, color:'#888', marginTop:2 }}>{new Date(a.createdAt).toLocaleDateString()}</div>
-                  </div>
+      {/* ── Desktop Stats Row ── */}
+      <section style={{ maxWidth:1200, margin:'0 auto', padding:'26px 32px 0' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16 }}>
+          {[
+            { label:'Total Jobs',   value:stats.total||0,        sub:'jobs posted',     Icon:Briefcase,  color:C.primary, trend:jobTrend,  id:'j' },
+            { label:'Applications', value:stats.applications||0, sub:'received',        Icon:FileText,   color:'#8b5cf6', trend:appTrend,  id:'a' },
+            { label:'Shortlisted',  value:stats.shortlisted||0,  sub:'candidates',      Icon:Star,       color:'#0891b2', trend:shortTrend,id:'sh' },
+            { label:'Hired',        value:stats.hired||0,        sub:'this cycle',      Icon:CheckCircle,color:'#059669', trend:hireTrend, id:'h' },
+          ].map(({ label, value, sub, Icon, color, trend, id }) => (
+            <div key={label} style={{ background:'#fff', borderRadius:18, padding:'22px', boxShadow:'0 1px 5px rgba(0,0,0,0.06)', border:`1px solid ${C.gray100}` }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:14 }}>
+                <div>
+                  <p style={{ fontSize:12, color:C.gray400, margin:'0 0 5px', fontWeight:600 }}>{label}</p>
+                  <p style={{ fontSize:36, fontWeight:900, color:C.gray900, margin:0, lineHeight:1, letterSpacing:'-1px' }}>{value}</p>
+                  <p style={{ fontSize:11, color:C.gray400, margin:'4px 0 0' }}>{sub}</p>
                 </div>
+                <div style={{ width:44, height:44, borderRadius:13, background:`${color}12`, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                  <Icon size={22} color={color} />
+                </div>
+              </div>
+              <Sparkline data={trend} color={color} w={108} h={38} id={id} />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Desktop Main Content ── */}
+      <main style={{ maxWidth:1200, margin:'0 auto', padding:'22px 32px 48px', display:'grid', gridTemplateColumns:'1fr 380px', gap:22 }}>
+
+        {/* Left */}
+        <div style={{ display:'flex', flexDirection:'column', gap:20 }}>
+
+          {/* Quick Actions */}
+          <div style={{ background:'#fff', borderRadius:20, padding:'26px', boxShadow:'0 1px 5px rgba(0,0,0,0.06)', border:`1px solid ${C.gray100}` }}>
+            <h2 style={{ fontSize:17, fontWeight:800, color:C.gray900, margin:'0 0 18px', letterSpacing:'-0.3px' }}>Quick Actions</h2>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14 }}>
+              {[
+                { label:'Post New Job',   desc:'Create listing',           Icon:PlusCircle, route:ROUTES.COMPANY_JOB_CREATE,   color:C.primary },
+                { label:'Manage Jobs',    desc:`${jobs.length} posted`,    Icon:Briefcase,  route:ROUTES.COMPANY_JOBS,         color:'#8b5cf6' },
+                { label:'Applicants',     desc:`${applications.length} total`, Icon:Users, route:ROUTES.COMPANY_APPLICATIONS, color:'#0891b2' },
+                { label:'Profile',        desc:'Update info',              Icon:User,       route:ROUTES.PROFILE,              color:'#059669' },
+              ].map(({ label, desc, Icon, route, color }) => (
+                <button key={label} onClick={() => navigate(route)} style={{ background:`${color}08`, border:`1px solid ${color}22`, borderRadius:16, padding:'18px 14px', display:'flex', flexDirection:'column', alignItems:'flex-start', gap:10, cursor:'pointer', textAlign:'left', transition:'all 0.15s' }}
+                  onMouseEnter={e => { e.currentTarget.style.boxShadow=`0 4px 16px ${color}22`; e.currentTarget.style.borderColor=`${color}44`; }}
+                  onMouseLeave={e => { e.currentTarget.style.boxShadow='none'; e.currentTarget.style.borderColor=`${color}22`; }}>
+                  <div style={{ width:42, height:42, borderRadius:12, background:`${color}15`, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <Icon size={20} color={color} />
+                  </div>
+                  <div>
+                    <p style={{ fontSize:13, fontWeight:800, color:C.gray900, margin:'0 0 2px' }}>{label}</p>
+                    <p style={{ fontSize:11, color:C.gray400, margin:0 }}>{desc}</p>
+                  </div>
+                </button>
               ))}
             </div>
           </div>
+
+          {/* Recent Applicants Table */}
+          <div style={{ background:'#fff', borderRadius:20, padding:'26px', boxShadow:'0 1px 5px rgba(0,0,0,0.06)', border:`1px solid ${C.gray100}`, flex:1 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:18 }}>
+              <h2 style={{ fontSize:17, fontWeight:800, color:C.gray900, margin:0, letterSpacing:'-0.3px' }}>Recent Applicants</h2>
+              <button onClick={() => navigate(ROUTES.COMPANY_APPLICATIONS)} style={{ display:'flex', alignItems:'center', gap:4, color:C.accent, fontSize:13, fontWeight:700, background:'none', border:'none', cursor:'pointer' }}>
+                Manage all <ChevronRight size={14} />
+              </button>
+            </div>
+
+            {applications.length === 0 ? (
+              <div style={{ textAlign:'center', padding:'40px 20px' }}>
+                <div style={{ width:60, height:60, borderRadius:16, background:C.light, display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 14px' }}>
+                  <Users size={28} color={C.border} />
+                </div>
+                <p style={{ color:C.gray500, fontSize:15, margin:'0 0 5px', fontWeight:600 }}>No applicants yet</p>
+                <p style={{ color:C.gray400, fontSize:13, margin:'0 0 18px' }}>Post a job to start receiving applications</p>
+                <button onClick={() => navigate(ROUTES.COMPANY_JOB_CREATE)} style={{ background:C.primary, color:'#fff', border:'none', borderRadius:12, padding:'11px 22px', fontSize:14, fontWeight:700, cursor:'pointer' }}>
+                  Post a Job
+                </button>
+              </div>
+            ) : (
+              <div>
+                <div style={{ display:'grid', gridTemplateColumns:'2.5fr 2fr 1.5fr 1.5fr', gap:12, padding:'0 12px 10px', borderBottom:`1px solid ${C.gray100}` }}>
+                  {['Candidate','Applied For','Status','Date'].map(h => (
+                    <span key={h} style={{ fontSize:11, fontWeight:700, color:C.gray400, letterSpacing:'0.4px', textTransform:'uppercase' }}>{h}</span>
+                  ))}
+                </div>
+                {applications.slice(0, 8).map((app, idx) => (
+                  <div key={app._id} style={{ display:'grid', gridTemplateColumns:'2.5fr 2fr 1.5fr 1.5fr', gap:12, padding:'13px 12px', borderRadius:12, background: idx%2===0 ? 'transparent' : C.gray50, alignItems:'center' }}>
+                    {/* Candidate */}
+                    <div style={{ display:'flex', alignItems:'center', gap:10, minWidth:0 }}>
+                      {app.candidate?.photo
+                        ? <img src={app.candidate.photo} alt="" style={{ width:34, height:34, borderRadius:'50%', objectFit:'cover', flexShrink:0, border:`1.5px solid ${C.gray200}` }} />
+                        : <div style={{ width:34, height:34, borderRadius:'50%', background:`${C.primary}14`, display:'flex', alignItems:'center', justifyContent:'center', color:C.primary, fontWeight:800, fontSize:13, flexShrink:0 }}>
+                            {(app.candidate?.name||'?')[0].toUpperCase()}
+                          </div>
+                      }
+                      <div style={{ minWidth:0 }}>
+                        <p style={{ fontWeight:700, fontSize:13, color:C.gray900, margin:'0 0 1px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                          {app.candidate?.name || 'Candidate'}
+                        </p>
+                        <p style={{ fontSize:11, color:C.gray400, margin:0, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                          {app.candidate?.email}
+                        </p>
+                      </div>
+                    </div>
+                    {/* Job */}
+                    <p style={{ fontSize:12, color:C.gray600, margin:0, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', fontWeight:500 }}>
+                      {app.job?.title || '—'}
+                    </p>
+                    {/* Status Dropdown */}
+                    <StatusDropdown appId={app._id} current={app.status} onUpdate={handleStatusUpdate} />
+                    {/* Date */}
+                    <span style={{ fontSize:11, color:C.gray400 }}>{timeAgo(app.createdAt)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+
+        {/* Right Sidebar */}
+        <div style={{ display:'flex', flexDirection:'column', gap:18 }}>
+
+          {/* Hiring Funnel Dark Card */}
+          <div style={{ background:C.grad, borderRadius:22, padding:'24px', boxShadow:'0 6px 28px rgba(30,58,95,0.35)' }}>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:18 }}>
+              <h3 style={{ color:'#fff', fontWeight:900, fontSize:16, margin:0, letterSpacing:'-0.3px' }}>Hiring Funnel</h3>
+              <ProgressRing value={hireRate} size={60} stroke={6} color="#22c55e" bg="rgba(255,255,255,0.15)" textColor="#fff" />
+            </div>
+            {/* Bar chart */}
+            <div style={{ marginBottom:18 }}>
+              <p style={{ color:'rgba(255,255,255,0.65)', fontSize:11, margin:'0 0 10px', fontWeight:600 }}>Application volume (7-day trend)</p>
+              <MiniBarChart data={[3,5,4,8,6,9,stats.applications||0]} color="rgba(255,255,255,0.7)" w={200} h={44} />
+            </div>
+            {[
+              { label:'Received',   value:stats.applications||0, pct:100,       color:'rgba(255,255,255,0.6)' },
+              { label:'Shortlisted',value:stats.shortlisted||0,  pct:stats.applications>0?Math.round(((stats.shortlisted||0)/(stats.applications||1))*100):0, color:'#93c5fd' },
+              { label:'Hired',      value:stats.hired||0,        pct:hireRate,  color:'#86efac' },
+            ].map(({ label, value, pct, color }) => (
+              <div key={label} style={{ marginBottom:10 }}>
+                <div style={{ display:'flex', justifyContent:'space-between', marginBottom:5 }}>
+                  <span style={{ fontSize:12, color:'rgba(255,255,255,0.75)', fontWeight:500 }}>{label}</span>
+                  <span style={{ fontSize:12, color:'#fff', fontWeight:800 }}>{value} <span style={{ opacity:0.6, fontWeight:400 }}>({pct}%)</span></span>
+                </div>
+                <div style={{ height:6, background:'rgba(255,255,255,0.1)', borderRadius:9999, overflow:'hidden' }}>
+                  <div style={{ width:`${pct}%`, height:'100%', background:color, borderRadius:9999, transition:'width 0.8s ease' }} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Active Jobs List */}
+          <div style={{ background:'#fff', borderRadius:20, padding:'22px', boxShadow:'0 1px 5px rgba(0,0,0,0.06)', border:`1px solid ${C.gray100}` }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
+              <h3 style={{ fontSize:15, fontWeight:800, color:C.gray900, margin:0, letterSpacing:'-0.2px' }}>Active Jobs</h3>
+              <button onClick={() => navigate(ROUTES.COMPANY_JOBS)} style={{ color:C.accent, fontSize:12, fontWeight:700, background:'none', border:'none', cursor:'pointer' }}>Manage</button>
+            </div>
+            {jobs.length === 0 ? (
+              <div style={{ textAlign:'center', padding:'16px 0' }}>
+                <p style={{ color:C.gray400, fontSize:13, margin:'0 0 12px' }}>No jobs posted yet</p>
+                <button onClick={() => navigate(ROUTES.COMPANY_JOB_CREATE)} style={{ background:C.primary, color:'#fff', border:'none', borderRadius:9, padding:'8px 16px', fontSize:12, fontWeight:700, cursor:'pointer' }}>Post First Job</button>
+              </div>
+            ) : (
+              <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                {jobs.slice(0, 5).map(job => (
+                  <div key={job._id} style={{ padding:'13px 14px', borderRadius:14, border:`1px solid ${C.gray100}`, transition:'all 0.15s' }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor=C.border; e.currentTarget.style.background=C.light; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor=C.gray100; e.currentTarget.style.background='transparent'; }}>
+                    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
+                      <div style={{ minWidth:0, flex:1 }}>
+                        <p style={{ fontWeight:700, fontSize:13, color:C.gray900, margin:'0 0 2px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{job.title}</p>
+                        <p style={{ fontSize:11, color:C.gray400, margin:0 }}>
+                          {job.jobType}{job.location ? ` · ${job.location}` : ''}
+                        </p>
+                      </div>
+                      <span style={{ background: job.isActive ? '#d1fae5' : C.gray100, color: job.isActive ? '#065f46' : C.gray500, fontSize:10, fontWeight:700, borderRadius:7, padding:'3px 8px', flexShrink:0 }}>
+                        {job.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                    <div style={{ marginTop:8, display:'flex', gap:8 }}>
+                      <button onClick={() => navigate(ROUTES.COMPANY_APPLICATIONS)} style={{ flex:1, background:C.light, color:C.primary, border:'none', borderRadius:8, padding:'6px', fontSize:11, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:4 }}>
+                        <Users size={12} /> Applicants
+                      </button>
+                      <button onClick={() => navigate(ROUTES.COMPANY_JOB_EDIT?.replace(':id', job._id) || ROUTES.COMPANY_JOBS)} style={{ flex:1, background:C.gray100, color:C.gray600, border:'none', borderRadius:8, padding:'6px', fontSize:11, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:4 }}>
+                        <Eye size={12} /> Edit
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

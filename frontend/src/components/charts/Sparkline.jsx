@@ -1,55 +1,46 @@
 // Sparkline
-// Mini line chart — shows trend data as a small SVG path
-// Example: [2,3,4,5,6,9,12] renders a rising line
+// Mini area + line chart using pure SVG
+// Props: data (number[]), color, w (width), h (height), id (unique string for gradient)
 
-export default function Sparkline({ data = [], color = '#ea580c', width = 60, height = 26 }) {
-  if (!data || data.length < 2) return null;
+import React, { useMemo } from 'react';
 
-  const min  = Math.min(...data);
-  const max  = Math.max(...data);
-  const range = max - min || 1;
+export default function Sparkline({ data = [], color = '#ea580c', w = 100, h = 40, id = 'sp' }) {
+  const paths = useMemo(() => {
+    if (!data || data.length < 2) return null;
 
-  // Convert data values to SVG x,y coordinates
-  const points = data.map((val, i) => {
-    const x = (i / (data.length - 1)) * width;
-    const y = height - ((val - min) / range) * (height - 4) - 2;
-    return `${x},${y}`;
-  });
+    const max = Math.max(...data);
+    const min = Math.min(...data);
+    const range = max - min || 1;
+    const pad = 4;
 
-  const polyline = points.join(' ');
-  const lastPoint = points[points.length - 1].split(',');
+    const pts = data.map((v, i) => ({
+      x: parseFloat(((i / (data.length - 1)) * w).toFixed(2)),
+      y: parseFloat(((h - pad) - ((v - min) / range) * (h - pad * 2)).toFixed(2)),
+    }));
+
+    const line = `M ${pts.map(p => `${p.x} ${p.y}`).join(' L ')}`;
+    const area = `${line} L ${w} ${h} L 0 ${h} Z`;
+    const last = pts[pts.length - 1];
+
+    return { line, area, last };
+  }, [data, w, h]);
+
+  if (!paths) return null;
+
+  const gradId = `sg-${id}`;
 
   return (
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
-      {/* Line */}
-      <polyline
-        points={polyline}
-        fill="none"
-        stroke={color}
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        opacity="0.8"
-      />
-      {/* Dot at end */}
-      <circle
-        cx={lastPoint[0]}
-        cy={lastPoint[1]}
-        r="2.5"
-        fill={color}
-      />
-      {/* Gradient fill under line */}
+    <svg width={w} height={h} style={{ display: 'block', overflow: 'visible' }}>
       <defs>
-        <linearGradient id={`sg-${color.replace('#','')}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"   stopColor={color} stopOpacity="0.15" />
-          <stop offset="100%" stopColor={color} stopOpacity="0"    />
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stopColor={color} stopOpacity="0.28" />
+          <stop offset="100%" stopColor={color} stopOpacity="0.02" />
         </linearGradient>
       </defs>
-      <polyline
-        points={`0,${height} ${polyline} ${width},${height}`}
-        fill={`url(#sg-${color.replace('#','')})`}
-        stroke="none"
-      />
+      <path d={paths.area} fill={`url(#${gradId})`} />
+      <path d={paths.line} fill="none" stroke={color} strokeWidth="1.8"
+        strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx={paths.last.x} cy={paths.last.y} r="2.5" fill={color} />
     </svg>
   );
 }
