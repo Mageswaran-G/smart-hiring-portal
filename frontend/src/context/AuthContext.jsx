@@ -3,6 +3,19 @@ import { API, setTokenGetter, logoutAPI } from '../services/authService';
 
 const AuthContext = createContext();
 
+// ─── Normalize profile from backend ──────────────────────────
+// Backend stores: profilePhoto
+// Frontend uses:  profile.photo (for simplicity everywhere)
+// This function maps profilePhoto → photo so both always work
+const normalizeProfile = (data) => {
+  if (!data) return null;
+  return {
+    ...data,
+    // map profilePhoto → photo so dashboards can use profile.photo
+    photo: data.profilePhoto || data.photo || '',
+  };
+};
+
 export const AuthProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(null);
   const [user,        setUser]        = useState(null);
@@ -41,9 +54,8 @@ export const AuthProvider = ({ children }) => {
   const fetchProfile = async () => {
     try {
       const res = await API.get('/users/profile');
-      setProfile(res.data.data);
+      setProfile(normalizeProfile(res.data.data));  // normalize field names
     } catch (err) {
-      // Profile fetch failed — not critical, page still works
       console.error('Profile fetch failed:', err.message);
     }
   };
@@ -54,10 +66,9 @@ export const AuthProvider = ({ children }) => {
     setAccessToken(token);
     setUser(userData);
     // Fetch profile immediately after login
-    // So dashboard shows photo and data right away
     try {
       const res = await API.get('/users/profile');
-      setProfile(res.data.data);
+      setProfile(normalizeProfile(res.data.data));  // normalize field names
     } catch (err) {
       console.error('Profile fetch after login failed:', err.message);
     }
@@ -85,7 +96,7 @@ export const AuthProvider = ({ children }) => {
         // So profile photo shows in dashboard on page reload
         try {
           const profileRes = await API.get('/users/profile');
-          setProfile(profileRes.data.data);
+          setProfile(normalizeProfile(profileRes.data.data));  // normalize field names
         } catch (err) {
           console.error('Profile fetch after refresh failed:', err.message);
         }
