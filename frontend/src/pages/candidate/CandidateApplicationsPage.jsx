@@ -1,48 +1,87 @@
-// CandidateApplicationsPage.jsx — complete correct file
+// CandidateApplicationsPage
+// Shows candidate's own applications with Load More pagination
 
-import { useState, useEffect }            from 'react';  // ← ADDED
-import { useNavigate }                    from 'react-router-dom';
-import { Briefcase, MapPin, Calendar }    from 'lucide-react';
-import toast                              from 'react-hot-toast';
-import DashboardLayout                    from '../../components/layout/DashboardLayout'; // ← ADDED
-import PageHeader                         from '../../components/ui/PageHeader';
-import EmptyState                         from '../../components/ui/EmptyState';
+import { useState, useEffect, useRef }     from 'react';
+import { useNavigate }                     from 'react-router-dom';
+import { Briefcase, MapPin, Calendar, ChevronDown } from 'lucide-react';
+import toast                               from 'react-hot-toast';
+import DashboardLayout                     from '../../components/layout/DashboardLayout';
+import PageHeader                          from '../../components/ui/PageHeader';
+import EmptyState                          from '../../components/ui/EmptyState';
 import { APPLICATION_STATUS }             from '../../constants/applicationStatus';
-import { getMyApplications }              from '../../services/applicationService';
-import { ROUTES }                         from '../../constants/routes';
+import { getMyApplicationsPaginated }     from '../../services/applicationService';
+import { ROUTES }                          from '../../constants/routes';
+
+const LIMIT = 10; // how many to load per page
 
 export default function CandidateApplicationsPage() {
 
-  const navigate = useNavigate();
+  const navigate    = useNavigate();
+  const fetchedRef  = useRef(false);  // prevent double-fetch
 
   const [applications, setApplications] = useState([]);
   const [loading,      setLoading]      = useState(true);
+  const [loadingMore,  setLoadingMore]  = useState(false);
+  const [page,         setPage]         = useState(1);
+  const [hasMore,      setHasMore]      = useState(false);
+  const [total,        setTotal]        = useState(0);
 
+  // ── Load first page on mount ──────────────────────────────
   useEffect(() => {
-    const fetch = async () => {
-      try {
-        const data = await getMyApplications();
-        setApplications(data);
-      } catch (err) {
-        toast.error('Failed to load applications');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetch();
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+    loadPage(1, true);
   }, []);
+
+  // ── Fetch one page from backend ───────────────────────────
+  // isFirstLoad=true → replaces all data (fresh start)
+  // isFirstLoad=false → appends to existing list (Load More)
+  const loadPage = async (pageNum, isFirstLoad = false) => {
+    try {
+      const { data, pagination } = await getMyApplicationsPaginated(pageNum, LIMIT);
+
+      if (isFirstLoad) {
+        setApplications(data);         // replace — fresh start
+      } else {
+        setApplications(prev => [...prev, ...data]);  // append — Load More
+      }
+
+      setTotal(pagination.total);
+      setHasMore(pagination.hasMore);
+      setPage(pageNum);
+
+    } catch (err) {
+      toast.error('Failed to load applications');
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  };
+
+  // ── Load More button handler ──────────────────────────────
+  const handleLoadMore = () => {
+    setLoadingMore(true);
+    loadPage(page + 1, false);  // next page, append mode
+  };
+
+  // ── Loading state — first load only ──────────────────────
+  const showSkeleton = loading;
 
   return (
     <DashboardLayout>
 
       <PageHeader
         title="My Applications"
-        subtitle="Track all jobs you have applied to"
+        subtitle={
+          loading
+            ? 'Loading...'
+            : `${total} application${total !== 1 ? 's' : ''} total`
+        }
         backRoute={ROUTES.CANDIDATE_DASHBOARD}
       />
 
-      {/* Loading skeleton */}
-      {loading && (
+      {/* ── Loading skeleton — first load ── */}
+      {showSkeleton && (
         <div className="flex flex-col gap-4">
           {[1, 2, 3].map(i => (
             <div key={i} className="bg-white rounded-2xl p-6 animate-pulse border border-gray-100">
@@ -57,8 +96,8 @@ export default function CandidateApplicationsPage() {
         </div>
       )}
 
-      {/* Empty */}
-      {!loading && applications.length === 0 && (
+      {/* ── Empty state ── */}
+      {!showSkeleton && applications.length === 0 && (
         <EmptyState
           icon={<Briefcase size={32} />}
           title="No applications yet"
@@ -69,56 +108,94 @@ export default function CandidateApplicationsPage() {
         />
       )}
 
-      {/* Applications list */}
-      {!loading && applications.length > 0 && (
-        <div className="flex flex-col gap-4">
-          {applications.map((app) => (
-            <div
-              key={app._id}
-              className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
-            >
-              <div>
-                <h3 className="font-sora font-bold text-gray-900 text-lg">
-                  {app.job?.title || 'Job no longer available'}
-                </h3>
-                <p className="text-sm text-gray-500 mt-0.5">
-                  {app.job?.postedBy?.companyName || '—'}
-                </p>
+      {/* ── Applications list ── */}
+      {!showSkeleton && applications.length > 0 && (
+        <>
+          <div className="flex flex-col gap-4">
+            {applications.map((app) => (
+              <div
+                key={app._id}
+                className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+              >
+                <div>
+                  <h3 className="font-sora font-bold text-gray-900 text-lg">
+                    {app.job?.title || 'Job no longer available'}
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-0.5">
+                    {app.job?.postedBy?.companyName || '—'}
+                  </p>
 
-                <div className="flex flex-wrap gap-4 mt-3 text-sm text-gray-400">
-                  {app.job?.location && (
-                    <span className="flex items-center gap-1">
-                      <MapPin size={14} /> {app.job.location}
-                    </span>
-                  )}
-                  {app.createdAt && (
-                    <span className="flex items-center gap-1">
-                      <Calendar size={14} />
-                      Applied {new Date(app.createdAt).toLocaleDateString()}
+                  <div className="flex flex-wrap gap-4 mt-3 text-sm text-gray-400">
+                    {app.job?.location && (
+                      <span className="flex items-center gap-1">
+                        <MapPin size={14} /> {app.job.location}
+                      </span>
+                    )}
+                    {app.createdAt && (
+                      <span className="flex items-center gap-1">
+                        <Calendar size={14} />
+                        Applied {new Date(app.createdAt).toLocaleDateString()}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 shrink-0">
+                  {/* Status Badge */}
+                  <span className={`
+                    px-3 py-1 rounded-full text-xs font-bold
+                    ${APPLICATION_STATUS[app.status]?.color || 'bg-gray-100 text-gray-600'}
+                  `}>
+                    {APPLICATION_STATUS[app.status]?.label || app.status}
+                  </span>
+
+                  {/* Job Type Badge */}
+                  {app.job?.jobType && (
+                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">
+                      {app.job.jobType}
                     </span>
                   )}
                 </div>
               </div>
+            ))}
+          </div>
 
-              <div className="flex items-center gap-3 shrink-0">
-                {/* Status Badge */}
-                <span className={`
-                  px-3 py-1 rounded-full text-xs font-bold
-                  ${APPLICATION_STATUS[app.status]?.color || 'bg-gray-100 text-gray-600'}
-                `}>
-                  {APPLICATION_STATUS[app.status]?.label || app.status}
-                </span>
+          {/* ── Load More button ── */}
+          {hasMore && (
+            <div className="flex flex-col items-center gap-2 mt-6">
+              {/* Progress count */}
+              <p className="text-sm text-gray-400">
+                Showing {applications.length} of {total} applications
+              </p>
 
-                {/* Job Type Badge */}
-                {app.job?.jobType && (
-                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">
-                    {app.job.jobType}
-                  </span>
+              <button
+                onClick={handleLoadMore}
+                disabled={loadingMore}
+                className="flex items-center gap-2 px-6 py-3 rounded-xl border border-orange-200 text-orange-600 font-semibold text-sm hover:bg-orange-50 hover:border-orange-400 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loadingMore ? (
+                  <>
+                    {/* Spinner */}
+                    <span className="w-4 h-4 border-2 border-orange-300 border-t-orange-600 rounded-full animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown size={16} />
+                    Load More Applications
+                  </>
                 )}
-              </div>
+              </button>
             </div>
-          ))}
-        </div>
+          )}
+
+          {/* ── End of list message ── */}
+          {!hasMore && applications.length > 0 && total > LIMIT && (
+            <p className="text-center text-sm text-gray-300 mt-6">
+              All {total} applications loaded
+            </p>
+          )}
+        </>
       )}
 
     </DashboardLayout>
