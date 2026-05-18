@@ -235,18 +235,7 @@ export default function CompanyDashboard() {
           getCompanyApplications(),
           getMyJobs(),
         ]);
-
-        // Backend returns: totalJobs, totalApps, activeJobs, shortlisted, hired
-        // Dashboard uses:  total,     applications, activeCount, shortlisted, hired
-        // Map the field names correctly here so all stats display correctly
-        const raw = statsData || {};
-        setStats({
-          total:        raw.totalJobs     || 0,
-          applications: raw.totalApps     || 0,
-          activeCount:  raw.activeJobs    || 0,
-          shortlisted:  raw.shortlisted   || 0,
-          hired:        raw.hired         || 0,
-        });
+        setStats(statsData || {});
         setApplications(Array.isArray(appsData) ? appsData : []);
         setJobs(Array.isArray(jobsData) ? jobsData : []);
       } catch (err) {
@@ -444,20 +433,20 @@ export default function CompanyDashboard() {
   }
 
   // ════════════════════════════════════════════════════════════
-  // DESKTOP LAYOUT
+  // DESKTOP LAYOUT — wrapped in DashboardLayout for sidebar nav
   // ════════════════════════════════════════════════════════════
   return (
     <DashboardLayout>
     <div style={{ minHeight:'100vh', background:C.gray50, fontFamily:'system-ui,-apple-system,sans-serif' }}>
 
-      {/* ── Desktop Tab Bar + Post Job ── (Logo + User + Logout now in sidebar) */}
-      <header style={{ position:'sticky', top:0, zIndex:50, background:'rgba(255,255,255,0.96)', backdropFilter:'blur(12px)', borderBottom:`1px solid ${C.gray200}`, height:56, padding:'0 24px', display:'flex', alignItems:'center', gap:4 }}>
+      {/* ── Desktop Tab Bar — logo/user/logout in sidebar now ── */}
+      <header style={{ position:'sticky', top:0, zIndex:50, background:'rgba(255,255,255,0.96)', backdropFilter:'blur(12px)', borderBottom:`1px solid ${C.gray200}`, height:52, padding:'0 24px', display:'flex', alignItems:'center', gap:4 }}>
 
         <nav style={{ display:'flex', gap:2, flex:1 }}>
           {[
-            { key:'overview', label:'Overview',    Icon:LayoutDashboard },
-            { key:'jobs',     label:'My Jobs',     Icon:Briefcase },
-            { key:'apps',     label:'Applicants',  Icon:Users },
+            { key:'overview', label:'Overview',   Icon:LayoutDashboard },
+            { key:'jobs',     label:'My Jobs',    Icon:Briefcase },
+            { key:'apps',     label:'Applicants', Icon:Users },
           ].map(({ key, label, Icon }) => {
             const isActive = activeTab === key;
             const badge = key==='jobs' ? jobs.length : key==='apps' ? applications.length : 0;
@@ -475,9 +464,8 @@ export default function CompanyDashboard() {
           })}
         </nav>
 
-        {/* Post New Job button stays in header */}
-        <button onClick={() => navigate(ROUTES.COMPANY_JOB_CREATE)} style={{ display:'flex', alignItems:'center', gap:7, background:C.primary, color:'#fff', border:'none', borderRadius:10, padding:'9px 18px', fontSize:13, fontWeight:700, cursor:'pointer', boxShadow:'0 2px 8px rgba(30,58,95,0.3)' }}>
-          <PlusCircle size={15} /> Post New Job
+        <button onClick={() => navigate(ROUTES.COMPANY_JOB_CREATE)} style={{ display:'flex', alignItems:'center', gap:7, background:C.primary, color:'#fff', border:'none', borderRadius:10, padding:'8px 16px', fontSize:13, fontWeight:700, cursor:'pointer', boxShadow:'0 2px 8px rgba(30,58,95,0.3)' }}>
+          <PlusCircle size={14} /> Post New Job
         </button>
       </header>
 
