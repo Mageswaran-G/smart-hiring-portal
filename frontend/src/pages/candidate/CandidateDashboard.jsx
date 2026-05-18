@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import DashboardLayout from '../../components/layout/DashboardLayout';
 import {
   LayoutDashboard, Briefcase, Bookmark, FileText, User,
   LogOut, ChevronRight, MapPin, Building2, Search, Award,
@@ -418,66 +419,37 @@ export default function CandidateDashboard() {
   // DESKTOP LAYOUT
   // ════════════════════════════════════════════════════════════
   return (
+    <DashboardLayout>
     <div style={{ minHeight:'100vh', background:C.gray50, fontFamily:'system-ui,-apple-system,sans-serif' }}>
 
-      {/* ── Desktop Sticky Header ── */}
-      <header style={{ position:'sticky', top:0, zIndex:50, background:'rgba(255,255,255,0.96)', backdropFilter:'blur(12px)', borderBottom:`1px solid ${C.gray200}`, height:64, padding:'0 32px', display:'flex', alignItems:'center', gap:24 }}>
-
-        {/* Logo */}
-        <div style={{ display:'flex', alignItems:'center', gap:10, flexShrink:0, marginRight:16 }}>
-          <div style={{ width:38, height:38, borderRadius:11, background:C.grad, display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 8px rgba(234,88,12,0.35)' }}>
-            <Briefcase size={19} color="#fff" />
-          </div>
-          <span style={{ fontWeight:900, fontSize:19, color:C.gray900, letterSpacing:'-0.4px' }}>HirePortal</span>
-        </div>
-
-        {/* Tab Navigation */}
-        <nav style={{ display:'flex', gap:4, flex:1 }}>
-          {[
-            { key:'overview', label:'Overview',     Icon:LayoutDashboard },
-            { key:'jobs',     label:'Browse Jobs',  Icon:Briefcase },
-            { key:'saved',    label:'Saved Jobs',   Icon:Bookmark },
-            { key:'apps',     label:'Applications', Icon:FileText },
-            { key:'profile',  label:'My Profile',   Icon:User },
-          ].map(({ key, label, Icon }) => {
-            const isActive = activeTab === key;
-            const badge = key === 'saved' ? savedCount : key === 'apps' ? applications.length : 0;
-            return (
-              <button key={key} onClick={() => handleTab(key)} style={{
-                display:'flex', alignItems:'center', gap:7, padding:'8px 14px', borderRadius:10, border:'none', cursor:'pointer',
-                fontSize:13, fontWeight: isActive ? 700 : 500,
-                background: isActive ? `${C.primary}14` : 'transparent',
-                color: isActive ? C.primary : C.gray500,
-                transition:'all 0.15s', position:'relative',
-              }}>
-                <Icon size={15} strokeWidth={isActive ? 2.5 : 1.8} />
-                {label}
-                {badge > 0 && (
-                  <span style={{ background:C.primary, color:'#fff', fontSize:10, fontWeight:700, borderRadius:9999, minWidth:17, height:17, display:'flex', alignItems:'center', justifyContent:'center', padding:'0 3px' }}>
-                    {badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </nav>
-
-        {/* Right: User Info + Logout */}
-        <div style={{ display:'flex', alignItems:'center', gap:14, flexShrink:0 }}>
-          <div style={{ textAlign:'right' }}>
-            <p style={{ fontSize:13, fontWeight:800, color:C.gray900, margin:0, lineHeight:1.2 }}>{profile?.name || 'Candidate'}</p>
-            <p style={{ fontSize:11, color:C.primary, margin:0, fontWeight:600, lineHeight:1 }}>Candidate</p>
-          </div>
-          {profile?.photo
-            ? <img src={profile.photo} alt="" style={{ width:38, height:38, borderRadius:'50%', objectFit:'cover', border:`2px solid ${C.border}` }} />
-            : <div style={{ width:38, height:38, borderRadius:'50%', background:C.primary, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:15 }}>
-                {(profile?.name||'U')[0].toUpperCase()}
-              </div>
-          }
-          <button onClick={handleLogout} style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 14px', borderRadius:10, border:`1px solid ${C.gray200}`, background:'#fff', color:C.gray600, fontSize:13, fontWeight:600, cursor:'pointer' }}>
-            <LogOut size={14} /> Logout
-          </button>
-        </div>
+      {/* ── Desktop Sticky Tab Bar ── (Logo + User + Logout now in sidebar) */}
+      <header style={{ position:'sticky', top:0, zIndex:50, background:'rgba(255,255,255,0.96)', backdropFilter:'blur(12px)', borderBottom:`1px solid ${C.gray200}`, height:56, padding:'0 24px', display:'flex', alignItems:'center', gap:4 }}>
+        {[
+          { key:'overview', label:'Overview',     Icon:LayoutDashboard },
+          { key:'jobs',     label:'Browse Jobs',  Icon:Briefcase },
+          { key:'saved',    label:'Saved Jobs',   Icon:Bookmark },
+          { key:'apps',     label:'Applications', Icon:FileText },
+        ].map(({ key, label, Icon }) => {
+          const isActive = activeTab === key;
+          const badge = key === 'saved' ? savedCount : key === 'apps' ? applications.length : 0;
+          return (
+            <button key={key} onClick={() => handleTab(key)} style={{
+              display:'flex', alignItems:'center', gap:6, padding:'7px 13px', borderRadius:9, border:'none', cursor:'pointer',
+              fontSize:13, fontWeight: isActive ? 700 : 500,
+              background: isActive ? `${C.primary}14` : 'transparent',
+              color: isActive ? C.primary : C.gray500,
+              transition:'all 0.15s',
+            }}>
+              <Icon size={14} strokeWidth={isActive ? 2.5 : 1.8} />
+              {label}
+              {badge > 0 && (
+                <span style={{ background:C.primary, color:'#fff', fontSize:10, fontWeight:700, borderRadius:9999, minWidth:17, height:17, display:'flex', alignItems:'center', justifyContent:'center', padding:'0 3px' }}>
+                  {badge}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </header>
 
       {/* ── Desktop Hero ── */}
@@ -729,5 +701,6 @@ export default function CandidateDashboard() {
         </div>
       </main>
     </div>
+    </DashboardLayout>
   );
 }
