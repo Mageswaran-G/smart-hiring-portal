@@ -1,141 +1,448 @@
-// CompanyJobsPage.jsx
-// Company sees all their own jobs
-// Can create, edit, delete, toggle active
+// CompanyJobsPage.jsx — Modern redesign
+// Navy theme — #1e3a5f
+// Stats row + Tab filter + Grid/List toggle + Modern job cards
+// All existing API calls maintained
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Briefcase } from 'lucide-react';
+import {
+  Plus, Briefcase, MapPin, Users, Eye, Pencil, Trash2,
+  LayoutGrid, List, Clock, CheckCircle, FileText, TrendingUp,
+  ChevronRight, Building2, Star, AlertCircle, XCircle,
+} from 'lucide-react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
-import JobCard from '../../components/jobs/JobCard';
-import Button from '../../components/ui/Button';
 import { getMyJobs, updateJobStatus, deleteJob } from '../../services/jobService';
+import { getCompanyApplications } from '../../services/applicationService';
 import { ROUTES } from '../../constants/routes';
 import toast from 'react-hot-toast';
-import EmptyState from '../../components/ui/EmptyState';
 
+// ─── Colors ──────────────────────────────────────────────────
+const C = {
+  primary : '#1e3a5f',
+  accent  : '#3b82f6',
+  light   : '#eff6ff',
+  border  : '#bfdbfe',
+  green   : '#059669',
+  amber   : '#d97706',
+  red     : '#dc2626',
+  gray    : '#6b7280',
+  gray50  : '#f9fafb',
+  gray100 : '#f3f4f6',
+  gray200 : '#e5e7eb',
+  gray900 : '#111827',
+};
 
+// ─── Status config ───────────────────────────────────────────
+const STATUS = {
+  published : { label:'Published', color:C.green,   bg:'#d1fae5', border:'#6ee7b7', dot:C.green   },
+  draft     : { label:'Draft',     color:C.amber,   bg:'#fef3c7', border:'#fde68a', dot:'#f59e0b' },
+  closed    : { label:'Closed',    color:C.gray,    bg:C.gray100, border:C.gray200, dot:'#9ca3af' },
+};
 
+// ─── Inline sparkline ─────────────────────────────────────────
+function Sparkline({ data = [], color = C.primary, w = 60, h = 24 }) {
+  if (!data || data.length < 2) return null;
+  const max = Math.max(...data); const min = Math.min(...data); const range = max - min || 1;
+  const pts = data.map((v, i) => ({
+    x: +((i / (data.length - 1)) * w).toFixed(1),
+    y: +((h - 2) - ((v - min) / range) * (h - 4)).toFixed(1),
+  }));
+  const line = `M ${pts.map(p => `${p.x} ${p.y}`).join(' L ')}`;
+  return (
+    <svg width={w} height={h} style={{ display:'block' }}>
+      <path d={line} fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+// ─── Days left helper ─────────────────────────────────────────
+function daysLeft(deadline) {
+  if (!deadline) return null;
+  const d = Math.ceil((new Date(deadline) - new Date()) / 86400000);
+  return d;
+}
+
+function formatDeadline(deadline) {
+  if (!deadline) return 'No deadline';
+  return new Date(deadline).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+}
+
+// ─── Stat Card ────────────────────────────────────────────────
+function StatCard({ label, value, sub, color, Icon, trend }) {
+  return (
+    <div style={{ background:'#fff', borderRadius:16, padding:'18px 20px', border:`1px solid ${C.gray200}` }}>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
+        <div style={{ width:36, height:36, borderRadius:10, background:`${color}18`, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <Icon size={18} color={color} />
+        </div>
+        <Sparkline data={trend} color={color} />
+      </div>
+      <p style={{ fontWeight:800, fontSize:28, color:C.gray900, margin:'0 0 3px', lineHeight:1, letterSpacing:'-0.8px' }}>
+        {value.toLocaleString()}
+      </p>
+      <p style={{ fontSize:13, color:C.gray900, fontWeight:600, margin:'0 0 2px' }}>{label}</p>
+      <p style={{ fontSize:11, color:C.gray }}>{sub}</p>
+    </div>
+  );
+}
+
+// ─── Modern Job Card ──────────────────────────────────────────
+function JobCard({ job, onToggle, onDelete, onEdit, onViewApplicants, view }) {
+  const st    = STATUS[job.status?.toLowerCase()] || STATUS.draft;
+  const dl    = daysLeft(job.deadline);
+  const isList = view === 'list';
+
+  const accentColor =
+    job.status === 'published' ? C.green :
+    job.status === 'draft'     ? C.amber :
+    C.gray;
+
+  return (
+    <div
+      style={{
+        background:'#fff', borderRadius:18, border:`1px solid ${C.gray200}`,
+        overflow:'hidden', position:'relative',
+        display: isList ? 'grid' : 'flex',
+        gridTemplateColumns: isList ? '2fr 1fr 1fr 180px' : undefined,
+        flexDirection: isList ? undefined : 'column',
+        gap: isList ? 20 : 0,
+        alignItems: isList ? 'center' : 'stretch',
+        padding: isList ? '16px 24px' : 0,
+        transition:'box-shadow 0.15s, transform 0.15s, border-color 0.15s',
+      }}
+      onMouseEnter={e => { e.currentTarget.style.boxShadow=`0 8px 28px ${C.primary}1a`; e.currentTarget.style.borderColor=C.border; e.currentTarget.style.transform='translateY(-2px)'; }}
+      onMouseLeave={e => { e.currentTarget.style.boxShadow='none'; e.currentTarget.style.borderColor=C.gray200; e.currentTarget.style.transform='translateY(0)'; }}
+    >
+      {/* Top accent bar — only in grid view */}
+      {!isList && (
+        <div style={{ height:3, background: job.status === 'published' ? `linear-gradient(90deg, ${C.primary}, ${C.accent})` : job.status === 'draft' ? C.amber : C.gray }} />
+      )}
+
+      {/* Card body */}
+      <div style={{ padding: isList ? 0 : '18px 20px', flex: isList ? undefined : 1, display:'flex', flexDirection:'column', gap: isList ? 0 : 0 }}>
+
+        {/* Header */}
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom: isList ? 4 : 12 }}>
+          <div style={{ flex:1, minWidth:0 }}>
+            {/* Status badge */}
+            <div style={{ display:'inline-flex', alignItems:'center', gap:5, padding:'2px 9px', borderRadius:9999, background:st.bg, border:`1px solid ${st.border}`, marginBottom:6 }}>
+              <span style={{ width:6, height:6, borderRadius:'50%', background:st.dot, display:'inline-block' }} />
+              <span style={{ fontSize:10.5, fontWeight:700, color:st.color }}>{st.label}</span>
+            </div>
+            {/* Title */}
+            <h3 style={{ fontWeight:800, fontSize: isList ? 15 : 17, color:C.gray900, margin:0, lineHeight:1.2, letterSpacing:'-0.3px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace: isList ? 'nowrap' : 'normal' }}>
+              {job.title}
+            </h3>
+          </div>
+          {!isList && (
+            <button
+              onClick={() => onDelete(job._id)}
+              style={{ background:'transparent', border:'none', cursor:'pointer', color:C.gray, padding:'4px', borderRadius:6, flexShrink:0 }}
+              title="Delete job"
+            >
+              <XCircle size={16} />
+            </button>
+          )}
+        </div>
+
+        {/* Meta — grid view */}
+        {!isList && (
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:14 }}>
+            {[
+              { Icon:MapPin,    val:job.location              },
+              { Icon:Briefcase, val:`${job.jobType} · ${job.workMode}` },
+              { Icon:Users,     val:`${job.openings} opening${job.openings !== 1 ? 's' : ''}` },
+              { Icon:FileText,  val:`${job.applicationsCount || 0} applied`, color:C.accent },
+            ].map(({ Icon, val, color }, i) => (
+              <div key={i} style={{ display:'flex', alignItems:'center', gap:6 }}>
+                <Icon size={13} color={color || C.gray} style={{ flexShrink:0 }} />
+                <span style={{ fontSize:12, color: color || '#4b5563', fontWeight:500, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{val}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Applicant progress — grid view */}
+        {!isList && (
+          <div style={{ background:C.gray50, borderRadius:11, padding:'12px 14px', marginBottom:12 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline', marginBottom:6 }}>
+              <div>
+                <p style={{ fontSize:10, color:C.gray, fontWeight:700, letterSpacing:0.5, textTransform:'uppercase', margin:'0 0 2px' }}>Applicants</p>
+                <p style={{ fontWeight:800, fontSize:20, color:C.gray900, margin:0, letterSpacing:'-0.5px', lineHeight:1 }}>
+                  {job.applicationsCount || 0}
+                </p>
+              </div>
+              <div style={{ textAlign:'right' }}>
+                <p style={{ fontSize:10, color:C.gray, fontWeight:700, letterSpacing:0.5, textTransform:'uppercase', margin:'0 0 2px' }}>Deadline</p>
+                <p style={{ fontSize:12, fontWeight:600, color:C.gray900, margin:0 }}>{formatDeadline(job.deadline)}</p>
+              </div>
+            </div>
+            {/* Deadline countdown */}
+            {dl !== null && (
+              <p style={{ fontSize:11, marginTop:6, color: dl < 0 ? C.red : dl <= 3 ? C.amber : C.gray, display:'flex', alignItems:'center', gap:4, margin:0 }}>
+                <Clock size={11} />
+                {dl < 0 ? `Expired ${Math.abs(dl)}d ago` : dl === 0 ? 'Expires today' : `${dl} days left`}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Skills — grid view */}
+        {!isList && job.skillsRequired?.length > 0 && (
+          <div style={{ display:'flex', gap:5, flexWrap:'wrap', marginBottom:14 }}>
+            {job.skillsRequired.slice(0, 3).map(s => (
+              <span key={s} style={{ fontSize:10.5, padding:'2px 8px', borderRadius:5, background:C.gray50, color:'#4b5563', border:`1px solid ${C.gray200}` }}>{s}</span>
+            ))}
+            {job.skillsRequired.length > 3 && (
+              <span style={{ fontSize:10.5, padding:'2px 8px', borderRadius:5, background:C.gray50, color:C.gray, border:`1px solid ${C.gray200}` }}>+{job.skillsRequired.length - 3}</span>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* List view additional columns */}
+      {isList && (
+        <>
+          <div>
+            <p style={{ fontSize:9.5, color:C.gray, fontWeight:700, letterSpacing:0.5, textTransform:'uppercase', margin:'0 0 3px' }}>Type / Mode</p>
+            <p style={{ fontSize:13, fontWeight:600, color:C.gray900, margin:'0 0 2px' }}>{job.jobType} · {job.workMode}</p>
+            <p style={{ fontSize:11, color:C.gray, display:'flex', alignItems:'center', gap:4, margin:0 }}>
+              <MapPin size={10} /> {job.location}
+            </p>
+          </div>
+          <div>
+            <p style={{ fontSize:9.5, color:C.gray, fontWeight:700, letterSpacing:0.5, textTransform:'uppercase', margin:'0 0 3px' }}>Applicants</p>
+            <p style={{ fontWeight:800, fontSize:20, color:C.accent, margin:'0 0 2px', letterSpacing:'-0.5px', lineHeight:1 }}>{job.applicationsCount || 0}</p>
+            <p style={{ fontSize:10.5, color:C.gray, margin:0 }}>{job.openings} opening{job.openings !== 1 ? 's' : ''}</p>
+          </div>
+        </>
+      )}
+
+      {/* Footer — toggle + actions */}
+      <div style={{ padding: isList ? 0 : '0 20px 16px', display:'flex', alignItems:'center', gap:10, marginTop: isList ? 0 : 'auto' }}>
+        {/* Active/Inactive toggle */}
+        <button
+          onClick={() => onToggle(job._id, !job.isActive)}
+          style={{
+            width:38, height:22, borderRadius:11, padding:2, border:'none', cursor:'pointer',
+            background: job.isActive ? C.green : C.gray200, position:'relative', transition:'background 0.2s', flexShrink:0,
+          }}
+        >
+          <div style={{
+            width:18, height:18, borderRadius:'50%', background:'#fff',
+            transform: job.isActive ? 'translateX(16px)' : 'translateX(0)',
+            transition:'transform 0.2s', boxShadow:'0 1px 3px rgba(0,0,0,0.2)',
+          }} />
+        </button>
+        <span style={{ fontSize:11.5, color: job.isActive ? C.green : C.gray, fontWeight:600 }}>
+          {job.isActive ? 'Active' : 'Paused'}
+        </span>
+
+        <div style={{ flex:1 }} />
+
+        {/* Action buttons */}
+        <button onClick={() => onViewApplicants()} title="View applicants" style={{ width:32, height:32, borderRadius:8, background:'transparent', border:`1px solid ${C.gray200}`, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'#4b5563' }}>
+          <Users size={14} />
+        </button>
+        <button onClick={() => onEdit(job._id)} title="Edit" style={{ width:32, height:32, borderRadius:8, background:'transparent', border:`1px solid ${C.gray200}`, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'#4b5563' }}>
+          <Pencil size={14} />
+        </button>
+        {isList && (
+          <button onClick={() => onDelete(job._id)} title="Delete" style={{ width:32, height:32, borderRadius:8, background:'#fef2f2', border:'1px solid #fecaca', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:C.red }}>
+            <Trash2 size={14} />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────
 export default function CompanyJobsPage() {
-  const navigate = useNavigate();
-  const [jobs, setJobs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const navigate    = useNavigate();
+  const fetchedRef  = useRef(false);
 
-  // Fetch all company's jobs on page load
+  const [jobs,    setJobs]    = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [tab,     setTab]     = useState('all');
+  const [view,    setView]    = useState('grid');  // 'grid' | 'list'
+
   useEffect(() => {
-    fetchJobs();
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+    (async () => {
+      try {
+        const data = await getMyJobs();
+        setJobs(data || []);
+      } catch {
+        toast.error('Failed to load jobs');
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
-  const fetchJobs = async () => {
+  // ── Handlers ──────────────────────────────────────────────
+  const handleToggle = async (id, isActive) => {
     try {
-      setLoading(true);
-      const data = await getMyJobs();
-      setJobs(data || []);   
-    } catch (err) {
-      setError('Failed to load jobs. Please try again.');
-    } finally {
-      setLoading(false);
+      await updateJobStatus(id, { isActive });
+      setJobs(prev => prev.map(j => j._id === id ? { ...j, isActive } : j));
+      toast.success(isActive ? 'Job is now Active' : 'Job is now Inactive');
+    } catch {
+      toast.error('Failed to update status');
     }
   };
 
-  // Toggle job active/inactive
-  const handleToggleStatus = async (id, isActive) => {
-  try {
-    await updateJobStatus(id, { isActive });
-    setJobs(prev =>
-      prev.map(job => job._id === id ? { ...job, isActive } : job)
-    );
-    // Simple feedback — shows green or red message
-    toast.success(isActive ? 'Job is now Active — visible to candidates' : 'Job is now Inactive — hidden from candidates');
-  } catch (err) {
-    toast.error('Failed to update status. Try again.');
-  }
-  };
-
-  // Delete job with confirmation
   const handleDelete = async (id) => {
-    const confirmed = window.confirm('Are you sure you want to delete this job?');
-    if (!confirmed) return;
-
+    if (!window.confirm('Delete this job? This cannot be undone.')) return;
     try {
       await deleteJob(id);
-      // Remove from local state
-      setJobs(prev => prev.filter(job => job._id !== id));
-    } catch (err) {
-      toast.error('Failed to delete job. Try again.');
+      setJobs(prev => prev.filter(j => j._id !== id));
+      toast.success('Job deleted');
+    } catch {
+      toast.error('Failed to delete job');
     }
   };
+
+  // ── Derived stats ─────────────────────────────────────────
+  const published   = jobs.filter(j => j.status === 'published').length;
+  const drafts      = jobs.filter(j => j.status === 'draft').length;
+  const closed      = jobs.filter(j => j.status === 'closed').length;
+  const totalApps   = jobs.reduce((sum, j) => sum + (j.applicationsCount || 0), 0);
+
+  // ── Tab filter ────────────────────────────────────────────
+  const TABS = [
+    { id:'all',       label:'All Jobs',  count:jobs.length },
+    { id:'published', label:'Published', count:published   },
+    { id:'draft',     label:'Draft',     count:drafts      },
+    { id:'closed',    label:'Closed',    count:closed      },
+  ];
+
+  const filtered = tab === 'all' ? jobs : jobs.filter(j => j.status === tab);
+
+  // ── Loading skeletons ─────────────────────────────────────
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:24 }}>
+          {[1,2,3,4].map(i => <div key={i} style={{ height:110, background:'#fff', borderRadius:16, border:`1px solid ${C.gray200}`, animation:'pulse 1.5s ease-in-out infinite' }} />)}
+        </div>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16 }}>
+          {[1,2,3].map(i => <div key={i} style={{ height:340, background:'#fff', borderRadius:18, border:`1px solid ${C.gray200}`, animation:'pulse 1.5s ease-in-out infinite' }} />)}
+        </div>
+        <style>{`@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.5} }`}</style>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      {/* ── Page Header ── */}
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end', marginBottom:24 }}>
         <div>
-          <h1 className="font-sora text-2xl font-bold text-gray-900">
-            My Job Postings
+          <p style={{ fontSize:11.5, color:C.accent, fontWeight:700, letterSpacing:2, textTransform:'uppercase', margin:'0 0 6px' }}>
+            Hiring · {jobs.length} posting{jobs.length !== 1 ? 's' : ''}
+          </p>
+          <h1 style={{ fontWeight:900, fontSize:32, color:C.gray900, margin:'0 0 6px', letterSpacing:'-1px', lineHeight:1 }}>
+            My Job <span style={{ color:C.primary }}>Postings</span>
           </h1>
-          <p className="text-sm text-gray-400 mt-1">
-            Manage all your job and internship listings
+          <p style={{ fontSize:14, color:C.gray, margin:0, maxWidth:460 }}>
+            Manage all your job and internship listings. Track applicants, edit details, and close roles when filled.
           </p>
         </div>
-        <Button
+        <button
           onClick={() => navigate(ROUTES.COMPANY_JOB_CREATE)}
+          style={{ display:'flex', alignItems:'center', gap:8, padding:'11px 22px', borderRadius:12, background:C.primary, color:'#fff', border:'none', cursor:'pointer', fontSize:14, fontWeight:700, boxShadow:`0 6px 20px ${C.primary}40` }}
         >
           <Plus size={16} /> Post New Job
-        </Button>
+        </button>
       </div>
 
-      {/* Loading state */}
-      {loading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="bg-white rounded-2xl p-5 animate-pulse">
-              <div className="h-4 bg-gray-200 rounded mb-3 w-3/4" />
-              <div className="h-3 bg-gray-100 rounded mb-2 w-1/2" />
-              <div className="h-3 bg-gray-100 rounded mb-4 w-1/3" />
-              <div className="h-8 bg-gray-100 rounded w-1/4" />
-            </div>
+      {/* ── Stats Row ── */}
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:24 }}>
+        <StatCard label="Published"  value={published}  sub="live and visible"    color={C.green}   Icon={CheckCircle}  trend={[0,1,1,2,2,3,published]} />
+        <StatCard label="In Draft"   value={drafts}     sub="not yet published"   color={C.amber}   Icon={Clock}        trend={[0,0,0,1,1,1,drafts]}     />
+        <StatCard label="Applicants" value={totalApps}  sub="across all jobs"     color={C.accent}  Icon={Users}        trend={[0,2,4,6,8,10,totalApps]} />
+        <StatCard label="Total Jobs" value={jobs.length} sub="posted"             color={C.primary} Icon={Briefcase}    trend={[0,1,2,3,4,5,jobs.length]} />
+      </div>
+
+      {/* ── Tabs + View Toggle Bar ── */}
+      <div style={{ background:'#fff', border:`1px solid ${C.gray200}`, borderRadius:16, padding:'10px 14px', marginBottom:18, display:'flex', alignItems:'center', gap:14 }}>
+
+        {/* Tabs */}
+        <div style={{ display:'flex', gap:2 }}>
+          {TABS.map(t => (
+            <button key={t.id} onClick={() => setTab(t.id)} style={{ padding:'7px 13px', borderRadius:8, border:'none', cursor:'pointer', background: tab === t.id ? C.primary : 'transparent', color: tab === t.id ? '#fff' : '#4b5563', fontSize:12.5, fontWeight: tab === t.id ? 700 : 500, display:'inline-flex', alignItems:'center', gap:6 }}>
+              {t.label}
+              <span style={{ background: tab === t.id ? 'rgba(255,255,255,0.25)' : C.gray100, color: tab === t.id ? '#fff' : C.gray, padding:'1px 7px', borderRadius:6, fontSize:10.5, fontWeight:700 }}>
+                {t.count}
+              </span>
+            </button>
           ))}
         </div>
-      )}
 
-      {/* Error state */}
-      {error && !loading && (
-        <div className="bg-red-50 text-red-600 rounded-xl p-4 text-sm">
-          {error}
+        <div style={{ flex:1 }} />
+
+        {/* Grid/List toggle */}
+        <div style={{ display:'flex', gap:0, background:C.gray50, padding:2, borderRadius:8, border:`1px solid ${C.gray200}` }}>
+          {[{ v:'grid', Icon:LayoutGrid }, { v:'list', Icon:List }].map(({ v, Icon }) => (
+            <button key={v} onClick={() => setView(v)} style={{ padding:'6px 10px', borderRadius:6, border:'none', cursor:'pointer', background: view === v ? '#fff' : 'transparent', color: view === v ? C.gray900 : C.gray, boxShadow: view === v ? '0 1px 3px rgba(0,0,0,0.08)' : 'none', display:'flex', alignItems:'center' }}>
+              <Icon size={15} />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Empty state ── */}
+      {filtered.length === 0 && (
+        <div style={{ textAlign:'center', padding:'60px 20px', background:'#fff', borderRadius:18, border:`1px solid ${C.gray200}` }}>
+          <div style={{ width:64, height:64, borderRadius:'50%', background:`${C.primary}12`, display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 16px' }}>
+            <Briefcase size={28} color={C.primary} />
+          </div>
+          <p style={{ fontWeight:800, fontSize:18, color:C.gray900, margin:'0 0 6px' }}>No jobs found</p>
+          <p style={{ color:C.gray, fontSize:14, margin:'0 0 20px' }}>
+            {tab === 'all' ? 'Post your first job to start receiving applications' : `No ${tab} jobs yet`}
+          </p>
+          <button onClick={() => navigate(ROUTES.COMPANY_JOB_CREATE)} style={{ background:C.primary, color:'#fff', border:'none', borderRadius:12, padding:'11px 24px', fontSize:14, fontWeight:700, cursor:'pointer' }}>
+            Post New Job
+          </button>
         </div>
       )}
 
-      {/* Empty state */}
-      {jobs.length === 0 && !loading && (
-        <EmptyState
-          icon={<Briefcase size={32} />}
-          title="No jobs posted yet"
-          subtitle="Create your first job listing to start receiving applications"
-          actionLabel="Post New Job"
-          onAction={() => navigate(ROUTES.COMPANY_JOB_CREATE)}
-          variant="company"
-        />
-      )}
+      {/* ── Jobs Grid / List ── */}
+      {filtered.length > 0 && (
+        <div style={{ display: view === 'grid' ? 'grid' : 'flex', gridTemplateColumns: view === 'grid' ? 'repeat(3,1fr)' : undefined, flexDirection: view === 'list' ? 'column' : undefined, gap:16 }}>
+          {filtered.map(job => (
+            <JobCard
+              key={job._id}
+              job={job}
+              view={view}
+              onToggle={handleToggle}
+              onDelete={handleDelete}
+              onEdit={(id) => navigate(ROUTES.COMPANY_JOB_EDIT.replace(':id', id))}
+              onViewApplicants={() => navigate(ROUTES.COMPANY_APPLICATIONS)}
+            />
+          ))}
 
-      {/* Jobs grid */}
-      {!loading && !error && jobs.length > 0 && (
-        <>
-          <p className="text-sm text-gray-400 mb-4">
-            {jobs.length} job{jobs.length !== 1 ? 's' : ''} posted
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {jobs.map(job => (
-              <JobCard
-                key={job._id}
-                job={job}
-                onToggleStatus={handleToggleStatus}
-                onDelete={handleDelete}
-              />
-            ))}
-          </div>
-        </>
+          {/* "Post New Job" empty card — grid view only */}
+          {view === 'grid' && (
+            <div
+              onClick={() => navigate(ROUTES.COMPANY_JOB_CREATE)}
+              style={{ border:`2px dashed ${C.gray200}`, borderRadius:18, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'40px 20px', minHeight:340, cursor:'pointer', transition:'border-color 0.15s, background 0.15s' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor=C.accent; e.currentTarget.style.background=C.light; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor=C.gray200; e.currentTarget.style.background='transparent'; }}
+            >
+              <div style={{ width:60, height:60, borderRadius:'50%', background:`${C.primary}12`, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:14 }}>
+                <Plus size={28} color={C.primary} />
+              </div>
+              <p style={{ fontWeight:800, fontSize:16, color:C.gray900, margin:'0 0 5px' }}>Post a New Job</p>
+              <p style={{ fontSize:12, color:C.gray, textAlign:'center', maxWidth:180, margin:0 }}>
+                Reach 1000+ candidates with one click
+              </p>
+            </div>
+          )}
+        </div>
       )}
 
     </DashboardLayout>
