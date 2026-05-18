@@ -3,7 +3,7 @@
 // Self-contained: includes inline ProgressRing + Sparkline (no external chart imports needed)
 // Fully responsive: desktop grid layout + mobile stacked layout with bottom tab bar
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Briefcase, Bookmark, FileText, User,
@@ -196,8 +196,12 @@ export default function CandidateDashboard() {
   const [jobs,          setJobs]          = useState([]);
   const [loading,       setLoading]       = useState(true);
 
+  const fetchedRef = useRef(false);   // ← prevents double-fetch in development
+
   // ── Fetch all data on mount ──
   useEffect(() => {
+    if (fetchedRef.current) return;   // ← skip if already fetched
+    fetchedRef.current = true;
     (async () => {
       try {
         const [apps, savedIds, jobsRes] = await Promise.all([
@@ -500,9 +504,13 @@ export default function CandidateDashboard() {
               )}
               {profile?.skills?.length > 0 && (
                 <div style={{ display:'flex', gap:7, flexWrap:'wrap' }}>
-                  {profile.skills.slice(0, 5).map(sk => (
-                    <span key={sk} style={{ background:'rgba(255,255,255,0.18)', color:'#fff', fontSize:11, fontWeight:600, borderRadius:9999, padding:'3px 11px', border:'1px solid rgba(255,255,255,0.2)' }}>{sk}</span>
-                  ))}
+                  {profile.skills.slice(0, 5).map((sk, i) => {
+                    const label = typeof sk === 'string' ? sk : (sk?.name || sk?.skill || '');
+                    if (!label) return null;
+                    return (
+                      <span key={i} style={{ background:'rgba(255,255,255,0.18)', color:'#fff', fontSize:11, fontWeight:600, borderRadius:9999, padding:'3px 11px', border:'1px solid rgba(255,255,255,0.2)' }}>{label}</span>
+                    );
+                  })}
                 </div>
               )}
             </div>
