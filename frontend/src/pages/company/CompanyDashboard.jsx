@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import DashboardLayout from '../../components/layout/DashboardLayout';
 import {
   LayoutDashboard, Briefcase, Users, PlusCircle, User,
   LogOut, ChevronRight, Building2, MapPin, CheckCircle,
@@ -234,7 +235,18 @@ export default function CompanyDashboard() {
           getCompanyApplications(),
           getMyJobs(),
         ]);
-        setStats(statsData || {});
+
+        // Backend returns: totalJobs, totalApps, activeJobs, shortlisted, hired
+        // Dashboard uses:  total,     applications, activeCount, shortlisted, hired
+        // Map the field names correctly here so all stats display correctly
+        const raw = statsData || {};
+        setStats({
+          total:        raw.totalJobs     || 0,
+          applications: raw.totalApps     || 0,
+          activeCount:  raw.activeJobs    || 0,
+          shortlisted:  raw.shortlisted   || 0,
+          hired:        raw.hired         || 0,
+        });
         setApplications(Array.isArray(appsData) ? appsData : []);
         setJobs(Array.isArray(jobsData) ? jobsData : []);
       } catch (err) {
@@ -435,30 +447,23 @@ export default function CompanyDashboard() {
   // DESKTOP LAYOUT
   // ════════════════════════════════════════════════════════════
   return (
+    <DashboardLayout>
     <div style={{ minHeight:'100vh', background:C.gray50, fontFamily:'system-ui,-apple-system,sans-serif' }}>
 
-      {/* ── Desktop Header ── */}
-      <header style={{ position:'sticky', top:0, zIndex:50, background:'rgba(255,255,255,0.96)', backdropFilter:'blur(12px)', borderBottom:`1px solid ${C.gray200}`, height:64, padding:'0 32px', display:'flex', alignItems:'center', gap:24 }}>
+      {/* ── Desktop Tab Bar + Post Job ── (Logo + User + Logout now in sidebar) */}
+      <header style={{ position:'sticky', top:0, zIndex:50, background:'rgba(255,255,255,0.96)', backdropFilter:'blur(12px)', borderBottom:`1px solid ${C.gray200}`, height:56, padding:'0 24px', display:'flex', alignItems:'center', gap:4 }}>
 
-        <div style={{ display:'flex', alignItems:'center', gap:10, flexShrink:0, marginRight:16 }}>
-          <div style={{ width:38, height:38, borderRadius:11, background:C.grad, display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 10px rgba(30,58,95,0.4)' }}>
-            <Building2 size={19} color="#fff" />
-          </div>
-          <span style={{ fontWeight:900, fontSize:19, color:C.gray900, letterSpacing:'-0.4px' }}>HirePortal</span>
-        </div>
-
-        <nav style={{ display:'flex', gap:4, flex:1 }}>
+        <nav style={{ display:'flex', gap:2, flex:1 }}>
           {[
             { key:'overview', label:'Overview',    Icon:LayoutDashboard },
             { key:'jobs',     label:'My Jobs',     Icon:Briefcase },
             { key:'apps',     label:'Applicants',  Icon:Users },
-            { key:'profile',  label:'Company Profile', Icon:User },
           ].map(({ key, label, Icon }) => {
             const isActive = activeTab === key;
             const badge = key==='jobs' ? jobs.length : key==='apps' ? applications.length : 0;
             return (
-              <button key={key} onClick={() => handleTab(key)} style={{ display:'flex', alignItems:'center', gap:7, padding:'8px 14px', borderRadius:10, border:'none', cursor:'pointer', fontSize:13, fontWeight: isActive ? 700 : 500, background: isActive ? `${C.primary}14` : 'transparent', color: isActive ? C.primary : C.gray500, transition:'all 0.15s' }}>
-                <Icon size={15} strokeWidth={isActive ? 2.5 : 1.8} />
+              <button key={key} onClick={() => handleTab(key)} style={{ display:'flex', alignItems:'center', gap:6, padding:'7px 13px', borderRadius:9, border:'none', cursor:'pointer', fontSize:13, fontWeight: isActive ? 700 : 500, background: isActive ? `${C.primary}14` : 'transparent', color: isActive ? C.primary : C.gray500, transition:'all 0.15s' }}>
+                <Icon size={14} strokeWidth={isActive ? 2.5 : 1.8} />
                 {label}
                 {badge > 0 && (
                   <span style={{ background:C.primary, color:'#fff', fontSize:10, fontWeight:700, borderRadius:9999, minWidth:17, height:17, display:'flex', alignItems:'center', justifyContent:'center', padding:'0 3px' }}>
@@ -470,19 +475,10 @@ export default function CompanyDashboard() {
           })}
         </nav>
 
-        <div style={{ display:'flex', alignItems:'center', gap:14, flexShrink:0 }}>
-          <button onClick={() => navigate(ROUTES.COMPANY_JOB_CREATE)} style={{ display:'flex', alignItems:'center', gap:7, background:C.primary, color:'#fff', border:'none', borderRadius:11, padding:'10px 18px', fontSize:14, fontWeight:700, cursor:'pointer', boxShadow:'0 2px 8px rgba(30,58,95,0.3)' }}>
-            <PlusCircle size={16} /> Post New Job
-          </button>
-          <div style={{ textAlign:'right' }}>
-            <p style={{ fontSize:13, fontWeight:800, color:C.gray900, margin:0, lineHeight:1.2 }}>{profile?.companyName || profile?.name || 'Company'}</p>
-            <p style={{ fontSize:11, color:C.primary, margin:0, fontWeight:600 }}>Company</p>
-          </div>
-          <CompanyAvatar profile={profile} size={38} border={`2px solid ${C.border}`} />
-          <button onClick={handleLogout} style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 14px', borderRadius:10, border:`1px solid ${C.gray200}`, background:'#fff', color:C.gray600, fontSize:13, fontWeight:600, cursor:'pointer' }}>
-            <LogOut size={14} /> Logout
-          </button>
-        </div>
+        {/* Post New Job button stays in header */}
+        <button onClick={() => navigate(ROUTES.COMPANY_JOB_CREATE)} style={{ display:'flex', alignItems:'center', gap:7, background:C.primary, color:'#fff', border:'none', borderRadius:10, padding:'9px 18px', fontSize:13, fontWeight:700, cursor:'pointer', boxShadow:'0 2px 8px rgba(30,58,95,0.3)' }}>
+          <PlusCircle size={15} /> Post New Job
+        </button>
       </header>
 
       {/* ── Desktop Hero ── */}
@@ -741,5 +737,6 @@ export default function CompanyDashboard() {
         </div>
       </main>
     </div>
+    </DashboardLayout>
   );
 }
