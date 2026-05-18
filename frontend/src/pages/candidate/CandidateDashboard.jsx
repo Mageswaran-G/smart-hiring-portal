@@ -416,14 +416,16 @@ export default function CandidateDashboard() {
   }
 
   // ════════════════════════════════════════════════════════════
-  // DESKTOP LAYOUT
+  // DESKTOP LAYOUT — wrapped in DashboardLayout for sidebar nav
+  // Sidebar provides: logo, user info, nav links, logout
+  // Header here provides: quick tab navigation only
   // ════════════════════════════════════════════════════════════
   return (
     <DashboardLayout>
     <div style={{ minHeight:'100vh', background:C.gray50, fontFamily:'system-ui,-apple-system,sans-serif' }}>
 
-      {/* ── Desktop Sticky Tab Bar ── (Logo + User + Logout now in sidebar) */}
-      <header style={{ position:'sticky', top:0, zIndex:50, background:'rgba(255,255,255,0.96)', backdropFilter:'blur(12px)', borderBottom:`1px solid ${C.gray200}`, height:56, padding:'0 24px', display:'flex', alignItems:'center', gap:4 }}>
+      {/* ── Desktop Tab Bar — logo/user/logout live in sidebar ── */}
+      <header style={{ position:'sticky', top:0, zIndex:50, background:'rgba(255,255,255,0.96)', backdropFilter:'blur(12px)', borderBottom:`1px solid ${C.gray200}`, height:52, padding:'0 24px', display:'flex', alignItems:'center', gap:4 }}>
         {[
           { key:'overview', label:'Overview',     Icon:LayoutDashboard },
           { key:'jobs',     label:'Browse Jobs',  Icon:Briefcase },
@@ -434,8 +436,9 @@ export default function CandidateDashboard() {
           const badge = key === 'saved' ? savedCount : key === 'apps' ? applications.length : 0;
           return (
             <button key={key} onClick={() => handleTab(key)} style={{
-              display:'flex', alignItems:'center', gap:6, padding:'7px 13px', borderRadius:9, border:'none', cursor:'pointer',
-              fontSize:13, fontWeight: isActive ? 700 : 500,
+              display:'flex', alignItems:'center', gap:6, padding:'7px 14px', borderRadius:9,
+              border:'none', cursor:'pointer', fontSize:13,
+              fontWeight: isActive ? 700 : 500,
               background: isActive ? `${C.primary}14` : 'transparent',
               color: isActive ? C.primary : C.gray500,
               transition:'all 0.15s',
