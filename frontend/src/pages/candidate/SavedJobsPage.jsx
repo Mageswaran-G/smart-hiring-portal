@@ -1,27 +1,41 @@
 // SavedJobsPage.jsx — complete correct file
 
-import { useState, useEffect }              from 'react';  // ← ADDED
+import { useState, useEffect }              from 'react';
 import { useNavigate }                      from 'react-router-dom';
-import { Bookmark, MapPin, Briefcase }      from 'lucide-react';
+import { Bookmark, MapPin, Briefcase, CheckCircle } from 'lucide-react';
 import toast                                from 'react-hot-toast';
-import DashboardLayout                      from '../../components/layout/DashboardLayout'; // ← ADDED
+import DashboardLayout                      from '../../components/layout/DashboardLayout';
 import PageHeader                           from '../../components/ui/PageHeader';
 import EmptyState                           from '../../components/ui/EmptyState';
 import { getSavedJobs, unsaveJob }          from '../../services/savedJobService';
+import { getMyApplications }               from '../../services/applicationService';
 import { ROUTES }                           from '../../constants/routes';
 
 export default function SavedJobsPage() {
 
   const navigate = useNavigate();
 
-  const [saved,   setSaved]   = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [saved,       setSaved]       = useState([]);
+  const [appliedIds,  setAppliedIds]  = useState(new Set()); // set of job IDs already applied
+  const [loading,     setLoading]     = useState(true);
 
   useEffect(() => {
     const fetch = async () => {
       try {
-        const data = await getSavedJobs();
-        setSaved(data);
+        // Load saved jobs AND applied jobs together
+        const [savedData, appsData] = await Promise.all([
+          getSavedJobs(),
+          getMyApplications().catch(() => []),  // don't fail if this errors
+        ]);
+
+        setSaved(savedData || []);
+
+        // Build a Set of job IDs already applied — for fast lookup
+        const ids = new Set(
+          (appsData || []).map(a => String(a.job?._id)).filter(Boolean)
+        );
+        setAppliedIds(ids);
+
       } catch (err) {
         toast.error('Failed to load saved jobs');
       } finally {
@@ -31,7 +45,6 @@ export default function SavedJobsPage() {
     fetch();
   }, []);
 
-  // ← ADDED — was missing entirely
   const handleUnsave = async (jobId) => {
     try {
       await unsaveJob(jobId);
@@ -40,6 +53,11 @@ export default function SavedJobsPage() {
     } catch (err) {
       toast.error('Failed to remove saved job');
     }
+  };
+
+  // Navigate to job detail page — let that page handle the apply flow
+  const handleApply = (job) => {
+    navigate(ROUTES.JOB_DETAILS.replace(':slug', job.slug || job._id));
   };
 
   return (
@@ -124,12 +142,24 @@ export default function SavedJobsPage() {
                     <Bookmark size={15} className="fill-current" />
                     Remove
                   </button>
-                  <button
-                    onClick={() => navigate(ROUTES.JOB_DETAILS.replace(':slug', job.slug || job._id))}
-                    className="bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-2 rounded-xl text-sm transition"
-                  >
-                    Apply Now
-                  </button>
+
+                  {/* Show "Applied" (disabled) if already applied, else "Apply Now" */}
+                  {appliedIds.has(String(job._id)) ? (
+                    <button
+                      disabled
+                      className="flex items-center gap-1.5 bg-green-50 text-green-700 border-2 border-green-200 font-semibold px-5 py-2 rounded-xl text-sm cursor-not-allowed"
+                    >
+                      <CheckCircle size={15} />
+                      Applied
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleApply(job)}
+                      className="bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-2 rounded-xl text-sm transition"
+                    >
+                      Apply Now
+                    </button>
+                  )}
                 </div>
 
               </div>
