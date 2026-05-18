@@ -1,4 +1,4 @@
-// JobDetailsPage.jsx
+// JobDetailsPage
 // Redesigned — professional job portal layout
 
 import { useEffect, useState } from 'react';
@@ -8,7 +8,8 @@ import {
   Bookmark, ArrowLeft, Clock, Building2,
   CheckCircle2, ChevronRight
 } from 'lucide-react';
-import { getJobBySlug , applyToJob } from '../../services/jobService'; 
+import { getJobBySlug } from '../../services/jobService'; 
+import { applyToJob }   from '../../services/applicationService'; // ← correct service
 
 import { useAuth }         from '../../context/AuthContext';
 import { API }             from '../../services/authService';
@@ -59,30 +60,29 @@ export default function JobDetailsPage() {
     fetch();
   }, [slug]); 
 
-  // 2. Check saved
+  // 2. Check saved + applied — runs AFTER job loads (jobId in deps)
+  // FIX: was [slug, user] so jobId was null — never matched any application
+  // Now uses [jobId, user] so runs only after job._id is available
   useEffect(() => {
-    if (!user || user.role !== 'candidate') return;
-    const check = async () => {
+    if (!user || user.role !== 'candidate' || !jobId) return;
+
+    const checkStatus = async () => {
+      // Check if job is saved
       try {
         const res = await API.get(API_ENDPOINTS.SAVED_JOB_IDS);
-        setIsSaved(res.data.data.includes(jobId));
+        setIsSaved((res.data.data || []).includes(jobId));
       } catch (_) {}
-    };
-    check();
-  }, [slug, user]);
 
-  // 3. Check applied
-  useEffect(() => {
-    if (!user || user.role !== 'candidate') return;
-    const check = async () => {
+      // Check if already applied — compare as strings to avoid object/string mismatch
       try {
         const res  = await API.get(API_ENDPOINTS.MY_APPLICATIONS);
         const apps = res.data.data || [];
-        setApplied(apps.some(a => a.job?._id === jobId));
+        setApplied(apps.some(a => String(a.job?._id) === String(jobId)));
       } catch (_) {}
     };
-    check();
-  }, [slug, user]);
+
+    checkStatus();
+  }, [jobId, user]);  // ← jobId here: runs after job is fetched
 
   const handleApply = async (coverLetter) => {
     try {
