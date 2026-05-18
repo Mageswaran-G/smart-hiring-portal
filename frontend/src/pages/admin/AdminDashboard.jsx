@@ -3,13 +3,14 @@
 // Self-contained: inline ProgressRing, Sparkline, MiniBarChart
 // Fully responsive: desktop grid layout + mobile stacked + bottom tab bar
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Briefcase, BarChart3, Settings,
   LogOut, ChevronRight, Shield, Activity, TrendingUp,
   CheckCircle, Clock, AlertCircle, Lock, Zap, Brain,
-  Mail, UserCheck, Building2, FileText, ShieldCheck,
+  Mail, UserCheck, Building2, FileText, ShieldCheck, XCircle,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { API } from '../../services/authService';
@@ -114,10 +115,10 @@ function MiniBarChart({ data = [], color = C.primary, w = 100, h = 44 }) {
 // ─── Mobile Bottom Tab Bar ────────────────────────────────────
 const MOB_TABS = [
   { key:'overview',  label:'Home',      Icon:LayoutDashboard },
-  { key:'users',     label:'Users',     Icon:Users },
-  { key:'jobs',      label:'Jobs',      Icon:Briefcase },
-  { key:'analytics', label:'Analytics', Icon:BarChart3 },
-  { key:'system',    label:'System',    Icon:Settings },
+  { key:'companies', label:'Companies', Icon:Building2       },
+  { key:'users',     label:'Users',     Icon:Users           },
+  { key:'analytics', label:'Analytics', Icon:BarChart3       },
+  { key:'system',    label:'System',    Icon:Settings        },
 ];
 
 function MTabBar({ active, onTab }) {
@@ -186,7 +187,15 @@ export default function AdminDashboard() {
   const [stats,        setStats]       = useState(null);
   const [loading,      setLoading]     = useState(true);
 
+  // ── Companies state ──────────────────────────────────
+  const [companies,    setCompanies]   = useState([]);
+  const [verifying,    setVerifying]   = useState(null); // ID of company being verified
+  const fetchedRef = useRef(false);
+
+  // ── Fetch stats on mount ─────────────────────────────
   useEffect(() => {
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
     (async () => {
       try {
         const res = await API.get(API_ENDPOINTS.ADMIN_STATS);
@@ -200,10 +209,44 @@ export default function AdminDashboard() {
     })();
   }, []);
 
+  // ── Fetch companies when Companies tab is opened ─────
+  const loadCompanies = async () => {
+    try {
+      const res = await API.get(API_ENDPOINTS.ADMIN_COMPANIES);
+      setCompanies(res.data.data || []);
+    } catch (err) {
+      toast.error('Failed to load companies');
+    }
+  };
+
+  // ── Toggle verify / unverify ─────────────────────────
+  // Calls PATCH /admin/companies/:id/verify
+  // Backend flips isVerified and returns updated company
+  const handleVerify = async (companyId) => {
+    setVerifying(companyId); // show loading state on this button
+    try {
+      const res = await API.patch(API_ENDPOINTS.ADMIN_VERIFY_COMPANY(companyId));
+      const updated = res.data.data;
+
+      // Update only this company in the list — no full reload needed
+      setCompanies(prev =>
+        prev.map(c => c._id === companyId ? { ...c, isVerified: updated.isVerified } : c)
+      );
+
+      toast.success(res.data.message);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update');
+    } finally {
+      setVerifying(null);
+    }
+  };
+
   const handleTab = (key) => {
-    // In a full build, these navigate to admin sub-pages
-    // For now, just track tab state
     setActiveTab(key);
+    // Load companies from backend when Companies tab is opened
+    if (key === 'companies' && companies.length === 0) {
+      loadCompanies();
+    }
   };
 
   const handleLogout = async () => {
@@ -424,10 +467,10 @@ export default function AdminDashboard() {
 
         <nav style={{ display:'flex', gap:4, flex:1 }}>
           {[
-            { key:'overview',  label:'Overview',    Icon:LayoutDashboard },
-            { key:'users',     label:'Users',       Icon:Users },
-            { key:'jobs',      label:'Jobs',        Icon:Briefcase },
-            { key:'analytics', label:'Analytics',   Icon:BarChart3 },
+            { key:'overview',   label:'Overview',    Icon:LayoutDashboard },
+            { key:'companies',  label:'Companies',   Icon:Building2       },
+            { key:'users',      label:'Users',       Icon:Users           },
+            { key:'analytics',  label:'Analytics',   Icon:BarChart3       },
           ].map(({ key, label, Icon }) => {
             const isActive = activeTab === key;
             return (
@@ -724,6 +767,107 @@ export default function AdminDashboard() {
           </div>
         </div>
       </main>
+
+      {/* ── Companies Tab Panel ───────────────────────────────── */}
+      {activeTab === 'companies' && (
+        <section style={{ maxWidth:1200, margin:'0 auto', padding:'26px 32px 48px' }}>
+
+          {/* Header row */}
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
+            <div>
+              <h2 style={{ fontSize:20, fontWeight:800, color:C.gray900, margin:'0 0 4px', letterSpacing:'-0.4px' }}>
+                Company Accounts
+              </h2>
+              <p style={{ fontSize:13, color:C.gray400, margin:0 }}>
+                Verify companies to show the blue verified badge on their job posts
+              </p>
+            </div>
+            <span style={{ background:`${C.primary}12`, color:C.primary, fontSize:13, fontWeight:700, borderRadius:10, padding:'6px 14px' }}>
+              {companies.length} companies
+            </span>
+          </div>
+
+          {/* Loading state */}
+          {companies.length === 0 && (
+            <div style={{ background:'#fff', borderRadius:18, padding:'40px', textAlign:'center', border:`1px solid ${C.gray100}` }}>
+              <div style={{ width:40, height:40, border:`3px solid ${C.border}`, borderTopColor:C.primary, borderRadius:'50%', animation:'spin 0.8s linear infinite', margin:'0 auto 12px' }} />
+              <p style={{ color:C.gray400, fontSize:14, margin:0 }}>Loading companies...</p>
+            </div>
+          )}
+
+          {/* Companies list */}
+          {companies.length > 0 && (
+            <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+              {companies.map(company => (
+                <div key={company._id} style={{ background:'#fff', borderRadius:18, padding:'20px 24px', border:`1px solid ${C.gray100}`, boxShadow:'0 1px 4px rgba(0,0,0,0.05)', display:'flex', alignItems:'center', gap:16 }}>
+
+                  {/* Avatar */}
+                  <div style={{ width:48, height:48, borderRadius:14, background:`${C.primary}14`, display:'flex', alignItems:'center', justifyContent:'center', color:C.primary, fontWeight:900, fontSize:20, flexShrink:0 }}>
+                    {(company.companyName || company.name || 'C')[0].toUpperCase()}
+                  </div>
+
+                  {/* Company info */}
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:3 }}>
+                      <p style={{ fontWeight:800, fontSize:15, color:C.gray900, margin:0 }}>
+                        {company.companyName || company.name}
+                      </p>
+                      {/* Verified badge */}
+                      {company.isVerified && (
+                        <span style={{ display:'flex', alignItems:'center', gap:4, background:'#dbeafe', color:'#1e40af', fontSize:11, fontWeight:700, borderRadius:9999, padding:'2px 9px' }}>
+                          <ShieldCheck size={11} /> Verified
+                        </span>
+                      )}
+                    </div>
+                    <p style={{ fontSize:12, color:C.gray400, margin:'0 0 2px' }}>{company.email}</p>
+                    <p style={{ fontSize:11, color:C.gray300, margin:0 }}>
+                      {company.industry || 'No industry'}{company.companySize ? ` · ${company.companySize} employees` : ''} · Joined {timeAgo(company.createdAt)}
+                    </p>
+                  </div>
+
+                  {/* Status + Verify button */}
+                  <div style={{ display:'flex', alignItems:'center', gap:12, flexShrink:0 }}>
+                    {/* Current status pill */}
+                    <span style={{
+                      fontSize:11, fontWeight:700, borderRadius:9999, padding:'4px 12px',
+                      background: company.isVerified ? '#d1fae5' : C.gray100,
+                      color:      company.isVerified ? '#065f46' : C.gray500,
+                    }}>
+                      {company.isVerified ? 'Verified' : 'Unverified'}
+                    </span>
+
+                    {/* Verify / Unverify button */}
+                    <button
+                      onClick={() => handleVerify(company._id)}
+                      disabled={verifying === company._id}
+                      style={{
+                        display:'flex', alignItems:'center', gap:6,
+                        padding:'9px 18px', borderRadius:11, border:'none',
+                        fontSize:13, fontWeight:700, cursor:'pointer',
+                        background: company.isVerified ? '#fee2e2' : C.primary,
+                        color:      company.isVerified ? '#991b1b' : '#fff',
+                        opacity: verifying === company._id ? 0.6 : 1,
+                        transition:'all 0.15s',
+                      }}
+                    >
+                      {verifying === company._id ? (
+                        <>
+                          <span style={{ width:14, height:14, border:`2px solid rgba(255,255,255,0.4)`, borderTopColor:'#fff', borderRadius:'50%', animation:'spin 0.7s linear infinite' }} />
+                          Saving...
+                        </>
+                      ) : company.isVerified ? (
+                        <><XCircle size={14} /> Unverify</>
+                      ) : (
+                        <><ShieldCheck size={14} /> Verify</>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       <style>{`
         @keyframes spin  { to { transform: rotate(360deg); } }
