@@ -115,9 +115,15 @@ export default function DashboardLayout({ children, role }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const theme = THEME[role] || THEME.candidate;
-  const links = NAV_LINKS[role] || NAV_LINKS.candidate;
-  const logoColor = LOGO_COLORS[role] || LOGO_COLORS.candidate;
+  // ── Auto-detect role from user if prop not passed ──────────
+  // This fixes the bug where company pages showed candidate menu
+  // because the `role` prop was not being passed from pages.
+  // Now: if role prop is missing, we use user.role from AuthContext.
+  const actualRole = role || user?.role || 'candidate';
+
+  const theme    = THEME[actualRole]    || THEME.candidate;
+  const links    = NAV_LINKS[actualRole] || NAV_LINKS.candidate;
+  const logoColor = LOGO_COLORS[actualRole] || LOGO_COLORS.candidate;
 
   const handleLogout = async () => {
     await logoutUser();
