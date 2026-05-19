@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import DashboardLayout from '../../components/layout/DashboardLayout';
 import {
   LayoutDashboard, Briefcase, Users, PlusCircle, User,
   LogOut, ChevronRight, Building2, MapPin, CheckCircle,
@@ -448,6 +449,7 @@ export default function CompanyDashboard() {
   // This header only shows: tab switcher + Post New Job button
   // ════════════════════════════════════════════════════════════
   return (
+    <DashboardLayout>
     <div style={{ minHeight:'100vh', background:C.gray50, fontFamily:'system-ui,-apple-system,sans-serif' }}>
 
       {/* ── Tab bar + Post New Job ── */}
@@ -729,5 +731,6 @@ export default function CompanyDashboard() {
         </div>
       </main>
     </div>
+    </DashboardLayout>
   );
 }
