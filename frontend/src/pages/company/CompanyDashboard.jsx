@@ -319,38 +319,47 @@ export default function CompanyDashboard() {
         </header>
 
         {/* ── Mobile Hero ── */}
-        <section style={{ background:C.grad, padding:'20px 16px 24px' }}>
-          <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:14 }}>
-            <CompanyAvatar profile={profile} size={52} />
-            <div style={{ minWidth:0 }}>
-              <p style={{ color:'rgba(255,255,255,0.72)', fontSize:11, margin:'0 0 2px', fontWeight:500 }}>Company Dashboard</p>
-              <h1 style={{ color:'#fff', fontWeight:900, fontSize:20, margin:'0 0 3px', lineHeight:1.1, letterSpacing:'-0.4px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
-                {profile?.companyName || profile?.name || 'Company'}
-              </h1>
-              {profile?.industry && (
-                <span style={{ background:'rgba(255,255,255,0.2)', color:'rgba(255,255,255,0.9)', fontSize:10, fontWeight:700, borderRadius:9999, padding:'2px 9px' }}>
-                  {profile.industry}
-                </span>
-              )}
+        <section style={{ background:C.grad, padding:'28px 16px 36px', borderRadius:'0 0 32px 32px', position:'relative', overflow:'hidden' }}>
+          {/* dot texture */}
+          <div style={{ position:'absolute', inset:0, backgroundImage:'radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)', backgroundSize:'20px 20px', pointerEvents:'none' }} />
+          <div style={{ position:'relative' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:14 }}>
+              <CompanyAvatar profile={profile} size={60} />
+              <div style={{ minWidth:0 }}>
+                <p style={{ color:'rgba(255,255,255,0.72)', fontSize:11, margin:'0 0 2px', fontWeight:500 }}>Welcome back,</p>
+                <h1 style={{ color:'#fff', fontWeight:900, fontSize:20, margin:'0 0 3px', lineHeight:1.1, letterSpacing:'-0.4px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                  {profile?.companyName || profile?.name || 'Company'}
+                </h1>
+                {profile?.email && (
+                  <p style={{ color:'rgba(255,255,255,0.65)', fontSize:11, margin:'2px 0 3px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                    {profile.email}
+                  </p>
+                )}
+                {profile?.industry && (
+                  <span style={{ background:'rgba(255,255,255,0.2)', color:'rgba(255,255,255,0.9)', fontSize:10, fontWeight:700, borderRadius:9999, padding:'2px 9px' }}>
+                    {profile.industry}
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
 
-          {/* Quick stat pills */}
-          <div style={{ display:'flex', gap:8 }}>
-            {[
-              { label:`${stats.total||0} Jobs`,     bg:'rgba(255,255,255,0.2)' },
-              { label:`${stats.applications||0} Applications`, bg:'rgba(255,255,255,0.14)' },
-              { label:`${stats.hired||0} Hired`,    bg:'rgba(59,130,246,0.35)' },
-            ].map(({ label, bg }) => (
-              <span key={label} style={{ background:bg, color:'#fff', fontSize:11, fontWeight:700, borderRadius:9999, padding:'4px 11px', border:'1px solid rgba(255,255,255,0.18)' }}>
-                {label}
-              </span>
-            ))}
+            {/* Quick stat pills */}
+            <div style={{ display:'flex', gap:8 }}>
+              {[
+                { label:`${stats.total||0} Jobs`,     bg:'rgba(255,255,255,0.2)' },
+                { label:`${stats.applications||0} Applications`, bg:'rgba(255,255,255,0.14)' },
+                { label:`${stats.hired||0} Hired`,    bg:'rgba(59,130,246,0.35)' },
+              ].map(({ label, bg }) => (
+                <span key={label} style={{ background:bg, color:'#fff', fontSize:11, fontWeight:700, borderRadius:9999, padding:'4px 11px', border:'1px solid rgba(255,255,255,0.18)' }}>
+                  {label}
+                </span>
+              ))}
+            </div>
           </div>
         </section>
 
         {/* ── Mobile Stats 2×2 ── */}
-        <section style={{ padding:'14px 14px 0' }}>
+        <section style={{ padding:'20px 14px 0' }}>
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
             {[
               { label:'Total Jobs',    value:stats.total||0,        color:C.primary, Icon:Briefcase, trend:jobTrend,  id:'j' },
