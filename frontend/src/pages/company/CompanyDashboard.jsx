@@ -277,6 +277,20 @@ export default function CompanyDashboard() {
 
   // Derived
   const hireRate = stats.applications > 0 ? Math.round((stats.hired / stats.applications) * 100) : 0;
+  // Top performing job = job with most applications
+  const topJob = jobs.length > 0
+    ? jobs.reduce((best, job) =>
+        (job.applicationsCount || 0) > (best.applicationsCount || 0) ? job : best,
+        jobs[0]
+      )
+    : null;
+  // Recent activity from real applications
+  const recentActivity = applications.slice(0, 5).map(app => ({
+    text: `${app.candidate?.name || 'Someone'} applied for ${app.job?.title || 'a job'}`,
+    time: timeAgo(app.createdAt),
+    color: STATUS[app.status]?.color || '#9ca3af',
+    status: app.status,
+  }));  
   const appTrend  = [3, 5, 4, 8, 7, 9, stats.applications || 0];
   const jobTrend  = [1, 1, 2, 2, 3, 3, stats.total || 0];
   const shortTrend = [0, 1, 1, 2, 3, 3, stats.shortlisted || 0];
@@ -724,73 +738,65 @@ export default function CompanyDashboard() {
         {/* Right Sidebar */}
         <div style={{ display:'flex', flexDirection:'column', gap:18 }}>
 
-          {/* Hiring Funnel Dark Card */}
-          <div style={{ background:C.grad, borderRadius:22, padding:'24px', boxShadow:'0 6px 28px rgba(30,58,95,0.35)' }}>
-            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:18 }}>
-              <h3 style={{ color:'#fff', fontWeight:900, fontSize:16, margin:0, letterSpacing:'-0.3px' }}>Hiring Funnel</h3>
-              <ProgressRing value={hireRate} size={60} stroke={6} color="#22c55e" bg="rgba(255,255,255,0.15)" textColor="#fff" />
-            </div>
-            {/* Bar chart */}
-            <div style={{ marginBottom:18 }}>
-              <p style={{ color:'rgba(255,255,255,0.65)', fontSize:11, margin:'0 0 10px', fontWeight:600 }}>Application volume (7-day trend)</p>
-              <MiniBarChart data={[3,5,4,8,6,9,stats.applications||0]} color="rgba(255,255,255,0.7)" w={200} h={44} />
-            </div>
-            {[
-              { label:'Received',   value:stats.applications||0, pct:100,       color:'rgba(255,255,255,0.6)' },
-              { label:'Shortlisted',value:stats.shortlisted||0,  pct:stats.applications>0?Math.round(((stats.shortlisted||0)/(stats.applications||1))*100):0, color:'#93c5fd' },
-              { label:'Hired',      value:stats.hired||0,        pct:hireRate,  color:'#86efac' },
-            ].map(({ label, value, pct, color }) => (
-              <div key={label} style={{ marginBottom:10 }}>
-                <div style={{ display:'flex', justifyContent:'space-between', marginBottom:5 }}>
-                  <span style={{ fontSize:12, color:'rgba(255,255,255,0.75)', fontWeight:500 }}>{label}</span>
-                  <span style={{ fontSize:12, color:'#fff', fontWeight:800 }}>{value} <span style={{ opacity:0.6, fontWeight:400 }}>({pct}%)</span></span>
-                </div>
-                <div style={{ height:6, background:'rgba(255,255,255,0.1)', borderRadius:9999, overflow:'hidden' }}>
-                  <div style={{ width:`${pct}%`, height:'100%', background:color, borderRadius:9999, transition:'width 0.8s ease' }} />
-                </div>
+          {/* ── Top Performing Job ── */}
+          {topJob ? (
+            <div style={{ background:'#fff', borderRadius:20, padding:'22px', boxShadow:'0 1px 5px rgba(0,0,0,0.06)', border:`1px solid ${C.gray100}` }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
+                <h3 style={{ fontSize:15, fontWeight:800, color:C.gray900, margin:0 }}>Top Performing Job</h3>
+                <span style={{ background:'#fef3c7', color:'#92400e', fontSize:10, fontWeight:700, borderRadius:7, padding:'3px 9px' }}>
+                   HOT
+                </span>
               </div>
-            ))}
-          </div>
-
-          {/* Active Jobs List */}
-          <div style={{ background:'#fff', borderRadius:20, padding:'22px', boxShadow:'0 1px 5px rgba(0,0,0,0.06)', border:`1px solid ${C.gray100}` }}>
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
-              <h3 style={{ fontSize:15, fontWeight:800, color:C.gray900, margin:0, letterSpacing:'-0.2px' }}>Active Jobs</h3>
-              <button onClick={() => navigate(ROUTES.COMPANY_JOBS)} style={{ color:C.accent, fontSize:12, fontWeight:700, background:'none', border:'none', cursor:'pointer' }}>Manage</button>
-            </div>
-            {jobs.length === 0 ? (
-              <div style={{ textAlign:'center', padding:'16px 0' }}>
-                <p style={{ color:C.gray400, fontSize:13, margin:'0 0 12px' }}>No jobs posted yet</p>
-                <button onClick={() => navigate(ROUTES.COMPANY_JOB_CREATE)} style={{ background:C.primary, color:'#fff', border:'none', borderRadius:9, padding:'8px 16px', fontSize:12, fontWeight:700, cursor:'pointer' }}>Post First Job</button>
-              </div>
-            ) : (
-              <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-                {jobs.slice(0, 5).map(job => (
-                  <div key={job._id} style={{ padding:'13px 14px', borderRadius:14, border:`1px solid ${C.gray100}`, transition:'all 0.15s' }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor=C.border; e.currentTarget.style.background=C.light; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor=C.gray100; e.currentTarget.style.background='transparent'; }}>
-                    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
-                      <div style={{ minWidth:0, flex:1 }}>
-                        <p style={{ fontWeight:700, fontSize:13, color:C.gray900, margin:'0 0 2px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{job.title}</p>
-                        <p style={{ fontSize:11, color:C.gray400, margin:0 }}>
-                          {job.jobType}{job.location ? ` · ${job.location}` : ''}
-                        </p>
-                      </div>
-                      <span style={{ background: job.isActive ? '#d1fae5' : C.gray100, color: job.isActive ? '#065f46' : C.gray500, fontSize:10, fontWeight:700, borderRadius:7, padding:'3px 8px', flexShrink:0 }}>
-                        {job.isActive ? 'Active' : 'Inactive'}
-                      </span>
-                    </div>
-                    <div style={{ marginTop:8, display:'flex', gap:8 }}>
-                      <button onClick={() => navigate(ROUTES.COMPANY_APPLICATIONS)} style={{ flex:1, background:C.light, color:C.primary, border:'none', borderRadius:8, padding:'6px', fontSize:11, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:4 }}>
-                        <Users size={12} /> Applicants
-                      </button>
-                      <button onClick={() => navigate(ROUTES.COMPANY_JOB_EDIT?.replace(':id', job._id) || ROUTES.COMPANY_JOBS)} style={{ flex:1, background:C.gray100, color:C.gray600, border:'none', borderRadius:8, padding:'6px', fontSize:11, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:4 }}>
-                        <Eye size={12} /> Edit
-                      </button>
-                    </div>
+              <p style={{ fontSize:14, fontWeight:700, color:C.gray900, margin:'0 0 14px', letterSpacing:'-0.2px' }}>
+                {topJob.title}
+              </p>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:14 }}>
+                {[
+                  { label:'Applicants', value: topJob.applicationsCount || 0 },
+                  { label:'Openings',   value: topJob.openings || 1 },
+                  { label:'Days live',  value: Math.floor((Date.now() - new Date(topJob.createdAt).getTime()) / 86400000) },
+                  { label:'Status',     value: topJob.isActive ? 'Active' : 'Closed' },
+                ].map((m, i) => (
+                  <div key={i} style={{ padding:'10px 12px', background:C.gray50, borderRadius:10 }}>
+                    <p style={{ fontSize:18, fontWeight:900, color:C.gray900, margin:'0 0 2px', letterSpacing:'-0.5px' }}>{m.value}</p>
+                    <p style={{ fontSize:10, color:C.gray400, margin:0 }}>{m.label}</p>
                   </div>
                 ))}
               </div>
+              <button onClick={() => navigate(ROUTES.COMPANY_APPLICATIONS)} style={{ width:'100%', background:C.primary, color:'#fff', border:'none', borderRadius:10, padding:'10px', fontSize:12, fontWeight:700, cursor:'pointer' }}>
+                View Applicants →
+              </button>
+            </div>
+          ) : (
+            <div style={{ background:'#fff', borderRadius:20, padding:'22px', boxShadow:'0 1px 5px rgba(0,0,0,0.06)', border:`1px solid ${C.gray100}`, textAlign:'center' }}>
+              <p style={{ color:C.gray400, fontSize:13, margin:'0 0 12px' }}>No jobs posted yet</p>
+              <button onClick={() => navigate(ROUTES.COMPANY_JOB_CREATE)} style={{ background:C.primary, color:'#fff', border:'none', borderRadius:9, padding:'9px 18px', fontSize:12, fontWeight:700, cursor:'pointer' }}>Post First Job</button>
+            </div>
+          )}
+
+          {/* ── Recent Activity ── */}
+          <div style={{ background:'#fff', borderRadius:20, padding:'22px', boxShadow:'0 1px 5px rgba(0,0,0,0.06)', border:`1px solid ${C.gray100}` }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
+              <h3 style={{ fontSize:15, fontWeight:800, color:C.gray900, margin:0 }}>Recent Activity</h3>
+              <div style={{ width:8, height:8, borderRadius:'50%', background:'#22c55e', boxShadow:'0 0 0 3px #22c55e33' }} />
+            </div>
+            {recentActivity.length === 0 ? (
+              <p style={{ color:C.gray400, fontSize:13, textAlign:'center', padding:'16px 0' }}>No activity yet</p>
+            ) : (
+              recentActivity.map((a, i) => (
+                <div key={i} style={{ display:'flex', gap:11 }}>
+                  <div style={{ display:'flex', flexDirection:'column', alignItems:'center' }}>
+                    <div style={{ width:9, height:9, borderRadius:'50%', background:a.color, marginTop:5, flexShrink:0, boxShadow:`0 0 0 3px ${a.color}33` }} />
+                    {i < recentActivity.length - 1 && (
+                      <div style={{ width:1, flex:1, background:C.gray100, margin:'3px 0' }} />
+                    )}
+                  </div>
+                  <div style={{ flex:1, paddingBottom:12 }}>
+                    <p style={{ fontSize:12, color:C.gray800, margin:'0 0 2px', lineHeight:1.45 }}>{a.text}</p>
+                    <p style={{ fontSize:10, color:C.gray400, margin:0 }}>{a.time}</p>
+                  </div>
+                </div>
+              ))
             )}
           </div>
         </div>
