@@ -17,6 +17,7 @@ import { API } from '../../services/authService';
 import { API_ENDPOINTS } from '../../constants/api';
 import { ROUTES } from '../../constants/routes';
 import useIsMobile from '../../hooks/useIsMobile';
+import SafeAvatar from '../../components/ui/SafeAvatar';
 
 // ─── Brand Colors ─────────────────────────────────────────────
 const C = {
@@ -414,12 +415,12 @@ export default function AdminDashboard() {
                 const roleColor = u.role === 'candidate' ? '#ea580c' : u.role === 'company' ? '#1e3a5f' : C.primary;
                 return (
                   <div key={u._id} style={{ display:'flex', alignItems:'center', gap:12, padding:'11px 14px', borderBottom: idx < stats.recentUsers.slice(0,5).length-1 ? `1px solid ${C.gray100}` : 'none' }}>
-                    {u.photo
-                      ? <img src={u.photo} alt="" style={{ width:32, height:32, borderRadius:'50%', objectFit:'cover', flexShrink:0 }} />
-                      : <div style={{ width:32, height:32, borderRadius:'50%', background:`${roleColor}14`, display:'flex', alignItems:'center', justifyContent:'center', color:roleColor, fontWeight:800, fontSize:12, flexShrink:0 }}>
-                          {(u.name||'?')[0].toUpperCase()}
-                        </div>
-                    }
+                    <SafeAvatar
+                      src={u.photo}
+                      name={u.name}
+                      style={{ width:32, height:32, borderRadius:'50%', objectFit:'cover', flexShrink:0 }}
+                      fallbackStyle={{ width:32, height:32, borderRadius:'50%', background:`${roleColor}14`, display:'flex', alignItems:'center', justifyContent:'center', color:roleColor, fontWeight:800, fontSize:12, flexShrink:0 }}
+                    />
                     <div style={{ flex:1, minWidth:0 }}>
                       <p style={{ fontWeight:700, fontSize:12, color:C.gray900, margin:'0 0 1px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{u.name||'—'}</p>
                       <p style={{ fontSize:10, color:C.gray400, margin:0, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{u.email}</p>
@@ -742,12 +743,12 @@ export default function AdminDashboard() {
                   const roleColor = u.role === 'candidate' ? '#ea580c' : u.role === 'company' ? '#1e3a5f' : C.primary;
                   return (
                     <div key={u._id} style={{ display:'flex', alignItems:'center', gap:12, padding:'11px 10px', borderRadius:12, background: idx%2===0 ? 'transparent' : C.gray50 }}>
-                      {u.photo
-                        ? <img src={u.photo} alt="" style={{ width:36, height:36, borderRadius:'50%', objectFit:'cover', flexShrink:0 }} />
-                        : <div style={{ width:36, height:36, borderRadius:'50%', background:`${roleColor}14`, display:'flex', alignItems:'center', justifyContent:'center', color:roleColor, fontWeight:800, fontSize:14, flexShrink:0 }}>
-                            {(u.name||'?')[0].toUpperCase()}
-                          </div>
-                      }
+                      <SafeAvatar
+                        src={u.photo}
+                        name={u.name}
+                        style={{ width:36, height:36, borderRadius:'50%', objectFit:'cover', flexShrink:0 }}
+                        fallbackStyle={{ width:36, height:36, borderRadius:'50%', background:`${roleColor}14`, display:'flex', alignItems:'center', justifyContent:'center', color:roleColor, fontWeight:800, fontSize:14, flexShrink:0 }}
+                      />
                       <div style={{ flex:1, minWidth:0 }}>
                         <p style={{ fontWeight:700, fontSize:13, color:C.gray900, margin:'0 0 1px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
                           {u.name || '—'}

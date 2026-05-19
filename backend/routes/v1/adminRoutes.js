@@ -25,4 +25,6 @@ router.get('/companies', getAllCompanies);
 // PATCH /api/v1/admin/companies/:id/verify  — toggle isVerified
 router.patch('/companies/:id/verify', verifyCompany);
 
+
+
 module.exports = router;

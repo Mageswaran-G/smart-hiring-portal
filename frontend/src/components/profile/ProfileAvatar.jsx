@@ -1,6 +1,7 @@
 import { useRef, useMemo } from 'react';
 import { Camera } from 'lucide-react';
 import { calculateCompletion } from '../../utils/profileCompletion';
+import SafeAvatar from '../ui/SafeAvatar';
 
 function CompletionRing({ pct, color }) {
   const size = 96, sw = 3, r = (size - sw * 2) / 2;
@@ -28,13 +29,14 @@ export default function ProfileAvatar({ profile, isCandidate, theme, onPhotoUplo
         <CompletionRing pct={pct} color={ringColor} />
         <div onClick={() => !isUploadingPhoto && fileRef.current?.click()}
           className="group w-24 h-24 rounded-full overflow-hidden cursor-pointer relative">
-          {profile?.profilePhoto
-            ? <img src={`${import.meta.env.VITE_API_URL}${profile.profilePhoto}`} alt="Profile" className="w-full h-full object-cover" />
-            : <div className="w-full h-full flex items-center justify-center font-sora font-extrabold text-white text-3xl"
-                style={{ background: theme.primary }}>
-                {profile?.name?.charAt(0)?.toUpperCase() || '?'}
-              </div>
-          }
+          <SafeAvatar
+            src={profile?.profilePhoto ? `${import.meta.env.VITE_API_URL}${profile.profilePhoto}` : ''}
+            name={profile?.name}
+            alt="Profile"
+            className="w-full h-full object-cover"
+            fallbackClassName="w-full h-full flex items-center justify-center font-sora font-extrabold text-white text-3xl"
+            fallbackStyle={{ background: theme.primary }}
+          />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-full">
             {isUploadingPhoto ? <span className="text-white text-xs font-medium">...</span> : <Camera size={20} className="text-white" />}
           </div>

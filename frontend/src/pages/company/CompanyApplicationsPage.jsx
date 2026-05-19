@@ -3,13 +3,13 @@
 // Pagination: Load More loads next page from backend
 // Filtering: works on all loaded data (client-side)
 
-import { useEffect, useState, useMemo, useRef }          from 'react';
-import { useNavigate }                                    from 'react-router-dom';
+import { useCallback, useEffect, useState, useMemo, useRef } from 'react';
 import { Users, Mail, MapPin, FileText, Search, ChevronDown } from 'lucide-react';
 import toast                                              from 'react-hot-toast';
 import DashboardLayout                                    from '../../components/layout/DashboardLayout';
 import PageHeader                                         from '../../components/ui/PageHeader';
 import EmptyState                                         from '../../components/ui/EmptyState';
+import SafeAvatar                                         from '../../components/ui/SafeAvatar';
 import { ROUTES }                                         from '../../constants/routes';
 import { APPLICATION_STATUS, APPLICATION_STATUS_OPTIONS } from '../../constants/applicationStatus';
 import { getCompanyApplicationsPaginated, updateApplicationStatus } from '../../services/applicationService';
@@ -19,7 +19,6 @@ const LIMIT = 10;
 
 export default function CompanyApplicationsPage() {
 
-  const navigate   = useNavigate();
   const fetchedRef = useRef(false);
 
   const [applications, setApplications] = useState([]);
@@ -36,14 +35,7 @@ export default function CompanyApplicationsPage() {
 
   const debouncedSearch = useDebounce(searchName, 300);
 
-  // ── Load first page on mount ──────────────────────────────
-  useEffect(() => {
-    if (fetchedRef.current) return;
-    fetchedRef.current = true;
-    loadPage(1, true);
-  }, []);
-
-  const loadPage = async (pageNum, isFirstLoad = false) => {
+  const loadPage = useCallback(async (pageNum, isFirstLoad = false) => {
     try {
       const { data, pagination } = await getCompanyApplicationsPaginated(pageNum, LIMIT);
 
@@ -63,7 +55,14 @@ export default function CompanyApplicationsPage() {
       setLoading(false);
       setLoadingMore(false);
     }
-  };
+  }, []);
+
+  // ── Load first page on mount ──────────────────────────────
+  useEffect(() => {
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+    loadPage(1, true);
+  }, [loadPage]);
 
   const handleLoadMore = () => {
     setLoadingMore(true);
@@ -241,19 +240,14 @@ export default function CompanyApplicationsPage() {
                   <div className="flex items-start gap-3 flex-1 min-w-0">
 
                     {/* Avatar */}
-                    <div className="w-11 h-11 rounded-full bg-blue-100 flex items-center justify-center shrink-0 overflow-hidden">
-                      {app.candidate?.profilePhoto ? (
-                        <img
-                          src={`${import.meta.env.VITE_API_URL}${app.candidate.profilePhoto}`}
-                          alt={app.candidate.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <span className="text-blue-700 font-bold text-base">
-                          {app.candidate?.name?.charAt(0).toUpperCase() || '?'}
-                        </span>
-                      )}
-                    </div>
+                    <SafeAvatar
+                      src={app.candidate?.profilePhoto ? `${import.meta.env.VITE_API_URL}${app.candidate.profilePhoto}` : ''}
+                      name={app.candidate?.name}
+                      alt={app.candidate?.name || 'Candidate'}
+                      className="w-11 h-11 rounded-full object-cover shrink-0"
+                      fallbackClassName="w-11 h-11 rounded-full bg-blue-100 flex items-center justify-center shrink-0 overflow-hidden"
+                      textClassName="text-blue-700 font-bold text-base"
+                    />
 
                     {/* Details */}
                     <div className="min-w-0 flex-1">

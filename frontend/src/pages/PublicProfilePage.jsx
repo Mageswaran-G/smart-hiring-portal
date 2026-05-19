@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MapPin, Briefcase, Globe, Link2, Award, Languages, FolderGit2, ExternalLink } from 'lucide-react';
+import { MapPin, Briefcase, Globe, Link2, Award, FolderGit2, ExternalLink } from 'lucide-react';
+import SafeAvatar from '../components/ui/SafeAvatar';
 
 // Public profile page — no login required
 // Accessible at /p/:slug
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export default function PublicProfilePage() {
   const { slug } = useParams();
@@ -11,8 +13,6 @@ export default function PublicProfilePage() {
   const [profile,   setProfile]   = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [notFound,  setNotFound]  = useState(false);
-
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
   useEffect(() => {
     const fetchPublicProfile = async () => {
@@ -90,19 +90,14 @@ export default function PublicProfilePage() {
             <div
               className="w-20 h-20 rounded-full overflow-hidden shrink-0 border-3"
               style={{ border: `3px solid ${accent}` }}>
-              {profile?.profilePhoto ? (
-                <img
-                  src={`${API_URL}${profile.profilePhoto}`}
-                  alt={profile.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div
-                  className="font-sora w-full h-full text-white text-3xl font-extrabold flex items-center justify-center"
-                  style={{ background: accent }}>
-                  {profile?.name?.charAt(0).toUpperCase()}
-                </div>
-              )}
+              <SafeAvatar
+                src={profile?.profilePhoto ? `${API_URL}${profile.profilePhoto}` : ''}
+                name={profile?.name}
+                alt={profile?.name || 'Profile'}
+                className="w-full h-full object-cover"
+                fallbackClassName="font-sora w-full h-full text-white text-3xl font-extrabold flex items-center justify-center"
+                fallbackStyle={{ background: accent }}
+              />
             </div>
 
             <div className="flex-1">

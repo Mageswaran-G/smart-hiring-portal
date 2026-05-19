@@ -1,3 +1,5 @@
+require('dotenv').config(); 
+
 const config = require('./config');
 const express = require('express');
 const dotenv = require('dotenv');
@@ -18,7 +20,7 @@ const savedJobRoutes = require('./routes/v1/savedJobRoutes');
 const { startCronJobs } = require('./utils/cronJobs');
 const adminRoutes = require('./routes/v1/adminRoutes');
 
-dotenv.config();
+
 
 const app = express();
 

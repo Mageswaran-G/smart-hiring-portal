@@ -8,6 +8,7 @@
 
 // Navigate — redirects to another page
 import { Navigate } from 'react-router-dom';
+import { ROUTES } from '../../constants/routes';
 
 // useAuth — gets token and loading state from context
 import { useAuth } from '../../context/AuthContext';
@@ -27,7 +28,7 @@ export default function ProtectedRoute({ children }) {
 
   // Not logged in — send to login page
   if (!accessToken) {
-    return <Navigate to="/login" />;
+    return <Navigate to={ROUTES.LOGIN} replace />;
   }
 
   // Logged in — show the page

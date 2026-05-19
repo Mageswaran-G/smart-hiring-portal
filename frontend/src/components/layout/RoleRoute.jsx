@@ -2,7 +2,7 @@
 // RoleRoute.jsx
 // Purpose: Blocks access if user role is not allowed
 // Example: Only 'candidate' can access candidate dashboard
-// If wrong role → redirects to login
+// If wrong role → redirects to the role-aware dashboard
 // ─────────────────────────────────────────────────────
 
 import { Navigate } from 'react-router-dom';
@@ -13,9 +13,9 @@ import { useAuth } from '../../context/AuthContext';
 export default function RoleRoute({ children, allowedRoles }) {
   const { user } = useAuth();
 
-  // No user OR role not in allowed list → redirect to login
+  // No user OR role not in allowed list → redirect to role-aware dashboard
   if (!user || !allowedRoles.includes(user.role)) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   // Role is allowed — show the page

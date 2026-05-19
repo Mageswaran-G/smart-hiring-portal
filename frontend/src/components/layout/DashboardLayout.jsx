@@ -7,11 +7,12 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Briefcase, Bookmark, FileText,
-  User, Users, PlusCircle, Building2, BarChart3,
+  User, Users, PlusCircle, Building2,
   Shield, LogOut, Menu, X,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ROUTES } from '../../constants/routes';
+import SafeAvatar from '../ui/SafeAvatar';
 
 // ─── Colors per role ─────────────────────────────────────────
 const COLORS = {
@@ -31,16 +32,18 @@ const NAV_LINKS = {
   ],
   company: [
     { label:'Dashboard',   Icon:LayoutDashboard, path:ROUTES.COMPANY_DASHBOARD   },
-    { label:'My Jobs',     Icon:Briefcase,        path:ROUTES.COMPANY_JOBS        },
+    {
+      label:'My Jobs',
+      Icon:Briefcase,
+      path:ROUTES.COMPANY_JOBS,
+      activeWhen: (pathname) => pathname === ROUTES.COMPANY_JOBS || /^\/company\/jobs\/[^/]+\/edit$/.test(pathname),
+    },
     { label:'Applicants',  Icon:Users,            path:ROUTES.COMPANY_APPLICATIONS },
     { label:'Post a Job',  Icon:PlusCircle,       path:ROUTES.COMPANY_JOB_CREATE  },
     { label:'My Profile',  Icon:Building2,        path:ROUTES.PROFILE             },
   ],
   admin: [
     { label:'Dashboard',  Icon:LayoutDashboard, path:ROUTES.ADMIN_DASHBOARD },
-    { label:'Companies',  Icon:Building2,        path:ROUTES.ADMIN_DASHBOARD },
-    { label:'Users',      Icon:Users,            path:ROUTES.ADMIN_DASHBOARD },
-    { label:'Analytics',  Icon:BarChart3,        path:ROUTES.ADMIN_DASHBOARD },
   ],
 };
 
@@ -60,11 +63,15 @@ export default function DashboardLayout({ children }) {
   const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
 
   const handleLogout = async () => {
-    try { await logoutUser(); } catch {}
+    try {
+      await logoutUser();
+    } catch (err) {
+      console.error('Logout failed:', err);
+    }
     navigate(ROUTES.LOGIN);
   };
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (link) => link.activeWhen?.(location.pathname) || location.pathname === link.path;
 
   return (
     <div style={{ minHeight:'100vh', background:'#f9fafb', fontFamily:'system-ui,-apple-system,sans-serif' }}>
@@ -102,8 +109,8 @@ export default function DashboardLayout({ children }) {
 
         {/* ── Desktop Nav links ── */}
         <nav style={{ display:'flex', gap:2, flex:1, alignItems:'center' }} className="desktop-nav">
-          {links.map(({ label, Icon, path }) => {
-            const active = isActive(path);
+          {links.map(({ label, Icon, path, activeWhen }) => {
+            const active = isActive({ path, activeWhen });
             return (
               <Link
                 key={path}
@@ -139,12 +146,12 @@ export default function DashboardLayout({ children }) {
           </div>
 
           {/* Avatar */}
-          {photo
-            ? <img src={photo} alt="" style={{ width:36, height:36, borderRadius:'50%', objectFit:'cover', border:`2px solid ${colors.badge}`, flexShrink:0 }} />
-            : <div style={{ width:36, height:36, borderRadius:'50%', background:colors.primary, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:14, flexShrink:0 }}>
-                {name[0].toUpperCase()}
-              </div>
-          }
+          <SafeAvatar
+            src={photo}
+            name={name}
+            style={{ width:36, height:36, borderRadius:'50%', objectFit:'cover', border:`2px solid ${colors.badge}`, flexShrink:0 }}
+            fallbackStyle={{ width:36, height:36, borderRadius:'50%', background:colors.primary, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:14, flexShrink:0 }}
+          />
 
           {/* Logout — desktop */}
           <button
@@ -183,10 +190,12 @@ export default function DashboardLayout({ children }) {
         }}>
           {/* User row */}
           <div style={{ display:'flex', alignItems:'center', gap:12, padding:'10px 12px', background:'#f9fafb', borderRadius:12, marginBottom:12 }}>
-            {photo
-              ? <img src={photo} alt="" style={{ width:40, height:40, borderRadius:'50%', objectFit:'cover', border:`2px solid ${colors.badge}` }} />
-              : <div style={{ width:40, height:40, borderRadius:'50%', background:colors.primary, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:16 }}>{name[0].toUpperCase()}</div>
-            }
+            <SafeAvatar
+              src={photo}
+              name={name}
+              style={{ width:40, height:40, borderRadius:'50%', objectFit:'cover', border:`2px solid ${colors.badge}` }}
+              fallbackStyle={{ width:40, height:40, borderRadius:'50%', background:colors.primary, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:16 }}
+            />
             <div>
               <p style={{ fontSize:14, fontWeight:700, color:'#111827', margin:0 }}>{name}</p>
               <p style={{ fontSize:11, fontWeight:600, color:colors.primary, margin:0 }}>{roleLabel}</p>
@@ -195,8 +204,8 @@ export default function DashboardLayout({ children }) {
 
           {/* Nav links */}
           <div style={{ display:'flex', flexDirection:'column', gap:2 }}>
-            {links.map(({ label, Icon, path }) => {
-              const active = isActive(path);
+            {links.map(({ label, Icon, path, activeWhen }) => {
+              const active = isActive({ path, activeWhen });
               return (
                 <Link
                   key={path}

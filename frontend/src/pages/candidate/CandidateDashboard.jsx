@@ -17,6 +17,7 @@ import { getSavedJobIds } from '../../services/savedJobService';
 import { getAllJobs } from '../../services/jobService';
 import { ROUTES } from '../../constants/routes';
 import useIsMobile from '../../hooks/useIsMobile';
+import SafeAvatar from '../../components/ui/SafeAvatar';
 
 // ─── Brand Colors ────────────────────────────────────────────
 const C = {
@@ -175,13 +176,14 @@ function LoadingScreen() {
 
 // ─── Avatar helper ───────────────────────────────────────────
 function Avatar({ profile, size = 44, border = '2px solid rgba(255,255,255,0.4)' }) {
-  if (profile?.photo) {
-    return <img src={profile.photo} alt="avatar" style={{ width:size, height:size, borderRadius:'50%', objectFit:'cover', border, flexShrink:0 }} />;
-  }
   return (
-    <div style={{ width:size, height:size, borderRadius:'50%', background:'rgba(255,255,255,0.22)', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:size*0.38, border, flexShrink:0 }}>
-      {(profile?.name || 'U')[0].toUpperCase()}
-    </div>
+    <SafeAvatar
+      src={profile?.photo}
+      name={profile?.name || 'U'}
+      alt="avatar"
+      style={{ width:size, height:size, borderRadius:'50%', objectFit:'cover', border, flexShrink:0 }}
+      fallbackStyle={{ width:size, height:size, borderRadius:'50%', background:'rgba(255,255,255,0.22)', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:size*0.38, border, flexShrink:0 }}
+    />
   );
 }
 
@@ -264,12 +266,12 @@ export default function CandidateDashboard() {
             </div>
             <span style={{ fontWeight:900, fontSize:17, color:C.gray900, letterSpacing:'-0.3px' }}>HirePortal</span>
           </div>
-          {profile?.photo
-            ? <img src={profile.photo} alt="" style={{ width:34, height:34, borderRadius:'50%', objectFit:'cover', border:`2px solid ${C.primary}` }} />
-            : <div style={{ width:34, height:34, borderRadius:'50%', background:C.primary, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:14 }}>
-                {(profile?.name||'U')[0].toUpperCase()}
-              </div>
-          }
+          <SafeAvatar
+            src={profile?.photo}
+            name={profile?.name || 'U'}
+            style={{ width:34, height:34, borderRadius:'50%', objectFit:'cover', border:`2px solid ${C.primary}` }}
+            fallbackStyle={{ width:34, height:34, borderRadius:'50%', background:C.primary, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:14 }}
+          />
         </header>
 
         {/* ── Mobile Hero ── */}

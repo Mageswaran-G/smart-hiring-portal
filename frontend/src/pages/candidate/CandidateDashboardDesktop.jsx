@@ -15,6 +15,7 @@ import { getMyApplications } from '../../services/applicationService';
 import { getSavedJobIds } from '../../services/savedJobService';
 import { getAllJobs } from '../../services/jobService';
 import { ROUTES } from '../../constants/routes';
+import SafeAvatar from '../../components/ui/SafeAvatar';
 
 const PRIMARY = '#ea580c';
 const DEEP    = '#c2410c';
@@ -152,10 +153,12 @@ export default function CandidateDashboardDesktop() {
               <div style={{ position: 'relative' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 18 }}>
                   <div style={{ position: 'relative', flexShrink: 0 }}>
-                    {profile?.photo
-                      ? <img src={profile.photo} alt="" style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.5)' }} />
-                      : <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 26, color: '#fff', border: '2px solid rgba(255,255,255,0.4)' }}>{(profile?.name || 'U')[0].toUpperCase()}</div>
-                    }
+                    <SafeAvatar
+                      src={profile?.photo}
+                      name={profile?.name || 'U'}
+                      style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.5)' }}
+                      fallbackStyle={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 26, color: '#fff', border: '2px solid rgba(255,255,255,0.4)' }}
+                    />
                     <div style={{ position: 'absolute', bottom: 2, right: 2, width: 14, height: 14, borderRadius: '50%', background: '#22c55e', border: '2px solid #ea580c' }} />
                   </div>
                   <div>
