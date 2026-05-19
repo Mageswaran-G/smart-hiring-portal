@@ -64,6 +64,11 @@ const STATUS_EMAIL_CONFIG = {
     subject:  'Application update — HirePortal',
     template: templates.rejectedTemplate,
   },
+
+  applied: {
+  subject:  'Application received — HirePortal',
+  template: templates.applicationReceivedTemplate,
+  },
 };
 
 

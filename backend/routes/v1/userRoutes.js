@@ -16,7 +16,8 @@ const uploadLimiter = rateLimit({
   message: { success: false, message: 'Too many upload attempts. Try again later.' }
 });
 
-router.get('/',           userController.getUsers);
+router.get('/', verifyToken, userController.getUsers);
+
 router.get('/profile',    verifyToken, userController.getMyProfile);
 router.put('/profile',    verifyToken, validateMiddleware(updateProfileSchema), userController.updateMyProfile);
 router.post('/upload-resume',

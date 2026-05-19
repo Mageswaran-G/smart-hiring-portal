@@ -223,3 +223,28 @@ exports.reviewingTemplate = ({ candidateName, jobTitle, companyName, portalUrl }
       Track My Application
     </a>
   `);
+
+  // ─── Application received email ───────────────────────────────
+exports.applicationReceivedTemplate = ({ candidateName, jobTitle, companyName, portalUrl }) =>
+  wrap(`
+    <h2 style="margin:0 0 8px; color:#111827; font-size:20px; font-weight:800;">
+      Application Submitted!
+    </h2>
+    <p style="margin:0 0 20px; color:#6b7280; font-size:15px; line-height:1.6;">
+      Hi <strong style="color:#111827;">${candidateName}</strong>,<br/><br/>
+      Your application for <strong style="color:#111827;">${jobTitle}</strong>
+      at <strong style="color:#111827;">${companyName}</strong> was submitted successfully.
+    </p>
+    <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:16px 20px; margin:0 0 24px;">
+      <p style="margin:0; color:#166534; font-size:14px; font-weight:700;">
+        Application Received
+      </p>
+      <p style="margin:6px 0 0; color:#16a34a; font-size:13px;">
+        The company will review your profile. You will be notified of any updates.
+      </p>
+    </div>
+    <a href="${portalUrl}"
+       style="display:inline-block; background:linear-gradient(135deg,#ea580c,#f97316); color:#ffffff; text-decoration:none; padding:13px 28px; border-radius:10px; font-size:14px; font-weight:700;">
+      Track My Application
+    </a>
+  `);

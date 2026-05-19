@@ -12,4 +12,22 @@ router.post('/login',   validateMiddleware(loginSchema),  login);
 router.post('/refresh', refresh);
 router.post('/logout',  verifyToken, logout);
 
+// Test email route — only for development
+// DELETE THIS in production!
+router.post('/test-email', async (req, res) => {
+  const { sendStatusEmail } = require('../../utils/emailService');
+  try {
+    await sendStatusEmail({
+      to:            req.body.to || 'mageswaran.gmw@gmail.com',
+      candidateName: req.body.name || 'Test Candidate',
+      jobTitle:      'Full Stack Developer',
+      companyName:   'HirePortal Test Co',
+      status:        req.body.status || 'shortlisted',
+    });
+    res.json({ success: true, message: 'Email sent — check inbox' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 module.exports = router;
