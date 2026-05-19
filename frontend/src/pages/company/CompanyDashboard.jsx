@@ -369,9 +369,11 @@ export default function CompanyDashboard() {
               { label:'Company Profile',   desc:'Update company info',         Icon:User,       route:ROUTES.PROFILE,              color:'#059669' },
             ].map(({ label, desc, Icon, route, color }) => (
               <button key={label} onClick={() => navigate(route)} style={{ background:'#fff', border:`1px solid ${C.gray100}`, borderRadius:14, padding:'14px 16px', display:'flex', alignItems:'center', gap:14, cursor:'pointer', textAlign:'left', boxShadow:'0 1px 3px rgba(0,0,0,0.05)' }}>
+                
                 <div style={{ width:42, height:42, borderRadius:12, background:`${color}12`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                   <Icon size={20} color={color} />
                 </div>
+
                 <div>
                   <p style={{ fontSize:13, fontWeight:700, color:C.gray900, margin:'0 0 1px' }}>{label}</p>
                   <p style={{ fontSize:11, color:C.gray400, margin:0 }}>{desc}</p>
@@ -477,66 +479,120 @@ export default function CompanyDashboard() {
       </div>
 
       {/* ── Desktop Hero ── */}
-      <section style={{ background:C.grad, padding:'44px 32px 52px' }}>
-        <div style={{ maxWidth:1200, margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'space-between', gap:32 }}>
+      <section style={{ padding:'24px 32px 0'}}>
+        
+        <div style={{ maxWidth:1200, margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 360px', gap:18 }}>
 
-          <div style={{ display:'flex', alignItems:'center', gap:22 }}>
-            <CompanyAvatar profile={profile} size={86} border="3px solid rgba(255,255,255,0.45)" />
-            <div>
-              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:5 }}>
-                <p style={{ color:'rgba(255,255,255,0.7)', fontSize:13, margin:0, fontWeight:500 }}>Company Dashboard</p>
-                {profile?.isVerified && (
-                  <span style={{ display:'flex', alignItems:'center', gap:4, background:'rgba(59,130,246,0.35)', color:'#bfdbfe', fontSize:11, fontWeight:700, borderRadius:9999, padding:'2px 10px', border:'1px solid rgba(59,130,246,0.4)' }}>
-                    <ShieldCheck size={11} /> Verified
-                  </span>
+          <div style={{
+            background: C.grad,
+            borderRadius: 24,
+            padding: '28px 32px',
+            color: '#fff',
+            position: 'relative',
+            overflow: 'hidden',
+            minHeight: 240,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between'
+          }}>
+            {/* dot pattern inside card now */}
+            <div style={{ position:'absolute', inset:0, backgroundImage:'radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)', backgroundSize:'24px 24px', pointerEvents:'none' }} />
+            <div style={{ position:'relative' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:16, marginBottom:14 }}>
+              <CompanyAvatar profile={profile} size={64} border="1.5px solid rgba(255,255,255,0.3)" />
+              <div>
+                <p style={{ fontSize:13, opacity:0.85, margin:'0 0 2px' }}>Welcome back,</p>
+                <h1 style={{ fontWeight:900, fontSize:28, margin:'0 0 3px', lineHeight:1.05, letterSpacing:'-0.8px', color:'#fff' }}>
+                  {profile?.companyName || profile?.name || 'Company'}
+                </h1>
+                {profile?.email && (
+                  <p style={{ fontSize:12, opacity:0.75, margin:0 }}>{profile.email}</p>
                 )}
               </div>
-              <h1 style={{ color:'#fff', fontWeight:900, fontSize:32, margin:'0 0 6px', lineHeight:1.1, letterSpacing:'-0.8px' }}>
-                {profile?.companyName || profile?.name || 'Company'}
-              </h1>
+            </div>
+            {/* Industry / Location / Verified pills */}
+            <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
               {profile?.industry && (
-                <p style={{ color:'rgba(255,255,255,0.8)', fontSize:14, margin:'0 0 12px' }}>
-                  {profile.industry}{profile?.companySize ? ` · ${profile.companySize} employees` : ''}
-                </p>
+                <span style={{ display:'inline-flex', alignItems:'center', gap:5, padding:'5px 12px', borderRadius:9999, fontSize:11.5, background:'rgba(255,255,255,0.18)', border:'1px solid rgba(255,255,255,0.2)', color:'#fff' }}>
+                  {profile.industry}
+                </span>
               )}
-              <div style={{ display:'flex', gap:10 }}>
-                {[
-                  { label:`${stats.total||0} Jobs Posted`,      bg:'rgba(255,255,255,0.18)' },
-                  { label:`${stats.activeCount||0} Active`,      bg:'rgba(255,255,255,0.12)' },
-                  { label:`${stats.applications||0} Applicants`, bg:'rgba(59,130,246,0.3)' },
-                ].map(({ label, bg }) => (
-                  <span key={label} style={{ background:bg, color:'rgba(255,255,255,0.92)', fontSize:12, fontWeight:700, borderRadius:9999, padding:'4px 13px', border:'1px solid rgba(255,255,255,0.18)' }}>
-                    {label}
-                  </span>
-                ))}
-              </div>
+              {profile?.isVerified && (
+                <span style={{ display:'inline-flex', alignItems:'center', gap:5, padding:'5px 12px', borderRadius:9999, fontSize:11.5, background:'rgba(255,255,255,0.18)', border:'1px solid rgba(255,255,255,0.2)', color:'#fff' }}>
+                  ✓ Verified
+                </span>
+              )}
             </div>
           </div>
-
-          {/* Hiring Funnel Panel */}
-          <div style={{ background:'rgba(0,0,0,0.22)', borderRadius:22, padding:'22px 28px', backdropFilter:'blur(10px)', border:'1px solid rgba(255,255,255,0.1)', flexShrink:0, minWidth:280 }}>
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
-              <p style={{ color:'rgba(255,255,255,0.75)', fontSize:12, margin:0, fontWeight:600 }}>Hiring Funnel</p>
-              <ProgressRing value={hireRate} size={52} stroke={5} color={C.accent} bg="rgba(255,255,255,0.15)" textColor="#fff" />
+          <div style={{ display:'flex', alignItems:'center', gap:10, position:'relative' }}>
+            <button onClick={() => navigate(ROUTES.COMPANY_JOB_CREATE)} style={{
+              padding:'11px 22px', borderRadius:10, fontSize:13, fontWeight:600,
+              background:'#fff', color:C.dark, border:'none', cursor:'pointer',
+              display:'inline-flex', alignItems:'center', gap:7
+            }}>+ Post New Job →</button>
+            <button onClick={() => navigate(ROUTES.COMPANY_APPLICATIONS)} style={{
+              padding:'11px 18px', borderRadius:10, fontSize:13, fontWeight:500,
+              background:'rgba(255,255,255,0.15)', color:'#fff',
+              border:'1px solid rgba(255,255,255,0.25)', cursor:'pointer'
+            }}>View Applicants</button>
+            <div style={{ flex:1 }} />
+            {/* stat pills at far right */}
+            <div style={{ display:'flex', gap:6 }}>
+              {[
+                { label:`${stats.total||0} jobs`, bg:'rgba(255,255,255,0.18)' },
+                { label:`${stats.applications||0} applicants`, bg:'rgba(255,255,255,0.18)' },
+                { label:`${stats.shortlisted||0} shortlisted`, bg:'rgba(59,130,246,0.5)' },
+              ].map(({ label, bg }) => (
+                <span key={label} style={{ padding:'7px 12px', borderRadius:9999, fontSize:11.5, fontWeight:600, background:bg, color:'#fff', border:'1px solid rgba(255,255,255,0.2)' }}>
+                  {label}
+                </span>
+              ))}
             </div>
+            
+          </div>
+          </div>        
+          {/* Hiring Funnel Panel */}
+          <div style={{ background:'#0a0a14', borderRadius:18, padding:'18px 22px', backdropFilter:'blur(12px)', border:'1px solid rgba(255,255,255,0.14)', flexShrink:0, minWidth:260 }}>
+            <p style={{ color:'rgba(255,255,255,0.75)', fontSize:11, margin:'0 0 12px', fontWeight:700, letterSpacing:1.5, textTransform:'uppercase' }}>
+              Hiring Funnel
+            </p>
             {[
-              { label:'Total Applied',  value:stats.applications||0, bar:100 },
-              { label:'Reviewing', value: stats.reviewing, bar:stats.applications>0 ? Math.round((stats.reviewing/(stats.applications||1))*100) : 0 },
-              { label:'Shortlisted',    value:stats.shortlisted||0,  bar:stats.applications>0 ? Math.round(((stats.shortlisted||0)/(stats.applications||1))*100) : 0 },
-              { label:'Hired',          value:stats.hired||0,        bar:hireRate },
-            ].map(({ label, value, bar }) => (
-              <div key={label} style={{ marginBottom:10 }}>
-                <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
-                  <span style={{ fontSize:11, color:'rgba(255,255,255,0.72)', fontWeight:500 }}>{label}</span>
-                  <span style={{ fontSize:12, color:'#fff', fontWeight:700 }}>{value}</span>
+              { stage:'Applied',     count: stats.applications||0, pct:100,    color: C.accent },
+              { stage:'Reviewing',   count: stats.reviewing||0,    pct: stats.applications>0 ? Math.round((stats.reviewing/(stats.applications||1))*100) : 0, color:'#0891b2' },
+              { stage:'Shortlisted', count: stats.shortlisted||0,  pct: stats.applications>0 ? Math.round((stats.shortlisted/(stats.applications||1))*100) : 0, color:'#ea580c' },
+              { stage:'Hired',       count: stats.hired||0,        pct: hireRate, color:'#a855f7' },
+            ].map((p, i) => (
+              <div key={p.stage} style={{ display:'flex', alignItems:'center', gap:10, marginBottom:7 }}>
+                <div style={{ flex:1, height:28, position:'relative' }}>
+                  <div style={{
+                    width: `${p.pct}%`,
+                    height: '100%',
+                    borderRadius: 6,
+                    background: `linear-gradient(90deg, ${p.color}, ${p.color}88)`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    paddingLeft: 10,
+                    fontSize: 11,
+                    fontWeight: 600,
+                    color: '#fff',
+                    minWidth: 60,
+                    transition: 'width 0.8s ease'
+                  }}>{p.stage}</div>
                 </div>
-                <div style={{ height:5, background:'rgba(255,255,255,0.12)', borderRadius:9999, overflow:'hidden' }}>
-                  <div style={{ width:`${bar}%`, height:'100%', background: label==='Hired' ? '#22c55e' : 'rgba(255,255,255,0.55)', borderRadius:9999, transition:'width 0.8s ease' }} />
-                </div>
+                <span style={{ fontWeight:700, fontSize:15, minWidth:20, textAlign:'right', color:'#fff' }}>
+                  {p.count}
+                </span>
+                
               </div>
             ))}
+            {stats.applications > 0 && (
+                  <div style={{ padding:'8px 12px', background:'rgba(59,130,246,0.15)', border:'1px solid rgba(59,130,246,0.3)', borderRadius:10, fontSize:11.5, color:'rgba(255,255,255,0.85)', marginTop:10 }}>
+                    Conversion: <strong style={{ color:'#93c5fd' }}>{hireRate}%</strong> applied → hired
+                  </div>
+                )}
           </div>
         </div>
+        
       </section>
 
       {/* ── Desktop Stats Row ── */}
@@ -574,26 +630,34 @@ export default function CompanyDashboard() {
           {/* Quick Actions */}
           <div style={{ background:'#fff', borderRadius:20, padding:'26px', boxShadow:'0 1px 5px rgba(0,0,0,0.06)', border:`1px solid ${C.gray100}` }}>
             <h2 style={{ fontSize:17, fontWeight:800, color:C.gray900, margin:'0 0 18px', letterSpacing:'-0.3px' }}>Quick Actions</h2>
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14 }}>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14 }}>
               {[
-                { label:'Post New Job',   desc:'Create listing',           Icon:PlusCircle, route:ROUTES.COMPANY_JOB_CREATE,   color:C.primary },
-                { label:'Manage Jobs',    desc:`${jobs.length} posted`,    Icon:Briefcase,  route:ROUTES.COMPANY_JOBS,         color:'#8b5cf6' },
-                { label:'Applicants',     desc:`${applications.length} total`, Icon:Users, route:ROUTES.COMPANY_APPLICATIONS, color:'#0891b2' },
-                { label:'Profile',        desc:'Update info',              Icon:User,       route:ROUTES.PROFILE,              color:'#059669' },
+                { label:'Post New Job',   desc:'Create listing',               Icon:PlusCircle, route:ROUTES.COMPANY_JOB_CREATE,   color:C.primary },
+                { label:'Job Postings',   desc:`${jobs.length} posted`,        Icon:Briefcase,  route:ROUTES.COMPANY_JOBS,         color:'#8b5cf6' },
+                { label:'Applicants',     desc:`${applications.length} total`, Icon:Users,      route:ROUTES.COMPANY_APPLICATIONS, color:'#0891b2' },
               ].map(({ label, desc, Icon, route, color }) => (
-                <button key={label} onClick={() => navigate(route)} style={{ background:`${color}08`, border:`1px solid ${color}22`, borderRadius:16, padding:'18px 14px', display:'flex', flexDirection:'column', alignItems:'flex-start', gap:10, cursor:'pointer', textAlign:'left', transition:'all 0.15s' }}
+                
+                <button key={label} onClick={() => navigate(route)} style={{ background:`${color}08`, border:`1px solid ${color}22`, borderRadius:16,
+                  position:'relative',  overflow:'hidden', padding:'18px 14px', display:'flex', flexDirection:'column', alignItems:'flex-start', gap:10, cursor:'pointer', textAlign:'left', transition:'all 0.15s' }}
                   onMouseEnter={e => { e.currentTarget.style.boxShadow=`0 4px 16px ${color}22`; e.currentTarget.style.borderColor=`${color}44`; }}
                   onMouseLeave={e => { e.currentTarget.style.boxShadow='none'; e.currentTarget.style.borderColor=`${color}22`; }}>
+                  {/* Top color stripe */}
+                  <div style={{ position:'absolute', top:0, left:0, width:'100%', height:3, background:color, opacity:0.8 }} />
                   <div style={{ width:42, height:42, borderRadius:12, background:`${color}15`, display:'flex', alignItems:'center', justifyContent:'center' }}>
                     <Icon size={20} color={color} />
                   </div>
+
                   <div>
                     <p style={{ fontSize:13, fontWeight:800, color:C.gray900, margin:'0 0 2px' }}>{label}</p>
                     <p style={{ fontSize:11, color:C.gray400, margin:0 }}>{desc}</p>
                   </div>
+                   <div style={{ display:'inline-flex', alignItems:'center', gap:5, color:color, fontSize:12, fontWeight:600 }}>
+                    Open →
+                  </div>
                 </button>
               ))}
             </div>
+            
           </div>
 
           {/* Recent Applicants Table */}
