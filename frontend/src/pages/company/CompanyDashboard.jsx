@@ -222,7 +222,7 @@ export default function CompanyDashboard() {
   const isMobile = useIsMobile();
 
   const [activeTab,    setActiveTab]    = useState('overview');
-  const [stats,        setStats]        = useState({ total:0, applications:0, shortlisted:0, hired:0, activeCount:0 });
+  const [stats,        setStats]        = useState({ total:0, applications:0, shortlisted:0, hired:0, activeCount:0, reviewing:0 });
   const [applications, setApplications] = useState([]);
   const [jobs,         setJobs]         = useState([]);
   const [loading,      setLoading]      = useState(true);
@@ -244,6 +244,7 @@ export default function CompanyDashboard() {
           total:        raw.totalJobs   || 0,
           activeCount:  raw.activeJobs  || 0,
           applications: raw.totalApps   || 0,
+          reviewing:    raw.reviewing   || 0, 
           shortlisted:  raw.shortlisted || 0,
           hired:        raw.hired       || 0,
         });
@@ -520,7 +521,7 @@ export default function CompanyDashboard() {
             </div>
             {[
               { label:'Total Applied',  value:stats.applications||0, bar:100 },
-              { label:'Reviewing',      value:applications.filter(a=>a.status==='reviewing').length, bar:stats.applications>0 ? Math.round((applications.filter(a=>a.status==='reviewing').length/(stats.applications||1))*100) : 0 },
+              { label:'Reviewing', value: stats.reviewing, bar:stats.applications>0 ? Math.round((stats.reviewing/(stats.applications||1))*100) : 0 },
               { label:'Shortlisted',    value:stats.shortlisted||0,  bar:stats.applications>0 ? Math.round(((stats.shortlisted||0)/(stats.applications||1))*100) : 0 },
               { label:'Hired',          value:stats.hired||0,        bar:hireRate },
             ].map(({ label, value, bar }) => (
