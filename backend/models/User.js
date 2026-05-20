@@ -155,6 +155,15 @@ const userSchema = new mongoose.Schema({
   
   isSuspended: { type: Boolean, default: false },
 
+  isDeleted: {
+  type: Boolean,
+  default: false,
+  },
+  deletedAt: {
+    type: Date,
+    default: null,
+  },
+
 }, { timestamps: true, versionKey: false });
 
 // Auto hash password before saving

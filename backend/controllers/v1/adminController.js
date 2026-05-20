@@ -70,7 +70,10 @@ exports.getAllCompanies = async (req, res) => {
     const { search = "", filter = "all", page = 1, limit = 10 } = req.query;
 
     // Build the query object
-    const query = { role: "company" };
+    const query = { 
+      role: "company",
+      isDeleted: { $ne: true }
+    };
 
     // Search by company name
     if (search) {
@@ -195,7 +198,10 @@ exports.getAllUsers = async (req, res) => {
     const { search = "", filter = "all", page = 1, limit = 10 } = req.query;
 
     // Build query — exclude admin accounts
-    const query = { role: { $ne: "admin" } };
+    const query = { 
+      role: { $ne: "admin" },
+      isDeleted: { $ne: true }  // exclude soft deleted users
+    };
 
     // Search by name or email
     if (search) {
@@ -232,9 +238,8 @@ exports.getAllUsers = async (req, res) => {
 exports.deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
-
-    // Never delete admin accounts
     const user = await User.findById(id);
+
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
@@ -242,7 +247,12 @@ exports.deleteUser = async (req, res) => {
       return res.status(403).json({ success: false, message: "Cannot delete admin accounts" });
     }
 
-    await User.findByIdAndDelete(id);
+    // Soft delete — never permanently remove users
+    // isDeleted = true means hidden from all queries
+    // deletedAt records when it happened
+    user.isDeleted = true;
+    user.deletedAt = new Date();
+    await user.save();
 
     res.json({ success: true, message: "User deleted successfully" });
 
