@@ -76,7 +76,7 @@ export default function DashboardLayout({ children }) {
   const isActive = (link) => link.activeWhen?.(location.pathname) || location.pathname === link.path;
 
   return (
-    <div style={{ minHeight:'100vh', background:'#f9fafb', fontFamily:'system-ui,-apple-system,sans-serif' }}>
+    <div style={{ minHeight:'100vh', background:'#f9fafb', fontFamily:'system-ui,-apple-system,sans-serif', overflowX:'hidden', maxWidth:'100vw' }}>
 
       {/* ══════════════════════════════════════════════════════
           TOP NAVIGATION BAR — desktop
@@ -94,7 +94,7 @@ export default function DashboardLayout({ children }) {
         alignItems: 'center',
         padding  : '0 24px',
         gap      : 16,
-      }}>
+      }} className="main-header">
 
         {/* Logo */}
         <Link
@@ -110,7 +110,8 @@ export default function DashboardLayout({ children }) {
         </Link>
 
         {/* ── Desktop Nav links ── */}
-        <nav style={{ display:'flex', gap:2, flex:1, alignItems:'center' }} className="desktop-nav">
+        <nav style={{ display:'flex', gap:2, alignItems:'center' }} className="desktop-nav">
+          
           {links.map(({ label, Icon, path, activeWhen }) => {
             const active = isActive({ path, activeWhen });
             return (
@@ -138,11 +139,14 @@ export default function DashboardLayout({ children }) {
           })}
         </nav>
 
+        {/* Spacer — pushes right content to end on desktop, hidden on mobile */}
+        <div className="nav-spacer" style={{ flex:1 }} />
+
         {/* ── Right: User + Role + Logout ── */}
-        <div style={{ display:'flex', alignItems:'center', gap:12, flexShrink:0 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:12, flexShrink:0 }}className="header-right">
 
           {/* User info */}
-          <div style={{ textAlign:'right' }}>
+          <div style={{ textAlign:'right' }} className="desktop-userinfo">
             <p style={{ fontSize:13, fontWeight:700, color:'#111827', margin:0, lineHeight:1.2 }}>{name}</p>
             <p style={{ fontSize:11, fontWeight:600, color:colors.primary, margin:0 }}>{roleLabel}</p>
           </div>
@@ -158,6 +162,7 @@ export default function DashboardLayout({ children }) {
           {/* Logout — desktop */}
           <button
             onClick={handleLogout}
+            className="desktop-logout"
             style={{ display:'flex', alignItems:'center', gap:6, padding:'7px 14px', borderRadius:9, border:'1px solid #e5e7eb', background:'#fff', color:'#6b7280', fontSize:13, fontWeight:600, cursor:'pointer' }}
           >
             <LogOut size={14} /> Logout
@@ -254,7 +259,16 @@ export default function DashboardLayout({ children }) {
       <style>{`
         @media (max-width: 768px) {
           .desktop-nav { display: none !important; }
+          .nav-spacer { display: none !important; }
           .mobile-menu-btn { display: flex !important; }
+          .main-header { 
+            padding: 0 16px !important; 
+            justify-content: space-between !important;
+            gap: 0 !important;
+          }
+          .desktop-logout { display: none !important; }
+          .desktop-userinfo { display: none !important; }
+          .header-right { gap: 8px !important; }
         }
       `}</style>
 

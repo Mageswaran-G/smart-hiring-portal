@@ -133,7 +133,7 @@ export default function AdminCompaniesPage() {
         </div>
 
         {/* Filter Buttons */}
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           {["all", "verified", "unverified", "suspended"].map(f => (
             <button
               key={f}
@@ -261,7 +261,7 @@ export default function AdminCompaniesPage() {
             </div>
 
             {/* Action Buttons */}
-            <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               {/* Verify Button */}
               <button
                 onClick={() => handleVerify(company._id, company.isVerified)}

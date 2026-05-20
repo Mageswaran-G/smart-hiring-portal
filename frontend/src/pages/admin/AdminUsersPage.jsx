@@ -122,7 +122,7 @@ export default function AdminUsersPage() {
               }}
             />
           </div>
-          <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {["all", "candidates", "companies", "suspended"].map(f => (
               <button key={f} onClick={() => setFilter(f)} style={{
                 padding: "8px 16px", borderRadius: 8, fontSize: 13,
@@ -231,7 +231,7 @@ export default function AdminUsersPage() {
               </div>
 
               {/* Actions */}
-              <div style={{ display: "flex", gap: 8 }}>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 {/* Suspend Button */}
                 <button onClick={() => handleSuspend(user._id, user.isSuspended)} style={{
                   padding: "6px 10px", borderRadius: 6, fontSize: 12,
