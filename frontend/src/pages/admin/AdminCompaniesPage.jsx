@@ -72,7 +72,14 @@ export default function AdminCompaniesPage() {
 
   return (
     <DashboardLayout>
-    <div style={{ padding: "24px 32px", maxWidth: 1200, margin: "0 auto" }}>
+        <div style={{ 
+            padding: "16px 12px", 
+            maxWidth: 1200, 
+            margin: "0 auto", 
+            boxSizing: "border-box",
+            width: "100%",
+            overflowX: "hidden"
+        }}>
 
       {/* Page Header */}
       <div style={{ marginBottom: 24 }}>
@@ -85,7 +92,7 @@ export default function AdminCompaniesPage() {
       </div>
 
       {/* Stats Row */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 24 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16, marginBottom: 24 }}>
         {[
           { label: "Total Companies", value: total, color: C.purple },
           { label: "Verified", value: companies.filter(c => c.isVerified).length, color: "#059669" },
@@ -149,14 +156,15 @@ export default function AdminCompaniesPage() {
       {/* Companies Table */}
       <div style={{
         background: "white", borderRadius: 12,
-        border: "1px solid #f3f4f6", overflow: "hidden",
+        border: "1px solid #f3f4f6", overflowX: "auto",
         boxShadow: "0 1px 3px rgba(0,0,0,0.06)"
-      }}>
+        }}>
         {/* Table Header */}
         <div style={{
           display: "grid",
           gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1.5fr",
           padding: "12px 20px",
+          minWidth: 700,
           background: "#f9fafb",
           borderBottom: "1px solid #f3f4f6",
           fontSize: 12, fontWeight: 600, color: "#6b7280",
@@ -192,6 +200,7 @@ export default function AdminCompaniesPage() {
               display: "grid",
               gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1.5fr",
               padding: "14px 20px",
+              minWidth: 700,
               borderBottom: idx < companies.length - 1 ? "1px solid #f3f4f6" : "none",
               alignItems: "center",
               background: company.isSuspended ? "#fff5f5" : "white",

@@ -64,7 +64,14 @@ export default function AdminUsersPage() {
 
   return (
     <DashboardLayout>
-      <div style={{ padding: "24px 32px", maxWidth: 1200, margin: "0 auto" }}>
+        <div style={{ 
+            padding: "16px 12px", 
+            maxWidth: 1200, 
+            margin: "0 auto", 
+            boxSizing: "border-box",
+            width: "100%",
+            overflowX: "hidden"
+        }}>
 
         {/* Header */}
         <div style={{ marginBottom: 24 }}>
@@ -77,7 +84,7 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Stats Row */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 24 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16, marginBottom: 24 }}>
           {[
             { label: "Total Users",  value: total,                                              color: C.purple   },
             { label: "Candidates",   value: users.filter(u => u.role === "candidate").length,   color: "#ea580c"  },
@@ -133,14 +140,14 @@ export default function AdminUsersPage() {
 
         {/* Table */}
         <div style={{
-          background: "white", borderRadius: 12,
-          border: "1px solid #f3f4f6", overflow: "hidden",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.06)"
-        }}>
+            background: "white", borderRadius: 12,
+            border: "1px solid #f3f4f6", overflowX: "auto",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.06)"
+            }}>
           {/* Table Header */}
           <div style={{
             display: "grid", gridTemplateColumns: "2fr 2fr 1fr 1fr 1.5fr",
-            padding: "12px 20px", background: "#f9fafb",
+            padding: "12px 20px", minWidth: 700, background: "#f9fafb",
             borderBottom: "1px solid #f3f4f6",
             fontSize: 12, fontWeight: 600, color: "#6b7280",
             textTransform: "uppercase", letterSpacing: "0.05em"
@@ -171,7 +178,7 @@ export default function AdminUsersPage() {
           {!loading && users.map((user, idx) => (
             <div key={user._id} style={{
               display: "grid", gridTemplateColumns: "2fr 2fr 1fr 1fr 1.5fr",
-              padding: "14px 20px",
+              padding: "14px 20px", minWidth: 700,
               borderBottom: idx < users.length - 1 ? "1px solid #f3f4f6" : "none",
               alignItems: "center",
               background: user.isSuspended ? "#fff5f5" : "white"

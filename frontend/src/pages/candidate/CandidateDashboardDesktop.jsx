@@ -153,13 +153,40 @@ export default function CandidateDashboardDesktop() {
               <div style={{ position: 'relative' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 22, marginBottom: 24 }}>
                   <div style={{ position: 'relative', flexShrink: 0 }}>
-                    <SafeAvatar
-                      src={profile?.photo}
-                      name={profile?.name || 'U'}
-                      style={{ width: 78, height: 78, borderRadius: '50%', objectFit: 'cover', border: '2.5px solid rgba(255,255,255,0.55)' }}
-                      fallbackStyle={{ width: 78, height: 78, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 32, color: '#fff', border: '2.5px solid rgba(255,255,255,0.45)' }}
-                    />
-                    <div style={{ position: 'absolute', bottom: 3, right: 3, width: 16, height: 16, borderRadius: '50%', background: '#22c55e', border: '2.5px solid #ea580c' }} />
+                    {/* Orange glow ring */}
+                    <div style={{
+                      width: 86, height: 86,
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, #fb923c, #ea580c, #c2410c)',
+                      padding: 3,
+                      boxShadow: '0 0 28px rgba(234,88,12,0.6), 0 8px 24px rgba(0,0,0,0.3)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <SafeAvatar
+                        src={profile?.photo}
+                        name={profile?.name || 'U'}
+                        style={{
+                          width: 78, height: 78,
+                          borderRadius: '50%',
+                          objectFit: 'cover',
+                        }}
+                        fallbackStyle={{
+                          width: 78, height: 78,
+                          borderRadius: '50%',
+                          background: 'linear-gradient(135deg, #ea580c, #c2410c)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontWeight: 800, fontSize: 32, color: '#fff',
+                        }}
+                      />
+                    </div>
+                    {/* Green online dot */}
+                    <div style={{
+                      position: 'absolute', bottom: 4, right: 4,
+                      width: 16, height: 16, borderRadius: '50%',
+                      background: '#22c55e',
+                      border: '2.5px solid #c2410c',
+                      boxShadow: '0 0 8px rgba(34,197,94,0.6)',
+                    }} />
                   </div>
                   <div>
                     <p style={{ fontSize: 14, opacity: 0.88, margin: '0 0 5px', letterSpacing: '0.1px' }}>Welcome back,</p>
