@@ -510,8 +510,34 @@ export default function AdminDashboard() {
 
           {/* Left: Admin Identity */}
           <div style={{ display:'flex', alignItems:'center', gap:28 }}>
-            <div style={{ width:100, height:100, borderRadius:28, background:'rgba(255,255,255,0.15)', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:900, fontSize:40, border:'3px solid rgba(255,255,255,0.32)', flexShrink:0, letterSpacing:'-1px', boxShadow:'0 8px 32px rgba(0,0,0,0.2)' }}>
-              {adminName[0].toUpperCase()}
+            <div style={{ position:'relative', flexShrink:0 }}>
+              {/* Outer glow ring */}
+              <div style={{
+                width: 108, height: 108, borderRadius: '50%',
+                background: 'linear-gradient(135deg, #a78bfa, #7c3aed, #4c1d95)',
+                padding: 3,
+                boxShadow: '0 0 32px rgba(167,139,250,0.5), 0 8px 32px rgba(0,0,0,0.3)',
+              }}>
+                {/* Inner circle */}
+                <div style={{
+                  width: '100%', height: '100%', borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #6d28d9, #4c1d95)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: '#fff', fontWeight: 900, fontSize: 38,
+                  letterSpacing: '-1px',
+                  boxShadow: 'inset 0 2px 8px rgba(255,255,255,0.15)',
+                }}>
+                  {adminName[0].toUpperCase()}
+                </div>
+              </div>
+              {/* Online green dot */}
+              <div style={{
+                position: 'absolute', bottom: 6, right: 6,
+                width: 18, height: 18, borderRadius: '50%',
+                background: '#22c55e',
+                border: '3px solid #2e1065',
+                boxShadow: '0 0 8px rgba(34,197,94,0.6)',
+              }} />
             </div>
             <div>
               <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
