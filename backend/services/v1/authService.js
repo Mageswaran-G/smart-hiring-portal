@@ -8,17 +8,44 @@ const logger = require('../../utils/logger');
 // SIGNUP SERVICE
 exports.signup = async ({ name, email, password, role }) => {
 
+  const allowedRoles = ['candidate', 'company'];
+  const safeRole = allowedRoles.includes(role) ? role : 'candidate';
+
+  // Check if a deleted account exists with same email
+  // If yes — reuse it instead of creating duplicate
+  const deletedUser = await User.findOne({ email, isDeleted: true });
+
+  if (deletedUser) {
+    // Reactivate the deleted account with new details
+    deletedUser.name        = name;
+    deletedUser.password    = password;
+    deletedUser.role        = safeRole;
+    deletedUser.isDeleted   = false;
+    deletedUser.deletedAt   = null;
+    deletedUser.isSuspended = false;
+    deletedUser.refreshToken = null;
+    await deletedUser.save();
+
+    logger.info(`Deleted account reactivated: ${email} as ${safeRole}`);
+
+    return {
+      id:    deletedUser._id,
+      name:  deletedUser.name,
+      email: deletedUser.email,
+      role:  deletedUser.role
+    };
+  }
+
+  // Check if active account already exists
   const existingUser = await User.findOne({ 
     email, 
-    isDeleted: { $ne: true }  // allow deleted users to re-register
+    isDeleted: { $ne: true }
   });
   if (existingUser) {
     throw new AppError('Email already registered', 409);
   }
 
-  const allowedRoles = ['candidate', 'company'];
-  const safeRole = allowedRoles.includes(role) ? role : 'candidate';
-
+  // Create brand new account
   const user = await User.create({
     name, email, password, role: safeRole
   });
@@ -26,17 +53,20 @@ exports.signup = async ({ name, email, password, role }) => {
   logger.info(`New user registered: ${email} as ${safeRole}`);
 
   return {
-    id: user._id,
-    name: user.name,
+    id:    user._id,
+    name:  user.name,
     email: user.email,
-    role: user.role
+    role:  user.role
   };
 };
 
 // LOGIN SERVICE
 exports.login = async ({ email, password }) => {
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ 
+    email,
+    isDeleted: { $ne: true }
+  });
   if (!user) {
     logger.warn(`Failed login attempt for: ${email}`);
     throw new AppError('Invalid credentials', 401);
@@ -98,7 +128,10 @@ exports.refresh = async ({ refreshToken }) => {
   }
 
   // Find user — only ONE const user declaration!
-  const user = await User.findById(decoded.id);
+  const user = await User.findOne({
+    _id: decoded.id,
+    isDeleted: { $ne: true }
+  });
 
   // Check user exists BEFORE touching user.refreshToken
   if (!user) {
