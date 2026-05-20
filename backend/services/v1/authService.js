@@ -77,9 +77,7 @@ exports.login = async ({ email, password }) => {
     throw new AppError('Your account has been suspended. Please contact support.', 403);
   }
 
-  if (user.isDeleted) {
-   throw new AppError('This account no longer exists.', 403);
-  }
+  
 
   const isMatch = await user.comparePassword(password);
   if (!isMatch) {
@@ -138,9 +136,7 @@ exports.refresh = async ({ refreshToken }) => {
     throw new AppError('Session expired. Please login again', 401);
   }
 
-  if (user.isDeleted) {
-    throw new AppError('This account no longer exists.', 403);
-  }
+  
 
   // Now safe to check refreshToken
   if (!user.refreshToken) {
