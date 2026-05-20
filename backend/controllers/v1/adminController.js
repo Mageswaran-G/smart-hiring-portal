@@ -77,7 +77,11 @@ exports.getAllCompanies = async (req, res) => {
 
     // Search by company name
     if (search) {
-      query.name = { $regex: search, $options: "i" }; // case-insensitive search
+      query.$or = [
+        { companyName: { $regex: search, $options: "i" } },
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } }
+      ];
     }
 
     // Filter by status
@@ -122,7 +126,7 @@ exports.verifyCompany = async (req, res, next) => {
     const { id } = req.params; // company user ID from URL
 
     // Step 1 — find the user
-    const company = await User.findById(id).select('name email companyName isVerified role');
+    const company = await User.findOne({ _id: id, isDeleted: { $ne: true } }).select('name email companyName isVerified role');
 
     // Step 2 — check user exists
     if (!company) {
@@ -168,7 +172,7 @@ exports.suspendCompany = async (req, res) => {
     const { id } = req.params;
 
     // Find the company user in DB
-    const company = await User.findById(id);
+    const company = await User.findOne({ _id: id, isDeleted: { $ne: true } });
 
     if (!company) {
       return res.status(404).json({ success: false, message: "Company not found" });
@@ -252,6 +256,7 @@ exports.deleteUser = async (req, res) => {
     // deletedAt records when it happened
     user.isDeleted = true;
     user.deletedAt = new Date();
+    user.refreshToken = null;
     await user.save();
 
     res.json({ success: true, message: "User deleted successfully" });
@@ -265,7 +270,7 @@ exports.deleteUser = async (req, res) => {
 exports.suspendUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findById(id);
+    const user = await User.findOne({ _id: id, isDeleted: { $ne: true } });
 
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
@@ -282,6 +287,33 @@ exports.suspendUser = async (req, res) => {
       message: user.isSuspended ? "User suspended" : "User unsuspended",
       data: { isSuspended: user.isSuspended }
     });
+
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+
+// Restore a soft-deleted user
+exports.restoreUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Use findById directly — deleted users won't show in normal queries
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    if (!user.isDeleted) {
+      return res.status(400).json({ success: false, message: "User is not deleted" });
+    }
+
+    user.isDeleted = false;
+    user.deletedAt = null;
+    await user.save();
+
+    res.json({ success: true, message: "User restored successfully" });
 
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

@@ -12,6 +12,7 @@ const {
   getAllUsers,
   deleteUser,
   suspendUser,
+  restoreUser,
 } = require('../../controllers/v1/adminController');
 
 // Every admin route needs token + admin role check
@@ -37,5 +38,8 @@ router.delete('/users/:id', deleteUser);
 
 // PATCH /api/v1/admin/users/:id/suspend
 router.patch('/users/:id/suspend', suspendUser);
+
+
+router.patch('/users/:id/restore', restoreUser);
 
 module.exports = router;
