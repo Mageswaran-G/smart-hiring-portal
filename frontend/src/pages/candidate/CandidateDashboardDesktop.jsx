@@ -138,64 +138,64 @@ export default function CandidateDashboardDesktop() {
   return (
     <DashboardLayout>
       <div style={{ background: '#fafaf9', minHeight: '100vh', fontFamily: 'Inter,system-ui,sans-serif' }}>
-        <div style={{ maxWidth: 1380, margin: '0 auto', padding: '28px 32px 48px' }}>
+        <div style={{ maxWidth: 1380, margin: '0 auto', padding: '36px 44px 56px' }}>
 
           {/* ══ HERO ══ */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 18, marginBottom: 20 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 28, marginBottom: 32 }}>
 
             {/* Left — gradient */}
-            <div style={{ background: GRAD, borderRadius: 24, padding: '28px 32px', color: '#fff', position: 'relative', overflow: 'hidden', minHeight: 240, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <svg style={{ position: 'absolute', right: -30, top: -30, width: 280, height: 280, opacity: 0.15 }} viewBox="0 0 280 280">
+            <div style={{ background: GRAD, borderRadius: 28, padding: '42px 48px', color: '#fff', position: 'relative', overflow: 'hidden', minHeight: 282, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <svg style={{ position: 'absolute', right: -20, top: -20, width: 320, height: 320, opacity: 0.12 }} viewBox="0 0 280 280">
                 <circle cx="140" cy="140" r="130" stroke="#fff" strokeWidth="1" fill="none" />
                 <circle cx="140" cy="140" r="90" stroke="#fff" strokeWidth="1" fill="none" />
                 <circle cx="140" cy="140" r="50" stroke="#fff" strokeWidth="1" fill="none" />
               </svg>
               <div style={{ position: 'relative' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 18 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 22, marginBottom: 24 }}>
                   <div style={{ position: 'relative', flexShrink: 0 }}>
                     <SafeAvatar
                       src={profile?.photo}
                       name={profile?.name || 'U'}
-                      style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.5)' }}
-                      fallbackStyle={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 26, color: '#fff', border: '2px solid rgba(255,255,255,0.4)' }}
+                      style={{ width: 78, height: 78, borderRadius: '50%', objectFit: 'cover', border: '2.5px solid rgba(255,255,255,0.55)' }}
+                      fallbackStyle={{ width: 78, height: 78, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 32, color: '#fff', border: '2.5px solid rgba(255,255,255,0.45)' }}
                     />
-                    <div style={{ position: 'absolute', bottom: 2, right: 2, width: 14, height: 14, borderRadius: '50%', background: '#22c55e', border: '2px solid #ea580c' }} />
+                    <div style={{ position: 'absolute', bottom: 3, right: 3, width: 16, height: 16, borderRadius: '50%', background: '#22c55e', border: '2.5px solid #ea580c' }} />
                   </div>
                   <div>
-                    <p style={{ fontSize: 13, opacity: 0.85, margin: '0 0 3px' }}>Welcome back,</p>
-                    <h1 style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.8px', lineHeight: 1.05, margin: '0 0 3px', textTransform: 'capitalize' }}>{profile?.name || 'Candidate'}</h1>
-                    {profile?.headline && <p style={{ fontSize: 12, opacity: 0.78, margin: 0 }}>{profile.headline}</p>}
+                    <p style={{ fontSize: 14, opacity: 0.88, margin: '0 0 5px', letterSpacing: '0.1px' }}>Welcome back,</p>
+                    <h1 style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-1px', lineHeight: 1.05, margin: '0 0 5px', textTransform: 'capitalize' }}>{profile?.name || 'Candidate'}</h1>
+                    {profile?.headline && <p style={{ fontSize: 13, opacity: 0.8, margin: 0, lineHeight: 1.4 }}>{profile.headline}</p>}
                   </div>
                 </div>
                 {profile?.skills?.length > 0 && (
                   <>
-                    <p style={{ fontSize: 11, fontWeight: 700, opacity: 0.7, letterSpacing: 1.5, textTransform: 'uppercase', margin: '0 0 8px' }}>Your skills</p>
-                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    <p style={{ fontSize: 11, fontWeight: 700, opacity: 0.72, letterSpacing: 1.6, textTransform: 'uppercase', margin: '0 0 10px' }}>Your skills</p>
+                    <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
                       {profile.skills.slice(0, 8).map((sk, i) => {
                         const lb = typeof sk === 'string' ? sk : sk?.name || '';
-                        return lb ? <span key={i} style={{ padding: '4px 10px', borderRadius: 9999, fontSize: 11, background: 'rgba(255,255,255,0.18)', color: '#fff', border: '1px solid rgba(255,255,255,0.22)', fontWeight: 500 }}>{lb}</span> : null;
+                        return lb ? <span key={i} style={{ padding: '5px 13px', borderRadius: 9999, fontSize: 12, background: 'rgba(255,255,255,0.18)', color: '#fff', border: '1px solid rgba(255,255,255,0.24)', fontWeight: 500 }}>{lb}</span> : null;
                       })}
                     </div>
                   </>
                 )}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative', marginTop: 18 }}>
-                <button onClick={() => navigate(ROUTES.PUBLIC_JOBS)} style={{ padding: '10px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600, background: '#fff', color: DEEP, border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 7 }}>
-                  <Search size={14} /> Browse Jobs
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative', marginTop: 26 }}>
+                <button onClick={() => navigate(ROUTES.PUBLIC_JOBS)} style={{ padding: '12px 26px', borderRadius: 12, fontSize: 14, fontWeight: 700, background: '#fff', color: DEEP, border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.15)' }}>
+                  <Search size={15} /> Browse Jobs
                 </button>
-                <button onClick={() => navigate(ROUTES.PROFILE)} style={{ padding: '10px 16px', borderRadius: 10, fontSize: 13, fontWeight: 500, background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.25)', cursor: 'pointer' }}>
+                <button onClick={() => navigate(ROUTES.PROFILE)} style={{ padding: '12px 20px', borderRadius: 12, fontSize: 14, fontWeight: 500, background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.28)', cursor: 'pointer' }}>
                   Update Profile
                 </button>
               </div>
             </div>
 
             {/* Right — dark profile card */}
-            <div style={{ background: DARK, color: '#fff', borderRadius: 24, padding: '24px', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <div style={{ position: 'absolute', top: -40, right: -40, width: 150, height: 150, borderRadius: '50%', background: `radial-gradient(circle, ${PRIMARY}55, transparent 70%)` }} />
+            <div style={{ background: DARK, color: '#fff', borderRadius: 28, padding: '32px', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div style={{ position: 'absolute', top: -40, right: -40, width: 160, height: 160, borderRadius: '50%', background: `radial-gradient(circle, ${PRIMARY}55, transparent 70%)` }} />
               <div style={{ position: 'relative' }}>
-                <p style={{ fontSize: 11, color: '#fed7aa', fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', margin: '0 0 14px' }}>Profile Strength</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: 18 }}>
-                  <Ring value={pct} size={86} stroke={8} />
+                <p style={{ fontSize: 11, color: '#fed7aa', fontWeight: 700, letterSpacing: 1.6, textTransform: 'uppercase', margin: '0 0 18px' }}>Profile Strength</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 22 }}>
+                  <Ring value={pct} size={96} stroke={9} />
                   <div>
                     <p style={{ fontWeight: 700, fontSize: 17, margin: '0 0 4px' }}>{pct < 40 ? 'Just starting!' : pct < 70 ? 'Keep going!' : pct < 90 ? 'Almost done!' : 'Outstanding!'}</p>
                     <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5, margin: 0 }}>Complete your profile to attract more companies</p>
@@ -212,7 +212,7 @@ export default function CandidateDashboardDesktop() {
                   ))}
                 </div>
               </div>
-              <button onClick={() => navigate(ROUTES.PROFILE)} style={{ marginTop: 16, padding: '10px', borderRadius: 10, background: PRIMARY, color: '#fff', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, width: '100%', position: 'relative' }}>Complete Profile →</button>
+              <button onClick={() => navigate(ROUTES.PROFILE)} style={{ marginTop: 20, padding: '12px', borderRadius: 12, background: PRIMARY, color: '#fff', border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 700, width: '100%', position: 'relative', letterSpacing: '-0.1px' }}>Complete Profile →</button>
             </div>
           </div>
 

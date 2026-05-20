@@ -152,6 +152,8 @@ const userSchema = new mongoose.Schema({
 
   isVerified:  { type: Boolean, default: false },
   verifiedAt:  { type: Date },
+  
+  isSuspended: { type: Boolean, default: false },
 
 }, { timestamps: true, versionKey: false });
 

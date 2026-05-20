@@ -44,6 +44,8 @@ const NAV_LINKS = {
   ],
   admin: [
     { label:'Dashboard',  Icon:LayoutDashboard, path:ROUTES.ADMIN_DASHBOARD },
+    { label:'Companies',  Icon:Building2,       path:'/admin/companies'      },
+    { label:'Users',      Icon:Users,           path:'/admin/users'          },
   ],
 };
 

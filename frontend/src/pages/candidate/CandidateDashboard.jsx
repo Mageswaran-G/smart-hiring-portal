@@ -275,16 +275,16 @@ export default function CandidateDashboard() {
         </header>
 
         {/* ── Mobile Hero ── */}
-        <section style={{ background:C.grad, padding:'20px 16px 24px' }}>
-          <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:14 }}>
-            <Avatar profile={profile} size={54} border="3px solid rgba(255,255,255,0.45)" />
+        <section style={{ background:C.grad, padding:'28px 20px 36px' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:18 }}>
+            <Avatar profile={profile} size={62} border="3px solid rgba(255,255,255,0.5)" />
             <div style={{ minWidth:0 }}>
-              <p style={{ color:'rgba(255,255,255,0.75)', fontSize:11, margin:'0 0 2px', fontWeight:500 }}>Welcome back</p>
-              <h1 style={{ color:'#fff', fontWeight:900, fontSize:20, margin:'0 0 3px', lineHeight:1.1, letterSpacing:'-0.4px' }}>
+              <p style={{ color:'rgba(255,255,255,0.75)', fontSize:12, margin:'0 0 3px', fontWeight:500, letterSpacing:'0.1px' }}>Welcome back</p>
+              <h1 style={{ color:'#fff', fontWeight:900, fontSize:22, margin:'0 0 4px', lineHeight:1.08, letterSpacing:'-0.5px' }}>
                 {profile?.name || 'Candidate'}
               </h1>
               {profile?.headline && (
-                <p style={{ color:'rgba(255,255,255,0.82)', fontSize:12, margin:0, lineHeight:1.3, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:200 }}>
+                <p style={{ color:'rgba(255,255,255,0.82)', fontSize:12, margin:0, lineHeight:1.35, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:210 }}>
                   {profile.headline}
                 </p>
               )}
@@ -292,14 +292,14 @@ export default function CandidateDashboard() {
           </div>
 
           {/* Profile completion card */}
-          <div style={{ background:'rgba(0,0,0,0.18)', borderRadius:14, padding:'12px 14px', display:'flex', alignItems:'center', gap:14, border:'1px solid rgba(255,255,255,0.12)' }}>
-            <ProgressRing value={completion} size={62} stroke={6} />
+          <div style={{ background:'rgba(0,0,0,0.2)', borderRadius:18, padding:'16px 18px', display:'flex', alignItems:'center', gap:16, border:'1px solid rgba(255,255,255,0.13)', boxShadow:'0 4px 16px rgba(0,0,0,0.12)' }}>
+            <ProgressRing value={completion} size={70} stroke={7} />
             <div style={{ flex:1 }}>
-              <p style={{ color:'rgba(255,255,255,0.7)', fontSize:11, margin:'0 0 3px' }}>Profile Strength</p>
-              <p style={{ color:'#fff', fontWeight:700, fontSize:13, margin:'0 0 8px' }}>
+              <p style={{ color:'rgba(255,255,255,0.7)', fontSize:11, margin:'0 0 4px', letterSpacing:'0.1px' }}>Profile Strength</p>
+              <p style={{ color:'#fff', fontWeight:700, fontSize:13, margin:'0 0 10px', lineHeight:1.3 }}>
                 {completion < 40 ? 'Just starting — add more!' : completion < 70 ? 'Good progress!' : completion < 90 ? 'Almost complete!' : 'Excellent profile!'}
               </p>
-              <button onClick={() => navigate(ROUTES.PROFILE)} style={{ background:'rgba(255,255,255,0.18)', border:'none', borderRadius:7, color:'#fff', fontSize:11, fontWeight:700, padding:'5px 12px', cursor:'pointer' }}>
+              <button onClick={() => navigate(ROUTES.PROFILE)} style={{ background:'rgba(255,255,255,0.2)', border:'1px solid rgba(255,255,255,0.25)', borderRadius:9, color:'#fff', fontSize:11, fontWeight:700, padding:'6px 14px', cursor:'pointer' }}>
                 Complete Profile
               </button>
             </div>
@@ -458,34 +458,34 @@ export default function CandidateDashboard() {
       </header>
 
       {/* ── Desktop Hero ── */}
-      <section style={{ background:C.grad, padding:'44px 32px 52px' }}>
-        <div style={{ maxWidth:1200, margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'space-between', gap:32 }}>
+      <section style={{ background:C.grad, padding:'64px 56px 76px' }}>
+        <div style={{ maxWidth:1200, margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'space-between', gap:52 }}>
 
           {/* Left: Avatar + Identity */}
-          <div style={{ display:'flex', alignItems:'center', gap:22 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:28 }}>
             <div style={{ position:'relative', flexShrink:0 }}>
-              <Avatar profile={profile} size={86} border="3px solid rgba(255,255,255,0.5)" />
+              <Avatar profile={profile} size={100} border="3px solid rgba(255,255,255,0.55)" />
               {profile?.openToWork && (
-                <span style={{ position:'absolute', bottom:0, right:0, background:'#22c55e', color:'#fff', fontSize:9, fontWeight:800, borderRadius:9999, padding:'2px 6px', border:'2px solid #fff' }}>OPEN</span>
+                <span style={{ position:'absolute', bottom:2, right:2, background:'#22c55e', color:'#fff', fontSize:9, fontWeight:800, borderRadius:9999, padding:'3px 7px', border:'2px solid #fff', letterSpacing:'0.3px' }}>OPEN</span>
               )}
             </div>
             <div>
-              <p style={{ color:'rgba(255,255,255,0.72)', fontSize:13, margin:'0 0 5px', fontWeight:500 }}>Good to see you,</p>
-              <h1 style={{ color:'#fff', fontWeight:900, fontSize:32, margin:'0 0 6px', lineHeight:1.1, letterSpacing:'-0.8px' }}>
+              <p style={{ color:'rgba(255,255,255,0.72)', fontSize:14, margin:'0 0 8px', fontWeight:500, letterSpacing:'0.1px' }}>Good to see you,</p>
+              <h1 style={{ color:'#fff', fontWeight:900, fontSize:36, margin:'0 0 8px', lineHeight:1.08, letterSpacing:'-1px' }}>
                 {profile?.name || 'Candidate'}
               </h1>
               {profile?.headline && (
-                <p style={{ color:'rgba(255,255,255,0.85)', fontSize:15, margin:'0 0 12px', lineHeight:1.4 }}>
+                <p style={{ color:'rgba(255,255,255,0.85)', fontSize:16, margin:'0 0 16px', lineHeight:1.45 }}>
                   {profile.headline}
                 </p>
               )}
               {profile?.skills?.length > 0 && (
-                <div style={{ display:'flex', gap:7, flexWrap:'wrap' }}>
+                <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
                   {profile.skills.slice(0, 5).map((sk, i) => {
                     const label = typeof sk === 'string' ? sk : (sk?.name || sk?.skill || '');
                     if (!label) return null;
                     return (
-                      <span key={i} style={{ background:'rgba(255,255,255,0.18)', color:'#fff', fontSize:11, fontWeight:600, borderRadius:9999, padding:'3px 11px', border:'1px solid rgba(255,255,255,0.2)' }}>{label}</span>
+                      <span key={i} style={{ background:'rgba(255,255,255,0.18)', color:'#fff', fontSize:12, fontWeight:600, borderRadius:9999, padding:'5px 13px', border:'1px solid rgba(255,255,255,0.22)' }}>{label}</span>
                     );
                   })}
                 </div>
@@ -494,26 +494,26 @@ export default function CandidateDashboard() {
           </div>
 
           {/* Right: Completion + Browse CTA */}
-          <div style={{ display:'flex', alignItems:'center', gap:28, flexShrink:0 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:32, flexShrink:0 }}>
             {/* Profile Completion Panel */}
-            <div style={{ background:'rgba(0,0,0,0.2)', borderRadius:22, padding:'22px 26px', display:'flex', alignItems:'center', gap:22, backdropFilter:'blur(10px)', border:'1px solid rgba(255,255,255,0.12)' }}>
-              <ProgressRing value={completion} size={88} stroke={8} />
+            <div style={{ background:'rgba(0,0,0,0.22)', borderRadius:28, padding:'28px 34px', display:'flex', alignItems:'center', gap:26, backdropFilter:'blur(12px)', border:'1px solid rgba(255,255,255,0.13)', boxShadow:'0 8px 32px rgba(0,0,0,0.18)' }}>
+              <ProgressRing value={completion} size={96} stroke={9} />
               <div>
-                <p style={{ color:'rgba(255,255,255,0.7)', fontSize:12, margin:'0 0 4px', fontWeight:500 }}>Profile Strength</p>
-                <p style={{ color:'#fff', fontWeight:800, fontSize:17, margin:'0 0 14px', letterSpacing:'-0.2px' }}>
+                <p style={{ color:'rgba(255,255,255,0.7)', fontSize:13, margin:'0 0 6px', fontWeight:500, letterSpacing:'0.2px' }}>Profile Strength</p>
+                <p style={{ color:'#fff', fontWeight:800, fontSize:18, margin:'0 0 18px', letterSpacing:'-0.3px' }}>
                   {completion < 40 ? 'Build your profile' : completion < 70 ? 'Keep going!' : completion < 90 ? 'Almost done!' : 'Outstanding!'}
                 </p>
-                <button onClick={() => navigate(ROUTES.PROFILE)} style={{ background:'rgba(255,255,255,0.88)', color:C.dark, border:'none', borderRadius:10, padding:'9px 18px', fontWeight:800, fontSize:13, cursor:'pointer' }}>
+                <button onClick={() => navigate(ROUTES.PROFILE)} style={{ background:'rgba(255,255,255,0.9)', color:C.dark, border:'none', borderRadius:12, padding:'11px 22px', fontWeight:800, fontSize:13, cursor:'pointer', letterSpacing:'-0.1px' }}>
                   Complete Profile →
                 </button>
               </div>
             </div>
 
             {/* CTA Button */}
-            <button onClick={() => navigate(ROUTES.PUBLIC_JOBS)} style={{ background:'#fff', color:C.primary, border:'none', borderRadius:16, padding:'16px 26px', fontWeight:900, fontSize:15, cursor:'pointer', display:'flex', alignItems:'center', gap:10, boxShadow:'0 6px 24px rgba(0,0,0,0.18)', letterSpacing:'-0.2px', flexShrink:0 }}>
-              <Search size={19} />
+            <button onClick={() => navigate(ROUTES.PUBLIC_JOBS)} style={{ background:'#fff', color:C.primary, border:'none', borderRadius:18, padding:'18px 32px', fontWeight:900, fontSize:16, cursor:'pointer', display:'flex', alignItems:'center', gap:11, boxShadow:'0 8px 28px rgba(0,0,0,0.2)', letterSpacing:'-0.3px', flexShrink:0 }}>
+              <Search size={20} />
               Browse Jobs
-              <ArrowRight size={17} />
+              <ArrowRight size={18} />
             </button>
           </div>
         </div>

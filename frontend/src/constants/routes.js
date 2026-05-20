@@ -19,6 +19,7 @@ export const ROUTES = {
 
   // Admin
   ADMIN_DASHBOARD:         '/admin/dashboard',
+  ADMIN_COMPANIES:         "/admin/companies",
 
   // Public
   JOB_DETAILS:             '/jobs/:slug',

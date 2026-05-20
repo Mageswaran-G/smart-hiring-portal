@@ -65,24 +65,41 @@ exports.getPlatformStats = async (req, res, next) => {
 // GET /api/v1/admin/companies
 // Get all company accounts for admin to manage
 // ─────────────────────────────────────────────────────
-exports.getAllCompanies = async (req, res, next) => {
+exports.getAllCompanies = async (req, res) => {
   try {
-    // Find all users whose role is 'company'
-    // Select only the fields admin needs to see
-    const companies = await User.find({
-      role:      'company',
-      isDeleted: { $ne: true },
-    })
-      .select('name email companyName industry companySize isVerified createdAt profilePhoto')
-      .sort({ createdAt: -1 }); // newest first
+    const { search = "", filter = "all", page = 1, limit = 10 } = req.query;
 
-    return res.status(200).json({
+    // Build the query object
+    const query = { role: "company" };
+
+    // Search by company name
+    if (search) {
+      query.name = { $regex: search, $options: "i" }; // case-insensitive search
+    }
+
+    // Filter by status
+    if (filter === "verified") query.isVerified = true;
+    if (filter === "unverified") query.isVerified = false;
+    if (filter === "suspended") query.isSuspended = true;
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const [companies, total] = await Promise.all([
+      User.find(query)
+        .select("-password -refreshToken")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(Number(limit)),
+      User.countDocuments(query)
+    ]);
+
+    res.json({
       success: true,
-      data:    companies,
+      data: { companies, total }
     });
 
   } catch (error) {
-    next(error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -138,5 +155,125 @@ exports.verifyCompany = async (req, res, next) => {
 
   } catch (error) {
     next(error);
+  }
+};
+
+
+// Suspend or Unsuspend a Company
+exports.suspendCompany = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the company user in DB
+    const company = await User.findById(id);
+
+    if (!company) {
+      return res.status(404).json({ success: false, message: "Company not found" });
+    }
+
+    // Toggle suspend status
+    // If isSuspended is true → make it false (unsuspend)
+    // If isSuspended is false → make it true (suspend)
+    company.isSuspended = !company.isSuspended;
+
+    await company.save();
+
+    res.json({
+      success: true,
+      message: company.isSuspended ? "Company suspended" : "Company unsuspended",
+      data: { isSuspended: company.isSuspended }
+    });
+
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Get all users (candidates + companies) with search + filter + pagination
+exports.getAllUsers = async (req, res) => {
+  try {
+    const { search = "", filter = "all", page = 1, limit = 10 } = req.query;
+
+    // Build query — exclude admin accounts
+    const query = { role: { $ne: "admin" } };
+
+    // Search by name or email
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } }
+      ];
+    }
+
+    // Filter by role or status
+    if (filter === "candidates") query.role = "candidate";
+    if (filter === "companies")  query.role = "company";
+    if (filter === "suspended")  query.isSuspended = true;
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const [users, total] = await Promise.all([
+      User.find(query)
+        .select("-password -refreshToken")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(Number(limit)),
+      User.countDocuments(query)
+    ]);
+
+    res.json({ success: true, data: { users, total } });
+
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Delete a user permanently
+exports.deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Never delete admin accounts
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    if (user.role === "admin") {
+      return res.status(403).json({ success: false, message: "Cannot delete admin accounts" });
+    }
+
+    await User.findByIdAndDelete(id);
+
+    res.json({ success: true, message: "User deleted successfully" });
+
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Suspend or Unsuspend a User
+exports.suspendUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    if (user.role === "admin") {
+      return res.status(403).json({ success: false, message: "Cannot suspend admin" });
+    }
+
+    user.isSuspended = !user.isSuspended;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: user.isSuspended ? "User suspended" : "User unsuspended",
+      data: { isSuspended: user.isSuspended }
+    });
+
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };

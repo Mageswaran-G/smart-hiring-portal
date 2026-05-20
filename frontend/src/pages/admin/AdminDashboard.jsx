@@ -243,11 +243,15 @@ export default function AdminDashboard() {
   };
 
   const handleTab = (key) => {
-    setActiveTab(key);
-    // Load companies from backend when Companies tab is opened
-    if (key === 'companies' && companies.length === 0) {
-      loadCompanies();
+    if (key === 'companies') {
+      navigate('/admin/companies');
+      return;
     }
+    if (key === 'users') {
+      navigate('/admin/users');
+      return;
+    }
+    setActiveTab(key);
   };
 
   const handleLogout = async () => {
@@ -291,27 +295,27 @@ export default function AdminDashboard() {
         </header>
 
         {/* ── Mobile Hero ── */}
-        <section style={{ background:C.grad, padding:'20px 16px 24px' }}>
-          <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:14 }}>
+        <section style={{ background:C.grad, padding:'28px 20px 36px' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:18 }}>
             {/* Admin avatar — no click, no profile */}
-            <div style={{ width:52, height:52, borderRadius:14, background:'rgba(255,255,255,0.2)', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:900, fontSize:22, border:'2px solid rgba(255,255,255,0.35)', flexShrink:0 }}>
+            <div style={{ width:60, height:60, borderRadius:18, background:'rgba(255,255,255,0.2)', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:900, fontSize:26, border:'2px solid rgba(255,255,255,0.38)', flexShrink:0, boxShadow:'0 4px 14px rgba(0,0,0,0.15)' }}>
               {adminName[0].toUpperCase()}
             </div>
             <div style={{ minWidth:0 }}>
-              <p style={{ color:'rgba(255,255,255,0.7)', fontSize:11, margin:'0 0 2px', fontWeight:500 }}>Super Admin</p>
-              <h1 style={{ color:'#fff', fontWeight:900, fontSize:20, margin:'0 0 2px', lineHeight:1.1, letterSpacing:'-0.4px' }}>
+              <p style={{ color:'rgba(255,255,255,0.72)', fontSize:12, margin:'0 0 3px', fontWeight:500, letterSpacing:'0.1px' }}>Super Admin</p>
+              <h1 style={{ color:'#fff', fontWeight:900, fontSize:22, margin:'0 0 3px', lineHeight:1.08, letterSpacing:'-0.5px' }}>
                 {adminName}
               </h1>
-              <p style={{ color:'rgba(255,255,255,0.65)', fontSize:11, margin:0 }}>{adminEmail}</p>
+              <p style={{ color:'rgba(255,255,255,0.68)', fontSize:12, margin:0 }}>{adminEmail}</p>
             </div>
           </div>
 
           {/* System status */}
-          <div style={{ background:'rgba(0,0,0,0.22)', borderRadius:12, padding:'10px 14px', border:'1px solid rgba(255,255,255,0.1)' }}>
-            <p style={{ color:'rgba(255,255,255,0.65)', fontSize:10, margin:'0 0 7px', fontWeight:700, letterSpacing:'0.5px', textTransform:'uppercase' }}>System Status</p>
+          <div style={{ background:'rgba(0,0,0,0.22)', borderRadius:16, padding:'14px 18px', border:'1px solid rgba(255,255,255,0.11)', boxShadow:'0 4px 16px rgba(0,0,0,0.12)' }}>
+            <p style={{ color:'rgba(255,255,255,0.68)', fontSize:10, margin:'0 0 9px', fontWeight:700, letterSpacing:'0.6px', textTransform:'uppercase' }}>System Status</p>
             <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
               {SYSTEM_STATUS.slice(0, 3).map(({ label, status }) => (
-                <span key={label} style={{ display:'flex', alignItems:'center', gap:5, background:'rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.85)', fontSize:10, fontWeight:600, borderRadius:9999, padding:'3px 9px' }}>
+                <span key={label} style={{ display:'flex', alignItems:'center', gap:5, background:'rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.88)', fontSize:10, fontWeight:600, borderRadius:9999, padding:'4px 11px' }}>
                   <span style={{ width:6, height:6, borderRadius:'50%', background: status==='online' ? '#22c55e' : status==='progress' ? '#f59e0b' : '#ef4444', display:'inline-block', flexShrink:0 }} />
                   {label}
                 </span>
@@ -501,35 +505,35 @@ export default function AdminDashboard() {
       {activeTab === 'overview' && <>
 
       {/* ── Desktop Hero ── */}
-      <section style={{ background:C.grad, padding:'44px 32px 52px' }}>
-        <div style={{ maxWidth:1200, margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'space-between', gap:32 }}>
+      <section style={{ background:C.grad, padding:'64px 56px 76px' }}>
+        <div style={{ maxWidth:1200, margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'space-between', gap:52 }}>
 
           {/* Left: Admin Identity */}
-          <div style={{ display:'flex', alignItems:'center', gap:22 }}>
-            <div style={{ width:86, height:86, borderRadius:22, background:'rgba(255,255,255,0.15)', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:900, fontSize:34, border:'3px solid rgba(255,255,255,0.3)', flexShrink:0, letterSpacing:'-1px' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:28 }}>
+            <div style={{ width:100, height:100, borderRadius:28, background:'rgba(255,255,255,0.15)', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:900, fontSize:40, border:'3px solid rgba(255,255,255,0.32)', flexShrink:0, letterSpacing:'-1px', boxShadow:'0 8px 32px rgba(0,0,0,0.2)' }}>
               {adminName[0].toUpperCase()}
             </div>
             <div>
-              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:6 }}>
-                <span style={{ background:'rgba(255,255,255,0.2)', color:'rgba(255,255,255,0.9)', fontSize:11, fontWeight:800, borderRadius:9999, padding:'3px 12px', letterSpacing:'0.5px', border:'1px solid rgba(255,255,255,0.25)' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
+                <span style={{ background:'rgba(255,255,255,0.2)', color:'rgba(255,255,255,0.92)', fontSize:11, fontWeight:800, borderRadius:9999, padding:'4px 14px', letterSpacing:'0.6px', border:'1px solid rgba(255,255,255,0.28)' }}>
                   SUPER ADMIN
                 </span>
-                <span style={{ display:'flex', alignItems:'center', gap:5, background:'rgba(34,197,94,0.25)', color:'#86efac', fontSize:11, fontWeight:700, borderRadius:9999, padding:'3px 10px', border:'1px solid rgba(34,197,94,0.3)' }}>
+                <span style={{ display:'flex', alignItems:'center', gap:5, background:'rgba(34,197,94,0.25)', color:'#86efac', fontSize:11, fontWeight:700, borderRadius:9999, padding:'4px 12px', border:'1px solid rgba(34,197,94,0.3)' }}>
                   <span style={{ width:7, height:7, borderRadius:'50%', background:'#22c55e', display:'inline-block', animation:'pulse 2s ease-in-out infinite' }} />
                   System Online
                 </span>
               </div>
-              <h1 style={{ color:'#fff', fontWeight:900, fontSize:32, margin:'0 0 5px', lineHeight:1.1, letterSpacing:'-0.8px' }}>
+              <h1 style={{ color:'#fff', fontWeight:900, fontSize:36, margin:'0 0 7px', lineHeight:1.08, letterSpacing:'-1px' }}>
                 {adminName}
               </h1>
-              <p style={{ color:'rgba(255,255,255,0.7)', fontSize:14, margin:'0 0 14px' }}>{adminEmail}</p>
+              <p style={{ color:'rgba(255,255,255,0.72)', fontSize:15, margin:'0 0 18px', letterSpacing:'0.1px' }}>{adminEmail}</p>
               <div style={{ display:'flex', gap:10 }}>
                 {[
                   { label:`${stats?.totalUsers||0} Users` },
                   { label:`${stats?.totalJobs||0} Jobs` },
                   { label:`${stats?.totalApplications||0} Applications` },
                 ].map(({ label }) => (
-                  <span key={label} style={{ background:'rgba(255,255,255,0.16)', color:'rgba(255,255,255,0.92)', fontSize:12, fontWeight:700, borderRadius:9999, padding:'4px 13px', border:'1px solid rgba(255,255,255,0.18)' }}>
+                  <span key={label} style={{ background:'rgba(255,255,255,0.16)', color:'rgba(255,255,255,0.92)', fontSize:12, fontWeight:700, borderRadius:9999, padding:'5px 15px', border:'1px solid rgba(255,255,255,0.2)' }}>
                     {label}
                   </span>
                 ))}
@@ -538,22 +542,22 @@ export default function AdminDashboard() {
           </div>
 
           {/* Right: Platform Status Panel */}
-          <div style={{ background:'rgba(0,0,0,0.22)', borderRadius:22, padding:'22px 28px', backdropFilter:'blur(10px)', border:'1px solid rgba(255,255,255,0.1)', flexShrink:0, minWidth:290 }}>
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
-              <p style={{ color:'rgba(255,255,255,0.75)', fontSize:12, margin:0, fontWeight:700, letterSpacing:'0.3px' }}>Platform Status</p>
-              <ProgressRing value={hireRate} size={52} stroke={5} color="#a78bfa" bg="rgba(255,255,255,0.15)" textColor="#fff" label="rate" />
+          <div style={{ background:'rgba(0,0,0,0.24)', borderRadius:28, padding:'28px 34px', backdropFilter:'blur(12px)', border:'1px solid rgba(255,255,255,0.11)', flexShrink:0, minWidth:316, boxShadow:'0 8px 32px rgba(0,0,0,0.18)' }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
+              <p style={{ color:'rgba(255,255,255,0.78)', fontSize:13, margin:0, fontWeight:700, letterSpacing:'0.3px' }}>Platform Status</p>
+              <ProgressRing value={hireRate} size={56} stroke={6} color="#a78bfa" bg="rgba(255,255,255,0.15)" textColor="#fff" label="rate" />
             </div>
             {SYSTEM_STATUS.map(({ label, status, icon:Icon }) => {
               const dotColor = status==='online' ? '#22c55e' : status==='progress' ? '#f59e0b' : '#6b7280';
               const textColor = status==='online' ? '#86efac' : status==='progress' ? '#fde68a' : 'rgba(255,255,255,0.45)';
               const statusLabel = status==='online' ? 'Online' : status==='progress' ? 'In Progress' : 'Locked';
               return (
-                <div key={label} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'9px 0', borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
-                  <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                <div key={label} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'11px 0', borderBottom:'1px solid rgba(255,255,255,0.08)' }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:11 }}>
                     <Icon size={14} color={textColor} />
-                    <span style={{ fontSize:13, color:'rgba(255,255,255,0.8)', fontWeight:500 }}>{label}</span>
+                    <span style={{ fontSize:13, color:'rgba(255,255,255,0.82)', fontWeight:500 }}>{label}</span>
                   </div>
-                  <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:7 }}>
                     <span style={{ width:7, height:7, borderRadius:'50%', background:dotColor, display:'inline-block' }} />
                     <span style={{ fontSize:11, fontWeight:700, color:textColor }}>{statusLabel}</span>
                   </div>

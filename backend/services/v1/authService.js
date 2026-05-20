@@ -39,6 +39,11 @@ exports.login = async ({ email, password }) => {
     throw new AppError('Invalid credentials', 401);
   }
 
+  // Block suspended accounts from logging in
+  if (user.isSuspended) {
+    throw new AppError('Your account has been suspended. Please contact support.', 403);
+  }
+
   const isMatch = await user.comparePassword(password);
   if (!isMatch) {
     logger.warn(`Wrong password for: ${email}`);
