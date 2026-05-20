@@ -8,7 +8,10 @@ const logger = require('../../utils/logger');
 // SIGNUP SERVICE
 exports.signup = async ({ name, email, password, role }) => {
 
-  const existingUser = await User.findOne({ email });
+  const existingUser = await User.findOne({ 
+    email, 
+    isDeleted: { $ne: true }  // allow deleted users to re-register
+  });
   if (existingUser) {
     throw new AppError('Email already registered', 409);
   }
@@ -145,7 +148,10 @@ exports.refresh = async ({ refreshToken }) => {
 
 // LOGOUT SERVICE
 exports.logout = async (userId) => {
-  const user = await User.findById(userId);
+  const user = await User.findOne({ 
+    _id: userId, 
+    isDeleted: { $ne: true } 
+  });
   if (user) {
     user.refreshToken = null;
     await user.save();

@@ -305,12 +305,18 @@ exports.restoreUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
+
+    if (user.role === 'admin') {
+      return res.status(403).json({ success: false, message: "Cannot restore admin accounts" });
+    }
+
     if (!user.isDeleted) {
       return res.status(400).json({ success: false, message: "User is not deleted" });
     }
 
     user.isDeleted = false;
     user.deletedAt = null;
+    user.isSuspended = false; 
     await user.save();
 
     res.json({ success: true, message: "User restored successfully" });
