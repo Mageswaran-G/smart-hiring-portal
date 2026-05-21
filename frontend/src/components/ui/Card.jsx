@@ -1,28 +1,32 @@
-// Card — white rounded container used throughout the app
-// padding: 'sm' | 'md' | 'lg'
+// Card.jsx — reusable card wrapper
+// Use this instead of repeating background/border/shadow/radius everywhere
 
-export default function Card({
+import { UI } from '@/constants/ui';
+
+const Card = ({
   children,
   className = '',
-  padding = 'md',
+  style = {},
+  padding = UI.spacing.card,
+  radius = UI.radius.lg,
+  shadow = UI.shadow.card,
+  border = UI.border.light,
   onClick,
-}) {
-  const paddings = {
-    sm: 'p-4',
-    md: 'p-6',
-    lg: 'p-8',
-  };
+}) => (
+  <div
+    className={className}
+    onClick={onClick}
+    style={{
+      background: UI.colors.white,
+      borderRadius: radius,
+      padding,
+      boxShadow: shadow,
+      border,
+      ...style,
+    }}
+  >
+    {children}
+  </div>
+);
 
-  return (
-    <div
-      onClick={onClick}
-      className={`
-        bg-white rounded-2xl shadow-md
-        ${paddings[padding]}
-        ${onClick ? 'cursor-pointer hover:shadow-lg transition' : ''}
-        ${className}
-      `}>
-      {children}
-    </div>
-  );
-}
+export default Card;
