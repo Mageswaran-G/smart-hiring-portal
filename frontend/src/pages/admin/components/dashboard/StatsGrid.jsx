@@ -1,119 +1,119 @@
+import { Users, Building2, Briefcase, FileText } from 'lucide-react';
 
-// Shows the 4 stat cards: Total Users, Companies, Jobs, Applications
-
-import { Users, Briefcase, BarChart3, FileText } from 'lucide-react';
-
-// Sparkline = the small line chart at the bottom of each card
-const Sparkline = ({ color }) => {
-  const points = [3, 7, 5, 9, 6, 11, 8, 14, 10, 16];
-  const max = Math.max(...points);
-  const w = 120, h = 40;
-
-  const path = points
-    .map((p, i) => {
-      const x = (i / (points.length - 1)) * w;
-      const y = h - (p / max) * h;
-      return `${i === 0 ? 'M' : 'L'}${x},${y}`;
-    })
-    .join(' ');
+// Sparkline = small line chart at bottom of card
+const Sparkline = ({ data = [], color, w = 108, h = 38, id }) => {
+  const points = data.length ? data : [2,4,3,6,5,8,7,10,9,12];
+  const max = Math.max(...points, 1);
+  const path = points.map((p, i) => {
+    const x = (i / (points.length - 1)) * w;
+    const y = h - (p / max) * h;
+    return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
 
   return (
-    <svg width={w} height={h} style={{ display: 'block' }}>
-      <path d={path} fill="none" stroke={color} strokeWidth="2"
-        strokeLinecap="round" strokeLinejoin="round" />
+    <svg width={w} height={h} style={{ display:'block' }}>
+      <defs>
+        <linearGradient id={`sg${id}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={path} fill="none" stroke={color}
+        strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 };
 
-// Each stat card config
-const getCards = (stats) => [
+const CARDS = (stats) => [
   {
+    id: 'u',
     label: 'Total Users',
     value: stats?.totalUsers ?? '—',
     sub: `${stats?.totalCandidates ?? 0} candidates`,
-    icon: Users,
+    Icon: Users,
     color: '#7c3aed',
-    sparkColor: '#7c3aed',
+    trend: stats?.userTrend || [2,4,3,6,5,8,7,10,9,12],
   },
   {
+    id: 'c',
     label: 'Companies',
     value: stats?.totalCompanies ?? '—',
     sub: 'registered',
-    icon: Briefcase,
+    Icon: Building2,
     color: '#0891b2',
-    sparkColor: '#0891b2',
+    trend: [1,1,2,2,3,3,stats?.totalCompanies||0],
   },
   {
+    id: 'j',
     label: 'Jobs Posted',
     value: stats?.totalJobs ?? '—',
     sub: 'all time',
-    icon: BarChart3,
-    color: '#7c3aed',
-    sparkColor: '#a78bfa',
+    Icon: Briefcase,
+    color: '#8b5cf6',
+    trend: [1,2,2,3,3,3,stats?.totalJobs||0],
   },
   {
+    id: 'a',
     label: 'Applications',
     value: stats?.totalApplications ?? '—',
-    sub: `${stats?.totalHired ?? 0} hired`,
-    icon: FileText,
+    sub: `${stats?.hired ?? 0} hired`,
+    Icon: FileText,
     color: '#059669',
-    sparkColor: '#059669',
+    trend: stats?.appTrend || [1,2,3,3,4,4,5],
   },
 ];
 
-const StatsGrid = ({ stats }) => {
-  const cards = getCards(stats);
+const StatsGrid = ({ stats, isMobile = false }) => {
+  const cards = CARDS(stats);
 
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(4, 1fr)',
-      gap: 20,
-      marginBottom: 28,
+    <section style={{
+      maxWidth: 1200,
+      margin: '0 auto',
+      padding: isMobile ? '14px 14px 0' : '26px 32px 0',
     }}>
-      {cards.map((card) => {
-        const Icon = card.icon;
-        return (
-          <div key={card.label} style={{
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4,1fr)',
+        gap: isMobile ? 10 : 16,
+      }}>
+        {cards.map(({ id, label, value, sub, Icon, color, trend }) => (
+          <div key={id} style={{
             background: '#fff',
-            borderRadius: 16,
-            padding: '22px 24px 16px',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
+            borderRadius: 18,
+            padding: '22px',
+            boxShadow: '0 1px 5px rgba(0,0,0,0.06)',
+            border: '1px solid #f3f4f6',
             display: 'flex',
             flexDirection: 'column',
             gap: 4,
           }}>
-            {/* Top row: label + icon */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: 13, color: '#6b7280', fontWeight: 500 }}>
-                {card.label}
-              </span>
+            {/* Label + Icon row */}
+            <div style={{ display:'flex', justifyContent:'space-between',
+              alignItems:'flex-start', marginBottom: 14 }}>
+              <div>
+                <p style={{ fontSize: 12, color:'#6b7280',
+                  margin:'0 0 5px', fontWeight: 600 }}>{label}</p>
+                <p style={{ fontSize: 36, fontWeight: 900, color:'#111827',
+                  margin: 0, lineHeight: 1, letterSpacing:'-1px' }}>{value}</p>
+                <p style={{ fontSize: 11, color:'#9ca3af',
+                  margin:'4px 0 0' }}>{sub}</p>
+              </div>
               <div style={{
-                background: card.color + '18',
-                borderRadius: 10,
-                padding: 8,
-                display: 'flex',
+                width: 44, height: 44, borderRadius: 13,
+                background: `${color}12`,
+                display: 'flex', alignItems:'center', justifyContent:'center',
               }}>
-                <Icon size={18} color={card.color} />
+                <Icon size={22} color={color} />
               </div>
             </div>
 
-            {/* Big number */}
-            <div style={{ fontSize: 32, fontWeight: 800, color: '#111827', lineHeight: 1.1 }}>
-              {card.value}
-            </div>
-
-            {/* Sub text */}
-            <div style={{ fontSize: 12, color: '#9ca3af' }}>{card.sub}</div>
-
-            {/* Sparkline chart */}
-            <div style={{ marginTop: 8 }}>
-              <Sparkline color={card.sparkColor} />
-            </div>
+            {/* Sparkline */}
+            <Sparkline data={trend} color={color} w={108} h={38} id={id} />
           </div>
-        );
-      })}
-    </div>
+        ))}
+      </div>
+    </section>
   );
 };
 
