@@ -599,43 +599,16 @@ export default function AdminDashboard() {
         </div>
       </section>
 
-      {/* ── Desktop Stats Row ── */}
-      <section style={{ maxWidth:1200, margin:'0 auto', padding:'26px 32px 0' }}>
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16 }}>
-          {[
-            { label:'Total Users',    value:stats?.totalUsers||0,        sub:`${stats?.totalCandidates||0} candidates`,    Icon:Users,     color:C.primary, trend:userTrend, id:'u' },
-            { label:'Companies',      value:stats?.totalCompanies||0,    sub:'registered',                                 Icon:Building2, color:'#0891b2', trend:[1,1,2,2,3,3,stats?.totalCompanies||0], id:'c' },
-            { label:'Jobs Posted',    value:stats?.totalJobs||0,         sub:'all time',                                   Icon:Briefcase, color:'#8b5cf6', trend:jobTrend,  id:'j' },
-            { label:'Applications',   value:stats?.totalApplications||0, sub:`${stats?.hired||0} hired`,                  Icon:FileText,  color:'#059669', trend:appTrend,  id:'a' },
-          ].map(({ label, value, sub, Icon, color, trend, id }) => (
-            <div key={label} style={{ background:'#fff', borderRadius:18, padding:'22px', boxShadow:'0 1px 5px rgba(0,0,0,0.06)', border:`1px solid ${C.gray100}` }}>
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:14 }}>
-                <div>
-                  <p style={{ fontSize:12, color:C.gray400, margin:'0 0 5px', fontWeight:600 }}>{label}</p>
-                  <p style={{ fontSize:36, fontWeight:900, color:C.gray900, margin:0, lineHeight:1, letterSpacing:'-1px' }}>{value}</p>
-                  <p style={{ fontSize:11, color:C.gray400, margin:'4px 0 0' }}>{sub}</p>
-                </div>
-                <div style={{ width:44, height:44, borderRadius:13, background:`${color}12`, display:'flex', alignItems:'center', justifyContent:'center' }}>
-                  <Icon size={22} color={color} />
-                </div>
-              </div>
-              <Sparkline data={trend} color={color} w={108} h={38} id={id} />
-            </div>
-          ))}
-        </div>
-      </section>
+        <StatsGrid stats={stats} />
 
       {/* ── Desktop Main Content ── */}
       <main style={{ maxWidth:1200, margin:'0 auto', padding:'22px 32px 48px', display:'grid', gridTemplateColumns:'1fr 380px', gap:22 }}>
 
-        {/* Left Column */}
-        <div style={{ display:'flex', flexDirection:'column', gap:20 }}>
-
-              <PlatformAnalyticsCard stats={stats} />
-          </div>
-
+          {/* Left Column */}
+          <div style={{ display:"flex", flexDirection:"column", gap:20 }}>
+            <PlatformAnalyticsCard stats={stats} />
             <ModuleRoadmap />
-
+          </div>
         {/* Right Sidebar */}
         <div style={{ display:'flex', flexDirection:'column', gap:18 }}>
 
