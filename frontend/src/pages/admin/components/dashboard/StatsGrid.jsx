@@ -1,28 +1,7 @@
 import { Users, Building2, Briefcase, FileText } from 'lucide-react';
+import { Sparkline } from '../../../../components/ui/charts';
 
-// Sparkline = small line chart at bottom of card
-const Sparkline = ({ data = [], color, w = 108, h = 38, id }) => {
-  const points = data.length ? data : [2,4,3,6,5,8,7,10,9,12];
-  const max = Math.max(...points, 1);
-  const path = points.map((p, i) => {
-    const x = (i / (points.length - 1)) * w;
-    const y = h - (p / max) * h;
-    return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`;
-  }).join(' ');
 
-  return (
-    <svg width={w} height={h} style={{ display:'block' }}>
-      <defs>
-        <linearGradient id={`sg${id}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
-          <stop offset="100%" stopColor={color} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path d={path} fill="none" stroke={color}
-        strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-};
 
 const CARDS = (stats) => [
   {
