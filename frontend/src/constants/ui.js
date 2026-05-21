@@ -15,6 +15,15 @@ export const UI = {
     primary: 'linear-gradient(135deg,#1e0b4b 0%,#2e1065 25%,#4c1d95 55%,#6d28d9 80%,#7c3aed 100%)',
     subtle: 'linear-gradient(135deg,#f5f3ff 0%,#ede9fe 100%)',
   },
+  typography: {
+    h1: { fontSize:28, fontWeight:900, letterSpacing:'-0.5px', color:'#111827' },
+    h2: { fontSize:20, fontWeight:800, letterSpacing:'-0.3px', color:'#111827' },
+    h3: { fontSize:16, fontWeight:700, letterSpacing:'-0.2px', color:'#111827' },
+    body: { fontSize:14, fontWeight:400, color:'#374151' },
+    caption: { fontSize:12, fontWeight:500, color:'#6b7280' },
+    small: { fontSize:11, fontWeight:400, color:'#9ca3af' },
+    label: { fontSize:12, fontWeight:600, color:'#6b7280' },
+  },
   colors: {
     primary:'#7c3aed', dark:'#5b21b6', darker:'#4c1d95',
     accent:'#a78bfa', light:'#f5f3ff', border:'#ddd6fe',
