@@ -1,8 +1,8 @@
 // PlatformAnalyticsCard.jsx
 // Shows Platform Hire Rate + User Breakdown + 7-day trend
 
-import { useRef, useEffect } from 'react';
-import { MiniBarChart, ProgressRing } from '../../../../components/ui/charts';
+
+import { MiniBarChart, ProgressRing } from '@/components/ui/charts';
 
 const C = {
   primary: '#7c3aed',

@@ -1,5 +1,5 @@
 import { Users, Building2, Briefcase, FileText } from 'lucide-react';
-import { Sparkline } from '../../../../components/ui/charts';
+import { Sparkline } from '@/components/ui/charts';
 
 
 
