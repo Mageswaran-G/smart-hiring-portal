@@ -4,13 +4,11 @@ const Sparkline = ({ data = [], color = '#7c3aed', width = 108, height = 38, cla
   const path = points.map((p, i) => {
     const x = (i / (points.length - 1)) * width;
     const y = height - (p / max) * height;
-    return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`;
+    return (i === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1);
   }).join(' ');
   return (
-    <svg width={width} height={height} className={className}
-      style={{ display:'block', ...style }}>
-      <path d={path} fill="none" stroke={color}
-        strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width={width} height={height} className={className} style={{ display:'block', ...style }}>
+      <path d={path} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 };
