@@ -118,6 +118,7 @@ const MOB_TABS = [
   { key:'overview',  label:'Home',      Icon:LayoutDashboard },
   { key:'companies', label:'Companies', Icon:Building2       },
   { key:'users',     label:'Users',     Icon:Users           },
+  { key:'jobs',      label:'Jobs',      Icon:Briefcase       },
   { key:'analytics', label:'Analytics', Icon:BarChart3       },
   { key:'system',    label:'System',    Icon:Settings        },
 ];
@@ -249,6 +250,10 @@ export default function AdminDashboard() {
     }
     if (key === 'users') {
       navigate('/admin/users');
+      return;
+    }
+    if (key === 'jobs') {
+      navigate('/admin/jobs');
       return;
     }
     setActiveTab(key);
@@ -475,6 +480,7 @@ export default function AdminDashboard() {
             { key:'overview',   label:'Overview',    Icon:LayoutDashboard },
             { key:'companies',  label:'Companies',   Icon:Building2       },
             { key:'users',      label:'Users',       Icon:Users           },
+             { key:'jobs',       label:'Jobs',      Icon:Briefcase       },
             { key:'analytics',  label:'Analytics',   Icon:BarChart3       },
           ].map(({ key, label, Icon }) => {
             const isActive = activeTab === key;

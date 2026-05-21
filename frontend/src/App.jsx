@@ -22,6 +22,7 @@ import SavedJobsPage from './pages/candidate/SavedJobsPage';
 import { Toaster } from 'react-hot-toast';
 import AdminCompaniesPage from "./pages/admin/AdminCompaniesPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import AdminJobsPage from "./pages/admin/AdminJobsPage";
 
 const RoleRedirect = () => {
   const { user } = useAuth();
@@ -137,6 +138,14 @@ export default function App() {
             <ProtectedRoute>
               <RoleRoute allowedRoles={['admin']}>
                 <AdminUsersPage />
+              </RoleRoute>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/admin/jobs" element={
+            <ProtectedRoute>
+              <RoleRoute allowedRoles={['admin']}>
+                <AdminJobsPage />
               </RoleRoute>
             </ProtectedRoute>
           } />

@@ -35,3 +35,15 @@ export const deleteUser = async (id) => {
   const response = await API.delete(`/admin/users/${id}`);
   return response.data;
 };
+
+// Get all jobs for admin
+export const getAllJobs = async (params = {}) => {
+  const response = await API.get("/admin/jobs", { params });
+  return response.data;
+};
+
+// Close a job
+export const closeJob = async (id) => {
+  const response = await API.patch(`/admin/jobs/${id}/close`);
+  return response.data;
+};

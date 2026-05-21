@@ -325,3 +325,65 @@ exports.restoreUser = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+
+// Get all jobs for admin
+exports.getAllJobs = async (req, res) => {
+  try {
+    const { search = "", filter = "all", page = 1, limit = 10 } = req.query;
+
+    const query = { isDeleted: { $ne: true } };
+
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { location: { $regex: search, $options: "i" } }
+      ];
+    }
+
+    if (filter === "active")  query.isActive = true;
+    if (filter === "closed")  query.isActive = false;
+    if (filter === "expired") {
+      query.deadline = { $lt: new Date() };
+      query.isActive = true;
+    }
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const [jobs, total] = await Promise.all([
+      Job.find(query)
+        .populate('postedBy', 'name companyName email isVerified')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(Number(limit)),
+      Job.countDocuments(query)
+    ]);
+
+    res.json({ success: true, data: { jobs, total } });
+
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Close a job (admin force close)
+exports.closeJob = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const job = await Job.findOne({ _id: id, isDeleted: { $ne: true } });
+
+    if (!job) {
+      return res.status(404).json({ success: false, message: "Job not found" });
+    }
+
+    job.isActive = false;
+    job.status = "closed";
+    await job.save();
+
+    res.json({ success: true, message: "Job closed successfully" });
+
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

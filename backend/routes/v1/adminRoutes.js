@@ -13,6 +13,8 @@ const {
   deleteUser,
   suspendUser,
   restoreUser,
+  getAllJobs,
+  closeJob,
 } = require('../../controllers/v1/adminController');
 
 // Every admin route needs token + admin role check
@@ -41,5 +43,11 @@ router.patch('/users/:id/suspend', suspendUser);
 
 
 router.patch('/users/:id/restore', restoreUser);
+
+// GET /api/v1/admin/jobs
+router.get('/jobs', getAllJobs);
+
+// PATCH /api/v1/admin/jobs/:id/close
+router.patch('/jobs/:id/close', closeJob);
 
 module.exports = router;
