@@ -631,7 +631,111 @@ export default function AdminDashboard() {
 
         {/* Left Column */}
         <div style={{ display:'flex', flexDirection:'column', gap:20 }}>
+          {/* ── Action Center ── */}
+          <div style={{ background:'#fff', borderRadius:20, padding:'26px', boxShadow:'0 1px 5px rgba(0,0,0,0.06)', border:`1px solid ${C.gray100}` }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
+              <h2 style={{ fontSize:17, fontWeight:800, color:C.gray900, margin:0 }}>
+                Action Center
+              </h2>
+              <span style={{ background:'#fef3c7', color:'#92400e', fontSize:12, fontWeight:700, borderRadius:8, padding:'4px 12px' }}>
+                Needs Attention
+              </span>
+            </div>
 
+            <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+
+              {/* Unverified Companies */}
+              <div onClick={() => navigate('/admin/companies')} style={{
+                display:'flex', alignItems:'center', justifyContent:'space-between',
+                padding:'14px 18px', borderRadius:14, border:'1px solid #fde68a',
+                background:'#fffbeb', cursor:'pointer', transition:'all 0.15s'
+              }}>
+                <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                  <div style={{ width:38, height:38, borderRadius:10, background:'#fef3c7',
+                    display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <Building2 size={18} color="#d97706" />
+                  </div>
+                  <div>
+                    <p style={{ fontWeight:700, fontSize:14, color:C.gray900, margin:0 }}>
+                      Unverified Companies
+                    </p>
+                    <p style={{ fontSize:12, color:C.gray400, margin:'2px 0 0' }}>
+                      Companies waiting for verification
+                    </p>
+                  </div>
+                </div>
+                <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                  <span style={{ background:'#f59e0b', color:'#fff', fontWeight:800,
+                    fontSize:16, borderRadius:9999, minWidth:32, height:32,
+                    display:'flex', alignItems:'center', justifyContent:'center', padding:'0 8px' }}>
+                    {stats?.unverifiedCompanies || 0}
+                  </span>
+                  <ChevronRight size={16} color={C.gray400} />
+                </div>
+              </div>
+
+              {/* Expired Jobs */}
+              <div onClick={() => navigate('/admin/jobs')} style={{
+                display:'flex', alignItems:'center', justifyContent:'space-between',
+                padding:'14px 18px', borderRadius:14, border:'1px solid #fecaca',
+                background:'#fff5f5', cursor:'pointer', transition:'all 0.15s'
+              }}>
+                <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                  <div style={{ width:38, height:38, borderRadius:10, background:'#fee2e2',
+                    display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <Briefcase size={18} color="#dc2626" />
+                  </div>
+                  <div>
+                    <p style={{ fontWeight:700, fontSize:14, color:C.gray900, margin:0 }}>
+                      Expired Jobs Active
+                    </p>
+                    <p style={{ fontSize:12, color:C.gray400, margin:'2px 0 0' }}>
+                      Jobs past deadline still showing
+                    </p>
+                  </div>
+                </div>
+                <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                  <span style={{ background:'#dc2626', color:'#fff', fontWeight:800,
+                    fontSize:16, borderRadius:9999, minWidth:32, height:32,
+                    display:'flex', alignItems:'center', justifyContent:'center', padding:'0 8px' }}>
+                    {stats?.expiredJobs || 0}
+                  </span>
+                  <ChevronRight size={16} color={C.gray400} />
+                </div>
+              </div>
+
+              {/* Suspended Users */}
+              <div onClick={() => navigate('/admin/users')} style={{
+                display:'flex', alignItems:'center', justifyContent:'space-between',
+                padding:'14px 18px', borderRadius:14, border:'1px solid #e9d5ff',
+                background:'#f5f3ff', cursor:'pointer', transition:'all 0.15s'
+              }}>
+                <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                  <div style={{ width:38, height:38, borderRadius:10, background:'#ede9fe',
+                    display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <Users size={18} color="#7c3aed" />
+                  </div>
+                  <div>
+                    <p style={{ fontWeight:700, fontSize:14, color:C.gray900, margin:0 }}>
+                      Suspended Users
+                    </p>
+                    <p style={{ fontSize:12, color:C.gray400, margin:'2px 0 0' }}>
+                      Accounts currently suspended
+                    </p>
+                  </div>
+                </div>
+                <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                  <span style={{ background:'#7c3aed', color:'#fff', fontWeight:800,
+                    fontSize:16, borderRadius:9999, minWidth:32, height:32,
+                    display:'flex', alignItems:'center', justifyContent:'center', padding:'0 8px' }}>
+                    {stats?.suspendedUsers || 0}
+                  </span>
+                  <ChevronRight size={16} color={C.gray400} />
+                </div>
+              </div>
+
+            </div>
+          </div>  
           {/* Platform Overview Analytics */}
           <div style={{ background:'#fff', borderRadius:20, padding:'26px', boxShadow:'0 1px 5px rgba(0,0,0,0.06)', border:`1px solid ${C.gray100}` }}>
             <h2 style={{ fontSize:17, fontWeight:800, color:C.gray900, margin:'0 0 20px', letterSpacing:'-0.3px' }}>Platform Analytics</h2>

@@ -19,6 +19,9 @@ exports.getPlatformStats = async (req, res, next) => {
       totalApplications,
       recentUsers,
       appStatusCounts,
+      unverifiedCompanies,
+      expiredJobs,
+      suspendedUsers,
     ] = await Promise.all([
       User.countDocuments({ isDeleted: { $ne: true } }),
       User.countDocuments({ role: 'candidate', isDeleted: { $ne: true } }),
@@ -36,6 +39,9 @@ exports.getPlatformStats = async (req, res, next) => {
       Application.aggregate([
         { $group: { _id: '$status', count: { $sum: 1 } } },
       ]),
+      User.countDocuments({ role: 'company', isVerified: false, isDeleted: { $ne: true } }),
+      Job.countDocuments({ isDeleted: { $ne: true }, isActive: true, deadline: { $lt: new Date() } }),
+      User.countDocuments({ isSuspended: true, isDeleted: { $ne: true } }),
     ]);
 
     const statusMap = {};
@@ -53,6 +59,9 @@ exports.getPlatformStats = async (req, res, next) => {
         shortlisted: statusMap.shortlisted || 0,
         reviewing:   statusMap.reviewing   || 0,
         recentUsers,
+        unverifiedCompanies,
+        expiredJobs,
+        suspendedUsers,
       }
     });
   } catch (error) {
