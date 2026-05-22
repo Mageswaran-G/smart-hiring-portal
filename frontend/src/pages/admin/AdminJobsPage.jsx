@@ -1,3 +1,4 @@
+import { COLORS } from '../../theme/adminTheme';
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Briefcase, Search, ChevronLeft, ChevronRight, XCircle, CheckCircle, Clock } from "lucide-react";
@@ -6,7 +7,7 @@ import DashboardLayout from "../../components/layout/DashboardLayout";
 import toast from "react-hot-toast";
 
 const ITEMS_PER_PAGE = 10;
-const C = { purple: "#7c3aed", purpleLight: "#ede9fe" };
+const C = { purple: COLORS.primary, purpleLight: "#ede9fe" };
 
 export default function AdminJobsPage() {
   
@@ -55,9 +56,9 @@ export default function AdminJobsPage() {
 
   const statusBadge = (job) => {
     if (job.status === 'expired')
-      return { label: 'Expired', bg: '#fef3c7', color: '#d97706' };
+      return { label: 'Expired', bg: COLORS.warningBg, color: COLORS.warningText };
     if (job.status === 'closed')
-      return { label: 'Closed',  bg: '#fee2e2', color: '#dc2626' };
+      return { label: 'Closed',  bg: COLORS.dangerBg, color: COLORS.dangerText };
     return { label: 'Active', bg: '#dcfce7', color: '#16a34a' };
   };
 
@@ -68,10 +69,10 @@ export default function AdminJobsPage() {
 
         {/* Header */}
         <div style={{ marginBottom: 24 }}>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#111827", margin: 0 }}>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: COLORS.gray900, margin: 0 }}>
             Jobs Moderation
           </h1>
-          <p style={{ color: "#6b7280", marginTop: 4, fontSize: 14 }}>
+          <p style={{ color: COLORS.gray500, marginTop: 4, fontSize: 14 }}>
             Monitor, close, and moderate all jobs on the platform
           </p>
         </div>
@@ -80,22 +81,22 @@ export default function AdminJobsPage() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 24 }}>
           {[
             { label: "Total Jobs", value: total,          color: C.purple  },
-            { label: "Active",     value: stats.active,   color: "#059669" },
-            { label: "Closed",     value: stats.closed,   color: "#dc2626" },
-            { label: "Expired",    value: stats.expired,  color: "#d97706" },
+            { label: "Active",     value: stats.active,   color: COLORS.successText },
+            { label: "Closed",     value: stats.closed,   color: COLORS.dangerText },
+            { label: "Expired",    value: stats.expired,  color: COLORS.warningText },
           ].map(stat => (
             <div key={stat.label} style={{ background: "white", borderRadius: 12,
-              padding: "16px 20px", border: "1px solid #f3f4f6",
+              padding: "16px 20px", border: `1px solid ${COLORS.gray100}`,
               boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
               <div style={{ fontSize: 24, fontWeight: 700, color: stat.color }}>{stat.value}</div>
-              <div style={{ fontSize: 13, color: "#6b7280", marginTop: 4 }}>{stat.label}</div>
+              <div style={{ fontSize: 13, color: COLORS.gray500, marginTop: 4 }}>{stat.label}</div>
             </div>
           ))}
         </div>
 
         {/* Search + Filter */}
         <div style={{ background: "white", borderRadius: 12, padding: "16px 20px",
-          border: "1px solid #f3f4f6", marginBottom: 16,
+          border: `1px solid ${COLORS.gray100}`, marginBottom: 16,
           display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
           <div style={{ position: "relative", flex: 1, minWidth: 200 }}>
             <Search size={16} style={{ position: "absolute", left: 12, top: "50%",
@@ -106,7 +107,7 @@ export default function AdminJobsPage() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               style={{ width: "100%", paddingLeft: 36, paddingRight: 12,
-                paddingTop: 8, paddingBottom: 8, border: "1px solid #e5e7eb",
+                paddingTop: 8, paddingBottom: 8, border: `1px solid ${COLORS.gray200}`,
                 borderRadius: 8, fontSize: 14, outline: "none", boxSizing: "border-box" }}
             />
           </div>
@@ -116,8 +117,8 @@ export default function AdminJobsPage() {
                 padding: "8px 16px", borderRadius: 8, fontSize: 13,
                 fontWeight: filter === f ? 600 : 400,
                 background: filter === f ? C.purple : "transparent",
-                color: filter === f ? "white" : "#6b7280",
-                border: filter === f ? "none" : "1px solid #e5e7eb",
+                color: filter === f ? "white" : COLORS.gray500,
+                border: filter === f ? "none" : `1px solid ${COLORS.gray200}`,
                 cursor: "pointer", textTransform: "capitalize"
               }}>{f}</button>
             ))}
@@ -125,14 +126,14 @@ export default function AdminJobsPage() {
         </div>
 
         {/* Table */}
-        <div style={{ background: "white", borderRadius: 12, border: "1px solid #f3f4f6",
+        <div style={{ background: "white", borderRadius: 12, border: `1px solid ${COLORS.gray100}`,
           overflowX: "auto", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
 
           {/* Header */}
           <div style={{ display: "grid", gridTemplateColumns: "2.5fr 1.5fr 1fr 1fr 1fr",
             padding: "12px 20px", minWidth: 700, background: "#f9fafb",
-            borderBottom: "1px solid #f3f4f6", fontSize: 12, fontWeight: 600,
-            color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            borderBottom: `1px solid ${COLORS.gray100}`, fontSize: 12, fontWeight: 600,
+            color: COLORS.gray500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
             <span>Job</span>
             <span>Company</span>
             <span>Type</span>
@@ -141,13 +142,13 @@ export default function AdminJobsPage() {
           </div>
 
           {loading && (
-            <div style={{ padding: 40, textAlign: "center", color: "#6b7280" }}>
+            <div style={{ padding: 40, textAlign: "center", color: COLORS.gray500 }}>
               Loading jobs...
             </div>
           )}
 
           {!loading && jobs.length === 0 && (
-            <div style={{ padding: 40, textAlign: "center", color: "#6b7280" }}>
+            <div style={{ padding: 40, textAlign: "center", color: COLORS.gray500 }}>
               <Briefcase size={40} style={{ margin: "0 auto 12px", color: "#d1d5db" }} />
               <p>No jobs found</p>
             </div>
@@ -159,13 +160,13 @@ export default function AdminJobsPage() {
               <div key={job._id} style={{
                 display: "grid", gridTemplateColumns: "2.5fr 1.5fr 1fr 1fr 1fr",
                 padding: "14px 20px", minWidth: 700,
-                borderBottom: idx < jobs.length - 1 ? "1px solid #f3f4f6" : "none",
+                borderBottom: idx < jobs.length - 1 ? `1px solid ${COLORS.gray100}` : "none",
                 alignItems: "center",
                 background: !job.isActive ? "#fff5f5" : "white"
               }}>
                 {/* Job Title */}
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: 14, color: "#111827" }}>
+                  <div style={{ fontWeight: 600, fontSize: 14, color: COLORS.gray900 }}>
                     {job.title}
                   </div>
                   <div style={{ fontSize: 12, color: "#9ca3af", marginTop: 2 }}>
@@ -201,7 +202,7 @@ export default function AdminJobsPage() {
                       <button onClick={() => handleClose(job._id)} style={{
                         padding: '6px 12px', borderRadius: 6, fontSize: 12,
                         fontWeight: 600, cursor: 'pointer', border: 'none',
-                        background: '#fee2e2', color: '#dc2626',
+                        background: COLORS.dangerBg, color: COLORS.dangerText,
                         display: 'flex', alignItems: 'center', gap: 4,
                       }}>
                         <XCircle size={12} /> Close
@@ -210,7 +211,7 @@ export default function AdminJobsPage() {
                     <button onClick={() => handleDeleteJob(job._id)} style={{
                       padding: '6px 12px', borderRadius: 6, fontSize: 12,
                       fontWeight: 600, cursor: 'pointer', border: 'none',
-                      background: '#fef3c7', color: '#d97706',
+                      background: COLORS.warningBg, color: COLORS.warningText,
                     }}>
                       Delete
                     </button>
@@ -227,18 +228,18 @@ export default function AdminJobsPage() {
             alignItems: "center", gap: 12, marginTop: 20 }}>
             <button onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={page === 1} style={{
-                padding: "8px 16px", borderRadius: 8, border: "1px solid #e5e7eb",
+                padding: "8px 16px", borderRadius: 8, border: `1px solid ${COLORS.gray200}`,
                 background: "white", cursor: page === 1 ? "not-allowed" : "pointer",
                 opacity: page === 1 ? 0.5 : 1, display: "flex", alignItems: "center", gap: 4
               }}>
               <ChevronLeft size={16} /> Prev
             </button>
-            <span style={{ fontSize: 14, color: "#6b7280" }}>
+            <span style={{ fontSize: 14, color: COLORS.gray500 }}>
               Page {page} of {totalPages}
             </span>
             <button onClick={() => setPage(p => Math.min(totalPages, p + 1))}
               disabled={page === totalPages} style={{
-                padding: "8px 16px", borderRadius: 8, border: "1px solid #e5e7eb",
+                padding: "8px 16px", borderRadius: 8, border: `1px solid ${COLORS.gray200}`,
                 background: "white", cursor: page === totalPages ? "not-allowed" : "pointer",
                 opacity: page === totalPages ? 0.5 : 1, display: "flex", alignItems: "center", gap: 4
               }}>

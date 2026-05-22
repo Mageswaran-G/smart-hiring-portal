@@ -1,6 +1,7 @@
 import { Shield, LayoutDashboard, Building2, Users, Briefcase, BarChart3, LogOut } from 'lucide-react';
+import { COLORS, GRADIENTS } from '../../../../theme/adminTheme';
 
-const grad = 'linear-gradient(135deg, #1e0b4b 0%, #2e1065 25%, #4c1d95 55%, #6d28d9 80%, #7c3aed 100%)';
+
 
 const NAV_ITEMS = [
   { key: 'overview',  label: 'Overview',   Icon: LayoutDashboard },
@@ -16,7 +17,7 @@ export default function DesktopAdminNav({ adminName, activeTab, onTab, onLogout 
       position: 'sticky', top: 0, zIndex: 50,
       background: 'rgba(255,255,255,0.96)',
       backdropFilter: 'blur(12px)',
-      borderBottom: '1px solid #e5e7eb',
+      borderBottom: `1px solid ${COLORS.gray200}`,
       height: 64, padding: '0 32px',
       display: 'flex', alignItems: 'center', gap: 24,
     }}>
@@ -25,18 +26,18 @@ export default function DesktopAdminNav({ adminName, activeTab, onTab, onLogout 
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, marginRight: 16 }}>
         <div style={{
           width: 38, height: 38, borderRadius: 11,
-          background: grad,
+          background: GRADIENTS.admin,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           boxShadow: '0 2px 10px rgba(124,58,237,0.4)',
         }}>
           <Shield size={19} color="#fff" />
         </div>
         <div>
-          <span style={{ fontWeight: 900, fontSize: 19, color: '#111827', letterSpacing: '-0.4px' }}>
+          <span style={{ fontWeight: 900, fontSize: 19, color: COLORS.gray900, letterSpacing: '-0.4px' }}>
             HirePortal
           </span>
           <span style={{
-            background: '#7c3aed22', color: '#7c3aed',
+            background: `${COLORS.primary}22`, color: COLORS.primary,
             fontSize: 9, fontWeight: 800, borderRadius: 5,
             padding: '2px 7px', marginLeft: 8, letterSpacing: '0.5px',
             verticalAlign: 'middle',
@@ -56,8 +57,8 @@ export default function DesktopAdminNav({ adminName, activeTab, onTab, onLogout 
               padding: '8px 14px', borderRadius: 10, border: 'none',
               cursor: 'pointer', fontSize: 13,
               fontWeight: isActive ? 700 : 500,
-              background: isActive ? '#7c3aed22' : 'transparent',
-              color: isActive ? '#7c3aed' : '#6b7280',
+              background: isActive ? `${COLORS.primary}22`: 'transparent',
+              color: isActive ? COLORS.primary : COLORS.gray500,
               transition: 'all 0.15s',
             }}>
               <Icon size={15} strokeWidth={isActive ? 2.5 : 1.8} />
@@ -70,22 +71,22 @@ export default function DesktopAdminNav({ adminName, activeTab, onTab, onLogout 
       {/* Admin info + logout */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0 }}>
         <div style={{ textAlign: 'right' }}>
-          <p style={{ fontSize: 13, fontWeight: 800, color: '#111827', margin: 0 }}>{adminName}</p>
-          <p style={{ fontSize: 11, color: '#7c3aed', margin: 0, fontWeight: 700 }}>Super Admin</p>
+          <p style={{ fontSize: 13, fontWeight: 800, color: COLORS.gray900, margin: 0 }}>{adminName}</p>
+          <p style={{ fontSize: 11, color: COLORS.primary, margin: 0, fontWeight: 700 }}>Super Admin</p>
         </div>
         <div style={{
           width: 38, height: 38, borderRadius: '50%',
-          background: grad,
+          background: GRADIENTS.admin,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: '#fff', fontWeight: 900, fontSize: 15,
+          color: COLORS.white, fontWeight: 900, fontSize: 15,
         }}>
           {adminName[0].toUpperCase()}
         </div>
         <button onClick={onLogout} style={{
           display: 'flex', alignItems: 'center', gap: 6,
           padding: '8px 14px', borderRadius: 10,
-          border: '1px solid #e5e7eb', background: '#fff',
-          color: '#4b5563', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+          border: `1px solid ${COLORS.gray200}`, background: COLORS.white,
+          color: COLORS.gray600, fontSize: 13, fontWeight: 600, cursor: 'pointer',
         }}>
           <LogOut size={14} /> Logout
         </button>

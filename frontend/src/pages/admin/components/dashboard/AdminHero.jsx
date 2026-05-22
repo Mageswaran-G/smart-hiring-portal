@@ -1,11 +1,10 @@
 import SystemStatusCard from './SystemStatusCard';
 import ProgressRing from '../../../../components/charts/ProgressRing';
-
-const grad = 'linear-gradient(135deg, #1e0b4b 0%, #2e1065 25%, #4c1d95 55%, #6d28d9 80%, #7c3aed 100%)';
+import { COLORS, GRADIENTS, SHADOWS, RADIUS } from '../../../../theme/adminTheme';
 
 export default function AdminHero({ adminName, adminEmail, stats, hireRate }) {
   return (
-    <section style={{ background: grad, padding: '64px 56px 76px' }}>
+    <section style={{ background: GRADIENTS.admin, padding: '64px 56px 76px' }}>
       <div style={{
         maxWidth: 1200, margin: '0 auto',
         display: 'flex', alignItems: 'center',
@@ -19,13 +18,13 @@ export default function AdminHero({ adminName, adminEmail, stats, hireRate }) {
           <div style={{ position: 'relative', flexShrink: 0 }}>
             <div style={{
               width: 108, height: 108, borderRadius: '50%',
-              background: 'linear-gradient(135deg, #a78bfa, #7c3aed, #4c1d95)',
+              background: `linear-gradient(135deg, ${COLORS.accent}, ${COLORS.primary}, ${COLORS.primaryDim})`,
               padding: 3,
               boxShadow: '0 0 32px rgba(167,139,250,0.5), 0 8px 32px rgba(0,0,0,0.3)',
             }}>
               <div style={{
                 width: '100%', height: '100%', borderRadius: '50%',
-                background: 'linear-gradient(135deg, #6d28d9, #4c1d95)',
+                background: `linear-gradient(135deg, #6d28d9, ${COLORS.primaryDim})`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: '#fff', fontWeight: 900, fontSize: 38,
               }}>
@@ -36,7 +35,7 @@ export default function AdminHero({ adminName, adminEmail, stats, hireRate }) {
             <div style={{
               position: 'absolute', bottom: 6, right: 6,
               width: 18, height: 18, borderRadius: '50%',
-              background: '#22c55e',
+              background: COLORS.success,
               border: '3px solid #2e1065',
               boxShadow: '0 0 8px rgba(34,197,94,0.6)',
             }} />
@@ -61,7 +60,7 @@ export default function AdminHero({ adminName, adminEmail, stats, hireRate }) {
               }}>
                 <span style={{
                   width: 7, height: 7, borderRadius: '50%',
-                  background: '#22c55e', display: 'inline-block',
+                  background: COLORS.success,display: 'inline-block',
                   animation: 'pulse 2s ease-in-out infinite',
                 }} />
                 System Online

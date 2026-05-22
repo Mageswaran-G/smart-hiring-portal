@@ -1,4 +1,5 @@
 import { Activity, CheckCircle, Clock, Lock, ShieldCheck } from 'lucide-react';
+import { COLORS } from '../../../../theme/adminTheme';
 
 const SYSTEM_STATUS = [
   { label: 'API Server',    status: 'online',   icon: Activity    },
@@ -37,7 +38,7 @@ export default function SystemStatusCard({ hireRate, ProgressRing }) {
 
       {/* Status rows */}
       {SYSTEM_STATUS.map(({ label, status, icon: Icon }) => {
-        const dotColor   = status === 'online' ? '#22c55e' : status === 'progress' ? '#f59e0b' : '#6b7280';
+        const dotColor   = status === 'online' ? COLORS.success : status === 'progress' ? COLORS.warning : COLORS.gray500;
         const textColor  = status === 'online' ? '#86efac' : status === 'progress' ? '#fde68a' : 'rgba(255,255,255,0.45)';
         const statusLabel = status === 'online' ? 'Online' : status === 'progress' ? 'In Progress' : 'Locked';
 

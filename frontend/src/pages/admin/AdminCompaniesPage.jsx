@@ -1,3 +1,4 @@
+import { COLORS } from '../../theme/adminTheme';
 import { useState, useEffect, useCallback } from "react";
 import { Building2, CheckCircle, XCircle, Search, Shield, ShieldOff, ChevronLeft, ChevronRight } from "lucide-react";
 import { getAllCompanies, verifyCompany, suspendCompany } from "../../services/adminService";
@@ -15,7 +16,7 @@ export default function AdminCompaniesPage() {
   const [total, setTotal] = useState(0);
 
   const C = {
-    purple: "#7c3aed",
+    purple: COLORS.primary,
     purpleLight: "#ede9fe",
     purpleDark: "#5b21b6",
   };
@@ -83,10 +84,10 @@ export default function AdminCompaniesPage() {
 
       {/* Page Header */}
       <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 700, color: "#111827", margin: 0 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 700, color: COLORS.gray900, margin: 0 }}>
           Companies Management
         </h1>
-        <p style={{ color: "#6b7280", marginTop: 4, fontSize: 14 }}>
+        <p style={{ color: COLORS.gray500, marginTop: 4, fontSize: 14 }}>
           Verify, suspend, and manage all registered companies
         </p>
       </div>
@@ -95,16 +96,16 @@ export default function AdminCompaniesPage() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16, marginBottom: 24 }}>
         {[
           { label: "Total Companies", value: total, color: C.purple },
-          { label: "Verified", value: companies.filter(c => c.isVerified).length, color: "#059669" },
-          { label: "Unverified", value: companies.filter(c => !c.isVerified).length, color: "#d97706" },
-          { label: "Suspended", value: companies.filter(c => c.isSuspended).length, color: "#dc2626" },
+          { label: "Verified", value: companies.filter(c => c.isVerified).length, color: COLORS.successText },
+          { label: "Unverified", value: companies.filter(c => !c.isVerified).length, color: COLORS.warningText },
+          { label: "Suspended", value: companies.filter(c => c.isSuspended).length, color: COLORS.dangerText },
         ].map((stat) => (
           <div key={stat.label} style={{
             background: "white", borderRadius: 12, padding: "16px 20px",
-            border: "1px solid #f3f4f6", boxShadow: "0 1px 3px rgba(0,0,0,0.06)"
+            border: `1px solid ${COLORS.gray100}`, boxShadow: "0 1px 3px rgba(0,0,0,0.06)"
           }}>
             <div style={{ fontSize: 24, fontWeight: 700, color: stat.color }}>{stat.value}</div>
-            <div style={{ fontSize: 13, color: "#6b7280", marginTop: 4 }}>{stat.label}</div>
+            <div style={{ fontSize: 13, color: COLORS.gray500, marginTop: 4 }}>{stat.label}</div>
           </div>
         ))}
       </div>
@@ -112,7 +113,7 @@ export default function AdminCompaniesPage() {
       {/* Search + Filter Bar */}
       <div style={{
         background: "white", borderRadius: 12, padding: "16px 20px",
-        border: "1px solid #f3f4f6", marginBottom: 16,
+        border: `1px solid ${COLORS.gray100}`, marginBottom: 16,
         display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap"
       }}>
         {/* Search Input */}
@@ -126,7 +127,7 @@ export default function AdminCompaniesPage() {
             style={{
               width: "100%", paddingLeft: 36, paddingRight: 12,
               paddingTop: 8, paddingBottom: 8,
-              border: "1px solid #e5e7eb", borderRadius: 8,
+              border: `1px solid ${COLORS.gray200}`, borderRadius: 8,
               fontSize: 14, outline: "none", boxSizing: "border-box"
             }}
           />
@@ -142,8 +143,8 @@ export default function AdminCompaniesPage() {
                 padding: "8px 16px", borderRadius: 8, fontSize: 13,
                 fontWeight: filter === f ? 600 : 400,
                 background: filter === f ? C.purple : "transparent",
-                color: filter === f ? "white" : "#6b7280",
-                border: filter === f ? "none" : "1px solid #e5e7eb",
+                color: filter === f ? "white" : COLORS.gray500,
+                border: filter === f ? "none" : `1px solid ${COLORS.gray200}`,
                 cursor: "pointer", textTransform: "capitalize"
               }}
             >
@@ -156,7 +157,7 @@ export default function AdminCompaniesPage() {
       {/* Companies Table */}
       <div style={{
         background: "white", borderRadius: 12,
-        border: "1px solid #f3f4f6", overflowX: "auto",
+        border: `1px solid ${COLORS.gray100}`, overflowX: "auto",
         boxShadow: "0 1px 3px rgba(0,0,0,0.06)"
         }}>
         {/* Table Header */}
@@ -166,8 +167,8 @@ export default function AdminCompaniesPage() {
           padding: "12px 20px",
           minWidth: 700,
           background: "#f9fafb",
-          borderBottom: "1px solid #f3f4f6",
-          fontSize: 12, fontWeight: 600, color: "#6b7280",
+          borderBottom: `1px solid ${COLORS.gray100}`,
+          fontSize: 12, fontWeight: 600, color: COLORS.gray500,
           textTransform: "uppercase", letterSpacing: "0.05em"
         }}>
           <span>Company</span>
@@ -179,14 +180,14 @@ export default function AdminCompaniesPage() {
 
         {/* Loading State */}
         {loading && (
-          <div style={{ padding: 40, textAlign: "center", color: "#6b7280" }}>
+          <div style={{ padding: 40, textAlign: "center", color: COLORS.gray500 }}>
             Loading companies...
           </div>
         )}
 
         {/* Empty State */}
         {!loading && companies.length === 0 && (
-          <div style={{ padding: 40, textAlign: "center", color: "#6b7280" }}>
+          <div style={{ padding: 40, textAlign: "center", color: COLORS.gray500 }}>
             <Building2 size={40} style={{ margin: "0 auto 12px", color: "#d1d5db" }} />
             <p>No companies found</p>
           </div>
@@ -201,7 +202,7 @@ export default function AdminCompaniesPage() {
               gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1.5fr",
               padding: "14px 20px",
               minWidth: 700,
-              borderBottom: idx < companies.length - 1 ? "1px solid #f3f4f6" : "none",
+              borderBottom: idx < companies.length - 1 ? `1px solid ${COLORS.gray100}` : "none",
               alignItems: "center",
               background: company.isSuspended ? "#fff5f5" : "white",
               transition: "background 0.2s"
@@ -218,7 +219,7 @@ export default function AdminCompaniesPage() {
                 {company.name?.charAt(0).toUpperCase() || "C"}
               </div>
               <div>
-                <div style={{ fontWeight: 600, fontSize: 14, color: "#111827" }}>
+                <div style={{ fontWeight: 600, fontSize: 14, color: COLORS.gray900 }}>
                   {company.name}
                 </div>
                 <div style={{ fontSize: 12, color: "#9ca3af" }}>
@@ -234,7 +235,7 @@ export default function AdminCompaniesPage() {
             <div>
               {company.isSuspended ? (
                 <span style={{
-                  background: "#fee2e2", color: "#dc2626",
+                  background: "#fee2e2", color: COLORS.dangerText,
                   padding: "3px 10px", borderRadius: 20,
                   fontSize: 12, fontWeight: 600
                 }}>Suspended</span>
@@ -250,7 +251,7 @@ export default function AdminCompaniesPage() {
             {/* Verify Status */}
             <div>
               {company.isVerified ? (
-                <span style={{ display: "flex", alignItems: "center", gap: 4, color: "#059669", fontSize: 13 }}>
+                <span style={{ display: "flex", alignItems: "center", gap: 4, color: COLORS.successText, fontSize: 13 }}>
                   <CheckCircle size={14} /> Verified
                 </span>
               ) : (
@@ -282,7 +283,7 @@ export default function AdminCompaniesPage() {
                   padding: "6px 12px", borderRadius: 6, fontSize: 12,
                   fontWeight: 600, cursor: "pointer", border: "none",
                   background: company.isSuspended ? "#dcfce7" : "#fee2e2",
-                  color: company.isSuspended ? "#16a34a" : "#dc2626",
+                  color: company.isSuspended ? "#16a34a" : COLORS.dangerText,
                   display: "flex", alignItems: "center", gap: 4
                 }}
               >
@@ -307,7 +308,7 @@ export default function AdminCompaniesPage() {
             onClick={() => setPage(p => Math.max(1, p - 1))}
             disabled={page === 1}
             style={{
-              padding: "8px 16px", borderRadius: 8, border: "1px solid #e5e7eb",
+              padding: "8px 16px", borderRadius: 8, border: `1px solid ${COLORS.gray200}`,
               background: "white", cursor: page === 1 ? "not-allowed" : "pointer",
               opacity: page === 1 ? 0.5 : 1, display: "flex", alignItems: "center", gap: 4
             }}
@@ -315,7 +316,7 @@ export default function AdminCompaniesPage() {
             <ChevronLeft size={16} /> Prev
           </button>
 
-          <span style={{ fontSize: 14, color: "#6b7280" }}>
+          <span style={{ fontSize: 14, color: COLORS.gray500 }}>
             Page {page} of {totalPages}
           </span>
 
@@ -323,7 +324,7 @@ export default function AdminCompaniesPage() {
             onClick={() => setPage(p => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
             style={{
-              padding: "8px 16px", borderRadius: 8, border: "1px solid #e5e7eb",
+              padding: "8px 16px", borderRadius: 8, border: `1px solid ${COLORS.gray200}`,
               background: "white", cursor: page === totalPages ? "not-allowed" : "pointer",
               opacity: page === totalPages ? 0.5 : 1, display: "flex", alignItems: "center", gap: 4
             }}

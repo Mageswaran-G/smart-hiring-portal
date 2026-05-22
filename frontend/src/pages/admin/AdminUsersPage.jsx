@@ -1,3 +1,4 @@
+import { COLORS } from '../../theme/adminTheme';
 import { useState, useEffect, useCallback } from "react";
 import { Users, Search, ChevronLeft, ChevronRight, ShieldOff, Shield, Trash2, AlertTriangle } from "lucide-react";
 import { getAllUsers, suspendUser, deleteUser } from "../../services/adminService";
@@ -7,7 +8,7 @@ import toast from "react-hot-toast";
 const ITEMS_PER_PAGE = 10;
 
 const C = {
-  purple: "#7c3aed",
+  purple: COLORS.primary,
   purpleLight: "#ede9fe",
 };
 
@@ -75,10 +76,10 @@ export default function AdminUsersPage() {
 
         {/* Header */}
         <div style={{ marginBottom: 24 }}>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#111827", margin: 0 }}>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: COLORS.gray900, margin: 0 }}>
             Users Management
           </h1>
-          <p style={{ color: "#6b7280", marginTop: 4, fontSize: 14 }}>
+          <p style={{ color: COLORS.gray500, marginTop: 4, fontSize: 14 }}>
             Search, suspend, and manage all platform users
           </p>
         </div>
@@ -89,14 +90,14 @@ export default function AdminUsersPage() {
             { label: "Total Users",  value: total,                                              color: C.purple   },
             { label: "Candidates",   value: users.filter(u => u.role === "candidate").length,   color: "#ea580c"  },
             { label: "Companies",    value: users.filter(u => u.role === "company").length,     color: "#1e3a5f"  },
-            { label: "Suspended",    value: users.filter(u => u.isSuspended).length,            color: "#dc2626"  },
+            { label: "Suspended",    value: users.filter(u => u.isSuspended).length,            color: COLORS.dangerText  },
           ].map(stat => (
             <div key={stat.label} style={{
               background: "white", borderRadius: 12, padding: "16px 20px",
-              border: "1px solid #f3f4f6", boxShadow: "0 1px 3px rgba(0,0,0,0.06)"
+              border: `1px solid ${COLORS.gray100}`, boxShadow: "0 1px 3px rgba(0,0,0,0.06)"
             }}>
               <div style={{ fontSize: 24, fontWeight: 700, color: stat.color }}>{stat.value}</div>
-              <div style={{ fontSize: 13, color: "#6b7280", marginTop: 4 }}>{stat.label}</div>
+              <div style={{ fontSize: 13, color: COLORS.gray500, marginTop: 4 }}>{stat.label}</div>
             </div>
           ))}
         </div>
@@ -104,7 +105,7 @@ export default function AdminUsersPage() {
         {/* Search + Filter */}
         <div style={{
           background: "white", borderRadius: 12, padding: "16px 20px",
-          border: "1px solid #f3f4f6", marginBottom: 16,
+          border: `1px solid ${COLORS.gray100}`, marginBottom: 16,
           display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap"
         }}>
           <div style={{ position: "relative", flex: 1, minWidth: 200 }}>
@@ -117,7 +118,7 @@ export default function AdminUsersPage() {
               style={{
                 width: "100%", paddingLeft: 36, paddingRight: 12,
                 paddingTop: 8, paddingBottom: 8,
-                border: "1px solid #e5e7eb", borderRadius: 8,
+                border: `1px solid ${COLORS.gray200}`, borderRadius: 8,
                 fontSize: 14, outline: "none", boxSizing: "border-box"
               }}
             />
@@ -128,8 +129,8 @@ export default function AdminUsersPage() {
                 padding: "8px 16px", borderRadius: 8, fontSize: 13,
                 fontWeight: filter === f ? 600 : 400,
                 background: filter === f ? C.purple : "transparent",
-                color: filter === f ? "white" : "#6b7280",
-                border: filter === f ? "none" : "1px solid #e5e7eb",
+                color: filter === f ? "white" : COLORS.gray500,
+                border: filter === f ? "none" : `1px solid ${COLORS.gray200}`,
                 cursor: "pointer", textTransform: "capitalize"
               }}>
                 {f}
@@ -141,15 +142,15 @@ export default function AdminUsersPage() {
         {/* Table */}
         <div style={{
             background: "white", borderRadius: 12,
-            border: "1px solid #f3f4f6", overflowX: "auto",
+            border: `1px solid ${COLORS.gray100}`, overflowX: "auto",
             boxShadow: "0 1px 3px rgba(0,0,0,0.06)"
             }}>
           {/* Table Header */}
           <div style={{
             display: "grid", gridTemplateColumns: "2fr 2fr 1fr 1fr 1.5fr",
             padding: "12px 20px", minWidth: 700, background: "#f9fafb",
-            borderBottom: "1px solid #f3f4f6",
-            fontSize: 12, fontWeight: 600, color: "#6b7280",
+            borderBottom: `1px solid ${COLORS.gray100}`,
+            fontSize: 12, fontWeight: 600, color: COLORS.gray500,
             textTransform: "uppercase", letterSpacing: "0.05em"
           }}>
             <span>User</span>
@@ -161,14 +162,14 @@ export default function AdminUsersPage() {
 
           {/* Loading */}
           {loading && (
-            <div style={{ padding: 40, textAlign: "center", color: "#6b7280" }}>
+            <div style={{ padding: 40, textAlign: "center", color: COLORS.gray500 }}>
               Loading users...
             </div>
           )}
 
           {/* Empty */}
           {!loading && users.length === 0 && (
-            <div style={{ padding: 40, textAlign: "center", color: "#6b7280" }}>
+            <div style={{ padding: 40, textAlign: "center", color: COLORS.gray500 }}>
               <Users size={40} style={{ margin: "0 auto 12px", color: "#d1d5db" }} />
               <p>No users found</p>
             </div>
@@ -179,7 +180,7 @@ export default function AdminUsersPage() {
             <div key={user._id} style={{
               display: "grid", gridTemplateColumns: "2fr 2fr 1fr 1fr 1.5fr",
               padding: "14px 20px", minWidth: 700,
-              borderBottom: idx < users.length - 1 ? "1px solid #f3f4f6" : "none",
+              borderBottom: idx < users.length - 1 ? `1px solid ${COLORS.gray100}` : "none",
               alignItems: "center",
               background: user.isSuspended ? "#fff5f5" : "white"
             }}>
@@ -195,7 +196,7 @@ export default function AdminUsersPage() {
                   {user.name?.charAt(0).toUpperCase() || "U"}
                 </div>
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: 14, color: "#111827" }}>{user.name}</div>
+                  <div style={{ fontWeight: 600, fontSize: 14, color: COLORS.gray900 }}>{user.name}</div>
                   <div style={{ fontSize: 12, color: "#9ca3af" }}>
                     Joined {new Date(user.createdAt).toLocaleDateString()}
                   </div>
@@ -220,11 +221,11 @@ export default function AdminUsersPage() {
               {/* Status */}
               <div>
                 {user.isSuspended ? (
-                  <span style={{ background: "#fee2e2", color: "#dc2626", padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
+                  <span style={{ background: "#fee2e2", color: COLORS.dangerText, padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
                     Suspended
                   </span>
                 ) : (
-                  <span style={{ background: "#dcfce7", color: "#16a34a", padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
+                  <span style={{ background: "#dcfce7", color: COLORS.successText, padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
                     Active
                   </span>
                 )}
@@ -237,7 +238,7 @@ export default function AdminUsersPage() {
                   padding: "6px 10px", borderRadius: 6, fontSize: 12,
                   fontWeight: 600, cursor: "pointer", border: "none",
                   background: user.isSuspended ? "#dcfce7" : "#fee2e2",
-                  color: user.isSuspended ? "#16a34a" : "#dc2626",
+                  color: user.isSuspended ? COLORS.successText : COLORS.dangerText,
                   display: "flex", alignItems: "center", gap: 4
                 }}>
                   {user.isSuspended ? <><Shield size={12} /> Unsuspend</> : <><ShieldOff size={12} /> Suspend</>}
@@ -247,7 +248,7 @@ export default function AdminUsersPage() {
                 <button onClick={() => setDeleteConfirm(user._id)} style={{
                   padding: "6px 10px", borderRadius: 6, fontSize: 12,
                   fontWeight: 600, cursor: "pointer", border: "none",
-                  background: "#f3f4f6", color: "#6b7280",
+                  background: COLORS.gray100, color: COLORS.gray500,
                   display: "flex", alignItems: "center", gap: 4
                 }}>
                   <Trash2 size={12} /> Delete
@@ -261,15 +262,15 @@ export default function AdminUsersPage() {
         {totalPages > 1 && (
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 12, marginTop: 20 }}>
             <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={{
-              padding: "8px 16px", borderRadius: 8, border: "1px solid #e5e7eb",
+              padding: "8px 16px", borderRadius: 8, border: `1px solid ${COLORS.gray200}`,
               background: "white", cursor: page === 1 ? "not-allowed" : "pointer",
               opacity: page === 1 ? 0.5 : 1, display: "flex", alignItems: "center", gap: 4
             }}>
               <ChevronLeft size={16} /> Prev
             </button>
-            <span style={{ fontSize: 14, color: "#6b7280" }}>Page {page} of {totalPages}</span>
+            <span style={{ fontSize: 14, color: COLORS.gray500 }}>Page {page} of {totalPages}</span>
             <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} style={{
-              padding: "8px 16px", borderRadius: 8, border: "1px solid #e5e7eb",
+              padding: "8px 16px", borderRadius: 8, border: `1px solid ${COLORS.gray200}`,
               background: "white", cursor: page === totalPages ? "not-allowed" : "pointer",
               opacity: page === totalPages ? 0.5 : 1, display: "flex", alignItems: "center", gap: 4
             }}>
@@ -285,23 +286,23 @@ export default function AdminUsersPage() {
             display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100
           }}>
             <div style={{ background: "white", borderRadius: 16, padding: 32, maxWidth: 400, width: "90%", textAlign: "center" }}>
-              <AlertTriangle size={40} color="#dc2626" style={{ margin: "0 auto 16px" }} />
-              <h3 style={{ fontSize: 18, fontWeight: 700, color: "#111827", margin: "0 0 8px" }}>
+              <AlertTriangle size={40} color={COLORS.dangerText} style={{ margin: "0 auto 16px" }} />
+              <h3 style={{ fontSize: 18, fontWeight: 700, color: COLORS.gray900, margin: "0 0 8px" }}>
                 Delete User?
               </h3>
-              <p style={{ color: "#6b7280", fontSize: 14, margin: "0 0 24px" }}>
+              <p style={{ color: COLORS.gray500, fontSize: 14, margin: "0 0 24px" }}>
                 This action cannot be undone. The user will be permanently deleted.
               </p>
               <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
                 <button onClick={() => setDeleteConfirm(null)} style={{
-                  padding: "10px 24px", borderRadius: 8, border: "1px solid #e5e7eb",
+                  padding: "10px 24px", borderRadius: 8, border: `1px solid ${COLORS.gray200}`,
                   background: "white", color: "#374151", fontSize: 14, fontWeight: 600, cursor: "pointer"
                 }}>
                   Cancel
                 </button>
                 <button onClick={() => handleDelete(deleteConfirm)} style={{
                   padding: "10px 24px", borderRadius: 8, border: "none",
-                  background: "#dc2626", color: "white", fontSize: 14, fontWeight: 600, cursor: "pointer"
+                  background: COLORS.dangerText, color: "white", fontSize: 14, fontWeight: 600, cursor: "pointer"
                 }}>
                   Yes, Delete
                 </button>

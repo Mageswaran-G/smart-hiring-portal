@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getActionCenter } from "../../services/adminService";
+import { COLORS } from '../../theme/adminTheme';
 
 export default function ActionCenter() {
   const [data, setData] = useState(null);
@@ -35,7 +36,7 @@ export default function ActionCenter() {
   if (loading) {
     return (
       <div style={styles.container}>
-        <p style={{ color: "#6b7280" }}>Loading alerts...</p>
+        <p style={{ color: COLORS.gray500 }}>Loading alerts...</p>
       </div>
     );
   }
@@ -54,10 +55,10 @@ export default function ActionCenter() {
         </div>
         <div style={styles.allClear}>
           <div style={{ fontSize: "2.5rem" }}>✅</div>
-          <p style={{ color: "#16a34a", fontWeight: 600, marginTop: 8 }}>
+          <p style={{ color: COLORS.successText, fontWeight: 600, marginTop: 8 }}>
             No pending actions
           </p>
-          <p style={{ color: "#6b7280", fontSize: "0.875rem" }}>
+          <p style={{ color: COLORS.gray500, fontSize: "0.875rem" }}>
             Platform is running smoothly
           </p>
         </div>
@@ -70,19 +71,19 @@ export default function ActionCenter() {
       key: "unverified",
       label: "Unverified",
       count: counts.unverified,
-      color: "#f59e0b",
+      color: COLORS.warning,
     },
     {
       key: "suspended",
       label: "Suspended",
       count: counts.suspended,
-      color: "#ef4444",
+      color: COLORS.danger,
     },
     {
       key: "expired",
       label: "Expired Jobs",
       count: counts.expired,
-      color: "#6b7280",
+      color: COLORS.gray500,
     },
   ];
 
@@ -109,7 +110,7 @@ export default function ActionCenter() {
                 activeTab === tab.key
                   ? `2px solid ${tab.color}`
                   : "2px solid transparent",
-              color: activeTab === tab.key ? tab.color : "#6b7280",
+              color: activeTab === tab.key ? tab.color : COLORS.gray500,
               fontWeight: activeTab === tab.key ? 600 : 400,
             }}
           >
@@ -139,7 +140,7 @@ export default function ActionCenter() {
             ) : (
               unverifiedCompanies.map((company) => (
                 <div key={company._id} style={styles.alertItem}>
-                  <div style={styles.alertAvatar("#f59e0b")}>
+                  <div style={styles.alertAvatar(COLORS.warning)}>
                     {company.name?.[0]?.toUpperCase() || "C"}
                   </div>
                   <div style={{ flex: 1 }}>
@@ -151,7 +152,7 @@ export default function ActionCenter() {
                   </div>
                   <button
                     onClick={() => navigate("/admin/companies")}
-                    style={styles.actionBtn("#f59e0b")}
+                    style={styles.actionBtn(COLORS.warning)}
                   >
                     Verify →
                   </button>
@@ -177,7 +178,7 @@ export default function ActionCenter() {
             ) : (
               suspendedUsers.map((user) => (
                 <div key={user._id} style={styles.alertItem}>
-                  <div style={styles.alertAvatar("#ef4444")}>
+                  <div style={styles.alertAvatar(COLORS.danger)}>
                     {user.name?.[0]?.toUpperCase() || "U"}
                   </div>
                   <div style={{ flex: 1 }}>
@@ -194,7 +195,7 @@ export default function ActionCenter() {
                   </div>
                   <button
                     onClick={() => navigate("/admin/users")}
-                    style={styles.actionBtn("#ef4444")}
+                    style={styles.actionBtn(COLORS.danger)}
                   >
                     Review →
                   </button>
@@ -220,7 +221,7 @@ export default function ActionCenter() {
             ) : (
               expiredJobs.map((job) => (
                 <div key={job._id} style={styles.alertItem}>
-                  <div style={styles.alertAvatar("#6b7280")}>💼</div>
+                  <div style={styles.alertAvatar(COLORS.gray500)}>💼</div>
                   <div style={{ flex: 1 }}>
                     <p style={styles.alertName}>{job.title}</p>
                     <p style={styles.alertSub}>
@@ -232,7 +233,7 @@ export default function ActionCenter() {
                   </div>
                   <button
                     onClick={() => navigate("/admin/jobs")}
-                    style={styles.actionBtn("#6b7280")}
+                    style={styles.actionBtn(COLORS.gray500)}
                   >
                     View →
                   </button>
@@ -259,7 +260,7 @@ const styles = {
   container: {
     background: "#fff",
     borderRadius: 12,
-    border: "1px solid #e5e7eb",
+    border: `1px solid ${COLORS.gray200}`,
     padding: "1.5rem",
     marginBottom: "1.5rem",
   },
@@ -272,12 +273,12 @@ const styles = {
   title: {
     fontSize: "1.125rem",
     fontWeight: 700,
-    color: "#111827",
+    color: COLORS.gray900,
     margin: 0,
   },
   subtitle: {
     fontSize: "0.8rem",
-    color: "#6b7280",
+    color: COLORS.gray500,
     margin: "2px 0 0 0",
   },
   alertBadge: {
@@ -291,7 +292,7 @@ const styles = {
   },
   clearBadge: {
     background: "#dcfce7",
-    color: "#16a34a",
+    color: COLORS.successText,
     fontSize: "0.75rem",
     fontWeight: 600,
     padding: "4px 10px",
@@ -300,7 +301,7 @@ const styles = {
   tabRow: {
     display: "flex",
     gap: "1rem",
-    borderBottom: "1px solid #e5e7eb",
+    borderBottom: `1px solid ${COLORS.gray200}`,
     marginBottom: "1rem",
   },
   tab: {
@@ -329,7 +330,7 @@ const styles = {
     alignItems: "center",
     gap: "0.75rem",
     padding: "0.75rem 0",
-    borderBottom: "1px solid #f3f4f6",
+    borderBottom: `1px solid ${COLORS.gray100}`,
   },
   alertAvatar: (color) => ({
     width: 38,
@@ -348,17 +349,17 @@ const styles = {
     margin: 0,
     fontWeight: 600,
     fontSize: "0.875rem",
-    color: "#111827",
+    color: COLORS.gray900,
   },
   alertSub: {
     margin: "2px 0 0 0",
     fontSize: "0.75rem",
-    color: "#6b7280",
+    color: COLORS.gray500,
   },
   alertTime: {
     margin: "2px 0 0 0",
     fontSize: "0.7rem",
-    color: "#9ca3af",
+    color: COLORS.gray400,
   },
   actionBtn: (color) => ({
     background: color + "15",
@@ -374,7 +375,7 @@ const styles = {
   viewAllBtn: {
     background: "none",
     border: "none",
-    color: "#7c3aed",
+    color: COLORS.primary,
     fontSize: "0.8rem",
     fontWeight: 600,
     cursor: "pointer",
@@ -386,7 +387,7 @@ const styles = {
     padding: "2rem",
   },
   emptyText: {
-    color: "#9ca3af",
+    color: COLORS.gray400,
     fontSize: "0.875rem",
     textAlign: "center",
     padding: "1.5rem",

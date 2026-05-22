@@ -1,11 +1,9 @@
-
-// Purple theme — #7c3aed / #5b21b6
 // Self-contained: inline ProgressRing, Sparkline, MiniBarChart
 // Fully responsive: desktop grid layout + mobile stacked + bottom tab bar
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import { COLORS, GRADIENTS } from '../../theme/adminTheme';
 import { useAuth } from '../../context/AuthContext';
 import { API } from '../../services/authService';
 import { API_ENDPOINTS } from '../../constants/api';
@@ -20,18 +18,6 @@ import LoadingScreen from './components/dashboard/LoadingScreen';
 import AdminHero from './components/dashboard/AdminHero';
 import DesktopAdminNav from './components/dashboard/DesktopAdminNav';
 import MobileAdminLayout from './components/dashboard/MobileAdminLayout';
-
-const C = {
-  primary : '#7c3aed',
-  grad    : 'linear-gradient(135deg, #1e0b4b 0%, #2e1065 25%, #4c1d95 55%, #6d28d9 80%, #7c3aed 100%)',
-  gray50  : '#f9fafb',
-  gray100 : '#f3f4f6',
-  gray200 : '#e5e7eb',
-  gray400 : '#9ca3af',
-  gray500 : '#6b7280',
-  gray900 : '#111827',
-  border  : '#ddd6fe',
-};
 
 // ─── Main Component ───────────────────────────────────────────
 export default function AdminDashboard() {
@@ -118,7 +104,7 @@ export default function AdminDashboard() {
   // DESKTOP LAYOUT
   // ════════════════════════════════════════════════════════════
   return (
-    <div style={{ minHeight:'100vh', background:C.gray50, fontFamily:'system-ui,-apple-system,sans-serif' }}>
+    <div style={{ minHeight:'100vh', background: COLORS.gray50, fontFamily:'system-ui,-apple-system,sans-serif' }}>
 
       {/* ── Desktop Header ── */}
       

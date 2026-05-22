@@ -3,8 +3,8 @@ import { Shield, Brain, Mail, Lock } from 'lucide-react';
 
 const MODULES = [
   {
-    num: 5, status: 'Active', title: 'Admin Dashboard',
-    icon: Shield, color: '#7c3aed', progress: 60, locked: false,
+    num: 5, status:'done', title: 'Admin Dashboard',
+    icon: Shield, color: '#7c3aed', progress:100, locked: false,
     features: ['User management', 'Job moderation', 'Platform analytics', 'Role controls'],
   },
   {
