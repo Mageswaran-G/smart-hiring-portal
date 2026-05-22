@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Briefcase, Search, ChevronLeft, ChevronRight, XCircle, CheckCircle, Clock } from "lucide-react";
-import { getAllJobs, closeJob } from "../../services/adminService";
+import { getAllJobs, closeJob, deleteJob  } from "../../services/adminService";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import toast from "react-hot-toast";
 
@@ -14,7 +14,7 @@ export default function AdminJobsPage() {
   const [filter, setFilter]   = useState("all");
   const [page, setPage]       = useState(1);
   const [total, setTotal]     = useState(0);
-
+  const [refresh, setRefresh] = useState(0);
   const fetchJobs = useCallback(async () => {
     setLoading(true);
     try {
@@ -28,16 +28,27 @@ export default function AdminJobsPage() {
     }
   }, [search, filter, page]);
 
-  useEffect(() => { fetchJobs(); }, [fetchJobs]);
+  useEffect(() => { fetchJobs(); }, [fetchJobs, refresh]);
   useEffect(() => { setPage(1); }, [search, filter]);
 
   const handleClose = async (id) => {
     try {
       await closeJob(id);
       toast.success("Job closed successfully");
-      fetchJobs();
+      setRefresh(r => r + 1);
     } catch {
       toast.error("Action failed");
+    }
+  };
+
+  const handleDeleteJob = async (id) => {
+    if (!window.confirm('Delete this job? This cannot be undone.')) return;
+    try {
+      await deleteJob(id);
+      toast.success('Job deleted');
+      setRefresh(r => r + 1);
+    } catch {
+      toast.error('Delete failed');
     }
   };
 
@@ -185,21 +196,25 @@ export default function AdminJobsPage() {
 
                 {/* Action */}
                 <div>
-                  {job.isActive ? (
-                    <button onClick={() => handleClose(job._id)} style={{
-                      padding: "6px 12px", borderRadius: 6, fontSize: 12,
-                      fontWeight: 600, cursor: "pointer", border: "none",
-                      background: "#fee2e2", color: "#dc2626",
-                      display: "flex", alignItems: "center", gap: 4
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    {job.isActive && (
+                      <button onClick={() => handleClose(job._id)} style={{
+                        padding: '6px 12px', borderRadius: 6, fontSize: 12,
+                        fontWeight: 600, cursor: 'pointer', border: 'none',
+                        background: '#fee2e2', color: '#dc2626',
+                        display: 'flex', alignItems: 'center', gap: 4,
+                      }}>
+                        <XCircle size={12} /> Close
+                      </button>
+                    )}
+                    <button onClick={() => handleDeleteJob(job._id)} style={{
+                      padding: '6px 12px', borderRadius: 6, fontSize: 12,
+                      fontWeight: 600, cursor: 'pointer', border: 'none',
+                      background: '#fef3c7', color: '#d97706',
                     }}>
-                      <XCircle size={12} /> Close
+                      Delete
                     </button>
-                  ) : (
-                    <span style={{ fontSize: 12, color: "#9ca3af",
-                      display: "flex", alignItems: "center", gap: 4 }}>
-                      <CheckCircle size={12} /> Closed
-                    </span>
-                  )}
+                  </div>
                 </div>
               </div>
             );

@@ -1,4 +1,4 @@
-// adminController
+
 const User        = require('../../models/User');
 const Job         = require('../../models/Job');
 const Application = require('../../models/Application');
@@ -394,5 +394,20 @@ exports.closeJob = async (req, res) => {
 
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Delete a job (soft delete)
+exports.deleteJob = async (req, res) => {
+  try {
+    const job = await Job.findByIdAndUpdate(
+      req.params.id,
+      { isDeleted: true },
+      { new: true }
+    );
+    if (!job) return res.status(404).json({ success: false, message: 'Job not found' });
+    res.json({ success: true, message: 'Job deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };

@@ -47,3 +47,9 @@ export const closeJob = async (id) => {
   const response = await API.patch(`/admin/jobs/${id}/close`);
   return response.data;
 };
+
+
+export const deleteJob = async (id) => {
+  const response = await API.delete(`/admin/jobs/${id}`);
+  return response.data;
+};

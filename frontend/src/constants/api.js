@@ -48,4 +48,13 @@ export const API_ENDPOINTS = {
   // Toggle verify/unverify a company — :id = company user ID
   ADMIN_VERIFY_COMPANY: (id) => `/admin/companies/${id}/verify`,
 
+  ADMIN_SUSPEND_COMPANY: (id) => `/admin/companies/${id}/suspend`,
+  ADMIN_USERS:           '/admin/users',
+  ADMIN_SUSPEND_USER:    (id) => `/admin/users/${id}/suspend`,
+  ADMIN_DELETE_USER:     (id) => `/admin/users/${id}`,
+  ADMIN_RESTORE_USER:    (id) => `/admin/users/${id}/restore`,
+  ADMIN_JOBS:            '/admin/jobs',
+  ADMIN_CLOSE_JOB:       (id) => `/admin/jobs/${id}/close`,
+  ADMIN_DELETE_JOB:      (id) => `/admin/jobs/${id}`,
+
 };

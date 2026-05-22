@@ -1,4 +1,4 @@
-// adminRoutes.js
+
 const express = require('express');
 const router = express.Router();
 
@@ -15,6 +15,7 @@ const {
   restoreUser,
   getAllJobs,
   closeJob,
+  deleteJob,
 } = require('../../controllers/v1/adminController');
 
 // Every admin route needs token + admin role check
@@ -50,4 +51,7 @@ router.get('/jobs', getAllJobs);
 // PATCH /api/v1/admin/jobs/:id/close
 router.patch('/jobs/:id/close', closeJob);
 
+router.delete('/jobs/:id', deleteJob);
+
 module.exports = router;
+// Jobs moderation routes
