@@ -430,3 +430,80 @@ exports.deleteJob = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+// ─── ANALYTICS ─────────────────────────────────────
+exports.getAnalytics = async (req, res) => {
+  try {
+    // Application funnel breakdown
+    const appFunnel = await Application.aggregate([
+      { $group: { _id: '$status', count: { $sum: 1 } } }
+    ]);
+    const funnel = {};
+    appFunnel.forEach(a => { funnel[a._id] = a.count; });
+
+    // Users registered per day (last 7 days)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const userGrowth = await User.aggregate([
+      { $match: { createdAt: { $gte: sevenDaysAgo }, isDeleted: { $ne: true } } },
+      { $group: {
+        _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+        count: { $sum: 1 }
+      }},
+      { $sort: { _id: 1 } }
+    ]);
+
+    // Jobs posted per day (last 7 days)
+    const jobGrowth = await Job.aggregate([
+      { $match: { createdAt: { $gte: sevenDaysAgo }, isDeleted: { $ne: true } } },
+      { $group: {
+        _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+        count: { $sum: 1 }
+      }},
+      { $sort: { _id: 1 } }
+    ]);
+
+    // Role breakdown
+    const candidates = await User.countDocuments({ role: 'candidate', isDeleted: { $ne: true } });
+    const companies  = await User.countDocuments({ role: 'company',   isDeleted: { $ne: true } });
+    const totalUsers = await User.countDocuments({ isDeleted: { $ne: true } });
+
+    // Job status breakdown
+    const totalJobs   = await Job.countDocuments({ isDeleted: { $ne: true } });
+    const activeJobs  = await Job.countDocuments({ isDeleted: { $ne: true }, isActive: true });
+    const closedJobs  = await Job.countDocuments({ isDeleted: { $ne: true }, isActive: false });
+
+    // Top hiring companies
+    const topCompanies = await Application.aggregate([
+      { $match: { status: 'hired' } },
+      { $lookup: { from: 'jobs', localField: 'job', foreignField: '_id', as: 'jobData' } },
+      { $unwind: '$jobData' },
+      { $lookup: { from: 'users', localField: 'jobData.postedBy', foreignField: '_id', as: 'company' } },
+      { $unwind: '$company' },
+      { $group: { _id: '$company._id', name: { $first: '$company.companyName' }, hires: { $sum: 1 } } },
+      { $sort: { hires: -1 } },
+      { $limit: 5 }
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        funnel: {
+          applied:     funnel.applied     || 0,
+          reviewing:   funnel.reviewing   || 0,
+          shortlisted: funnel.shortlisted || 0,
+          hired:       funnel.hired       || 0,
+          rejected:    funnel.rejected    || 0,
+        },
+        userGrowth,
+        jobGrowth,
+        users:   { total: totalUsers, candidates, companies },
+        jobs:    { total: totalJobs, active: activeJobs, closed: closedJobs },
+        topCompanies,
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};

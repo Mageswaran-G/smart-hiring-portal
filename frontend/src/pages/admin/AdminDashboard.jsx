@@ -261,6 +261,10 @@ export default function AdminDashboard() {
       navigate('/admin/jobs');
       return;
     }
+    if (key === 'analytics') {
+      navigate('/admin/analytics');
+      return;
+    }
     setActiveTab(key);
   };
 

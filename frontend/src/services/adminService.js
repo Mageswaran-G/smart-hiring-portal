@@ -53,3 +53,8 @@ export const deleteJob = async (id) => {
   const response = await API.delete(`/admin/jobs/${id}`);
   return response.data;
 };
+
+export const getAdminAnalytics = async () => {
+  const response = await API.get('/admin/analytics');
+  return response.data;
+};
