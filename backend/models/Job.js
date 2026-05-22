@@ -155,4 +155,7 @@ jobSchema.index({
   createdAt: -1,
 });
 
+jobSchema.index({ isDeleted: 1, isActive: 1 });
+jobSchema.index({ deadline: 1 });
+
 module.exports = mongoose.model('Job', jobSchema);

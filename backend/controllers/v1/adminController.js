@@ -77,6 +77,9 @@ exports.getPlatformStats = async (req, res, next) => {
 exports.getAllCompanies = async (req, res) => {
   try {
     const { search = "", filter = "all", page = 1, limit = 10 } = req.query;
+    const safePage  = Math.max(1, parseInt(page)  || 1);
+    const safeLimit = Math.min(50, Math.max(1, parseInt(limit) || 10));
+    const skip = (safePage - 1) * safeLimit;
 
     // Build the query object
     const query = { 
@@ -98,14 +101,14 @@ exports.getAllCompanies = async (req, res) => {
     if (filter === "unverified") query.isVerified = false;
     if (filter === "suspended") query.isSuspended = true;
 
-    const skip = (Number(page) - 1) * Number(limit);
+    
 
     const [companies, total] = await Promise.all([
       User.find(query)
         .select("-password -refreshToken")
         .sort({ createdAt: -1 })
         .skip(skip)
-        .limit(Number(limit)),
+        .limit(safeLimit),
       User.countDocuments(query)
     ]);
 
@@ -209,6 +212,9 @@ exports.suspendCompany = async (req, res) => {
 exports.getAllUsers = async (req, res) => {
   try {
     const { search = "", filter = "all", page = 1, limit = 10 } = req.query;
+    const safePage  = Math.max(1, parseInt(page)  || 1);
+    const safeLimit = Math.min(50, Math.max(1, parseInt(limit) || 10));
+    const skip = (safePage - 1) * safeLimit;
 
     // Build query — exclude admin accounts
     const query = { 
@@ -229,14 +235,14 @@ exports.getAllUsers = async (req, res) => {
     if (filter === "companies")  query.role = "company";
     if (filter === "suspended")  query.isSuspended = true;
 
-    const skip = (Number(page) - 1) * Number(limit);
+    
 
     const [users, total] = await Promise.all([
       User.find(query)
         .select("-password -refreshToken")
         .sort({ createdAt: -1 })
         .skip(skip)
-        .limit(Number(limit)),
+        .limit(Number(safeLimit)),
       User.countDocuments(query)
     ]);
 
@@ -340,8 +346,10 @@ exports.restoreUser = async (req, res) => {
 exports.getAllJobs = async (req, res) => {
   try {
     const { search = "", filter = "all", page = 1, limit = 10 } = req.query;
-
-    await expireJobs();
+    const safePage  = Math.max(1, parseInt(page)  || 1);
+    const safeLimit = Math.min(50, Math.max(1, parseInt(limit) || 10));
+    const skip = (safePage - 1) * safeLimit;
+   
 
     const query = { isDeleted: { $ne: true } };
 
@@ -362,14 +370,14 @@ exports.getAllJobs = async (req, res) => {
       query.deadline = { $lt: new Date() };
     }
 
-    const skip = (Number(page) - 1) * Number(limit);
+    
 
     const [jobs, total, activeCount, closedCount, expiredCount] = await Promise.all([
       Job.find(query)
         .populate('postedBy', 'name companyName email isVerified')
         .sort({ createdAt: -1 })
         .skip(skip)
-        .limit(Number(limit)),
+        .limit(Number(safeLimit)),
       Job.countDocuments(query),
       Job.countDocuments({ isDeleted: { $ne: true }, isActive: true, deadline: { $gte: new Date() } }),
       Job.countDocuments({ isDeleted: { $ne: true }, status: 'closed' }),

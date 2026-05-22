@@ -26,7 +26,7 @@ const startCronJobs = () => {
         {
           $set: {
             isActive: false,
-            status:   'closed',
+            status: 'expired',
           }
         }
       );

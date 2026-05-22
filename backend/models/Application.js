@@ -53,7 +53,9 @@ applicationSchema.index(
   { unique: true }
 );
 
-
+applicationSchema.index({ status: 1 });
+applicationSchema.index({ candidate: 1 });
+applicationSchema.index({ job: 1 });
 
 module.exports = mongoose.model(
   'Application',
