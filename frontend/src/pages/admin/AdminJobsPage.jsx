@@ -57,10 +57,10 @@ export default function AdminJobsPage() {
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
 
   const statusBadge = (job) => {
-    if (job.status === 'closed' && job.deadline && new Date(job.deadline) < new Date())
+    if (job.status === 'expired')
       return { label: 'Expired', bg: '#fef3c7', color: '#d97706' };
     if (job.status === 'closed')
-      return { label: 'Closed', bg: '#fee2e2', color: '#dc2626' };
+      return { label: 'Closed',  bg: '#fee2e2', color: '#dc2626' };
     return { label: 'Active', bg: '#dcfce7', color: '#16a34a' };
   };
 

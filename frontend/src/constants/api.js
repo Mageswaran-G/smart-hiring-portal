@@ -45,6 +45,8 @@ export const API_ENDPOINTS = {
   // Get all company accounts list
   ADMIN_COMPANIES: '/admin/companies',
 
+  ADMIN_ANALYTICS:       '/admin/analytics',
+
   // Toggle verify/unverify a company — :id = company user ID
   ADMIN_VERIFY_COMPANY: (id) => `/admin/companies/${id}/verify`,
 
@@ -56,5 +58,5 @@ export const API_ENDPOINTS = {
   ADMIN_JOBS:            '/admin/jobs',
   ADMIN_CLOSE_JOB:       (id) => `/admin/jobs/${id}/close`,
   ADMIN_DELETE_JOB:      (id) => `/admin/jobs/${id}`,
-
+  
 };

@@ -1,4 +1,4 @@
-
+const expireJobs  = require('../../utils/expireJobs');
 const User        = require('../../models/User');
 const Job         = require('../../models/Job');
 const Application = require('../../models/Application');
@@ -341,11 +341,7 @@ exports.getAllJobs = async (req, res) => {
   try {
     const { search = "", filter = "all", page = 1, limit = 10 } = req.query;
 
-    // Auto-close expired jobs first
-    await Job.updateMany(
-      { deadline: { $lt: new Date() }, isActive: true, isDeleted: { $ne: true } },
-      { isActive: false, status: 'closed' }
-    );
+    await expireJobs();
 
     const query = { isDeleted: { $ne: true } };
 
@@ -432,7 +428,7 @@ exports.deleteJob = async (req, res) => {
 };
 
 // ─── ANALYTICS ─────────────────────────────────────
-exports.getAnalytics = async (req, res) => {
+exports.getAdminAnalytics = async (req, res) => {
   try {
     // Application funnel breakdown
     const appFunnel = await Application.aggregate([
@@ -464,15 +460,15 @@ exports.getAnalytics = async (req, res) => {
       { $sort: { _id: 1 } }
     ]);
 
-    // Role breakdown
-    const candidates = await User.countDocuments({ role: 'candidate', isDeleted: { $ne: true } });
-    const companies  = await User.countDocuments({ role: 'company',   isDeleted: { $ne: true } });
-    const totalUsers = await User.countDocuments({ isDeleted: { $ne: true } });
-
-    // Job status breakdown
-    const totalJobs   = await Job.countDocuments({ isDeleted: { $ne: true } });
-    const activeJobs  = await Job.countDocuments({ isDeleted: { $ne: true }, isActive: true });
-    const closedJobs  = await Job.countDocuments({ isDeleted: { $ne: true }, isActive: false });
+    const [candidates, companies, totalUsers, totalJobs, activeJobs, closedJobs] =
+      await Promise.all([
+        User.countDocuments({ role: 'candidate', isDeleted: { $ne: true } }),
+        User.countDocuments({ role: 'company',   isDeleted: { $ne: true } }),
+        User.countDocuments({ isDeleted: { $ne: true } }),
+        Job.countDocuments({ isDeleted: { $ne: true } }),
+        Job.countDocuments({ isDeleted: { $ne: true }, isActive: true }),
+        Job.countDocuments({ isDeleted: { $ne: true }, isActive: false }),
+     ]);
 
     // Top hiring companies
     const topCompanies = await Application.aggregate([
