@@ -9,7 +9,7 @@ const startCronJobs = () => {
 
   // Cron syntax: '0 0 * * *' = at 00:00 every day
   // minute hour day month weekday
-  cron.schedule('0 0 * * *', async () => {
+  cron.schedule('*/15 * * * *', async () => {
 
     try {
       const now = new Date();
@@ -18,9 +18,9 @@ const startCronJobs = () => {
       // Update them all at once using updateMany (atomic DB operation)
       const result = await Job.updateMany(
         {
-          isDeleted: false,
+          isDeleted: { $ne: true },
           isActive:  true,
-          status:    { $in: ['published', 'draft'] },
+          status:    'published',
           deadline:  { $lt: now, $exists: true },  // deadline exists AND is in past
         },
         {
@@ -44,7 +44,7 @@ const startCronJobs = () => {
     timezone: 'Asia/Kolkata'  // IST timezone — important for Indian companies
   });
 
-  console.log('[CRON] Job expiration scheduler started (runs daily at 00:00 IST)');
+  console.log('[CRON] Job expiration scheduler started (runs every 15 minutes)');
 };
 
 module.exports = { startCronJobs };
