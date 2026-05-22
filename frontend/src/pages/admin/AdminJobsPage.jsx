@@ -14,6 +14,7 @@ export default function AdminJobsPage() {
   const [filter, setFilter]   = useState("all");
   const [page, setPage]       = useState(1);
   const [total, setTotal]     = useState(0);
+  const [stats, setStats] = useState({ active: 0, closed: 0, expired: 0 });
   const [refresh, setRefresh] = useState(0);
   const fetchJobs = useCallback(async () => {
     setLoading(true);
@@ -21,6 +22,7 @@ export default function AdminJobsPage() {
       const res = await getAllJobs({ search, filter, page, limit: ITEMS_PER_PAGE });
       setJobs(res.data?.jobs || []);
       setTotal(res.data?.total || 0);
+      setStats(res.data?.stats || { active: 0, closed: 0, expired: 0 });
     } catch {
       toast.error("Failed to load jobs");
     } finally {
@@ -55,10 +57,11 @@ export default function AdminJobsPage() {
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
 
   const statusBadge = (job) => {
-    if (!job.isActive) return { label: "Closed", bg: "#fee2e2", color: "#dc2626" };
-    if (job.deadline && new Date(job.deadline) < new Date())
-      return { label: "Expired", bg: "#fef3c7", color: "#d97706" };
-    return { label: "Active", bg: "#dcfce7", color: "#16a34a" };
+    if (job.status === 'closed' && job.deadline && new Date(job.deadline) < new Date())
+      return { label: 'Expired', bg: '#fef3c7', color: '#d97706' };
+    if (job.status === 'closed')
+      return { label: 'Closed', bg: '#fee2e2', color: '#dc2626' };
+    return { label: 'Active', bg: '#dcfce7', color: '#16a34a' };
   };
 
   return (
@@ -79,10 +82,10 @@ export default function AdminJobsPage() {
         {/* Stats Row */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16, marginBottom: 24 }}>
           {[
-            { label: "Total Jobs", value: total, color: C.purple },
-            { label: "Active", value: jobs.filter(j => j.isActive && new Date(j.deadline) >= new Date()).length, color: "#059669" },
-            { label: "Closed", value: jobs.filter(j => !j.isActive).length, color: "#dc2626" },
-            { label: "Expired", value: jobs.filter(j => j.isActive && new Date(j.deadline) < new Date()).length, color: "#d97706" },
+            { label: "Total Jobs", value: total,          color: C.purple  },
+            { label: "Active",     value: stats.active,   color: "#059669" },
+            { label: "Closed",     value: stats.closed,   color: "#dc2626" },
+            { label: "Expired",    value: stats.expired,  color: "#d97706" },
           ].map(stat => (
             <div key={stat.label} style={{ background: "white", borderRadius: 12,
               padding: "16px 20px", border: "1px solid #f3f4f6",

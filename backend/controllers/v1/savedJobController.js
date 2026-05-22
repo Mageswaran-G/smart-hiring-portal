@@ -18,7 +18,7 @@ exports.saveJob = async (req, res, next) => {
     await SavedJob.findOneAndUpdate(
       { candidate: candidateId, job: jobId },
       { candidate: candidateId, job: jobId },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: 'after' }
     );
 
     return res.status(200).json({

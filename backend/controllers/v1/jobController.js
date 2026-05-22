@@ -201,7 +201,7 @@ const updateJob = async (req, res) => {
     const job = await Job.findOneAndUpdate(
       { _id: req.params.id, postedBy: req.user.id, isDeleted: false },
       allowedUpdates,
-      { new: true, runValidators: true }
+      { returnDocument: 'after', runValidators: true }
     );
 
     if (!job) {
@@ -235,7 +235,7 @@ const deleteJob = async (req, res) => {
     const job = await Job.findOneAndUpdate(
       { _id: req.params.id, postedBy: req.user.id },
       { isDeleted: true },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     if (!job) {
@@ -271,7 +271,7 @@ const updateJobStatus = async (req, res) => {
     const job = await Job.findOneAndUpdate(
       { _id: req.params.id, postedBy: req.user.id },
       updateData,
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     if (!job) {

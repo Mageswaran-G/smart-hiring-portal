@@ -26,7 +26,7 @@ exports.getPlatformStats = async (req, res, next) => {
       User.countDocuments({ isDeleted: { $ne: true } }),
       User.countDocuments({ role: 'candidate', isDeleted: { $ne: true } }),
       User.countDocuments({ role: 'company',   isDeleted: { $ne: true } }),
-      Job.countDocuments({ isDeleted: { $ne: true }, status: 'published', isActive: true }),
+      Job.countDocuments({ isDeleted: { $ne: true } }),
       Application.countDocuments(),
 
       // Recent 5 signups
@@ -341,34 +341,53 @@ exports.getAllJobs = async (req, res) => {
   try {
     const { search = "", filter = "all", page = 1, limit = 10 } = req.query;
 
+    // Auto-close expired jobs first
+    await Job.updateMany(
+      { deadline: { $lt: new Date() }, isActive: true, isDeleted: { $ne: true } },
+      { isActive: false, status: 'closed' }
+    );
+
     const query = { isDeleted: { $ne: true } };
 
     if (search) {
       query.$or = [
-        { title: { $regex: search, $options: "i" } },
-        { location: { $regex: search, $options: "i" } }
+        { title:    { $regex: search, $options: "i" } },
+        { location: { $regex: search, $options: "i" } },
       ];
     }
 
-    if (filter === "active")  query.isActive = true;
-    if (filter === "closed")  query.isActive = false;
-    if (filter === "expired") {
-      query.deadline = { $lt: new Date() };
+    if (filter === "active") {
       query.isActive = true;
+      query.deadline = { $gte: new Date() };
+    }
+    if (filter === "closed")  query.status = "closed";
+    if (filter === "expired") {
+      query.isActive = false;
+      query.deadline = { $lt: new Date() };
     }
 
     const skip = (Number(page) - 1) * Number(limit);
 
-    const [jobs, total] = await Promise.all([
+    const [jobs, total, activeCount, closedCount, expiredCount] = await Promise.all([
       Job.find(query)
         .populate('postedBy', 'name companyName email isVerified')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(Number(limit)),
-      Job.countDocuments(query)
+      Job.countDocuments(query),
+      Job.countDocuments({ isDeleted: { $ne: true }, isActive: true, deadline: { $gte: new Date() } }),
+      Job.countDocuments({ isDeleted: { $ne: true }, status: 'closed' }),
+      Job.countDocuments({ isDeleted: { $ne: true }, isActive: false, deadline: { $lt: new Date() } }),
     ]);
 
-    res.json({ success: true, data: { jobs, total } });
+    res.json({
+      success: true,
+      data: {
+        jobs,
+        total,
+        stats: { active: activeCount, closed: closedCount, expired: expiredCount },
+      }
+    });
 
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -403,7 +422,7 @@ exports.deleteJob = async (req, res) => {
     const job = await Job.findByIdAndUpdate(
       req.params.id,
       { isDeleted: true },
-      { new: true }
+      { returnDocument: 'after' }
     );
     if (!job) return res.status(404).json({ success: false, message: 'Job not found' });
     res.json({ success: true, message: 'Job deleted successfully' });
