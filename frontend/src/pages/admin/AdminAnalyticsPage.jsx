@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { BarChart3, Users, Briefcase, TrendingUp, Award, Building2, FileText } from 'lucide-react';
-import toast from 'react-hot-toast';
+
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { getAdminAnalytics } from '../../services/adminService';
 
@@ -61,22 +61,12 @@ const STATS = (users, jobs, totalApps, funnel) => [
 ];
 
 export default function AdminAnalyticsPage() {
-  const [data, setData]       = useState(null);
-  const [loading, setLoading] = useState(true);
+    const { data: res, isLoading: loading } = useQuery({
+    queryKey: ['adminAnalytics'],
+    queryFn:  getAdminAnalytics,
+  });
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await getAdminAnalytics();
-        setData(res.data);
-      } catch {
-        toast.error('Failed to load analytics');
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, []);
+  const data = res?.data;
 
   if (loading) return (
     <DashboardLayout>

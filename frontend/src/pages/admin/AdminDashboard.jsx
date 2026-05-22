@@ -23,6 +23,7 @@ import AdminActionCenter from './components/dashboard/AdminActionCenter';
 import StatsGrid from './components/dashboard/StatsGrid';
 import PlatformAnalyticsCard from './components/dashboard/PlatformAnalyticsCard';
 import ModuleRoadmap from './components/dashboard/ModuleRoadmap';
+import ActionCenter from "../../components/admin/ActionCenter";
 
 // ─── Brand Colors ─────────────────────────────────────────────
 const C = {
@@ -610,6 +611,8 @@ export default function AdminDashboard() {
       </section>
 
         <StatsGrid stats={stats} />
+
+        <ActionCenter />  
 
       {/* ── Desktop Main Content ── */}
       <main style={{ maxWidth:1200, margin:'0 auto', padding:'22px 32px 48px', display:'grid', gridTemplateColumns:'1fr 380px', gap:22 }}>

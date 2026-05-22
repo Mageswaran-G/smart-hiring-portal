@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Briefcase, Search, ChevronLeft, ChevronRight, XCircle, CheckCircle, Clock } from "lucide-react";
 import { getAllJobs, closeJob, deleteJob  } from "../../services/adminService";
 import DashboardLayout from "../../components/layout/DashboardLayout";
@@ -8,36 +9,32 @@ const ITEMS_PER_PAGE = 10;
 const C = { purple: "#7c3aed", purpleLight: "#ede9fe" };
 
 export default function AdminJobsPage() {
-  const [jobs, setJobs]       = useState([]);
-  const [loading, setLoading] = useState(true);
+  
+  
   const [search, setSearch]   = useState("");
   const [filter, setFilter]   = useState("all");
   const [page, setPage]       = useState(1);
-  const [total, setTotal]     = useState(0);
-  const [stats, setStats] = useState({ active: 0, closed: 0, expired: 0 });
-  const [refresh, setRefresh] = useState(0);
-  const fetchJobs = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await getAllJobs({ search, filter, page, limit: ITEMS_PER_PAGE });
-      setJobs(res.data?.jobs || []);
-      setTotal(res.data?.total || 0);
-      setStats(res.data?.stats || { active: 0, closed: 0, expired: 0 });
-    } catch {
-      toast.error("Failed to load jobs");
-    } finally {
-      setLoading(false);
-    }
-  }, [search, filter, page]);
+  
+  
+  
+  const queryClient = useQueryClient();
 
-  useEffect(() => { fetchJobs(); }, [fetchJobs, refresh]);
+  const { data: res, isLoading: loading } = useQuery({
+    queryKey: ['adminJobs', search, filter, page],
+    queryFn:  () => getAllJobs({ search, filter, page, limit: ITEMS_PER_PAGE }),
+  });
+
+  const jobs  = res?.data?.jobs  || [];
+  const total = res?.data?.total || 0;
+  const stats = res?.data?.stats || { active: 0, closed: 0, expired: 0 };
+
   useEffect(() => { setPage(1); }, [search, filter]);
 
   const handleClose = async (id) => {
     try {
       await closeJob(id);
       toast.success("Job closed successfully");
-      setRefresh(r => r + 1);
+      queryClient.invalidateQueries({ queryKey: ['adminJobs'] });
     } catch {
       toast.error("Action failed");
     }
@@ -48,7 +45,7 @@ export default function AdminJobsPage() {
     try {
       await deleteJob(id);
       toast.success('Job deleted');
-      setRefresh(r => r + 1);
+      queryClient.invalidateQueries({ queryKey: ['adminJobs'] });
     } catch {
       toast.error('Delete failed');
     }

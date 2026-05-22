@@ -58,3 +58,9 @@ export const getAdminAnalytics = async () => {
   const response = await API.get('/admin/analytics');
   return response.data;
 };
+
+// Get action center alerts
+export const getActionCenter = async () => {
+  const response = await API.get("/admin/action-center");
+  return response.data;
+};

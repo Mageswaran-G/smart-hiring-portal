@@ -510,3 +510,73 @@ exports.getAdminAnalytics = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+// ACTION CENTER — alerts for admin
+exports.getActionCenter = async (req, res) => {
+  try {
+    // 1. Unverified companies (not verified, not suspended, not deleted)
+    const unverifiedCompanies = await User.find({
+      role: "company",
+      isVerified: false,
+      isSuspended: { $ne: true },
+      isDeleted: { $ne: true },
+    })
+      .select("name email createdAt")
+      .sort({ createdAt: -1 })
+      .limit(5);
+
+    // 2. Suspended users (any role, not deleted)
+    const suspendedUsers = await User.find({
+      isSuspended: true,
+      isDeleted: { $ne: true },
+    })
+      .select("name email role createdAt")
+      .sort({ createdAt: -1 })
+      .limit(5);
+
+    // 3. Expired jobs (status = expired, not deleted)
+    const expiredJobs = await Job.find({
+      status: "expired",
+      isDeleted: { $ne: true },
+    })
+      .select("title location createdAt")
+      .populate("company", "name") // get company name
+      .sort({ createdAt: -1 })
+      .limit(5);
+
+    // 4. Counts for badges
+    const unverifiedCount = await User.countDocuments({
+      role: "company",
+      isVerified: false,
+      isSuspended: { $ne: true },
+      isDeleted: { $ne: true },
+    });
+
+    const suspendedCount = await User.countDocuments({
+      isSuspended: true,
+      isDeleted: { $ne: true },
+    });
+
+    const expiredCount = await Job.countDocuments({
+      status: "expired",
+      isDeleted: { $ne: true },
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        unverifiedCompanies,
+        suspendedUsers,
+        expiredJobs,
+        counts: {
+          unverified: unverifiedCount,
+          suspended: suspendedCount,
+          expired: expiredCount,
+          total: unverifiedCount + suspendedCount + expiredCount,
+        },
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

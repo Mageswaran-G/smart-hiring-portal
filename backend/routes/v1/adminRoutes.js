@@ -17,6 +17,7 @@ const {
   closeJob,
   deleteJob,
   getAdminAnalytics,
+  getActionCenter,
 } = require('../../controllers/v1/adminController');
 
 // Every admin route needs token + admin role check
@@ -55,6 +56,8 @@ router.patch('/jobs/:id/close', closeJob);
 router.delete('/jobs/:id', deleteJob);
 
 router.get('/analytics', getAdminAnalytics);
+
+router.get("/action-center", getActionCenter);
 
 module.exports = router;
 // Jobs moderation routes
