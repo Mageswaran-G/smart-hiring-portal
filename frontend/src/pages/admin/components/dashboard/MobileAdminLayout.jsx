@@ -1,5 +1,7 @@
 import { Shield, Users, Building2, Briefcase, FileText, Lock, LogOut, LayoutDashboard, BarChart3, Settings } from 'lucide-react';
 import SafeAvatar from '../../../../components/ui/SafeAvatar';
+import ProgressRing from '../../../../components/charts/ProgressRing';
+import Sparkline from '../../../../components/charts/Sparkline';
 
 const grad = 'linear-gradient(135deg, #1e0b4b 0%, #2e1065 25%, #4c1d95 55%, #6d28d9 80%, #7c3aed 100%)';
 
@@ -25,49 +27,6 @@ const MOB_TABS = [
   { key: 'analytics', label: 'Analytics', Icon: BarChart3       },
   { key: 'system',    label: 'System',    Icon: Settings        },
 ];
-
-function Sparkline({ data = [], color, w = 72, h = 28, id = 'mob' }) {
-  if (!data || data.length < 2) return null;
-  const max = Math.max(...data); const min = Math.min(...data); const range = max - min || 1;
-  const pts = data.map((v, i) => ({
-    x: +((i / (data.length - 1)) * w).toFixed(2),
-    y: +((h - 4) - ((v - min) / range) * (h - 8)).toFixed(2),
-  }));
-  const line = `M ${pts.map(p => `${p.x} ${p.y}`).join(' L ')}`;
-  const area = `${line} L ${w} ${h} L 0 ${h} Z`;
-  const gId = `mob-spark-${id}`;
-  return (
-    <svg width={w} height={h} style={{ display: 'block', overflow: 'visible' }}>
-      <defs>
-        <linearGradient id={gId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"   stopColor={color} stopOpacity="0.3" />
-          <stop offset="100%" stopColor={color} stopOpacity="0.02" />
-        </linearGradient>
-      </defs>
-      <path d={area} fill={`url(#${gId})`} />
-      <path d={line} fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" />
-      <circle cx={pts[pts.length-1].x} cy={pts[pts.length-1].y} r="2.5" fill={color} />
-    </svg>
-  );
-}
-
-function ProgressRing({ value = 0, size = 68, stroke = 7, color, bg, textColor }) {
-  const r = (size - stroke) / 2;
-  const circ = 2 * Math.PI * r;
-  const offset = circ - (Math.min(100, Math.max(0, value)) / 100) * circ;
-  return (
-    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
-      <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={bg} strokeWidth={stroke} />
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={stroke}
-          strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round" />
-      </svg>
-      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ fontSize: size * 0.21, fontWeight: 800, color: textColor }}>{value}%</span>
-      </div>
-    </div>
-  );
-}
 
 export default function MobileAdminLayout({ adminName, adminEmail, stats, hireRate, activeTab, onTab, onLogout }) {
   const userTrend = [5, 8, 7, 12, 11, 14, stats?.totalUsers || 0];
