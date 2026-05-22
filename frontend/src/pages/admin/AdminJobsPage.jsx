@@ -5,6 +5,9 @@ import { Briefcase, Search, ChevronLeft, ChevronRight, XCircle, CheckCircle, Clo
 import { getAllJobs, closeJob, deleteJob  } from "../../services/adminService";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import toast from "react-hot-toast";
+import Button from '../../components/ui/Button';
+import Badge from '../../components/ui/Badge';
+import EmptyState from '../../components/ui/EmptyState';
 
 const ITEMS_PER_PAGE = 10;
 const C = { purple: COLORS.primary, purpleLight: "#ede9fe" };
@@ -142,16 +145,16 @@ export default function AdminJobsPage() {
           </div>
 
           {loading && (
-            <div style={{ padding: 40, textAlign: "center", color: COLORS.gray500 }}>
-              Loading jobs...
-            </div>
+            <EmptyState title="Loading jobs..." variant="admin" />
           )}
 
           {!loading && jobs.length === 0 && (
-            <div style={{ padding: 40, textAlign: "center", color: COLORS.gray500 }}>
-              <Briefcase size={40} style={{ margin: "0 auto 12px", color: "#d1d5db" }} />
-              <p>No jobs found</p>
-            </div>
+            <EmptyState
+              icon={<Briefcase size={40} />}
+              title="No jobs found"
+              subtitle="No jobs match your current filter"
+              variant="admin"
+            />
           )}
 
           {!loading && jobs.map((job, idx) => {
@@ -181,10 +184,7 @@ export default function AdminJobsPage() {
 
                 {/* Job Type */}
                 <div>
-                  <span style={{ background: C.purpleLight, color: C.purple,
-                    padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
-                    {job.jobType || "Full-time"}
-                  </span>
+                  <Badge variant="primary">{job.jobType || "Full-time"}</Badge>
                 </div>
 
                 {/* Status */}
@@ -208,13 +208,9 @@ export default function AdminJobsPage() {
                         <XCircle size={12} /> Close
                       </button>
                     )}
-                    <button onClick={() => handleDeleteJob(job._id)} style={{
-                      padding: '6px 12px', borderRadius: 6, fontSize: 12,
-                      fontWeight: 600, cursor: 'pointer', border: 'none',
-                      background: COLORS.warningBg, color: COLORS.warningText,
-                    }}>
+                    <Button variant="danger" size="sm" onClick={() => handleDeleteJob(job._id)}>
                       Delete
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>

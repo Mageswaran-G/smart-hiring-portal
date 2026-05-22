@@ -4,6 +4,9 @@ import { Users, Search, ChevronLeft, ChevronRight, ShieldOff, Shield, Trash2, Al
 import { getAllUsers, suspendUser, deleteUser } from "../../services/adminService";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import toast from "react-hot-toast";
+import Button from '../../components/ui/Button';
+import Badge from '../../components/ui/Badge';
+import EmptyState from '../../components/ui/EmptyState';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -162,17 +165,17 @@ export default function AdminUsersPage() {
 
           {/* Loading */}
           {loading && (
-            <div style={{ padding: 40, textAlign: "center", color: COLORS.gray500 }}>
-              Loading users...
-            </div>
+            <EmptyState title="Loading users..." variant="admin" />
           )}
 
           {/* Empty */}
           {!loading && users.length === 0 && (
-            <div style={{ padding: 40, textAlign: "center", color: COLORS.gray500 }}>
-              <Users size={40} style={{ margin: "0 auto 12px", color: "#d1d5db" }} />
-              <p>No users found</p>
-            </div>
+            <EmptyState
+              icon={<Users size={40} />}
+              title="No users found"
+              subtitle="No users match your current filter"
+              variant="admin"
+            />
           )}
 
           {/* User Rows */}

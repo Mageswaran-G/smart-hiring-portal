@@ -56,3 +56,19 @@ export const RADIUS = {
   xl:  22,
   xxl: 28,
 };
+
+export const TYPOGRAPHY = {
+  h1: { fontSize: 28, fontWeight: 900, letterSpacing: '-0.5px', color: '#111827' },
+  h2: { fontSize: 20, fontWeight: 800, letterSpacing: '-0.3px', color: '#111827' },
+  h3: { fontSize: 16, fontWeight: 700, letterSpacing: '-0.2px', color: '#111827' },
+  body: { fontSize: 14, fontWeight: 400, color: '#374151' },
+  caption: { fontSize: 12, fontWeight: 500, color: '#6b7280' },
+  small: { fontSize: 11, fontWeight: 400, color: '#9ca3af' },
+  label: { fontSize: 12, fontWeight: 600, color: '#6b7280' },
+};
+
+export const SPACING = {
+  section: 24,
+  card: 22,
+  cardSm: 16,
+};

@@ -4,6 +4,9 @@ import { Building2, CheckCircle, XCircle, Search, Shield, ShieldOff, ChevronLeft
 import { getAllCompanies, verifyCompany, suspendCompany } from "../../services/adminService";
 import toast from "react-hot-toast";
 import DashboardLayout from "../../components/layout/DashboardLayout";
+import Button from '../../components/ui/Button';
+import Badge from '../../components/ui/Badge';
+import EmptyState from '../../components/ui/EmptyState';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -180,17 +183,17 @@ export default function AdminCompaniesPage() {
 
         {/* Loading State */}
         {loading && (
-          <div style={{ padding: 40, textAlign: "center", color: COLORS.gray500 }}>
-            Loading companies...
-          </div>
+          <EmptyState title="Loading companies..." variant="admin" />
         )}
 
         {/* Empty State */}
         {!loading && companies.length === 0 && (
-          <div style={{ padding: 40, textAlign: "center", color: COLORS.gray500 }}>
-            <Building2 size={40} style={{ margin: "0 auto 12px", color: "#d1d5db" }} />
-            <p>No companies found</p>
-          </div>
+          <EmptyState
+            icon={<Building2 size={40} />}
+            title="No companies found"
+            subtitle="No companies match your current filter"
+            variant="admin"
+          />
         )}
 
         {/* Company Rows */}
