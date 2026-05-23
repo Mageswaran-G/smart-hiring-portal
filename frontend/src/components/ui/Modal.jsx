@@ -27,6 +27,8 @@ export default function Modal({ isOpen, onClose, children }) {
       }}
     >
       <div
+        role="dialog"
+        aria-modal="true"
         onClick={e => e.stopPropagation()}
         style={{
           background: COLORS.white,
