@@ -11,6 +11,7 @@ import PageContainer from '../../components/ui/PageContainer';
 import FilterTabs from '../../components/ui/FilterTabs';
 import DataTable from '../../components/ui/DataTable';
 import SearchInput from '../../components/ui/SearchInput';
+import Modal from '../../components/ui/Modal';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -206,36 +207,25 @@ export default function AdminUsersPage() {
         
 
         {/* Delete Confirmation Modal */}
-        {deleteConfirm && (
-          <div style={{
-            position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)",
-            display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100
-          }}>
-            <div style={{ background: "white", borderRadius: 16, padding: 32, maxWidth: 400, width: "90%", textAlign: "center" }}>
-              <AlertTriangle size={40} color={COLORS.dangerText} style={{ margin: "0 auto 16px" }} />
-              <h3 style={{ fontSize: 18, fontWeight: 700, color: COLORS.gray900, margin: "0 0 8px" }}>
-                Delete User?
-              </h3>
-              <p style={{ color: COLORS.gray500, fontSize: 14, margin: "0 0 24px" }}>
-                This action cannot be undone. The user will be permanently deleted.
-              </p>
-              <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
-                <button onClick={() => setDeleteConfirm(null)} style={{
-                  padding: "10px 24px", borderRadius: 8, border: `1px solid ${COLORS.gray200}`,
-                  background: "white", color: "#374151", fontSize: 14, fontWeight: 600, cursor: "pointer"
-                }}>
-                  Cancel
-                </button>
-                <button onClick={() => handleDelete(deleteConfirm)} style={{
-                  padding: "10px 24px", borderRadius: 8, border: "none",
-                  background: COLORS.dangerText, color: "white", fontSize: 14, fontWeight: 600, cursor: "pointer"
-                }}>
-                  Yes, Delete
-                </button>
-              </div>
-            </div>
+        <Modal isOpen={!!deleteConfirm} onClose={() => setDeleteConfirm(null)}>
+          <AlertTriangle size={40} color={COLORS.dangerText}
+            style={{ margin: "0 auto 16px" }} />
+          <h3 style={{ fontSize: 18, fontWeight: 700,
+            color: COLORS.gray900, margin: "0 0 8px" }}>
+            Delete User?
+          </h3>
+          <p style={{ color: COLORS.gray500, fontSize: 14, margin: "0 0 24px" }}>
+            This action cannot be undone.
+          </p>
+          <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={() => handleDelete(deleteConfirm)}>
+              Yes, Delete
+            </Button>
           </div>
-        )}
+        </Modal>
 
       </PageContainer>
     </DashboardLayout>
