@@ -181,7 +181,7 @@ export default function AdminCompaniesPage() {
               {company.name?.charAt(0).toUpperCase() || "C"}
             </div>
             <div>
-              <div style={{ fontWeight: 600, fontSize: 14, color: COLORS.gray900 }}>
+              <div style={{ fontWeight: 600, fontSize: 14, color: COLORS.gray900, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {company.name}
               </div>
               <div style={{ fontSize: 12, color: COLORS.gray400 }}>

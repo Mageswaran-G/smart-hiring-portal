@@ -164,7 +164,7 @@ export default function AdminUsersPage() {
                 {user.name?.charAt(0).toUpperCase() || "U"}
               </div>
               <div>
-                <div style={{ fontWeight: 600, fontSize: 14, color: COLORS.gray900 }}>{user.name}</div>
+                <div style={{ fontWeight: 600, fontSize: 14, color: COLORS.gray900, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name}</div>
                 <div style={{ fontSize: 12, color: COLORS.gray400 }}>
                   Joined {new Date(user.createdAt).toLocaleDateString()}
                 </div>
