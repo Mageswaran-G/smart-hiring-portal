@@ -137,11 +137,11 @@ export default function AdminJobsPage() {
         {/* Table */}
         <DataTable
           columns={[
-            { key: "job",     label: "Job",     width: "2.5fr" },
-            { key: "company", label: "Company", width: "1.5fr" },
-            { key: "type",    label: "Type",    width: "1fr"   },
-            { key: "status",  label: "Status",  width: "1fr"   },
-            { key: "action",  label: "Action",  width: "1fr"   },
+            { key: "job",     label: "Job",     width: "200px" },
+            { key: "company", label: "Company", width: "140px" },
+            { key: "type",    label: "Type",    width: "100px" },
+            { key: "status",  label: "Status",  width: "90px"  },
+            { key: "action",  label: "Action",  width: "140px" },
           ]}
           rows={jobs}
           loading={loading}

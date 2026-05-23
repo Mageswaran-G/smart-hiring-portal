@@ -78,3 +78,18 @@ html, body {
     display: none !important;
   }
 }
+
+/* Smooth scroll indicator for tables */
+.table-scroll-hint {
+  position: relative;
+}
+
+.table-scroll-hint::after {
+  content: '← scroll →';
+  display: block;
+  text-align: center;
+  font-size: 11px;
+  color: #9ca3af;
+  padding: 6px 0;
+  font-weight: 500;
+}

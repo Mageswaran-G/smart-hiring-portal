@@ -136,11 +136,11 @@ export default function AdminUsersPage() {
         {/* Table */}
         <DataTable
           columns={[
-            { key: "user",    label: "User",    width: "2fr"   },
-            { key: "email",   label: "Email",   width: "2fr"   },
-            { key: "role",    label: "Role",    width: "1fr"   },
-            { key: "status",  label: "Status",  width: "1fr"   },
-            { key: "actions", label: "Actions", width: "1.5fr" },
+            { key: "user",    label: "User",    width: "180px" },
+            { key: "email",   label: "Email",   width: "160px" },
+            { key: "role",    label: "Role",    width: "90px"  },
+            { key: "status",  label: "Status",  width: "90px"  },
+            { key: "actions", label: "Actions", width: "160px" },
           ]}
           rows={users}
           loading={loading}
