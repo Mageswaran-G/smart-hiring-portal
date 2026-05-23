@@ -126,18 +126,18 @@ export default function AdminJobsPage() {
         {/* Table */}
         <DataTable
           columns={[
-            { key: "job", label: "Job" },
-            { key: "company", label: "Company" },
-            { key: "type", label: "Type" },
-            { key: "status", label: "Status" },
-            { key: "action", label: "Action" },
+            { key: "job",     label: "Job",     width: "2.5fr" },
+            { key: "company", label: "Company", width: "1.5fr" },
+            { key: "type",    label: "Type",    width: "1fr"   },
+            { key: "status",  label: "Status",  width: "1fr"   },
+            { key: "action",  label: "Action",  width: "1fr"   },
           ]}
           rows={jobs}
           loading={loading}
           emptyIcon={<Briefcase size={40} />}
           emptyTitle="No jobs found"
           emptySubtitle="No jobs match your current filter"
-          gridTemplate="2.5fr 1.5fr 1fr 1fr 1fr"
+          
           page={page}
           totalPages={totalPages}
           onPageChange={setPage}

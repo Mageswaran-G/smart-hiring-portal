@@ -131,18 +131,18 @@ export default function AdminUsersPage() {
         {/* Table */}
         <DataTable
           columns={[
-            { key: "user", label: "User" },
-            { key: "email", label: "Email" },
-            { key: "role", label: "Role" },
-            { key: "status", label: "Status" },
-            { key: "actions", label: "Actions" },
+            { key: "user",    label: "User",    width: "2fr"   },
+            { key: "email",   label: "Email",   width: "2fr"   },
+            { key: "role",    label: "Role",    width: "1fr"   },
+            { key: "status",  label: "Status",  width: "1fr"   },
+            { key: "actions", label: "Actions", width: "1.5fr" },
           ]}
           rows={users}
           loading={loading}
           emptyIcon={<Users size={40} />}
           emptyTitle="No users found"
           emptySubtitle="No users match your current filter"
-          gridTemplate="2fr 2fr 1fr 1fr 1.5fr"
+          
           page={page}
           totalPages={totalPages}
           onPageChange={setPage}

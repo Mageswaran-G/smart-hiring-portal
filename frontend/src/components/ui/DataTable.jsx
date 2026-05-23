@@ -18,6 +18,8 @@ export default function DataTable({
   onPageChange,        // function(newPage)
   gridTemplate,        // CSS grid template columns string
 }) {
+  const template = gridTemplate ||
+    columns.map(c => c.width || '1fr').join(' ');
   return (
     <div>
       {/* Table Container */}
@@ -33,7 +35,7 @@ export default function DataTable({
         {/* Table Header */}
         <div style={{
           display: "grid",
-          gridTemplateColumns: gridTemplate,
+          gridTemplateColumns: template,
           padding: "12px 20px",
           minWidth: 600,
           background: COLORS.gray50,
@@ -72,7 +74,7 @@ export default function DataTable({
             onMouseLeave={e => e.currentTarget.style.background = row.isSuspended ? "#fff5f5" : COLORS.white}
             style={{
               display: "grid",
-              gridTemplateColumns: gridTemplate,
+              gridTemplateColumns: template,
               padding: "14px 20px",
               minWidth: 600,
               borderBottom: idx < rows.length - 1 ? `1px solid ${COLORS.gray100}` : "none",

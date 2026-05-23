@@ -142,18 +142,18 @@ export default function AdminCompaniesPage() {
       {/* Companies Table */}
       <DataTable
         columns={[
-          { key: "company", label: "Company" },
-          { key: "email", label: "Email" },
-          { key: "status", label: "Status" },
-          { key: "verified", label: "Verified" },
-          { key: "actions", label: "Actions" },
+          { key: "company",  label: "Company",  width: "2fr"   },
+          { key: "email",    label: "Email",    width: "1.5fr" },
+          { key: "status",   label: "Status",   width: "1fr"   },
+          { key: "verified", label: "Verified", width: "1fr"   },
+          { key: "actions",  label: "Actions",  width: "1.5fr" },
         ]}
         rows={companies}
         loading={loading}
         emptyIcon={<Building2 size={40} />}
         emptyTitle="No companies found"
         emptySubtitle="No companies match your current filter"
-        gridTemplate="2fr 1.5fr 1fr 1fr 1.5fr"
+        
         page={page}
         totalPages={totalPages}
         onPageChange={setPage}
