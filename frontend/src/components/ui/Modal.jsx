@@ -1,6 +1,17 @@
+import { useEffect } from 'react';
 import { COLORS, RADIUS, SHADOWS } from '../../theme/adminTheme';
 
 export default function Modal({ isOpen, onClose, children }) {
+  
+  // Close on ESC key press
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    if (isOpen) document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
@@ -15,7 +26,6 @@ export default function Modal({ isOpen, onClose, children }) {
         zIndex: 100,
       }}
     >
-      {/* Stop click inside from closing */}
       <div
         onClick={e => e.stopPropagation()}
         style={{
@@ -24,6 +34,8 @@ export default function Modal({ isOpen, onClose, children }) {
           padding: 32,
           maxWidth: 420,
           width: "90%",
+          maxHeight: "90vh",
+          overflowY: "auto",
           textAlign: "center",
           boxShadow: SHADOWS.hero,
         }}
