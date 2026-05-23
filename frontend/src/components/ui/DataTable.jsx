@@ -68,17 +68,18 @@ export default function DataTable({
         {!loading && rows.map((row, idx) => (
           <div
             key={row._id || idx}
+            onMouseEnter={e => e.currentTarget.style.background = COLORS.gray50}
+            onMouseLeave={e => e.currentTarget.style.background = row.isSuspended ? "#fff5f5" : COLORS.white}
             style={{
               display: "grid",
               gridTemplateColumns: gridTemplate,
               padding: "14px 20px",
               minWidth: 600,
-              borderBottom: idx < rows.length - 1
-                ? `1px solid ${COLORS.gray100}`
-                : "none",
+              borderBottom: idx < rows.length - 1 ? `1px solid ${COLORS.gray100}` : "none",
               alignItems: "center",
-              background: row._suspended ? "#fff5f5" : COLORS.white,
+              background: row.isSuspended ? "#fff5f5" : COLORS.white,
               transition: "background 0.15s",
+              cursor: "default",
             }}
           >
             {renderRow(row, idx)}
