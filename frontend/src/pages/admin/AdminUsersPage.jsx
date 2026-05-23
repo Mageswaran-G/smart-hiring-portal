@@ -107,18 +107,18 @@ export default function AdminUsersPage() {
             { label: "Suspended",    value: users.filter(u => u.isSuspended).length,            color: COLORS.dangerText  },
           ].map(stat => (
             <div key={stat.label} style={{
-              background: "white", borderRadius: 12, padding: "16px 20px",
-              border: `1px solid ${COLORS.gray100}`, boxShadow: "0 1px 3px rgba(0,0,0,0.06)"
+              background: "white", borderRadius: 16, padding: "16px 20px",
+              border: `1px solid ${COLORS.gray100}`, boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04)"
             }}>
-              <div style={{ fontSize: 24, fontWeight: 700, color: stat.color }}>{stat.value}</div>
-              <div style={{ fontSize: 13, color: COLORS.gray500, marginTop: 4 }}>{stat.label}</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: stat.color, letterSpacing: "-0.5px" }}>{stat.value}</div>
+              <div style={{ fontSize: 12, color: COLORS.gray400, marginTop: 6, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.04em" }}>{stat.label}</div>
             </div>
           ))}
         </div>
 
         {/* Search + Filter */}
         <div style={{
-          background: "white", borderRadius: 12, padding: "16px 20px",
+          background: "white", borderRadius: 16, padding: "16px 20px",
           border: `1px solid ${COLORS.gray100}`, marginBottom: SPACING.cardSm,
           display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap"
         }}>
