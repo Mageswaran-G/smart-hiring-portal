@@ -7,6 +7,8 @@ import DashboardLayout from "../../components/layout/DashboardLayout";
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import EmptyState from '../../components/ui/EmptyState';
+import PageContainer from '../../components/ui/PageContainer';
+import FilterTabs from '../../components/ui/FilterTabs';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -76,15 +78,7 @@ export default function AdminCompaniesPage() {
 
   return (
     <DashboardLayout>
-        <div style={{ 
-            padding: "16px 12px", 
-            maxWidth: 1200, 
-            margin: "0 auto", 
-            boxSizing: "border-box",
-            width: "100%",
-            overflowX: "hidden"
-        }}>
-
+        <PageContainer>
       {/* Page Header */}
       <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 24, fontWeight: 700, color: COLORS.gray900, margin: 0 }}>
@@ -137,24 +131,11 @@ export default function AdminCompaniesPage() {
         </div>
 
         {/* Filter Buttons */}
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {["all", "verified", "unverified", "suspended"].map(f => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              style={{
-                padding: "8px 16px", borderRadius: 8, fontSize: 13,
-                fontWeight: filter === f ? 600 : 400,
-                background: filter === f ? C.purple : "transparent",
-                color: filter === f ? "white" : COLORS.gray500,
-                border: filter === f ? "none" : `1px solid ${COLORS.gray200}`,
-                cursor: "pointer", textTransform: "capitalize"
-              }}
-            >
-              {f}
-            </button>
-          ))}
-        </div>
+        <FilterTabs
+          tabs={["all", "verified", "unverified", "suspended"]}
+          active={filter}
+          onChange={setFilter}
+        />
       </div>
 
       {/* Companies Table */}
@@ -266,36 +247,20 @@ export default function AdminCompaniesPage() {
 
             {/* Action Buttons */}
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {/* Verify Button */}
-              <button
+              <Button
+                variant={company.isVerified ? "outline" : "outline"}
+                size="sm"
                 onClick={() => handleVerify(company._id, company.isVerified)}
-                style={{
-                  padding: "6px 12px", borderRadius: 6, fontSize: 12,
-                  fontWeight: 600, cursor: "pointer", border: "none",
-                  background: company.isVerified ? "#fef3c7" : C.purpleLight,
-                  color: company.isVerified ? "#92400e" : C.purple
-                }}
               >
                 {company.isVerified ? "Unverify" : "Verify"}
-              </button>
-
-              {/* Suspend Button */}
-              <button
+              </Button>
+              <Button
+                variant="danger"
+                size="sm"
                 onClick={() => handleSuspend(company._id, company.isSuspended)}
-                style={{
-                  padding: "6px 12px", borderRadius: 6, fontSize: 12,
-                  fontWeight: 600, cursor: "pointer", border: "none",
-                  background: company.isSuspended ? "#dcfce7" : "#fee2e2",
-                  color: company.isSuspended ? "#16a34a" : COLORS.dangerText,
-                  display: "flex", alignItems: "center", gap: 4
-                }}
               >
-                {company.isSuspended ? (
-                  <><Shield size={12} /> Unsuspend</>
-                ) : (
-                  <><ShieldOff size={12} /> Suspend</>
-                )}
-              </button>
+                {company.isSuspended ? "Unsuspend" : "Suspend"}
+              </Button>
             </div>
           </div>
         ))}
@@ -336,7 +301,8 @@ export default function AdminCompaniesPage() {
           </button>
         </div>
       )}
-    </div>
+    </PageContainer>
+
     </DashboardLayout>
   );
 }

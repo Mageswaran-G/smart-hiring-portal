@@ -7,6 +7,8 @@ import toast from "react-hot-toast";
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import EmptyState from '../../components/ui/EmptyState';
+import PageContainer from '../../components/ui/PageContainer';
+import FilterTabs from '../../components/ui/FilterTabs';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -68,14 +70,7 @@ export default function AdminUsersPage() {
 
   return (
     <DashboardLayout>
-        <div style={{ 
-            padding: "16px 12px", 
-            maxWidth: 1200, 
-            margin: "0 auto", 
-            boxSizing: "border-box",
-            width: "100%",
-            overflowX: "hidden"
-        }}>
+        <PageContainer>
 
         {/* Header */}
         <div style={{ marginBottom: 24 }}>
@@ -126,20 +121,11 @@ export default function AdminUsersPage() {
               }}
             />
           </div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            {["all", "candidates", "companies", "suspended"].map(f => (
-              <button key={f} onClick={() => setFilter(f)} style={{
-                padding: "8px 16px", borderRadius: 8, fontSize: 13,
-                fontWeight: filter === f ? 600 : 400,
-                background: filter === f ? C.purple : "transparent",
-                color: filter === f ? "white" : COLORS.gray500,
-                border: filter === f ? "none" : `1px solid ${COLORS.gray200}`,
-                cursor: "pointer", textTransform: "capitalize"
-              }}>
-                {f}
-              </button>
-            ))}
-          </div>
+          <FilterTabs
+            tabs={["all", "candidates", "companies", "suspended"]}
+            active={filter}
+            onChange={setFilter}
+          />
         </div>
 
         {/* Table */}
@@ -234,28 +220,24 @@ export default function AdminUsersPage() {
                 )}
               </div>
 
+              
+              
               {/* Actions */}
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {/* Suspend Button */}
-                <button onClick={() => handleSuspend(user._id, user.isSuspended)} style={{
-                  padding: "6px 10px", borderRadius: 6, fontSize: 12,
-                  fontWeight: 600, cursor: "pointer", border: "none",
-                  background: user.isSuspended ? "#dcfce7" : "#fee2e2",
-                  color: user.isSuspended ? COLORS.successText : COLORS.dangerText,
-                  display: "flex", alignItems: "center", gap: 4
-                }}>
-                  {user.isSuspended ? <><Shield size={12} /> Unsuspend</> : <><ShieldOff size={12} /> Suspend</>}
-                </button>
-
-                {/* Delete Button */}
-                <button onClick={() => setDeleteConfirm(user._id)} style={{
-                  padding: "6px 10px", borderRadius: 6, fontSize: 12,
-                  fontWeight: 600, cursor: "pointer", border: "none",
-                  background: COLORS.gray100, color: COLORS.gray500,
-                  display: "flex", alignItems: "center", gap: 4
-                }}>
-                  <Trash2 size={12} /> Delete
-                </button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleSuspend(user._id, user.isSuspended)}
+                >
+                  {user.isSuspended ? "Unsuspend" : "Suspend"}
+                </Button>
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={() => setDeleteConfirm(user._id)}
+                >
+                  Delete
+                </Button>
               </div>
             </div>
           ))}
@@ -314,7 +296,7 @@ export default function AdminUsersPage() {
           </div>
         )}
 
-      </div>
+      </PageContainer>
     </DashboardLayout>
   );
 }

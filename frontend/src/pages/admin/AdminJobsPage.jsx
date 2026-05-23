@@ -8,6 +8,9 @@ import toast from "react-hot-toast";
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import EmptyState from '../../components/ui/EmptyState';
+import PageContainer from '../../components/ui/PageContainer';
+import FilterTabs from '../../components/ui/FilterTabs';
+
 
 const ITEMS_PER_PAGE = 10;
 const C = { purple: COLORS.primary, purpleLight: "#ede9fe" };
@@ -67,8 +70,7 @@ export default function AdminJobsPage() {
 
   return (
     <DashboardLayout>
-      <div style={{ padding: "16px 24px", maxWidth: 1200, margin: "0 auto",
-        boxSizing: "border-box", width: "100%", overflowX: "hidden" }}>
+      <PageContainer>
 
         {/* Header */}
         <div style={{ marginBottom: 24 }}>
@@ -114,18 +116,11 @@ export default function AdminJobsPage() {
                 borderRadius: 8, fontSize: 14, outline: "none", boxSizing: "border-box" }}
             />
           </div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            {["all", "active", "closed", "expired"].map(f => (
-              <button key={f} onClick={() => setFilter(f)} style={{
-                padding: "8px 16px", borderRadius: 8, fontSize: 13,
-                fontWeight: filter === f ? 600 : 400,
-                background: filter === f ? C.purple : "transparent",
-                color: filter === f ? "white" : COLORS.gray500,
-                border: filter === f ? "none" : `1px solid ${COLORS.gray200}`,
-                cursor: "pointer", textTransform: "capitalize"
-              }}>{f}</button>
-            ))}
-          </div>
+          <FilterTabs
+            tabs={["all", "active", "closed", "expired"]}
+            active={filter}
+            onChange={setFilter}
+          />
         </div>
 
         {/* Table */}
@@ -243,7 +238,7 @@ export default function AdminJobsPage() {
             </button>
           </div>
         )}
-      </div>
+      </PageContainer>
     </DashboardLayout>
   );
 }
