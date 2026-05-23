@@ -71,3 +71,10 @@ html, body {
   50%  { opacity: 0.4; }
   100% { opacity: 1; }
 }
+
+/* Hide less important table columns on mobile */
+@media (max-width: 640px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}

@@ -34,8 +34,8 @@ export default function DataTable({
         <div style={{
           display: "grid",
           gridTemplateColumns: template,
-          padding: "12px 24px",
-          minWidth: 600,
+          padding: "10px 16px",
+          minWidth: 500,
           background: 'linear-gradient(to bottom, #fafafa, #f5f5f5)',
           borderBottom: '1px solid rgba(0,0,0,0.06)',
           fontSize: 11,
@@ -69,8 +69,8 @@ export default function DataTable({
             style={{
               display: "grid",
               gridTemplateColumns: template,
-              padding: "16px 24px",
-              minWidth: 600,
+              padding: "12px 16px",
+              minWidth: 500,
               borderBottom: idx < rows.length - 1 ? '1px solid rgba(0,0,0,0.05)' : "none",
               alignItems: "center",
               background: row.isSuspended ? '#fff5f5' : COLORS.white,
