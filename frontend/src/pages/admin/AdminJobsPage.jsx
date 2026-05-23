@@ -11,6 +11,7 @@ import EmptyState from '../../components/ui/EmptyState';
 import PageContainer from '../../components/ui/PageContainer';
 import FilterTabs from '../../components/ui/FilterTabs';
 import DataTable from '../../components/ui/DataTable';
+import SearchInput from '../../components/ui/SearchInput';
 
 const ITEMS_PER_PAGE = 10;
 const C = { purple: COLORS.primary, purpleLight: "#ede9fe" };
@@ -103,19 +104,11 @@ export default function AdminJobsPage() {
         <div style={{ background: "white", borderRadius: 12, padding: "16px 20px",
           border: `1px solid ${COLORS.gray100}`, marginBottom: 16,
           display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-          <div style={{ position: "relative", flex: 1, minWidth: 200 }}>
-            <Search size={16} style={{ position: "absolute", left: 12, top: "50%",
-              transform: "translateY(-50%)", color: "#9ca3af" }} />
-            <input
-              type="text"
-              placeholder="Search by job title or location..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              style={{ width: "100%", paddingLeft: 36, paddingRight: 12,
-                paddingTop: 8, paddingBottom: 8, border: `1px solid ${COLORS.gray200}`,
-                borderRadius: 8, fontSize: 14, outline: "none", boxSizing: "border-box" }}
-            />
-          </div>
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder="Search by job title or location..."
+          />
           <FilterTabs
             tabs={["all", "active", "closed", "expired"]}
             active={filter}
