@@ -68,6 +68,8 @@ export const TYPOGRAPHY = {
 };
 
 export const SPACING = {
+  pageX: 24,
+  pageY: 16,
   section: 24,
   card: 22,
   cardSm: 16,

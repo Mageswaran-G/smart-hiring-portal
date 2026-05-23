@@ -10,7 +10,7 @@ import Badge from '../../components/ui/Badge';
 import EmptyState from '../../components/ui/EmptyState';
 import PageContainer from '../../components/ui/PageContainer';
 import FilterTabs from '../../components/ui/FilterTabs';
-
+import DataTable from '../../components/ui/DataTable';
 
 const ITEMS_PER_PAGE = 10;
 const C = { purple: COLORS.primary, purpleLight: "#ede9fe" };
@@ -124,120 +124,77 @@ export default function AdminJobsPage() {
         </div>
 
         {/* Table */}
-        <div style={{ background: "white", borderRadius: 12, border: `1px solid ${COLORS.gray100}`,
-          overflowX: "auto", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+        <DataTable
+          columns={[
+            { key: "job", label: "Job" },
+            { key: "company", label: "Company" },
+            { key: "type", label: "Type" },
+            { key: "status", label: "Status" },
+            { key: "action", label: "Action" },
+          ]}
+          rows={jobs}
+          loading={loading}
+          emptyIcon={<Briefcase size={40} />}
+          emptyTitle="No jobs found"
+          emptySubtitle="No jobs match your current filter"
+          gridTemplate="2.5fr 1.5fr 1fr 1fr 1fr"
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          renderRow={(job) => [
+            /* Job Title */
+            <div key="job">
+              <div style={{ fontWeight: 600, fontSize: 14, color: COLORS.gray900 }}>
+                {job.title}
+              </div>
+              <div style={{ fontSize: 12, color: COLORS.gray400, marginTop: 2 }}>
+                {job.location || "Remote"} · Posted {new Date(job.createdAt).toLocaleDateString()}
+              </div>
+            </div>,
 
-          {/* Header */}
-          <div style={{ display: "grid", gridTemplateColumns: "2.5fr 1.5fr 1fr 1fr 1fr",
-            padding: "12px 20px", minWidth: 700, background: "#f9fafb",
-            borderBottom: `1px solid ${COLORS.gray100}`, fontSize: 12, fontWeight: 600,
-            color: COLORS.gray500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-            <span>Job</span>
-            <span>Company</span>
-            <span>Type</span>
-            <span>Status</span>
-            <span>Action</span>
-          </div>
+            /* Company */
+            <div key="company" style={{ fontSize: 13, color: COLORS.gray700 }}>
+              {job.postedBy?.companyName || job.postedBy?.name || "—"}
+            </div>,
 
-          {loading && (
-            <EmptyState title="Loading jobs..." variant="admin" />
-          )}
+            /* Type */
+            <div key="type">
+              <Badge variant="primary">{job.jobType || "Full-time"}</Badge>
+            </div>,
 
-          {!loading && jobs.length === 0 && (
-            <EmptyState
-              icon={<Briefcase size={40} />}
-              title="No jobs found"
-              subtitle="No jobs match your current filter"
-              variant="admin"
-            />
-          )}
-
-          {!loading && jobs.map((job, idx) => {
-            const badge = statusBadge(job);
-            return (
-              <div key={job._id} style={{
-                display: "grid", gridTemplateColumns: "2.5fr 1.5fr 1fr 1fr 1fr",
-                padding: "14px 20px", minWidth: 700,
-                borderBottom: idx < jobs.length - 1 ? `1px solid ${COLORS.gray100}` : "none",
-                alignItems: "center",
-                background: !job.isActive ? "#fff5f5" : "white"
-              }}>
-                {/* Job Title */}
-                <div>
-                  <div style={{ fontWeight: 600, fontSize: 14, color: COLORS.gray900 }}>
-                    {job.title}
-                  </div>
-                  <div style={{ fontSize: 12, color: "#9ca3af", marginTop: 2 }}>
-                    {job.location || "Remote"} · Posted {new Date(job.createdAt).toLocaleDateString()}
-                  </div>
-                </div>
-
-                {/* Company */}
-                <div style={{ fontSize: 13, color: "#374151" }}>
-                  {job.postedBy?.companyName || job.postedBy?.name || "—"}
-                </div>
-
-                {/* Job Type */}
-                <div>
-                  <Badge variant="primary">{job.jobType || "Full-time"}</Badge>
-                </div>
-
-                {/* Status */}
-                <div>
+            /* Status */
+            <div key="status">
+              {(() => {
+                const badge = statusBadge(job);
+                return (
                   <span style={{ background: badge.bg, color: badge.color,
                     padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
                     {badge.label}
                   </span>
-                </div>
+                );
+              })()}
+            </div>,
 
-                {/* Action */}
-                <div>
-                  <div style={{ display: 'flex', gap: 6 }}>
-                    {job.isActive && (
-                      <button onClick={() => handleClose(job._id)} style={{
-                        padding: '6px 12px', borderRadius: 6, fontSize: 12,
-                        fontWeight: 600, cursor: 'pointer', border: 'none',
-                        background: COLORS.dangerBg, color: COLORS.dangerText,
-                        display: 'flex', alignItems: 'center', gap: 4,
-                      }}>
-                        <XCircle size={12} /> Close
-                      </button>
-                    )}
-                    <Button variant="danger" size="sm" onClick={() => handleDeleteJob(job._id)}>
-                      Delete
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+            /* Action */
+            <div key="action" style={{ display: "flex", gap: 6 }}>
+              {job.isActive && (
+                <button onClick={() => handleClose(job._id)} style={{
+                  padding: "6px 12px", borderRadius: 6, fontSize: 12,
+                  fontWeight: 600, cursor: "pointer", border: "none",
+                  background: COLORS.dangerBg, color: COLORS.dangerText,
+                  display: "flex", alignItems: "center", gap: 4,
+                }}>
+                  <XCircle size={12} /> Close
+                </button>
+              )}
+              <Button variant="danger" size="sm" onClick={() => handleDeleteJob(job._id)}>
+                Delete
+              </Button>
+            </div>,
+          ]}
+        />
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div style={{ display: "flex", justifyContent: "center",
-            alignItems: "center", gap: 12, marginTop: 20 }}>
-            <button onClick={() => setPage(p => Math.max(1, p - 1))}
-              disabled={page === 1} style={{
-                padding: "8px 16px", borderRadius: 8, border: `1px solid ${COLORS.gray200}`,
-                background: "white", cursor: page === 1 ? "not-allowed" : "pointer",
-                opacity: page === 1 ? 0.5 : 1, display: "flex", alignItems: "center", gap: 4
-              }}>
-              <ChevronLeft size={16} /> Prev
-            </button>
-            <span style={{ fontSize: 14, color: COLORS.gray500 }}>
-              Page {page} of {totalPages}
-            </span>
-            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages} style={{
-                padding: "8px 16px", borderRadius: 8, border: `1px solid ${COLORS.gray200}`,
-                background: "white", cursor: page === totalPages ? "not-allowed" : "pointer",
-                opacity: page === totalPages ? 0.5 : 1, display: "flex", alignItems: "center", gap: 4
-              }}>
-              Next <ChevronRight size={16} />
-            </button>
-          </div>
-        )}
+        
       </PageContainer>
     </DashboardLayout>
   );

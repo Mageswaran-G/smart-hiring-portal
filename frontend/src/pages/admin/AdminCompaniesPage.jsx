@@ -9,6 +9,7 @@ import Badge from '../../components/ui/Badge';
 import EmptyState from '../../components/ui/EmptyState';
 import PageContainer from '../../components/ui/PageContainer';
 import FilterTabs from '../../components/ui/FilterTabs';
+import DataTable from '../../components/ui/DataTable';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -139,168 +140,101 @@ export default function AdminCompaniesPage() {
       </div>
 
       {/* Companies Table */}
-      <div style={{
-        background: "white", borderRadius: 12,
-        border: `1px solid ${COLORS.gray100}`, overflowX: "auto",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.06)"
-        }}>
-        {/* Table Header */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1.5fr",
-          padding: "12px 20px",
-          minWidth: 700,
-          background: "#f9fafb",
-          borderBottom: `1px solid ${COLORS.gray100}`,
-          fontSize: 12, fontWeight: 600, color: COLORS.gray500,
-          textTransform: "uppercase", letterSpacing: "0.05em"
-        }}>
-          <span>Company</span>
-          <span>Email</span>
-          <span>Status</span>
-          <span>Verified</span>
-          <span>Actions</span>
-        </div>
+      <DataTable
+        columns={[
+          { key: "company", label: "Company" },
+          { key: "email", label: "Email" },
+          { key: "status", label: "Status" },
+          { key: "verified", label: "Verified" },
+          { key: "actions", label: "Actions" },
+        ]}
+        rows={companies}
+        loading={loading}
+        emptyIcon={<Building2 size={40} />}
+        emptyTitle="No companies found"
+        emptySubtitle="No companies match your current filter"
+        gridTemplate="2fr 1.5fr 1fr 1fr 1.5fr"
+        page={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+        renderRow={(company) => [
 
-        {/* Loading State */}
-        {loading && (
-          <EmptyState title="Loading companies..." variant="admin" />
-        )}
-
-        {/* Empty State */}
-        {!loading && companies.length === 0 && (
-          <EmptyState
-            icon={<Building2 size={40} />}
-            title="No companies found"
-            subtitle="No companies match your current filter"
-            variant="admin"
-          />
-        )}
-
-        {/* Company Rows */}
-        {!loading && companies.map((company, idx) => (
-          <div
-            key={company._id}
-            style={{
-              display: "grid",
-              gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1.5fr",
-              padding: "14px 20px",
-              minWidth: 700,
-              borderBottom: idx < companies.length - 1 ? `1px solid ${COLORS.gray100}` : "none",
-              alignItems: "center",
-              background: company.isSuspended ? "#fff5f5" : "white",
-              transition: "background 0.2s"
-            }}
-          >
-            {/* Company Name + Avatar */}
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{
-                width: 36, height: 36, borderRadius: 8,
-                background: C.purpleLight, display: "flex",
-                alignItems: "center", justifyContent: "center",
-                fontSize: 14, fontWeight: 700, color: C.purple
-              }}>
-                {company.name?.charAt(0).toUpperCase() || "C"}
+          /* Company */
+          <div key="company" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: 8,
+              background: `${COLORS.primary}14`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 14, fontWeight: 700, color: COLORS.primary
+            }}>
+              {company.name?.charAt(0).toUpperCase() || "C"}
+            </div>
+            <div>
+              <div style={{ fontWeight: 600, fontSize: 14, color: COLORS.gray900 }}>
+                {company.name}
               </div>
-              <div>
-                <div style={{ fontWeight: 600, fontSize: 14, color: COLORS.gray900 }}>
-                  {company.name}
-                </div>
-                <div style={{ fontSize: 12, color: "#9ca3af" }}>
-                  Joined {new Date(company.createdAt).toLocaleDateString()}
-                </div>
+              <div style={{ fontSize: 12, color: COLORS.gray400 }}>
+                Joined {new Date(company.createdAt).toLocaleDateString()}
               </div>
             </div>
+          </div>,
 
-            {/* Email */}
-            <div style={{ fontSize: 13, color: "#374151" }}>{company.email}</div>
+          /* Email */
+          <div key="email" style={{ fontSize: 13, color: COLORS.gray700 }}>
+            {company.email}
+          </div>,
 
-            {/* Suspend Status */}
-            <div>
-              {company.isSuspended ? (
-                <span style={{
-                  background: "#fee2e2", color: COLORS.dangerText,
-                  padding: "3px 10px", borderRadius: 20,
-                  fontSize: 12, fontWeight: 600
-                }}>Suspended</span>
-              ) : (
-                <span style={{
-                  background: "#dcfce7", color: "#16a34a",
-                  padding: "3px 10px", borderRadius: 20,
-                  fontSize: 12, fontWeight: 600
-                }}>Active</span>
-              )}
-            </div>
+          /* Status */
+          <div key="status">
+            {company.isSuspended ? (
+              <span style={{ background: COLORS.dangerBg, color: COLORS.dangerText,
+                padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
+                Suspended
+              </span>
+            ) : (
+              <span style={{ background: COLORS.successBg, color: COLORS.successText,
+                padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
+                Active
+              </span>
+            )}
+          </div>,
 
-            {/* Verify Status */}
-            <div>
-              {company.isVerified ? (
-                <span style={{ display: "flex", alignItems: "center", gap: 4, color: COLORS.successText, fontSize: 13 }}>
-                  <CheckCircle size={14} /> Verified
-                </span>
-              ) : (
-                <span style={{ display: "flex", alignItems: "center", gap: 4, color: "#9ca3af", fontSize: 13 }}>
-                  <XCircle size={14} /> Unverified
-                </span>
-              )}
-            </div>
+          /* Verified */
+          <div key="verified">
+            {company.isVerified ? (
+              <span style={{ display: "flex", alignItems: "center", gap: 4,
+                color: COLORS.successText, fontSize: 13 }}>
+                <CheckCircle size={14} /> Verified
+              </span>
+            ) : (
+              <span style={{ display: "flex", alignItems: "center", gap: 4,
+                color: COLORS.gray400, fontSize: 13 }}>
+                <XCircle size={14} /> Unverified
+              </span>
+            )}
+          </div>,
 
-            {/* Action Buttons */}
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <Button
-                variant={company.isVerified ? "outline" : "outline"}
-                size="sm"
-                onClick={() => handleVerify(company._id, company.isVerified)}
-              >
-                {company.isVerified ? "Unverify" : "Verify"}
-              </Button>
-              <Button
-                variant="danger"
-                size="sm"
-                onClick={() => handleSuspend(company._id, company.isSuspended)}
-              >
-                {company.isSuspended ? "Unsuspend" : "Suspend"}
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
+          /* Actions */
+          <div key="actions" style={{ display: "flex", gap: 8 }}>
+            <Button
+              variant={company.isVerified ? "outline" : "primary"}
+              size="sm"
+              onClick={() => handleVerify(company._id, company.isVerified)}
+            >
+              {company.isVerified ? "Unverify" : "Verify"}
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => handleSuspend(company._id, company.isSuspended)}
+            >
+              {company.isSuspended ? "Unsuspend" : "Suspend"}
+            </Button>
+          </div>,
+        ]}
+      />
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div style={{
-          display: "flex", justifyContent: "center",
-          alignItems: "center", gap: 12, marginTop: 20
-        }}>
-          <button
-            onClick={() => setPage(p => Math.max(1, p - 1))}
-            disabled={page === 1}
-            style={{
-              padding: "8px 16px", borderRadius: 8, border: `1px solid ${COLORS.gray200}`,
-              background: "white", cursor: page === 1 ? "not-allowed" : "pointer",
-              opacity: page === 1 ? 0.5 : 1, display: "flex", alignItems: "center", gap: 4
-            }}
-          >
-            <ChevronLeft size={16} /> Prev
-          </button>
-
-          <span style={{ fontSize: 14, color: COLORS.gray500 }}>
-            Page {page} of {totalPages}
-          </span>
-
-          <button
-            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
-            style={{
-              padding: "8px 16px", borderRadius: 8, border: `1px solid ${COLORS.gray200}`,
-              background: "white", cursor: page === totalPages ? "not-allowed" : "pointer",
-              opacity: page === totalPages ? 0.5 : 1, display: "flex", alignItems: "center", gap: 4
-            }}
-          >
-            Next <ChevronRight size={16} />
-          </button>
-        </div>
-      )}
+      
     </PageContainer>
 
     </DashboardLayout>

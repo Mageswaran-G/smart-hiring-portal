@@ -3,7 +3,7 @@ import { SPACING } from '../../theme/adminTheme';
 export default function PageContainer({ children, maxWidth = 1200 }) {
   return (
     <div style={{
-      padding: `${SPACING.cardSm}px ${SPACING.section}px`,
+      padding: `${SPACING.pageY}px ${SPACING.pageX}px`,
       maxWidth,
       margin: "0 auto",
       boxSizing: "border-box",

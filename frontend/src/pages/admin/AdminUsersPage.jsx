@@ -9,6 +9,7 @@ import Badge from '../../components/ui/Badge';
 import EmptyState from '../../components/ui/EmptyState';
 import PageContainer from '../../components/ui/PageContainer';
 import FilterTabs from '../../components/ui/FilterTabs';
+import DataTable from '../../components/ui/DataTable';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -127,142 +128,91 @@ export default function AdminUsersPage() {
             onChange={setFilter}
           />
         </div>
-
         {/* Table */}
-        <div style={{
-            background: "white", borderRadius: 12,
-            border: `1px solid ${COLORS.gray100}`, overflowX: "auto",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.06)"
-            }}>
-          {/* Table Header */}
-          <div style={{
-            display: "grid", gridTemplateColumns: "2fr 2fr 1fr 1fr 1.5fr",
-            padding: "12px 20px", minWidth: 700, background: "#f9fafb",
-            borderBottom: `1px solid ${COLORS.gray100}`,
-            fontSize: 12, fontWeight: 600, color: COLORS.gray500,
-            textTransform: "uppercase", letterSpacing: "0.05em"
-          }}>
-            <span>User</span>
-            <span>Email</span>
-            <span>Role</span>
-            <span>Status</span>
-            <span>Actions</span>
-          </div>
+        <DataTable
+          columns={[
+            { key: "user", label: "User" },
+            { key: "email", label: "Email" },
+            { key: "role", label: "Role" },
+            { key: "status", label: "Status" },
+            { key: "actions", label: "Actions" },
+          ]}
+          rows={users}
+          loading={loading}
+          emptyIcon={<Users size={40} />}
+          emptyTitle="No users found"
+          emptySubtitle="No users match your current filter"
+          gridTemplate="2fr 2fr 1fr 1fr 1.5fr"
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          renderRow={(user) => [
 
-          {/* Loading */}
-          {loading && (
-            <EmptyState title="Loading users..." variant="admin" />
-          )}
-
-          {/* Empty */}
-          {!loading && users.length === 0 && (
-            <EmptyState
-              icon={<Users size={40} />}
-              title="No users found"
-              subtitle="No users match your current filter"
-              variant="admin"
-            />
-          )}
-
-          {/* User Rows */}
-          {!loading && users.map((user, idx) => (
-            <div key={user._id} style={{
-              display: "grid", gridTemplateColumns: "2fr 2fr 1fr 1fr 1.5fr",
-              padding: "14px 20px", minWidth: 700,
-              borderBottom: idx < users.length - 1 ? `1px solid ${COLORS.gray100}` : "none",
-              alignItems: "center",
-              background: user.isSuspended ? "#fff5f5" : "white"
-            }}>
-
-              {/* Name + Avatar */}
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{
-                  width: 36, height: 36, borderRadius: "50%",
-                  background: `${roleColor(user.role)}20`,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 14, fontWeight: 700, color: roleColor(user.role), flexShrink: 0
-                }}>
-                  {user.name?.charAt(0).toUpperCase() || "U"}
-                </div>
-                <div>
-                  <div style={{ fontWeight: 600, fontSize: 14, color: COLORS.gray900 }}>{user.name}</div>
-                  <div style={{ fontSize: 12, color: "#9ca3af" }}>
-                    Joined {new Date(user.createdAt).toLocaleDateString()}
-                  </div>
+            /* User */
+            <div key="user" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{
+                width: 36, height: 36, borderRadius: "50%",
+                background: `${roleColor(user.role)}20`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 14, fontWeight: 700, color: roleColor(user.role), flexShrink: 0
+              }}>
+                {user.name?.charAt(0).toUpperCase() || "U"}
+              </div>
+              <div>
+                <div style={{ fontWeight: 600, fontSize: 14, color: COLORS.gray900 }}>{user.name}</div>
+                <div style={{ fontSize: 12, color: COLORS.gray400 }}>
+                  Joined {new Date(user.createdAt).toLocaleDateString()}
                 </div>
               </div>
+            </div>,
 
-              {/* Email */}
-              <div style={{ fontSize: 13, color: "#374151" }}>{user.email}</div>
+            /* Email */
+            <div key="email" style={{ fontSize: 13, color: COLORS.gray700 }}>
+              {user.email}
+            </div>,
 
-              {/* Role Badge */}
-              <div>
-                <span style={{
-                  background: `${roleColor(user.role)}15`,
-                  color: roleColor(user.role),
-                  padding: "3px 10px", borderRadius: 20,
-                  fontSize: 12, fontWeight: 600, textTransform: "capitalize"
-                }}>
-                  {user.role}
+            /* Role */
+            <div key="role">
+              <span style={{
+                background: `${roleColor(user.role)}15`,
+                color: roleColor(user.role),
+                padding: "3px 10px", borderRadius: 20,
+                fontSize: 12, fontWeight: 600, textTransform: "capitalize"
+              }}>
+                {user.role}
+              </span>
+            </div>,
+
+            /* Status */
+            <div key="status">
+              {user.isSuspended ? (
+                <span style={{ background: COLORS.dangerBg, color: COLORS.dangerText,
+                  padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
+                  Suspended
                 </span>
-              </div>
+              ) : (
+                <span style={{ background: COLORS.successBg, color: COLORS.successText,
+                  padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
+                  Active
+                </span>
+              )}
+            </div>,
 
-              {/* Status */}
-              <div>
-                {user.isSuspended ? (
-                  <span style={{ background: "#fee2e2", color: COLORS.dangerText, padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
-                    Suspended
-                  </span>
-                ) : (
-                  <span style={{ background: "#dcfce7", color: COLORS.successText, padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
-                    Active
-                  </span>
-                )}
-              </div>
+            /* Actions */
+            <div key="actions" style={{ display: "flex", gap: 8 }}>
+              <Button variant="outline" size="sm"
+                onClick={() => handleSuspend(user._id, user.isSuspended)}>
+                {user.isSuspended ? "Unsuspend" : "Suspend"}
+              </Button>
+              <Button variant="danger" size="sm"
+                onClick={() => setDeleteConfirm(user._id)}>
+                Delete
+              </Button>
+            </div>,
+          ]}
+        />
 
-              
-              
-              {/* Actions */}
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleSuspend(user._id, user.isSuspended)}
-                >
-                  {user.isSuspended ? "Unsuspend" : "Suspend"}
-                </Button>
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={() => setDeleteConfirm(user._id)}
-                >
-                  Delete
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 12, marginTop: 20 }}>
-            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={{
-              padding: "8px 16px", borderRadius: 8, border: `1px solid ${COLORS.gray200}`,
-              background: "white", cursor: page === 1 ? "not-allowed" : "pointer",
-              opacity: page === 1 ? 0.5 : 1, display: "flex", alignItems: "center", gap: 4
-            }}>
-              <ChevronLeft size={16} /> Prev
-            </button>
-            <span style={{ fontSize: 14, color: COLORS.gray500 }}>Page {page} of {totalPages}</span>
-            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} style={{
-              padding: "8px 16px", borderRadius: 8, border: `1px solid ${COLORS.gray200}`,
-              background: "white", cursor: page === totalPages ? "not-allowed" : "pointer",
-              opacity: page === totalPages ? 0.5 : 1, display: "flex", alignItems: "center", gap: 4
-            }}>
-              Next <ChevronRight size={16} />
-            </button>
-          </div>
-        )}
+        
 
         {/* Delete Confirmation Modal */}
         {deleteConfirm && (
