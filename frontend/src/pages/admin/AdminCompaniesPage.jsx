@@ -1,5 +1,6 @@
 import { COLORS, TYPOGRAPHY, SPACING } from '../../theme/adminTheme';
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Building2, CheckCircle, XCircle, Search, Shield, ShieldOff, ChevronLeft, ChevronRight } from "lucide-react";
 import { getAllCompanies, verifyCompany, suspendCompany } from "../../services/adminService";
 import toast from "react-hot-toast";
@@ -15,12 +16,20 @@ import SearchInput from '../../components/ui/SearchInput';
 const ITEMS_PER_PAGE = 10;
 
 export default function AdminCompaniesPage() {
-  const [companies, setCompanies] = useState([]);
-  const [loading, setLoading] = useState(true);
+  
+  
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all"); // all | verified | unverified | suspended
   const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
+  const queryClient = useQueryClient();
+
+  const { data: res, isLoading: loading } = useQuery({
+    queryKey: ['adminCompanies', search, filter, page],
+    queryFn: () => getAllCompanies({ search, filter, page, limit: ITEMS_PER_PAGE }),
+  });
+
+  const companies = res?.data?.companies || [];
+  const total     = res?.data?.total     || 0;
 
   const C = {
     purple: COLORS.primary,
@@ -28,28 +37,7 @@ export default function AdminCompaniesPage() {
     purpleDark: "#5b21b6",
   };
 
-  // Fetch companies from backend
-  const fetchCompanies = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await getAllCompanies({
-        search,
-        filter,
-        page,
-        limit: ITEMS_PER_PAGE,
-      });
-      setCompanies(res.data?.companies || []);
-      setTotal(res.data?.total || 0);
-    } catch (err) {
-      toast.error("Failed to load companies");
-    } finally {
-      setLoading(false);
-    }
-  }, [search, filter, page]);
-
-  useEffect(() => {
-    fetchCompanies();
-  }, [fetchCompanies]);
+  
 
   // Reset to page 1 when search or filter changes
   useEffect(() => {
@@ -60,7 +48,7 @@ export default function AdminCompaniesPage() {
     try {
       await verifyCompany(id);
       toast.success(isVerified ? "Company unverified" : "Company verified ✓");
-      fetchCompanies();
+      queryClient.invalidateQueries({ queryKey: ['adminCompanies'] });
     } catch {
       toast.error("Action failed");
     }
@@ -70,7 +58,7 @@ export default function AdminCompaniesPage() {
     try {
       await suspendCompany(id);
       toast.success(isSuspended ? "Company unsuspended" : "Company suspended");
-      fetchCompanies();
+      queryClient.invalidateQueries({ queryKey: ['adminCompanies'] });
     } catch {
       toast.error("Action failed");
     }

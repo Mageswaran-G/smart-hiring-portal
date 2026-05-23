@@ -1,5 +1,6 @@
 import { COLORS, TYPOGRAPHY, SPACING } from '../../theme/adminTheme';
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Users, Search, ChevronLeft, ChevronRight, ShieldOff, Shield, Trash2, AlertTriangle } from "lucide-react";
 import { getAllUsers, suspendUser, deleteUser } from "../../services/adminService";
 import DashboardLayout from "../../components/layout/DashboardLayout";
@@ -21,35 +22,30 @@ const C = {
 };
 
 export default function AdminUsersPage() {
-  const [users, setUsers]       = useState([]);
-  const [loading, setLoading]   = useState(true);
+  
+  
   const [search, setSearch]     = useState("");
   const [filter, setFilter]     = useState("all");
   const [page, setPage]         = useState(1);
-  const [total, setTotal]       = useState(0);
+  
   const [deleteConfirm, setDeleteConfirm] = useState(null); // user id to delete
+  const queryClient = useQueryClient();
 
-  const fetchUsers = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await getAllUsers({ search, filter, page, limit: ITEMS_PER_PAGE });
-      setUsers(res.data?.users || []);
-      setTotal(res.data?.total || 0);
-    } catch {
-      toast.error("Failed to load users");
-    } finally {
-      setLoading(false);
-    }
-  }, [search, filter, page]);
+  const { data: res, isLoading: loading } = useQuery({
+    queryKey: ['adminUsers', search, filter, page],
+    queryFn: () => getAllUsers({ search, filter, page, limit: ITEMS_PER_PAGE }),
+  });
 
-  useEffect(() => { fetchUsers(); }, [fetchUsers]);
+  const users = res?.data?.users || [];
+  const total = res?.data?.total || 0;
+  
   useEffect(() => { setPage(1); }, [search, filter]);
 
   const handleSuspend = async (id, isSuspended) => {
     try {
       await suspendUser(id);
       toast.success(isSuspended ? "User unsuspended" : "User suspended");
-      fetchUsers();
+      queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
     } catch {
       toast.error("Action failed");
     }
@@ -60,7 +56,7 @@ export default function AdminUsersPage() {
       await deleteUser(id);
       toast.success("User deleted");
       setDeleteConfirm(null);
-      fetchUsers();
+      queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
     } catch {
       toast.error("Delete failed");
     }
