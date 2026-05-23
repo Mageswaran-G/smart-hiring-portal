@@ -1,4 +1,5 @@
 import { COLORS } from '../../theme/adminTheme';
+const base = { background: COLORS.gray100 };
 
 export default function TableLoader({ rows = 5 }) {
   return (
@@ -12,55 +13,20 @@ export default function TableLoader({ rows = 5 }) {
           gap: 12,
         }}>
           {/* Avatar shimmer */}
-          <div
-            className="shimmer"
-            style={{
-              width: 36, height: 36,
-              borderRadius: "50%",
-              background: COLORS.gray100,
-              flexShrink: 0,
-            }}
-          />
+          <div className="shimmer" style={{ ...base, width: 36, height: 36, borderRadius: "50%", flexShrink: 0 }} />
+
 
           {/* Lines shimmer */}
           <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
-            <div
-              className="shimmer"
-              style={{
-                height: 12, width: "40%",
-                background: COLORS.gray100,
-                borderRadius: 6,
-              }}
-            />
-            <div
-              className="shimmer"
-              style={{
-                height: 10, width: "25%",
-                background: COLORS.gray100,
-                borderRadius: 6,
-              }}
-            />
+            <div className="shimmer" style={{ ...base, height: 12, width: "40%", borderRadius: 6 }} />
+            <div className="shimmer" style={{ ...base, height: 10, width: "25%", borderRadius: 6 }} />
           </div>
 
           {/* Badge shimmer */}
-          <div
-            className="shimmer"
-            style={{
-              width: 60, height: 22,
-              background: COLORS.gray100,
-              borderRadius: 20,
-            }}
-          />
+          <div className="shimmer" style={{ ...base, width: 60, height: 22, borderRadius: 20 }} />
 
           {/* Button shimmer */}
-          <div
-            className="shimmer"
-            style={{
-              width: 70, height: 30,
-              background: COLORS.gray100,
-              borderRadius: 8,
-            }}
-          />
+          <div className="shimmer" style={{ ...base, width: 70, height: 30, borderRadius: 8 }} />
         </div>
       ))}
     </div>
