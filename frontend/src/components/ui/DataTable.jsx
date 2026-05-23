@@ -4,6 +4,7 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import EmptyState from './EmptyState';
 import { COLORS } from '../../theme/adminTheme';
+import TableLoader from './TableLoader';
 
 export default function DataTable({
   columns = [],        // [{ key, label, width }]
@@ -52,9 +53,7 @@ export default function DataTable({
         </div>
 
         {/* Loading State */}
-        {loading && (
-          <EmptyState title="Loading..." variant="admin" />
-        )}
+        {loading && <TableLoader rows={5} />}
 
         {/* Empty State */}
         {!loading && rows.length === 0 && (
