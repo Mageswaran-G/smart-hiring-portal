@@ -1,16 +1,13 @@
-
-// Reusable page wrapper — consistent maxWidth, padding, margin
-// Usage: <PageContainer> ... </PageContainer>
+import { SPACING } from '../../theme/adminTheme';
 
 export default function PageContainer({ children, maxWidth = 1200 }) {
   return (
     <div style={{
-      padding: "16px 24px",
+      padding: `${SPACING.cardSm}px ${SPACING.section}px`,
       maxWidth,
       margin: "0 auto",
       boxSizing: "border-box",
       width: "100%",
-      overflowX: "hidden",
     }}>
       {children}
     </div>
