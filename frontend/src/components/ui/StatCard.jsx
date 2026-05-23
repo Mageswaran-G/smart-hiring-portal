@@ -21,13 +21,9 @@ const StatCard = ({
       marginBottom: 14,
     }}>
       <div>
-        <p style={{ fontSize:12, color:COLORS.gray500,
-          margin:'0 0 5px', fontWeight:600 }}>{label}</p>
-        <p style={{ fontSize:isMobile?28:36, fontWeight:900,
-          color:COLORS.gray900, margin:0,
-          lineHeight:1, letterSpacing:'-1px' }}>{value}</p>
-        <p style={{ fontSize:11, color:COLORS.gray400,
-          margin:'4px 0 0' }}>{sub}</p>
+        <p style={{ fontSize:12, color:COLORS.gray500, margin:'0 0 5px', fontWeight:600 }}>{label}</p>
+        <p style={{ fontSize:isMobile?28:36, fontWeight:900, color:COLORS.gray900, margin:0, lineHeight:1, letterSpacing:'-1px' }}>{value}</p>
+        <p style={{ fontSize:11, color:COLORS.gray400, margin:'4px 0 0' }}>{sub}</p>
       </div>
       {Icon && (
         <div style={{

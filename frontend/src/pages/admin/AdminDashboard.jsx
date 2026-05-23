@@ -129,11 +129,11 @@ export default function AdminDashboard() {
         />
 
         <StatsGrid stats={stats} />
-
-        <ActionCenter />  
+        <div style={{ height: 8 }} />
+        <ActionCenter />
 
       {/* ── Desktop Main Content ── */}
-      <main style={{ maxWidth:1200, margin:'0 auto', padding:'22px 32px 48px', display:'grid', gridTemplateColumns:'1fr 380px', gap:22 }}>
+      <main style={{ maxWidth:1200, margin:'0 auto', padding:'28px 32px 60px', display:'grid', gridTemplateColumns:'1fr 380px', gap:24 }}>
 
           {/* Left Column */}
           <div style={{ display:"flex", flexDirection:"column", gap:20 }}>
