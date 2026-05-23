@@ -1,4 +1,4 @@
-import { COLORS } from '../../theme/adminTheme';
+import { COLORS, RADIUS } from '../../theme/adminTheme';
 const base = { background: COLORS.gray100 };
 
 export default function TableLoader({ rows = 5 }) {
@@ -18,15 +18,15 @@ export default function TableLoader({ rows = 5 }) {
 
           {/* Lines shimmer */}
           <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
-            <div className="shimmer" style={{ ...base, height: 12, width: "40%", borderRadius: 6 }} />
-            <div className="shimmer" style={{ ...base, height: 10, width: "25%", borderRadius: 6 }} />
+            <div className="shimmer" style={{ ...base, height: 12, width: "40%", borderRadius: RADIUS.sm }} />
+            <div className="shimmer" style={{ ...base, height: 10, width: "25%", borderRadius: RADIUS.sm }} />
           </div>
 
           {/* Badge shimmer */}
-          <div className="shimmer" style={{ ...base, width: 60, height: 22, borderRadius: 20 }} />
+          <div className="shimmer" style={{ ...base, width: 60, height: 22, borderRadius: RADIUS.lg }} />
 
           {/* Button shimmer */}
-          <div className="shimmer" style={{ ...base, width: 70, height: 30, borderRadius: 8 }} />
+          <div className="shimmer" style={{ ...base, width: 70, height: 30, borderRadius: RADIUS.sm }} />
         </div>
       ))}
     </div>
