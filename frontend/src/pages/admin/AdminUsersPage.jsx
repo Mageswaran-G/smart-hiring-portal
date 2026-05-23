@@ -42,12 +42,29 @@ export default function AdminUsersPage() {
   useEffect(() => { setPage(1); }, [search, filter]);
 
   const handleSuspend = async (id, isSuspended) => {
+    // Optimistic update
+    queryClient.setQueryData(
+      ['adminUsers', search, filter, page],
+      (old) => {
+        if (!old?.data?.users) return old;
+        return {
+          ...old,
+          data: {
+            ...old.data,
+            users: old.data.users.map(u =>
+              u._id === id ? { ...u, isSuspended: !u.isSuspended } : u
+            )
+          }
+        };
+      }
+    );
     try {
       await suspendUser(id);
       toast.success(isSuspended ? "User unsuspended" : "User suspended");
       queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
     } catch {
       toast.error("Action failed");
+      queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
     }
   };
 

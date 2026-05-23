@@ -45,22 +45,54 @@ export default function AdminCompaniesPage() {
   }, [search, filter]);
 
   const handleVerify = async (id, isVerified) => {
+    queryClient.setQueryData(
+      ['adminCompanies', search, filter, page],
+      (old) => {
+        if (!old?.data?.companies) return old;
+        return {
+          ...old,
+          data: {
+            ...old.data,
+            companies: old.data.companies.map(c =>
+              c._id === id ? { ...c, isVerified: !c.isVerified } : c
+            )
+          }
+        };
+      }
+    );
     try {
       await verifyCompany(id);
       toast.success(isVerified ? "Company unverified" : "Company verified ✓");
       queryClient.invalidateQueries({ queryKey: ['adminCompanies'] });
     } catch {
       toast.error("Action failed");
+      queryClient.invalidateQueries({ queryKey: ['adminCompanies'] });
     }
   };
 
   const handleSuspend = async (id, isSuspended) => {
+    queryClient.setQueryData(
+      ['adminCompanies', search, filter, page],
+      (old) => {
+        if (!old?.data?.companies) return old;
+        return {
+          ...old,
+          data: {
+            ...old.data,
+            companies: old.data.companies.map(c =>
+              c._id === id ? { ...c, isSuspended: !c.isSuspended } : c
+            )
+          }
+        };
+      }
+    );
     try {
       await suspendCompany(id);
       toast.success(isSuspended ? "Company unsuspended" : "Company suspended");
       queryClient.invalidateQueries({ queryKey: ['adminCompanies'] });
     } catch {
       toast.error("Action failed");
+      queryClient.invalidateQueries({ queryKey: ['adminCompanies'] });
     }
   };
 

@@ -39,12 +39,30 @@ export default function AdminJobsPage() {
   useEffect(() => { setPage(1); }, [search, filter]);
 
   const handleClose = async (id) => {
+    // Optimistic update — immediately mark job as closed in UI
+    queryClient.setQueryData(
+      ['adminJobs', search, filter, page],
+      (old) => {
+        if (!old?.data?.jobs) return old;
+        return {
+          ...old,
+          data: {
+            ...old.data,
+            jobs: old.data.jobs.map(j =>
+              j._id === id ? { ...j, isActive: false, status: 'closed' } : j
+            )
+          }
+        };
+      }
+    );
     try {
       await closeJob(id);
       toast.success("Job closed successfully");
       queryClient.invalidateQueries({ queryKey: ['adminJobs'] });
     } catch {
       toast.error("Action failed");
+      // Revert on error
+      queryClient.invalidateQueries({ queryKey: ['adminJobs'] });
     }
   };
 
