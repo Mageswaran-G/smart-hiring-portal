@@ -1,7 +1,7 @@
 import { Users, Building2, Briefcase, FileText } from 'lucide-react';
 import StatCard from '@/components/ui/StatCard';
 import Section from '@/components/ui/Section';
-import { UI } from '@/constants/ui';
+import { COLORS } from '../../../../theme/adminTheme';
 
 const getCards = (stats) => [
   {
@@ -9,7 +9,7 @@ const getCards = (stats) => [
     value: stats?.totalUsers ?? '--',
     sub: `${stats?.totalCandidates ?? 0} candidates`,
     icon: Users,
-    color: UI.colors.primary,
+    color: COLORS.primary,
     trend: stats?.userTrend || [2,4,3,6,5,8,7,10,9,12],
   },
   {
@@ -17,7 +17,7 @@ const getCards = (stats) => [
     value: stats?.totalCompanies ?? '--',
     sub: 'registered',
     icon: Building2,
-    color: UI.colors.info,
+    color: COLORS.blue,
     trend: [1,1,2,2,3,3,stats?.totalCompanies||0],
   },
   {
@@ -25,7 +25,7 @@ const getCards = (stats) => [
     value: stats?.totalJobs ?? '--',
     sub: 'all time',
     icon: Briefcase,
-    color: UI.colors.accent,
+    color: COLORS.accent,
     trend: [1,2,2,3,3,3,stats?.totalJobs||0],
   },
   {
@@ -33,7 +33,7 @@ const getCards = (stats) => [
     value: stats?.totalApplications ?? '--',
     sub: `${stats?.hired ?? 0} hired`,
     icon: FileText,
-    color: UI.colors.success,
+    color: COLORS.successText,
     trend: stats?.appTrend || [1,2,3,3,4,4,5],
   },
 ];

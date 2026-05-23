@@ -1,13 +1,13 @@
-import { UI } from '@/constants/ui';
+import { COLORS } from '../../theme/adminTheme';
 
 const VARIANTS = {
-  primary: { bg: UI.colors.light,   color: UI.colors.primary, border: UI.border.purple },
-  success: { bg: '#f0fdf4',         color: UI.colors.success, border: '1px solid #bbf7d0' },
+  primary: { bg: COLORS.light,   color: COLORS.primary, border: `1px solid ${COLORS.border}` },
+  success: { bg: '#f0fdf4',         color: COLORS.successText, border: '1px solid #bbf7d0' },
   warning: { bg: '#fffbeb',         color: '#92400e',         border: '1px solid #fcd34d' },
-  danger:  { bg: '#fef2f2',         color: UI.colors.danger,  border: '1px solid #fecaca' },
-  neutral: { bg: UI.colors.gray100, color: UI.colors.gray500, border: UI.border.light },
+  danger:  { bg: '#fef2f2',         color: COLORS.dangerText,  border: '1px solid #fecaca' },
+  neutral: { bg: COLORS.gray100, color: COLORS.gray500, border: `1px solid ${COLORS.gray100}` },
   info:    { bg: '#eff6ff',         color: '#1d4ed8',         border: '1px solid #bfdbfe' },
-  orange:  { bg: '#fff7ed',         color: UI.colors.orange,  border: '1px solid #fed7aa' },
+  orange:  { bg: '#fff7ed',         color: '#ea580c',  border: '1px solid #fed7aa' },
 };
 
 const Badge = ({

@@ -1,23 +1,23 @@
 // Card.jsx — reusable card wrapper
 // Use this instead of repeating background/border/shadow/radius everywhere
 
-import { UI } from '@/constants/ui';
+import { COLORS, SHADOWS, RADIUS, SPACING } from '../../theme/adminTheme';
 
 const Card = ({
   children,
   className = '',
   style = {},
-  padding = UI.spacing.card,
-  radius = UI.radius.lg,
-  shadow = UI.shadow.card,
-  border = UI.border.light,
+  padding = SPACING.card,
+  radius = RADIUS.lg,
+  shadow = SHADOWS.card,
+  border = `1px solid ${COLORS.gray100}`,
   onClick,
 }) => (
   <div
     className={className}
     onClick={onClick}
     style={{
-      background: UI.colors.white,
+      background: COLORS.white,
       borderRadius: radius,
       padding,
       boxShadow: shadow,

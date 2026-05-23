@@ -1,7 +1,7 @@
 // StatCard.jsx — reusable stat card with icon, value, label, sparkline
 
 import Card from '@/components/ui/Card';
-import { UI } from '@/constants/ui';
+import { COLORS } from '../../theme/adminTheme';
 import { Sparkline } from '@/components/ui/charts';
 
 const StatCard = ({
@@ -9,7 +9,7 @@ const StatCard = ({
   value,
   sub,
   icon: Icon,
-  color = UI.colors.primary,
+  color = COLORS.primary,
   trend = [],
   isMobile = false,
 }) => (
@@ -21,12 +21,12 @@ const StatCard = ({
       marginBottom: 14,
     }}>
       <div>
-        <p style={{ fontSize:12, color:UI.colors.gray500,
+        <p style={{ fontSize:12, color:COLORS.gray500,
           margin:'0 0 5px', fontWeight:600 }}>{label}</p>
         <p style={{ fontSize:isMobile?28:36, fontWeight:900,
-          color:UI.colors.gray900, margin:0,
+          color:COLORS.gray900, margin:0,
           lineHeight:1, letterSpacing:'-1px' }}>{value}</p>
-        <p style={{ fontSize:11, color:UI.colors.gray400,
+        <p style={{ fontSize:11, color:COLORS.gray400,
           margin:'4px 0 0' }}>{sub}</p>
       </div>
       {Icon && (
