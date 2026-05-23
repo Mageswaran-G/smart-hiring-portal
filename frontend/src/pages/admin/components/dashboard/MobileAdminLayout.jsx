@@ -13,9 +13,8 @@ const SYSTEM_STATUS = [
 ];
 
 const MODULES = [
-  { num: 5, label: 'Admin Dashboard', color: COLORS.primary, status: 'in_progress', progress: 60, Icon: Shield   },
-  { num: 6, label: 'AI Features',     color: '#0891b2', status: 'locked',      progress: 0,  Icon: BarChart3 },
-  { num: 7, label: 'Email Notifications', color: '#059669', status: 'locked',  progress: 0,  Icon: Settings  },
+  { num: 5, label: 'Admin Dashboard', color: COLORS.primary, status: 'done', progress: 100, Icon: Shield   },
+  { num: 6, label: 'AI Features', color: COLORS.primary, status: 'in_progress', progress: 15, Icon: BarChart3 },
 ];
 
 const MOB_TABS = [
@@ -87,7 +86,7 @@ export default function MobileAdminLayout({ adminName, adminEmail, stats, hireRa
         <p style={{ fontSize: 13, fontWeight: 700, color: COLORS.gray700, margin: '0 0 10px' }}>Platform Overview</p>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           {STAT_CARDS.map(({ label, value, color, Icon, trend, id }) => (
-            <div key={label} style={{ background: COLORS.white, borderRadius: 14, padding: '14px 14px 10px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', border: `1px solid ${COLORS.gray100}` }}>
+            <div key={label} style={{ background: COLORS.white, borderRadius: 18, padding: "16px 14px 12px", boxShadow: "0 2px 8px rgba(0,0,0,0.06)", border: "1px solid rgba(0,0,0,0.06)", position: "relative", overflow: "hidden" }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
                 <div style={{ width: 34, height: 34, borderRadius: 9, background: `${color}14`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Icon size={17} color={color} />
@@ -95,7 +94,8 @@ export default function MobileAdminLayout({ adminName, adminEmail, stats, hireRa
                 <span style={{ fontSize: 26, fontWeight: 900, color: COLORS.gray900 }}>{value}</span>
               </div>
               <Sparkline data={trend} color={color} id={id} />
-              <p style={{ fontSize: 11, color: COLORS.gray400, margin: '6px 0 0', fontWeight: 600 }}>{label}</p>
+              <p style={{ fontSize: 11, color: '#374151', margin: '6px 0 0', fontWeight: 700 }}>{label}</p>
+              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, ${color}40, ${color}15)`, borderRadius: '0 0 18px 18px' }} />
             </div>
           ))}
         </div>
