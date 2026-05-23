@@ -1,4 +1,4 @@
-import { COLORS } from '../../theme/adminTheme';
+import { COLORS, TYPOGRAPHY, SPACING } from '../../theme/adminTheme';
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Briefcase, Search, ChevronLeft, ChevronRight, XCircle, CheckCircle, Clock } from "lucide-react";
@@ -74,8 +74,8 @@ export default function AdminJobsPage() {
       <PageContainer>
 
         {/* Header */}
-        <div style={{ marginBottom: 24 }}>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: COLORS.gray900, margin: 0 }}>
+        <div style={{ marginBottom: SPACING.section }}>
+          <h1 style={{ ...TYPOGRAPHY.h2, margin: 0 }}>
             Jobs Moderation
           </h1>
           <p style={{ color: COLORS.gray500, marginTop: 4, fontSize: 14 }}>
@@ -84,7 +84,7 @@ export default function AdminJobsPage() {
         </div>
 
         {/* Stats Row */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 24 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: SPACING.section }}>
           {[
             { label: "Total Jobs", value: total,          color: C.purple  },
             { label: "Active",     value: stats.active,   color: COLORS.successText },
@@ -102,7 +102,7 @@ export default function AdminJobsPage() {
 
         {/* Search + Filter */}
         <div style={{ background: "white", borderRadius: 12, padding: "16px 20px",
-          border: `1px solid ${COLORS.gray100}`, marginBottom: 16,
+          border: `1px solid ${COLORS.gray100}`, marginBottom: SPACING.cardSm,
           display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
           <SearchInput
             value={search}

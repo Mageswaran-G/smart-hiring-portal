@@ -1,4 +1,4 @@
-import { COLORS } from '../../theme/adminTheme';
+import { COLORS, TYPOGRAPHY, SPACING } from '../../theme/adminTheme';
 import { useState, useEffect, useCallback } from "react";
 import { Users, Search, ChevronLeft, ChevronRight, ShieldOff, Shield, Trash2, AlertTriangle } from "lucide-react";
 import { getAllUsers, suspendUser, deleteUser } from "../../services/adminService";
@@ -76,8 +76,8 @@ export default function AdminUsersPage() {
         <PageContainer>
 
         {/* Header */}
-        <div style={{ marginBottom: 24 }}>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: COLORS.gray900, margin: 0 }}>
+        <div style={{ marginBottom: SPACING.section }}>
+          <h1 style={{ ...TYPOGRAPHY.h2, margin: 0 }}>
             Users Management
           </h1>
           <p style={{ color: COLORS.gray500, marginTop: 4, fontSize: 14 }}>
@@ -86,7 +86,7 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Stats Row */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16, marginBottom: 24 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16, marginBottom: SPACING.section }}>
           {[
             { label: "Total Users",  value: total,                                              color: C.purple   },
             { label: "Candidates",   value: users.filter(u => u.role === "candidate").length,   color: "#ea580c"  },
@@ -106,7 +106,7 @@ export default function AdminUsersPage() {
         {/* Search + Filter */}
         <div style={{
           background: "white", borderRadius: 12, padding: "16px 20px",
-          border: `1px solid ${COLORS.gray100}`, marginBottom: 16,
+          border: `1px solid ${COLORS.gray100}`, marginBottom: SPACING.cardSm,
           display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap"
         }}>
           <SearchInput

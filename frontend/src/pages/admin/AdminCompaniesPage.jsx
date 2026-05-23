@@ -1,4 +1,4 @@
-import { COLORS } from '../../theme/adminTheme';
+import { COLORS, TYPOGRAPHY, SPACING } from '../../theme/adminTheme';
 import { useState, useEffect, useCallback } from "react";
 import { Building2, CheckCircle, XCircle, Search, Shield, ShieldOff, ChevronLeft, ChevronRight } from "lucide-react";
 import { getAllCompanies, verifyCompany, suspendCompany } from "../../services/adminService";
@@ -82,8 +82,8 @@ export default function AdminCompaniesPage() {
     <DashboardLayout>
         <PageContainer>
       {/* Page Header */}
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 700, color: COLORS.gray900, margin: 0 }}>
+      <div style={{ marginBottom: SPACING.section }}>
+        <h1 style={{ ...TYPOGRAPHY.h2, margin: 0 }}>
           Companies Management
         </h1>
         <p style={{ color: COLORS.gray500, marginTop: 4, fontSize: 14 }}>
@@ -92,7 +92,7 @@ export default function AdminCompaniesPage() {
       </div>
 
       {/* Stats Row */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16, marginBottom: 24 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16, marginBottom: SPACING.section }}>
         {[
           { label: "Total Companies", value: total, color: C.purple },
           { label: "Verified", value: companies.filter(c => c.isVerified).length, color: COLORS.successText },
@@ -112,7 +112,7 @@ export default function AdminCompaniesPage() {
       {/* Search + Filter Bar */}
       <div style={{
         background: "white", borderRadius: 12, padding: "16px 20px",
-        border: `1px solid ${COLORS.gray100}`, marginBottom: 16,
+        border: `1px solid ${COLORS.gray100}`, marginBottom: SPACING.cardSm,
         display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap"
       }}>
         {/* Search Input */}
