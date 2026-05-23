@@ -28,7 +28,6 @@ export default function DataTable({
         boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03)',
         overflowX: "auto",
         marginBottom: 16,
-        overflow: "hidden",
       }}>
 
         {/* Table Header */}

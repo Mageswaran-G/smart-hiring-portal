@@ -5,7 +5,7 @@ export default function FilterTabs({ tabs = [], active, onChange }) {
     <div style={{
       display: "flex",
       gap: 4,
-      flexWrap: "wrap",
+      flexWrap: "wrap", rowGap: 4,
       background: 'rgba(0,0,0,0.04)',
       borderRadius: 10,
       padding: 4,

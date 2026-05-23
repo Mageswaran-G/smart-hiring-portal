@@ -3,6 +3,7 @@ import SafeAvatar from '../../../../components/ui/SafeAvatar';
 import ProgressRing from '../../../../components/charts/ProgressRing';
 import Sparkline from '../../../../components/charts/Sparkline';
 import { COLORS, GRADIENTS } from '../../../../theme/adminTheme';
+import ActionCenter from '../../../../components/admin/ActionCenter';
 
 const SYSTEM_STATUS = [
   { label: 'API Server',    status: 'online'   },
@@ -32,48 +33,162 @@ export default function MobileAdminLayout({ adminName, adminEmail, stats, hireRa
   const appTrend  = [8, 12, 10, 15, 14, 18, stats?.totalApplications || 0];
 
   const STAT_CARDS = [
-    { label: 'Total Users',  value: stats?.totalUsers || 0,        color: COLORS.primary, Icon: Users,     trend: userTrend, id: 'u' },
-    { label: 'Companies',    value: stats?.totalCompanies || 0,    color: '#0891b2', Icon: Building2, trend: [1,1,2,2,3,3,stats?.totalCompanies||0], id: 'c' },
-    { label: 'Jobs Posted',  value: stats?.totalJobs || 0,         color: '#8b5cf6', Icon: Briefcase, trend: jobTrend,  id: 'j' },
-    { label: 'Applications', value: stats?.totalApplications || 0, color: '#059669', Icon: FileText,  trend: appTrend,  id: 'a' },
+    { label: 'Total Users',  value: stats?.totalUsers || 0,        color: COLORS.primary, bg: '#f5f3ff', Icon: Users,     trendPct: '+12%', id: 'u' },
+    { label: 'Companies',    value: stats?.totalCompanies || 0,    color: '#0891b2',      bg: '#eff6ff', Icon: Building2, trendPct: '+5%',  id: 'c' },
+    { label: 'Jobs Posted',  value: stats?.totalJobs || 0,         color: '#8b5cf6',      bg: '#faf5ff', Icon: Briefcase, trendPct: '+8%',  id: 'j' },
+    { label: 'Applications', value: stats?.totalApplications || 0, color: '#059669',      bg: '#f0fdf4', Icon: FileText,  trendPct: '+18%', id: 'a' },
   ];
 
   return (
     <div style={{ minHeight: '100vh', background: '#f9fafb', paddingBottom: 72, fontFamily: 'system-ui,-apple-system,sans-serif' }}>
 
       {/* Mobile Header */}
-      <header style={{ background: COLORS.white, borderBottom: `1px solid ${COLORS.gray200}`, height: 56, padding: '0 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 40 }}>
+      <header style={{
+        background: 'rgba(255,255,255,0.98)',
+        backdropFilter: 'blur(20px)',
+        borderBottom: '1px solid rgba(0,0,0,0.06)',
+        height: 56, padding: '0 16px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        position: 'sticky', top: 0, zIndex: 40,
+        boxShadow: '0 1px 0 rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03)',
+      }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 8, background: GRADIENTS.admin, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Shield size={16} color="#fff" />
+          <div style={{
+            width: 30, height: 30, borderRadius: 9,
+            background: GRADIENTS.admin,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 2px 6px rgba(124,58,237,0.35)',
+          }}>
+            <Shield size={15} color="#fff" />
           </div>
-          <span style={{ fontWeight: 900, fontSize: 17, color: COLORS.gray900 }}>HirePortal</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontWeight: 900, fontSize: 16, color: COLORS.gray900, letterSpacing: '-0.4px' }}>
+              HirePortal
+            </span>
+            <span style={{
+              background: `${COLORS.primary}12`,
+              color: COLORS.primary,
+              fontSize: 9, fontWeight: 800,
+              borderRadius: 5, padding: '2px 6px',
+              letterSpacing: '0.6px',
+              border: `1px solid ${COLORS.primary}20`,
+            }}>
+              ADMIN
+            </span>
+          </div>
         </div>
-        <span style={{ background: `${COLORS.primary}22`, color: COLORS.primary, fontSize: 10, fontWeight: 800, borderRadius: 9999, padding: '4px 10px' }}>
-          ADMIN
-        </span>
+        {/* Right side — online + avatar */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: '#f0fdf4', padding: '4px 10px', borderRadius: 8, border: '1px solid #bbf7d0' }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', display: 'inline-block', boxShadow: '0 0 6px rgba(74,222,128,0.7)' }} />
+            <span style={{ fontSize: 10, color: '#16a34a', fontWeight: 600 }}>Online</span>
+          </div>
+          <div style={{
+            width: 30, height: 30, borderRadius: '50%',
+            background: GRADIENTS.admin,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#fff', fontWeight: 900, fontSize: 12,
+            boxShadow: '0 2px 6px rgba(124,58,237,0.3)',
+          }}>
+            {adminName[0].toUpperCase()}
+          </div>
+        </div>
       </header>
 
       {/* Mobile Hero */}
-      <section style={{ background: GRADIENTS.admin, padding: '28px 20px 36px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18 }}>
-          <div style={{ width: 60, height: 60, borderRadius: 18, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: COLORS.white, fontWeight: 900, fontSize: 26, border: '2px solid rgba(255,255,255,0.38)', flexShrink: 0 }}>
+      <section style={{ background: GRADIENTS.admin, padding: '24px 18px 32px', position: 'relative', overflow: 'hidden' }}>
+        {/* Decorative circle */}
+        <div style={{ position: 'absolute', top: -40, right: -40, width: 150, height: 150, borderRadius: '50%', background: 'rgba(167,139,250,0.1)', pointerEvents: 'none' }} />
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16, position: 'relative', zIndex: 1 }}>
+          {/* Avatar */}
+          <div style={{
+            width: 58, height: 58, borderRadius: 18,
+            background: 'linear-gradient(135deg, #a78bfa, #7c3aed)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#fff', fontWeight: 900, fontSize: 24,
+            border: '2px solid rgba(255,255,255,0.2)',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+            flexShrink: 0, position: 'relative',
+          }}>
             {adminName[0].toUpperCase()}
+            {/* Online dot */}
+            <div style={{
+              position: 'absolute', bottom: 2, right: 2,
+              width: 12, height: 12, borderRadius: '50%',
+              background: '#4ade80',
+              border: '2px solid #2e1065',
+              boxShadow: '0 0 6px rgba(74,222,128,0.7)',
+            }} />
           </div>
+
           <div>
-            <p style={{ color: 'rgba(255,255,255,0.72)', fontSize: 12, margin: '0 0 3px', fontWeight: 500 }}>Super Admin</p>
-            <h1 style={{ color: COLORS.white, fontWeight: 900, fontSize: 22, margin: '0 0 3px' }}>{adminName}</h1>
-            <p style={{ color: 'rgba(255,255,255,0.68)', fontSize: 12, margin: 0 }}>{adminEmail}</p>
+            {/* Badge */}
+            <span style={{
+              background: 'rgba(255,255,255,0.12)',
+              color: 'rgba(255,255,255,0.85)',
+              fontSize: 9, fontWeight: 800,
+              borderRadius: 5, padding: '2px 8px',
+              letterSpacing: '0.8px', textTransform: 'uppercase',
+              border: '1px solid rgba(255,255,255,0.18)',
+              display: 'inline-block', marginBottom: 5,
+            }}>
+              Super Admin
+            </span>
+            <h1 style={{ color: '#fff', fontWeight: 900, fontSize: 20, margin: '0 0 2px', letterSpacing: '-0.5px' }}>
+              {adminName}
+            </h1>
+            <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 11, margin: 0 }}>
+              {adminEmail}
+            </p>
           </div>
         </div>
 
+        {/* Quick stats row */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 14, position: 'relative', zIndex: 1 }}>
+          {[
+            { label: 'Users', value: stats?.totalUsers || 0 },
+            { label: 'Jobs', value: stats?.totalJobs || 0 },
+            { label: 'Apps', value: stats?.totalApplications || 0 },
+          ].map(({ label, value }) => (
+            <div key={label} style={{
+              flex: 1,
+              background: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 10, padding: '8px 10px', textAlign: 'center',
+            }}>
+              <div style={{ color: '#fff', fontWeight: 900, fontSize: 18, lineHeight: 1 }}>{value}</div>
+              <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 9, marginTop: 3, textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 600 }}>{label}</div>
+            </div>
+          ))}
+        </div>
+
         {/* System status pills */}
-        <div style={{ background: 'rgba(0,0,0,0.22)', borderRadius: 16, padding: '14px 18px', border: '1px solid rgba(255,255,255,0.11)' }}>
-          <p style={{ color: 'rgba(255,255,255,0.68)', fontSize: 10, margin: '0 0 9px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.6px' }}>System Status</p>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <div style={{
+          background: 'rgba(0,0,0,0.18)',
+          borderRadius: 14, padding: '12px 16px',
+          border: '1px solid rgba(255,255,255,0.08)',
+          position: 'relative', zIndex: 1,
+        }}>
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 9, margin: '0 0 8px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+            System Status
+          </p>
+          <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
             {SYSTEM_STATUS.slice(0, 3).map(({ label, status }) => (
-              <span key={label} style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.88)', fontSize: 10, fontWeight: 600, borderRadius: 9999, padding: '4px 11px' }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: status === 'online' ? COLORS.success : status === 'progress' ? COLORS.warning : COLORS.danger, display: 'inline-block' }} />
+              <span key={label} style={{
+                display: 'flex', alignItems: 'center', gap: 5,
+                background: 'rgba(255,255,255,0.08)',
+                color: 'rgba(255,255,255,0.85)',
+                fontSize: 10, fontWeight: 600,
+                borderRadius: 8, padding: '4px 10px',
+                border: '1px solid rgba(255,255,255,0.08)',
+              }}>
+                <span style={{
+                  width: 6, height: 6, borderRadius: '50%',
+                  background: '#4ade80',
+                  boxShadow: '0 0 6px rgba(74,222,128,0.6)',
+                  display: 'inline-block',
+                }} />
                 {label}
               </span>
             ))}
@@ -85,16 +200,24 @@ export default function MobileAdminLayout({ adminName, adminEmail, stats, hireRa
       <section style={{ padding: '14px 14px 0' }}>
         <p style={{ fontSize: 13, fontWeight: 700, color: COLORS.gray700, margin: '0 0 10px' }}>Platform Overview</p>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-          {STAT_CARDS.map(({ label, value, color, Icon, trend, id }) => (
-            <div key={label} style={{ background: COLORS.white, borderRadius: 18, padding: "16px 14px 12px", boxShadow: "0 2px 8px rgba(0,0,0,0.06)", border: "1px solid rgba(0,0,0,0.06)", position: "relative", overflow: "hidden" }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-                <div style={{ width: 34, height: 34, borderRadius: 9, background: `${color}14`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon size={17} color={color} />
+          {STAT_CARDS.map(({ label, value, color, bg, Icon, trendPct, id }) => (
+            <div key={label} style={{ background: COLORS.white, borderRadius: 18, padding: "16px 14px 14px", boxShadow: "0 2px 8px rgba(0,0,0,0.06)", border: "1px solid rgba(0,0,0,0.06)", position: "relative", overflow: "hidden" }}>
+              {/* Top row — icon + trend */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 11, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon size={18} color={color} />
                 </div>
-                <span style={{ fontSize: 26, fontWeight: 900, color: COLORS.gray900 }}>{value}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 2, background: '#f0fdf4', color: '#16a34a', fontSize: 10, fontWeight: 700, padding: '3px 7px', borderRadius: 7 }}>
+                  ↗ {trendPct}
+                </div>
               </div>
-              <Sparkline data={trend} color={color} id={id} />
-              <p style={{ fontSize: 11, color: '#374151', margin: '6px 0 0', fontWeight: 700 }}>{label}</p>
+              {/* Value */}
+              <div style={{ fontSize: 28, fontWeight: 900, color: '#111827', letterSpacing: '-1px', lineHeight: 1, marginBottom: 4 }}>
+                {value}
+              </div>
+              {/* Label */}
+              <p style={{ fontSize: 11, color: '#374151', margin: 0, fontWeight: 700 }}>{label}</p>
+              {/* Bottom accent */}
               <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, ${color}40, ${color}15)`, borderRadius: '0 0 18px 18px' }} />
             </div>
           ))}
@@ -115,6 +238,11 @@ export default function MobileAdminLayout({ adminName, adminEmail, stats, hireRa
             <ProgressRing value={hireRate} color={COLORS.primary} bg={`${COLORS.primary}22`} textColor={COLORS.primary} />
           </div>
         </div>
+      </section>
+
+      {/* Action Center */}
+      <section style={{ padding: '14px 14px 0' }}>
+        <ActionCenter />
       </section>
 
       {/* Recent Signups */}

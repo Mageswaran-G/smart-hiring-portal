@@ -130,7 +130,9 @@ export default function AdminDashboard() {
 
         <StatsGrid stats={stats} />
         <div style={{ height: 8 }} />
-        <ActionCenter />
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 32px' }}>
+          <ActionCenter />
+        </div>
 
       {/* ── Desktop Main Content ── */}
       <main style={{ maxWidth:1200, margin:'0 auto', padding:'28px 32px 60px', display:'grid', gridTemplateColumns:'1fr 380px', gap:24 }}>

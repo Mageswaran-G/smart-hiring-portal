@@ -102,7 +102,7 @@ export default function AdminJobsPage() {
         </div>
 
         {/* Stats Row */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: SPACING.section }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16, marginBottom: SPACING.section }}>
           {[
             { label: "Total Jobs", value: total,          color: C.purple  },
             { label: "Active",     value: stats.active,   color: COLORS.successText },
