@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Briefcase, Bookmark, FileText,
-  User, Users, PlusCircle, Building2, TrendingUp,
+  User, Users, PlusCircle, Building2, TrendingUp, Sparkles,
   Shield, LogOut, Menu, X,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -20,6 +20,7 @@ const NAV_LINKS = {
     { label:'Dashboard',    Icon:LayoutDashboard, path:ROUTES.CANDIDATE_DASHBOARD    },
     { label:'Browse Jobs',  Icon:Briefcase,       path:ROUTES.PUBLIC_JOBS            },
     { label:'Saved Jobs',   Icon:Bookmark,        path:ROUTES.SAVED_JOBS             },
+    { label:'AI Match',     Icon:Sparkles,        path:ROUTES.RECOMMENDATIONS        },
     { label:'Applications', Icon:FileText,        path:ROUTES.CANDIDATE_APPLICATIONS },
     { label:'My Profile',   Icon:User,            path:ROUTES.PROFILE                },
   ],

@@ -19,6 +19,7 @@ import PublicJobsPage         from './pages/jobs/PublicJobsPage';
 import JobDetailsPage         from './pages/jobs/JobDetailsPage';
 import CompanyApplicationsPage from './pages/company/CompanyApplicationsPage';
 import SavedJobsPage from './pages/candidate/SavedJobsPage'; 
+import RecommendationsPage from './pages/candidate/RecommendationsPage';
 import { Toaster } from 'react-hot-toast';
 import AdminCompaniesPage from "./pages/admin/AdminCompaniesPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
@@ -120,6 +121,13 @@ export default function App() {
             <ProtectedRoute>
               <RoleRoute allowedRoles={['candidate']}>
                 <SavedJobsPage />
+              </RoleRoute>
+            </ProtectedRoute>
+          } />
+          <Route path={ROUTES.RECOMMENDATIONS} element={
+            <ProtectedRoute>
+              <RoleRoute allowedRoles={["candidate"]}>
+                <RecommendationsPage />
               </RoleRoute>
             </ProtectedRoute>
           } />

@@ -8,7 +8,8 @@ export const ROUTES = {
   // Candidate
   CANDIDATE_DASHBOARD:     '/candidate/dashboard',
   CANDIDATE_APPLICATIONS:  '/candidate/applications',
-  SAVED_JOBS:              '/candidate/saved-jobs',     
+  SAVED_JOBS:              '/candidate/saved-jobs',
+  RECOMMENDATIONS:         '/candidate/recommendations',     
 
   // Company
   COMPANY_DASHBOARD:       '/company/dashboard',
