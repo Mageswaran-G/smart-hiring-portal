@@ -178,7 +178,7 @@ function LoadingScreen() {
 function Avatar({ profile, size = 44, border = '2px solid rgba(255,255,255,0.4)' }) {
   return (
     <SafeAvatar
-      src={profile?.photo}
+      onClick={() => navigate(ROUTES.PROFILE)} src={profile?.photo}
       name={profile?.name || 'U'}
       alt="avatar"
       style={{ width:size, height:size, borderRadius:'50%', objectFit:'cover', border, flexShrink:0 }}
@@ -264,19 +264,19 @@ export default function CandidateDashboard() {
             <div style={{ width:32, height:32, borderRadius:8, background:C.grad, display:'flex', alignItems:'center', justifyContent:'center' }}>
               <Briefcase size={16} color="#fff" />
             </div>
-            <span style={{ fontWeight:900, fontSize:17, color:C.gray900, letterSpacing:'-0.3px' }}>HirePortal</span>
+            <span style={{ fontWeight:900, fontSize:17, color:C.gray900, letterSpacing:'-0.3px' }}>HirePortal</span><span style={{ background:`${C.primary}15`, color:C.primary, fontSize:9, fontWeight:800, borderRadius:5, padding:'2px 6px', letterSpacing:'0.5px', border:`1px solid ${C.primary}25` }}>CANDIDATE</span>
           </div>
           <SafeAvatar
-            src={profile?.photo}
+            onClick={() => navigate(ROUTES.PROFILE)} src={profile?.photo}
             name={profile?.name || 'U'}
-            style={{ width:34, height:34, borderRadius:'50%', objectFit:'cover', border:`2px solid ${C.primary}` }}
+            style={{ width:34, height:34, borderRadius:'50%', objectFit:'cover', border:`2px solid ${C.primary}`, cursor:'pointer' }}
             fallbackStyle={{ width:34, height:34, borderRadius:'50%', background:C.primary, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:14 }}
           />
         </header>
 
         {/* ── Mobile Hero ── */}
-        <section style={{ background:C.grad, padding:'28px 20px 36px' }}>
-          <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:18 }}>
+        <section style={{ background:'linear-gradient(135deg, #7c1d06 0%, #c2410c 35%, #ea580c 65%, #f97316 85%, #fbbf24 100%)', padding:'28px 20px 36px', position:'relative', overflow:'hidden', borderRadius:20, margin:'12px 12px 0' }}>
+          <div style={{ position:'absolute', top:-40, right:-40, width:180, height:180, borderRadius:'50%', background:'rgba(255,255,255,0.06)', pointerEvents:'none' }} /><div style={{ position:'absolute', bottom:-30, left:20, width:120, height:120, borderRadius:'50%', background:'rgba(255,255,255,0.04)', pointerEvents:'none' }} /><div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:18 }}>
             <Avatar profile={profile} size={62} border="3px solid rgba(255,255,255,0.5)" />
             <div style={{ minWidth:0 }}>
               <p style={{ color:'rgba(255,255,255,0.75)', fontSize:12, margin:'0 0 3px', fontWeight:500, letterSpacing:'0.1px' }}>Welcome back</p>
@@ -427,8 +427,8 @@ export default function CandidateDashboard() {
     <div style={{ minHeight:'100vh', background:C.gray50, fontFamily:'system-ui,-apple-system,sans-serif' }}>
 
       {/* ── Desktop Hero ── */}
-      <section style={{ background:C.grad, padding:'64px 56px 76px' }}>
-        <div style={{ maxWidth:1200, margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'space-between', gap:52 }}>
+      <section style={{ background:'linear-gradient(135deg, #7c1d06 0%, #c2410c 35%, #ea580c 65%, #f97316 85%, #fbbf24 100%)', padding:'64px 56px 76px', position:'relative', overflow:'hidden', borderRadius:24, margin:'0 16px' }}>
+        <div style={{ position:'absolute', top:-80, right:-80, width:320, height:320, borderRadius:'50%', background:'rgba(255,255,255,0.05)', pointerEvents:'none' }} /><div style={{ position:'absolute', bottom:-60, left:60, width:200, height:200, borderRadius:'50%', background:'rgba(255,255,255,0.04)', pointerEvents:'none' }} /><div style={{ position:'absolute', inset:0, backgroundImage:'radial-gradient(ellipse at 20% 50%, rgba(255,255,255,0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(251,191,36,0.2) 0%, transparent 40%), radial-gradient(ellipse at 60% 80%, rgba(255,255,255,0.08) 0%, transparent 40%)', pointerEvents:'none' }} /><div style={{ maxWidth:1200, margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'space-between', gap:52 }}>
 
           {/* Left: Avatar + Identity */}
           <div style={{ display:'flex', alignItems:'center', gap:28 }}>
