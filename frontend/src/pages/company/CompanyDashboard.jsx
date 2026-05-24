@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import {
-  LayoutDashboard, Briefcase, Users, PlusCircle, User,
+  Briefcase, Users, PlusCircle, User,
   LogOut, ChevronRight, Building2,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -29,8 +29,8 @@ export default function CompanyDashboard() {
   const navigate = useNavigate();
   const { profile, logoutUser } = useAuth();
   const isMobile = useIsMobile();
-
-  const [activeTab,    setActiveTab]    = useState('overview');
+  const [activeTab, setActiveTab] = useState('overview');
+  
   const {
     loading,
     stats,
@@ -277,27 +277,7 @@ export default function CompanyDashboard() {
   return (
     <DashboardLayout>
       <div style={{ minHeight:'100vh', background:C.gray50, fontFamily:'system-ui,-apple-system,sans-serif' }}>
-        <div style={{ background:'#fff', borderBottom:`1px solid ${C.gray200}`, padding:'0 32px', display:'flex', alignItems:'center', gap:4 }}>
-          {[
-            { key:'overview', label:'Overview', Icon:LayoutDashboard },
-            { key:'jobs', label:'My Jobs', Icon:Briefcase },
-            { key:'apps', label:'Applicants', Icon:Users },
-          ].map(({ key, label, Icon }) => {
-            const isActive = activeTab === key;
-            const badge = key==='jobs' ? jobs.length : key==='apps' ? applications.length : 0;
-            return (
-              <button key={key} onClick={() => handleTab(key)} style={{ display:'flex', alignItems:'center', gap:6, padding:'14px 14px', border:'none', borderBottom: isActive ? `2px solid ${C.primary}` : '2px solid transparent', cursor:'pointer', fontSize:13, fontWeight: isActive ? 700 : 500, background:'transparent', color: isActive ? C.primary : C.gray500, transition:'all 0.15s', marginBottom:'-1px' }}>
-                <Icon size={14} strokeWidth={isActive ? 2.5 : 1.8} />
-                {label}
-                {badge > 0 && <span style={{ background:C.primary, color:'#fff', fontSize:10, fontWeight:700, borderRadius:9999, minWidth:17, height:17, display:'flex', alignItems:'center', justifyContent:'center', padding:'0 3px' }}>{badge}</span>}
-              </button>
-            );
-          })}
-          <div style={{ flex:1 }} />
-          <button onClick={() => navigate(ROUTES.COMPANY_JOB_CREATE)} style={{ display:'flex', alignItems:'center', gap:7, background:C.primary, color:'#fff', border:'none', borderRadius:9, padding:'8px 16px', fontSize:13, fontWeight:700, cursor:'pointer' }}>
-            <PlusCircle size={14} /> Post New Job
-          </button>
-        </div>
+        
 
         <CompanyHero profile={profile} stats={stats} hireRate={hireRate} navigate={navigate} />
         <CompanyStatsGrid statCards={statCards} />
