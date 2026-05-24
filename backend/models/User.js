@@ -41,7 +41,7 @@ const userSchema = new mongoose.Schema({
   portfolio: { type: String, default: '', trim: true },
 
   // ── Candidate only fields ──
-  skills: { type: [String], default: [] },
+  skills: { type: [mongoose.Schema.Types.Mixed], default: [] },
   parsedSkills:  { type: [String], default: [] },
   lastResumeParsedAt: { type: Date, default: null },
 
