@@ -19,6 +19,10 @@ const getMatchScore = async (req, res) => {
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
     const candidateSkills = user.parsedSkills?.length ? user.parsedSkills : (user.skills || []);
+
+    if (!candidateSkills.length) {
+      return res.json({ success: true, data: { recommendations: [], message: "Add skills or upload resume to get recommendations" } });
+    }
     const jobSkills = [...new Set(job.skillsRequired || [])];
     const descriptionSkills = extractSkills(job.description || '');
     const allJobSkills = [...new Set([...jobSkills, ...descriptionSkills])];
@@ -51,6 +55,10 @@ const getRecommendations = async (req, res) => {
 
     const candidateSkills = user.parsedSkills?.length ? user.parsedSkills : (user.skills || []);
 
+    if (!candidateSkills.length) {
+      return res.json({ success: true, data: { recommendations: [], message: "Add skills or upload resume to get recommendations" } });
+    }
+
     // Get jobs candidate already applied to
     const applied = await Application.find({ candidate: userId }).select('job');
     const appliedJobIds = applied.map(a => a.job.toString());
@@ -71,7 +79,10 @@ const getRecommendations = async (req, res) => {
     });
 
     const filteredScored = scored.filter(item => item.score >= 25);
-    filteredScored.sort((a, b) => b.score - a.score);
+    filteredScored.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return new Date(b.job.createdAt) - new Date(a.job.createdAt);
+    });
 
     const recommendations = filteredScored.slice(0, 10).map(item => ({
       ...item.job.toObject(),

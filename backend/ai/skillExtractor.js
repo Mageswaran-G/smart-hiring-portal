@@ -1,23 +1,33 @@
-// Extract skills from text using tokenization
-// Safer than regex — no false positives like java vs javascript
-
 const SKILLS = require('../constants/skills');
 const normalizeSkill = require('./normalizeText');
+
+// Pre-process multi-word skills before tokenizing
+function preprocessText(text) {
+  return text
+    .replace(/machine\s+learning/gi, 'machinelearning')
+    .replace(/deep\s+learning/gi, 'deeplearning')
+    .replace(/react\s+native/gi, 'reactnative')
+    .replace(/node\s+js/gi, 'nodejs')
+    .replace(/mongo\s+db/gi, 'mongodb')
+    .replace(/tailwind\s+css/gi, 'tailwind')
+    .replace(/next\s+js/gi, 'nextjs')
+    .replace(/ci\s*\/\s*cd/gi, 'cicd')
+    .replace(/rest\s+api/gi, 'restapi');
+}
 
 function extractSkills(text = '') {
   if (!text) return [];
 
-  // Tokenize: split by non-alphanumeric chars, normalize each token
-  const tokens = text
+  const processed = preprocessText(text);
+
+  const tokens = processed
     .toLowerCase()
     .split(/[^a-zA-Z0-9.#+]+/)
     .map(normalizeSkill)
     .filter(Boolean);
 
-  // Match skills against tokens
   return SKILLS.filter(skill => {
-    const normalizedSkill = normalizeSkill(skill);
-    return tokens.includes(normalizedSkill);
+    return tokens.includes(normalizeSkill(skill));
   });
 }
 
