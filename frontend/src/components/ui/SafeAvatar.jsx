@@ -5,6 +5,7 @@ export default function SafeAvatar({
   name = '',
   alt = '',
   className = '',
+  onClick,
   style,
   fallbackClassName = '',
   fallbackStyle,
@@ -20,13 +21,13 @@ export default function SafeAvatar({
         alt={alt}
         className={className}
         style={style}
-        onError={() => setFailed(true)}
+        onClick={onClick} onError={() => setFailed(true)}
       />
     );
   }
 
   return (
-    <div className={fallbackClassName || className} style={fallbackStyle || style}>
+    <div className={fallbackClassName || className} style={fallbackStyle || style} onClick={onClick}>
       <span className={textClassName}>{initial}</span>
     </div>
   );
