@@ -47,10 +47,19 @@ export function getDashboardTrends(stats) {
 }
 
 export function getStatCards(stats, trends) {
+  const calcPct = (arr) => {
+    const curr = arr[arr.length - 1] || 0;
+    if (curr === 0) return '0%';
+    const prev = arr[arr.length - 2] || 0;
+    if (prev === 0) return '+100%';
+    const pct = Math.round(((curr - prev) / prev) * 100);
+    return pct >= 0 ? `+${pct}%` : `${pct}%`;
+  };
+
   return [
-    { label: 'Total Jobs', value: stats.total || 0, sub: 'jobs posted', Icon: Briefcase, color: C.primary, trend: trends.jobTrend, id: 'j' },
-    { label: 'Applications', value: stats.applications || 0, sub: 'received', Icon: FileText, color: '#8b5cf6', trend: trends.appTrend, id: 'a' },
-    { label: 'Shortlisted', value: stats.shortlisted || 0, sub: 'candidates', Icon: Star, color: '#0891b2', trend: trends.shortTrend, id: 'sh' },
-    { label: 'Hired', value: stats.hired || 0, sub: 'this cycle', Icon: CheckCircle, color: '#059669', trend: trends.hireTrend, id: 'h' },
+    { label: 'Total Jobs',    value: stats.total        || 0, sub: 'jobs posted', Icon: Briefcase,    color: C.primary,  trend: trends.jobTrend,   trendPct: calcPct(trends.jobTrend),   id: 'j'  },
+    { label: 'Applications',  value: stats.applications || 0, sub: 'received',    Icon: FileText,     color: '#8b5cf6',  trend: trends.appTrend,   trendPct: calcPct(trends.appTrend),   id: 'a'  },
+    { label: 'Shortlisted',   value: stats.shortlisted  || 0, sub: 'candidates',  Icon: Star,         color: '#0891b2',  trend: trends.shortTrend, trendPct: calcPct(trends.shortTrend), id: 'sh' },
+    { label: 'Hired',         value: stats.hired        || 0, sub: 'this cycle',  Icon: CheckCircle,  color: '#059669',  trend: trends.hireTrend,  trendPct: calcPct(trends.hireTrend),  id: 'h'  },
   ];
 }
