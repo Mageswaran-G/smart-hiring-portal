@@ -1,3 +1,4 @@
+import ConfirmModal from '../../components/ui/ConfirmModal';
 import { COLORS, TYPOGRAPHY, SPACING } from '../../theme/adminTheme';
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -28,6 +29,7 @@ export default function AdminJobsPage() {
   const [search, setSearch]   = useState("");
   const [filter, setFilter]   = useState("all");
   const [page, setPage]       = useState(1);
+  const [confirmModal, setConfirmModal] = useState({ isOpen:false, jobId:null });
   
   
   
@@ -72,14 +74,19 @@ export default function AdminJobsPage() {
     }
   };
 
-  const handleDeleteJob = async (id) => {
-    if (!window.confirm('Delete this job? This cannot be undone.')) return;
+  const confirmDeleteJob = (id) => {
+    setConfirmModal({ isOpen: true, jobId: id });
+  };
+
+  const handleDeleteJob = async () => {
     try {
-      await deleteJob(id);
+      await deleteJob(confirmModal.jobId);
       toast.success('Job deleted');
       queryClient.invalidateQueries({ queryKey: ['adminJobs'] });
     } catch {
       toast.error('Delete failed');
+    } finally {
+      setConfirmModal({ isOpen: false, jobId: null });
     }
   };
 
@@ -165,7 +172,7 @@ export default function AdminJobsPage() {
                   </div>
                   <div style={{ display: 'flex', gap: 8 }}>
                     {job.isActive && <Button variant="outline" size="sm" onClick={() => handleClose(job._id)}>Close</Button>}
-                    <Button variant="danger" size="sm" onClick={() => handleDeleteJob(job._id)}>Delete</Button>
+                    <Button variant="danger" size="sm" onClick={() => confirmDeleteJob(job._id)}>Delete</Button>
                   </div>
                 </div>
               );
@@ -198,7 +205,7 @@ export default function AdminJobsPage() {
               <div key="status">{(() => { const badge = statusBadge(job); return <span style={{ background: badge.bg, color: badge.color, padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{badge.label}</span>; })()}</div>,
               <div key="action" style={{ display: "flex", gap: 6 }}>
                 {job.isActive && <button onClick={() => handleClose(job._id)} style={{ padding: "6px 12px", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer", border: "none", background: COLORS.dangerBg, color: COLORS.dangerText, display: "flex", alignItems: "center", gap: 4 }}><XCircle size={12} /> Close</button>}
-                <Button variant="danger" size="sm" onClick={() => handleDeleteJob(job._id)}>Delete</Button>
+                <Button variant="danger" size="sm" onClick={() => confirmDeleteJob(job._id)}>Delete</Button>
               </div>,
             ]}
           />
@@ -206,6 +213,16 @@ export default function AdminJobsPage() {
 
         
       </PageContainer>
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title="Delete Job"
+        message="Are you sure you want to delete this job? This cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+        onConfirm={handleDeleteJob}
+        onCancel={() => setConfirmModal({ isOpen:false, jobId:null })}
+      />
     </DashboardLayout>
   );
 }

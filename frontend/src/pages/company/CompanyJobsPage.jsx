@@ -14,6 +14,7 @@ import { getMyJobs, updateJobStatus, deleteJob } from '../../services/jobService
 import { ROUTES } from '../../constants/routes';
 import useIsMobile from '../../hooks/useIsMobile';
 import toast from 'react-hot-toast';
+import ConfirmModal from '../../components/ui/ConfirmModal';
 
 // ─── Colors ──────────────────────────────────────────────────
 const C = {
@@ -339,6 +340,7 @@ export default function CompanyJobsPage() {
   const [loading, setLoading] = useState(true);
   const [tab,     setTab]     = useState('all');
   const [view,    setView]    = useState('grid');
+  const [confirmModal, setConfirmModal] = useState({ isOpen:false, jobId:null });
 
   useEffect(() => {
     if (fetchedRef.current) return;
@@ -365,14 +367,19 @@ export default function CompanyJobsPage() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this job? This cannot be undone.')) return;
+  const confirmDelete = (id) => {
+    setConfirmModal({ isOpen: true, jobId: id });
+  };
+
+  const handleDelete = async () => {
     try {
-      await deleteJob(id);
-      setJobs(prev => prev.filter(j => j._id !== id));
+      await deleteJob(confirmModal.jobId);
+      setJobs(prev => prev.filter(j => j._id !== confirmModal.jobId));
       toast.success('Job deleted');
     } catch {
       toast.error('Failed to delete job');
+    } finally {
+      setConfirmModal({ isOpen: false, jobId: null });
     }
   };
 
@@ -514,7 +521,7 @@ export default function CompanyJobsPage() {
               key={job._id}
               job={job}
               onToggle={handleToggle}
-              onDelete={handleDelete}
+              onDelete={confirmDelete}
               onEdit={(id) => navigate(ROUTES.COMPANY_JOB_EDIT.replace(':id', id))}
               onViewApplicants={() => navigate(ROUTES.COMPANY_APPLICATIONS)}
             />
@@ -622,7 +629,7 @@ export default function CompanyJobsPage() {
                 job={job}
                 view={view}
                 onToggle={handleToggle}
-                onDelete={handleDelete}
+                onDelete={confirmDelete}
                 onEdit={(id) => navigate(ROUTES.COMPANY_JOB_EDIT.replace(':id', id))}
                 onViewApplicants={() => navigate(ROUTES.COMPANY_APPLICATIONS)}
               />
@@ -646,6 +653,16 @@ export default function CompanyJobsPage() {
           </div>
         )}
       </div>
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title="Delete Job"
+        message="Are you sure you want to delete this job? This cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmModal({ isOpen:false, jobId:null })}
+      />
     </DashboardLayout>
   );
 }
