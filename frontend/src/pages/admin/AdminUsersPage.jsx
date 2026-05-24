@@ -13,6 +13,7 @@ import FilterTabs from '../../components/ui/FilterTabs';
 import DataTable from '../../components/ui/DataTable';
 import SearchInput from '../../components/ui/SearchInput';
 import Modal from '../../components/ui/Modal';
+import MobileCardList from '../../components/ui/MobileCardList';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -22,7 +23,13 @@ const C = {
 };
 
 export default function AdminUsersPage() {
-  
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 640);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 640);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   
   const [search, setSearch]     = useState("");
   const [filter, setFilter]     = useState("all");
@@ -134,88 +141,80 @@ export default function AdminUsersPage() {
           />
         </div>
         {/* Table */}
-        <DataTable
-          columns={[
-            { key: "user",    label: "User",    width: "180px" },
-            { key: "email",   label: "Email",   width: "160px" },
-            { key: "role",    label: "Role",    width: "90px"  },
-            { key: "status",  label: "Status",  width: "90px"  },
-            { key: "actions", label: "Actions", width: "160px" },
-          ]}
-          rows={users}
-          loading={loading}
-          emptyIcon={<Users size={40} />}
-          emptyTitle="No users found"
-          emptySubtitle="No users match your current filter"
-          
-          page={page}
-          totalPages={totalPages}
-          onPageChange={setPage}
-          renderRow={(user) => [
-
-            /* User */
-            <div key="user" style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{
-                width: 36, height: 36, borderRadius: "50%",
-                background: `${roleColor(user.role)}20`,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 14, fontWeight: 700, color: roleColor(user.role), flexShrink: 0
-              }}>
-                {user.name?.charAt(0).toUpperCase() || "U"}
-              </div>
+        {isMobile ? (
+          <MobileCardList
+            rows={users}
+            loading={loading}
+            emptyIcon={<Users size={40} />}
+            emptyTitle="No users found"
+            emptySubtitle="No users match your filter"
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            renderCard={(user) => (
               <div>
-                <div style={{ fontWeight: 600, fontSize: 14, color: COLORS.gray900, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name}</div>
-                <div style={{ fontSize: 12, color: COLORS.gray400 }}>
-                  Joined {new Date(user.createdAt).toLocaleDateString()}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: '50%', background: `${roleColor(user.role)}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, color: roleColor(user.role), flexShrink: 0 }}>
+                    {user.name?.charAt(0).toUpperCase() || 'U'}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: 14, color: COLORS.gray900, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name}</div>
+                    <div style={{ fontSize: 11, color: COLORS.gray400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</div>
+                  </div>
+                  <span style={{ background: `${roleColor(user.role)}15`, color: roleColor(user.role), fontSize: 10, fontWeight: 800, borderRadius: 8, padding: '3px 8px', textTransform: 'capitalize', flexShrink: 0 }}>{user.role}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, paddingBottom: 10, borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+                  <span style={{ background: user.isSuspended ? COLORS.dangerBg : COLORS.successBg, color: user.isSuspended ? COLORS.dangerText : COLORS.successText, fontSize: 11, fontWeight: 700, borderRadius: 8, padding: '3px 10px' }}>
+                    {user.isSuspended ? 'Suspended' : 'Active'}
+                  </span>
+                  <span style={{ fontSize: 11, color: COLORS.gray400 }}>Joined {new Date(user.createdAt).toLocaleDateString()}</span>
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <Button variant="outline" size="sm" onClick={() => handleSuspend(user._id, user.isSuspended)}>{user.isSuspended ? 'Unsuspend' : 'Suspend'}</Button>
+                  <Button variant="danger" size="sm" onClick={() => setDeleteConfirm(user._id)}>Delete</Button>
                 </div>
               </div>
-            </div>,
-
-            /* Email */
-            <div key="email" style={{ fontSize: 13, color: COLORS.gray700 }}>
-              {user.email}
-            </div>,
-
-            /* Role */
-            <div key="role">
-              <span style={{
-                background: `${roleColor(user.role)}15`,
-                color: roleColor(user.role),
-                padding: "3px 10px", borderRadius: 20,
-                fontSize: 12, fontWeight: 600, textTransform: "capitalize"
-              }}>
-                {user.role}
-              </span>
-            </div>,
-
-            /* Status */
-            <div key="status">
-              {user.isSuspended ? (
-                <span style={{ background: COLORS.dangerBg, color: COLORS.dangerText,
-                  padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
-                  Suspended
-                </span>
-              ) : (
-                <span style={{ background: COLORS.successBg, color: COLORS.successText,
-                  padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
-                  Active
-                </span>
-              )}
-            </div>,
-
-            /* Actions */
-            <div key="actions" style={{ display: "flex", gap: 8 }}>
-              <Button variant="outline" size="sm"
-                onClick={() => handleSuspend(user._id, user.isSuspended)}>
-                {user.isSuspended ? "Unsuspend" : "Suspend"}
-              </Button>
-              <Button variant="danger" size="sm"
-                onClick={() => setDeleteConfirm(user._id)}>
-                Delete
-              </Button>
-            </div>,
-          ]}
-        />
+            )}
+          />
+        ) : (
+          <DataTable
+            columns={[
+              { key: "user",    label: "User",    width: "2fr"   },
+              { key: "email",   label: "Email",   width: "2fr"   },
+              { key: "role",    label: "Role",    width: "1fr"   },
+              { key: "status",  label: "Status",  width: "1fr"   },
+              { key: "actions", label: "Actions", width: "1.5fr" },
+            ]}
+            rows={users}
+            loading={loading}
+            emptyIcon={<Users size={40} />}
+            emptyTitle="No users found"
+            emptySubtitle="No users match your current filter"
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            renderRow={(user) => [
+              <div key="user" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: "50%", background: `${roleColor(user.role)}20`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, color: roleColor(user.role), flexShrink: 0 }}>{user.name?.charAt(0).toUpperCase() || "U"}</div>
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: 14, color: COLORS.gray900 }}>{user.name}</div>
+                  <div style={{ fontSize: 12, color: COLORS.gray400 }}>Joined {new Date(user.createdAt).toLocaleDateString()}</div>
+                </div>
+              </div>,
+              <div key="email" style={{ fontSize: 13, color: COLORS.gray700 }}>{user.email}</div>,
+              <div key="role"><span style={{ background: `${roleColor(user.role)}15`, color: roleColor(user.role), padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600, textTransform: "capitalize" }}>{user.role}</span></div>,
+              <div key="status">{user.isSuspended ? <span style={{ background: COLORS.dangerBg, color: COLORS.dangerText, padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>Suspended</span> : <span style={{ background: COLORS.successBg, color: COLORS.successText, padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>Active</span>}</div>,
+              <div key="actions" style={{ display: "flex", gap: 8, alignItems: 'center' }}>
+                <button onClick={() => handleSuspend(user._id, user.isSuspended)} style={{ padding: '5px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: '1px solid rgba(0,0,0,0.15)', background: '#fff', color: '#374151', whiteSpace: 'nowrap', minWidth: 90 }}>
+                  {user.isSuspended ? "Unsuspend" : "Suspend"}
+                </button>
+                <button onClick={() => setDeleteConfirm(user._id)} style={{ padding: '5px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: 'none', background: '#dc2626', color: '#fff', whiteSpace: 'nowrap', minWidth: 70 }}>
+                  Delete
+                </button>
+              </div>,
+            ]}
+          />
+        )}
 
         
 

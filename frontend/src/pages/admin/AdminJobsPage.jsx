@@ -12,13 +12,19 @@ import PageContainer from '../../components/ui/PageContainer';
 import FilterTabs from '../../components/ui/FilterTabs';
 import DataTable from '../../components/ui/DataTable';
 import SearchInput from '../../components/ui/SearchInput';
+import MobileCardList from '../../components/ui/MobileCardList';
 
 const ITEMS_PER_PAGE = 10;
 const C = { purple: COLORS.primary, purpleLight: "#ede9fe" };
 
 export default function AdminJobsPage() {
   
-  
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 640);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 640);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   const [search, setSearch]   = useState("");
   const [filter, setFilter]   = useState("all");
   const [page, setPage]       = useState(1);
@@ -135,75 +141,68 @@ export default function AdminJobsPage() {
         </div>
 
         {/* Table */}
-        <DataTable
-          columns={[
-            { key: "job",     label: "Job",     width: "200px" },
-            { key: "company", label: "Company", width: "140px" },
-            { key: "type",    label: "Type",    width: "100px" },
-            { key: "status",  label: "Status",  width: "90px"  },
-            { key: "action",  label: "Action",  width: "140px" },
-          ]}
-          rows={jobs}
-          loading={loading}
-          emptyIcon={<Briefcase size={40} />}
-          emptyTitle="No jobs found"
-          emptySubtitle="No jobs match your current filter"
-          
-          page={page}
-          totalPages={totalPages}
-          onPageChange={setPage}
-          renderRow={(job) => [
-            /* Job Title */
-            <div key="job">
-              <div style={{ fontWeight: 600, fontSize: 14, color: COLORS.gray900 }}>
-                {job.title}
-              </div>
-              <div style={{ fontSize: 12, color: COLORS.gray400, marginTop: 2 }}>
-                {job.location || "Remote"} · Posted {new Date(job.createdAt).toLocaleDateString()}
-              </div>
-            </div>,
-
-            /* Company */
-            <div key="company" style={{ fontSize: 13, color: COLORS.gray700 }}>
-              {job.postedBy?.companyName || job.postedBy?.name || "—"}
-            </div>,
-
-            /* Type */
-            <div key="type">
-              <Badge variant="primary">{job.jobType || "Full-time"}</Badge>
-            </div>,
-
-            /* Status */
-            <div key="status">
-              {(() => {
-                const badge = statusBadge(job);
-                return (
-                  <span style={{ background: badge.bg, color: badge.color,
-                    padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
-                    {badge.label}
-                  </span>
-                );
-              })()}
-            </div>,
-
-            /* Action */
-            <div key="action" style={{ display: "flex", gap: 6 }}>
-              {job.isActive && (
-                <button onClick={() => handleClose(job._id)} style={{
-                  padding: "6px 12px", borderRadius: 6, fontSize: 12,
-                  fontWeight: 600, cursor: "pointer", border: "none",
-                  background: COLORS.dangerBg, color: COLORS.dangerText,
-                  display: "flex", alignItems: "center", gap: 4,
-                }}>
-                  <XCircle size={12} /> Close
-                </button>
-              )}
-              <Button variant="danger" size="sm" onClick={() => handleDeleteJob(job._id)}>
-                Delete
-              </Button>
-            </div>,
-          ]}
-        />
+        {isMobile ? (
+          <MobileCardList
+            rows={jobs}
+            loading={loading}
+            emptyIcon={<Briefcase size={40} />}
+            emptyTitle="No jobs found"
+            emptySubtitle="No jobs match your filter"
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            renderCard={(job) => {
+              const badge = statusBadge(job);
+              return (
+                <div>
+                  <div style={{ marginBottom: 8 }}>
+                    <div style={{ fontWeight: 700, fontSize: 14, color: COLORS.gray900 }}>{job.title}</div>
+                    <div style={{ fontSize: 12, color: COLORS.gray400 }}>{job.location || 'Remote'} · {new Date(job.createdAt).toLocaleDateString()}</div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, paddingBottom: 10, borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+                    <span style={{ fontSize: 12, color: COLORS.gray600 }}>{job.postedBy?.companyName || '—'}</span>
+                    <span style={{ background: badge.bg, color: badge.color, fontSize: 10, fontWeight: 700, borderRadius: 8, padding: '3px 8px', marginLeft: 'auto' }}>{badge.label}</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    {job.isActive && <Button variant="outline" size="sm" onClick={() => handleClose(job._id)}>Close</Button>}
+                    <Button variant="danger" size="sm" onClick={() => handleDeleteJob(job._id)}>Delete</Button>
+                  </div>
+                </div>
+              );
+            }}
+          />
+        ) : (
+          <DataTable
+            columns={[
+              { key: "job",     label: "Job",     width: "2.5fr" },
+              { key: "company", label: "Company", width: "1.5fr" },
+              { key: "type",    label: "Type",    width: "1fr"   },
+              { key: "status",  label: "Status",  width: "1fr"   },
+              { key: "action",  label: "Action",  width: "1.5fr" },
+            ]}
+            rows={jobs}
+            loading={loading}
+            emptyIcon={<Briefcase size={40} />}
+            emptyTitle="No jobs found"
+            emptySubtitle="No jobs match your current filter"
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            renderRow={(job) => [
+              <div key="job">
+                <div style={{ fontWeight: 600, fontSize: 14, color: COLORS.gray900 }}>{job.title}</div>
+                <div style={{ fontSize: 12, color: COLORS.gray400, marginTop: 2 }}>{job.location || "Remote"} · Posted {new Date(job.createdAt).toLocaleDateString()}</div>
+              </div>,
+              <div key="company" style={{ fontSize: 13, color: COLORS.gray700 }}>{job.postedBy?.companyName || job.postedBy?.name || "—"}</div>,
+              <div key="type"><Badge variant="primary">{job.jobType || "Full-time"}</Badge></div>,
+              <div key="status">{(() => { const badge = statusBadge(job); return <span style={{ background: badge.bg, color: badge.color, padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{badge.label}</span>; })()}</div>,
+              <div key="action" style={{ display: "flex", gap: 6 }}>
+                {job.isActive && <button onClick={() => handleClose(job._id)} style={{ padding: "6px 12px", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer", border: "none", background: COLORS.dangerBg, color: COLORS.dangerText, display: "flex", alignItems: "center", gap: 4 }}><XCircle size={12} /> Close</button>}
+                <Button variant="danger" size="sm" onClick={() => handleDeleteJob(job._id)}>Delete</Button>
+              </div>,
+            ]}
+          />
+        )}
 
         
       </PageContainer>

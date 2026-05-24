@@ -12,11 +12,19 @@ import PageContainer from '../../components/ui/PageContainer';
 import FilterTabs from '../../components/ui/FilterTabs';
 import DataTable from '../../components/ui/DataTable';
 import SearchInput from '../../components/ui/SearchInput';
+import MobileCardList from '../../components/ui/MobileCardList';
 
 const ITEMS_PER_PAGE = 10;
 
+
 export default function AdminCompaniesPage() {
-  
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 640);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 640);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all"); // all | verified | unverified | suspended
@@ -150,14 +158,65 @@ export default function AdminCompaniesPage() {
         />
       </div>
 
-      {/* Companies Table */}
+      {/* Companies Table — Desktop: DataTable, Mobile: Cards */}
+        {isMobile ? (
+          <MobileCardList
+            rows={companies}
+            loading={loading}
+            emptyIcon={<Building2 size={40} />}
+            emptyTitle="No companies found"
+            emptySubtitle="No companies match your filter"
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            renderCard={(company) => (
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: `${COLORS.primary}14`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, color: COLORS.primary, flexShrink: 0 }}>
+                    {company.name?.charAt(0).toUpperCase() || 'C'}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: 14, color: COLORS.gray900, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {company.name}
+                    </div>
+                    <div style={{ fontSize: 11, color: COLORS.gray400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {company.email}
+                    </div>
+                  </div>
+                  <span style={{ background: company.isSuspended ? COLORS.dangerBg : COLORS.successBg, color: company.isSuspended ? COLORS.dangerText : COLORS.successText, fontSize: 10, fontWeight: 700, borderRadius: 8, padding: '3px 8px', flexShrink: 0 }}>
+                    {company.isSuspended ? 'Suspended' : 'Active'}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10, paddingBottom: 10, borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+                  {company.isVerified ? (
+                    <span style={{ color: COLORS.successText, fontSize: 12, fontWeight: 600 }}>✓ Verified Company</span>
+                  ) : (
+                    <span style={{ color: COLORS.gray400, fontSize: 12 }}>○ Not Verified</span>
+                  )}
+                  <span style={{ fontSize: 11, color: COLORS.gray400, marginLeft: 'auto' }}>
+                    Joined {new Date(company.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <Button variant={company.isVerified ? 'outline' : 'primary'} size="sm" onClick={() => handleVerify(company._id, company.isVerified)}>
+                    {company.isVerified ? 'Unverify' : 'Verify'}
+                  </Button>
+                  <Button variant="danger" size="sm" onClick={() => handleSuspend(company._id, company.isSuspended)}>
+                    {company.isSuspended ? 'Unsuspend' : 'Suspend'}
+                  </Button>
+                </div>
+              </div>
+            )}
+          />
+        ) : (
+  
       <DataTable
         columns={[
-          { key: "company",  label: "Company",  width: "180px" },
-          { key: "email",    label: "Email",    width: "160px" },
-          { key: "status",   label: "Status",   width: "90px"  },
-          { key: "verified", label: "Verified", width: "100px" },
-          { key: "actions",  label: "Actions",  width: "160px" },
+          { key: "company",  label: "Company",  width: "2fr"   },
+          { key: "email",    label: "Email",    width: "2fr"   },
+          { key: "status",   label: "Status",   width: "1fr"   },
+          { key: "verified", label: "Verified", width: "1fr"   },
+          { key: "actions",  label: "Actions",  width: "200px" },
         ]}
         rows={companies}
         loading={loading}
@@ -226,25 +285,38 @@ export default function AdminCompaniesPage() {
           </div>,
 
           /* Actions */
-          <div key="actions" style={{ display: "flex", gap: 8 }}>
-            <Button
-              variant={company.isVerified ? "outline" : "primary"}
-              size="sm"
+          <div key="actions" style={{ display: "flex", gap: 8, alignItems: 'center' }}>
+            <button
               onClick={() => handleVerify(company._id, company.isVerified)}
+              style={{
+                padding: '5px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+                cursor: 'pointer',
+                border: company.isVerified ? '1px solid rgba(0,0,0,0.15)' : 'none',
+                background: company.isVerified ? '#fff' : COLORS.primary,
+                color: company.isVerified ? COLORS.gray700 : '#fff',
+                whiteSpace: 'nowrap',
+                minWidth: 80,
+              }}
             >
               {company.isVerified ? "Unverify" : "Verify"}
-            </Button>
-            <Button
-              variant="danger"
-              size="sm"
+            </button>
+            <button
               onClick={() => handleSuspend(company._id, company.isSuspended)}
+              style={{
+                padding: '5px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+                cursor: 'pointer', border: 'none',
+                background: '#dc2626',
+                color: '#fff',
+                whiteSpace: 'nowrap',
+                minWidth: 80,
+              }}
             >
               {company.isSuspended ? "Unsuspend" : "Suspend"}
-            </Button>
+            </button>
           </div>,
         ]}
       />
-
+      )}
       
     </PageContainer>
 
