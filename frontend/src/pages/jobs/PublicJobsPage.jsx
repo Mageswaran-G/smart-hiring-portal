@@ -1,3 +1,4 @@
+import DashboardLayout from "../../components/layout/DashboardLayout";
 // PublicJobsPage.jsx — cursor pagination + load more
 
 import { useEffect, useState, useCallback } from 'react';
@@ -135,18 +136,6 @@ export default function PublicJobsPage() {
   return (
     <DashboardLayout>
 
-      {/* Nav */}
-      <div className="bg-white border-b border-gray-100 px-6 py-3 flex items-center gap-3">
-        {user && (
-          <button
-            onClick={() => navigate(ROUTES.DASHBOARD)}
-            className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition"
-          >
-            <LayoutDashboard size={16} />
-            Dashboard
-          </button>
-        )}
-      </div>
 
       {/* Header */}
       <div className="bg-white border-b border-gray-100 px-6 py-6">
