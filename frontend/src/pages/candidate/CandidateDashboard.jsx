@@ -426,37 +426,6 @@ export default function CandidateDashboard() {
     <DashboardLayout>
     <div style={{ minHeight:'100vh', background:C.gray50, fontFamily:'system-ui,-apple-system,sans-serif' }}>
 
-      {/* ── Desktop Tab Bar — logo/user/logout live in sidebar ── */}
-      <header style={{ position:'sticky', top:0, zIndex:50, background:'rgba(255,255,255,0.96)', backdropFilter:'blur(12px)', borderBottom:`1px solid ${C.gray200}`, height:52, padding:'0 24px', display:'flex', alignItems:'center', gap:4 }}>
-        {[
-          { key:'overview', label:'Overview',     Icon:LayoutDashboard },
-          { key:'jobs',     label:'Browse Jobs',  Icon:Briefcase },
-          { key:'saved',    label:'Saved Jobs',   Icon:Bookmark },
-          { key:'apps',     label:'Applications', Icon:FileText },
-        ].map(({ key, label, Icon }) => {
-          const isActive = activeTab === key;
-          const badge = key === 'saved' ? savedCount : key === 'apps' ? applications.length : 0;
-          return (
-            <button key={key} onClick={() => handleTab(key)} style={{
-              display:'flex', alignItems:'center', gap:6, padding:'7px 14px', borderRadius:9,
-              border:'none', cursor:'pointer', fontSize:13,
-              fontWeight: isActive ? 700 : 500,
-              background: isActive ? `${C.primary}14` : 'transparent',
-              color: isActive ? C.primary : C.gray500,
-              transition:'all 0.15s',
-            }}>
-              <Icon size={14} strokeWidth={isActive ? 2.5 : 1.8} />
-              {label}
-              {badge > 0 && (
-                <span style={{ background:C.primary, color:'#fff', fontSize:10, fontWeight:700, borderRadius:9999, minWidth:17, height:17, display:'flex', alignItems:'center', justifyContent:'center', padding:'0 3px' }}>
-                  {badge}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </header>
-
       {/* ── Desktop Hero ── */}
       <section style={{ background:C.grad, padding:'64px 56px 76px' }}>
         <div style={{ maxWidth:1200, margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'space-between', gap:52 }}>
