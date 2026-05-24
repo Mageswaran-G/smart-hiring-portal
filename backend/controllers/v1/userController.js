@@ -67,13 +67,11 @@ exports.uploadResume = async (req, res, next) => {
       const User = require("../../models/User");
       const buffer = fs.readFileSync(req.file.path);
       const { skills } = await parseResume(buffer, req.file.mimetype);
-      // Always replace parsedSkills (fixes stale data bug)
-      if (true) {
+
         await User.findByIdAndUpdate(req.user.id, {
-          parsedSkills: skills,
+          parsedSkills: skills || [],
           lastResumeParsedAt: new Date(),
         });
-      }
     } catch (parseErr) {
       console.error("Resume parsing failed (non-critical):", parseErr.message);
     }
