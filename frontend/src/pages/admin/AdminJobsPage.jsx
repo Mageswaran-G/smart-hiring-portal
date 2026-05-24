@@ -46,11 +46,10 @@ export default function AdminJobsPage() {
   const stats = res?.data?.stats || { active: 0, closed: 0, expired: 0 };
 
   useEffect(() => { setPage(1); }, [search, filter]);
-
+  const confirmClose = (id) => setCloseModal({ isOpen:true, jobId:id });
   const handleClose = async (id) => {
     // Optimistic update — immediately mark job as closed in UI
 
-  const confirmClose = (id) => setCloseModal({ isOpen:true, jobId:id });
     queryClient.setQueryData(
       ['adminJobs', search, filter, page],
       (old) => {
