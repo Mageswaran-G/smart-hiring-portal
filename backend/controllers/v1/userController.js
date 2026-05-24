@@ -60,6 +60,23 @@ exports.uploadResume = async (req, res, next) => {
 
     const { user, fullUrl } = await userService.uploadResume(req.user.id, req.file);
 
+    // AI: Parse resume and extract skills automatically
+    try {
+      const fs = require("fs");
+      const parseResume = require("../../ai/resumeParser");
+      const User = require("../../models/User");
+      const buffer = fs.readFileSync(req.file.path);
+      const { skills } = await parseResume(buffer, req.file.mimetype);
+      if (skills.length > 0) {
+        await User.findByIdAndUpdate(req.user.id, {
+          parsedSkills: skills,
+          lastResumeParsedAt: new Date(),
+        });
+      }
+    } catch (parseErr) {
+      console.error("Resume parsing failed (non-critical):", parseErr.message);
+    }
+
     res.status(200).json(
       new ApiResponse(true, 'Resume uploaded successfully', {
         resume: {

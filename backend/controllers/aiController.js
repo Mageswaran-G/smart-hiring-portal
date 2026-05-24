@@ -21,7 +21,7 @@ const getMatchScore = async (req, res) => {
     const candidateSkills = user.parsedSkills?.length ? user.parsedSkills : (user.skills || []);
 
     if (!candidateSkills.length) {
-      return res.json({ success: true, data: { recommendations: [], message: "Add skills or upload resume to get recommendations" } });
+      return res.json({ success: true, data: { score: 0, matchedSkills: [], missingSkills: [], message: "Add skills or upload resume to calculate match score" } });
     }
     const jobSkills = [...new Set(job.skillsRequired || [])];
     const descriptionSkills = extractSkills(job.description || '');
@@ -56,7 +56,7 @@ const getRecommendations = async (req, res) => {
     const candidateSkills = user.parsedSkills?.length ? user.parsedSkills : (user.skills || []);
 
     if (!candidateSkills.length) {
-      return res.json({ success: true, data: { recommendations: [], message: "Add skills or upload resume to get recommendations" } });
+      return res.json({ success: true, data: { score: 0, matchedSkills: [], missingSkills: [], message: "Add skills or upload resume to calculate match score" } });
     }
 
     // Get jobs candidate already applied to

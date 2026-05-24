@@ -20,7 +20,7 @@ module.exports = [
   // DevOps / Cloud
   'docker', 'kubernetes', 'aws', 'azure', 'gcp',
   'linux', 'nginx', 'jenkins', 'github', 'git',
-  'ci/cd', 'terraform', 'ansible',
+  'cicd', 'terraform', 'ansible',
 
   // Mobile
   'reactnative', 'flutter', 'swift', 'kotlin', 'android', 'ios',
