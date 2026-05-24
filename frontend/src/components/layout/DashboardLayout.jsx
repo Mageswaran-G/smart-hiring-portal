@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Briefcase, Bookmark, FileText,
-  User, Users, PlusCircle, Building2,
+  User, Users, PlusCircle, Building2, TrendingUp,
   Shield, LogOut, Menu, X,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -38,6 +38,7 @@ const NAV_LINKS = {
     { label:'Companies', Icon:Building2,       path:'/admin/companies'      },
     { label:'Users',     Icon:Users,           path:'/admin/users'          },
     { label:'Jobs',      Icon:Briefcase,       path:'/admin/jobs'           },
+    { label:'Analytics', Icon:TrendingUp,      path:'/admin/analytics'      },
   ],
 };
 
