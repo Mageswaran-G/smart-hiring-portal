@@ -2,14 +2,20 @@
 
 import { API } from './authService';
 
-// Get match score for a specific job
 export const getMatchScore = async (jobId) => {
-  const res = await API.post(`/ai/match/${jobId}`);
-  return res.data.data;
+  try {
+    const res = await API.get(`/ai/match/${jobId}`);
+    return res.data.data;
+  } catch (err) {
+    throw err.response?.data || err;
+  }
 };
 
-// Get AI job recommendations for candidate
 export const getRecommendations = async () => {
-  const res = await API.get('/ai/recommendations');
-  return res.data.data;
+  try {
+    const res = await API.get('/ai/recommendations');
+    return res.data.data;
+  } catch (err) {
+    throw err.response?.data || err;
+  }
 };

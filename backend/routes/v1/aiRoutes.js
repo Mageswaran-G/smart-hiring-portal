@@ -8,6 +8,6 @@ router.use(verifyToken);
 
 // Candidate only
 router.get('/recommendations', authorizeRole('candidate'), getRecommendations);
-router.post('/match/:jobId', authorizeRole('candidate'), getMatchScore);
+router.get('/match/:jobId', authorizeRole('candidate'), getMatchScore);
 
 module.exports = router;
