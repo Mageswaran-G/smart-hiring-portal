@@ -267,14 +267,14 @@ export default function DashboardLayout({ children }) {
       )}
 
       {/* Page Content */}
-      <main style={{ padding:"24px 32px" }}>{children}</main>
+      <main style={{ padding:"24px 16px", overflowX:"hidden" }}>{children}</main>
 
       <style>{`
         @media (max-width: 768px) {
           .desktop-nav { display: none !important; }
           .nav-spacer { display: none !important; }
           .mobile-menu-btn { display: flex !important; }
-          .main-header { padding: 0 16px !important; justify-content: space-between !important; gap: 0 !important; }
+          .main-header { padding: 0 16px !important; justify-content: space-between !important; gap: 0 !important; } main { padding: 16px !important; } section { padding: 16px 14px !important; }
           .desktop-logout { display: none !important; }
           .desktop-userinfo { display: none !important; }
           .header-right { gap: 8px !important; }

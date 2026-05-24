@@ -14,6 +14,7 @@ import { createJob } from '../../services/jobService';
 import { ROUTES } from '../../constants/routes';
 import { JOB_TYPES, WORK_MODES, EXPERIENCE_LEVELS } from '../../constants/jobConstants';
 import { useAuth } from '../../context/AuthContext';
+import useIsMobile from '../../hooks/useIsMobile';
 import toast from 'react-hot-toast';
 
 // ─── Colors ──────────────────────────────────────────────────
@@ -99,7 +100,7 @@ function ChipInput({ chips, onChange, placeholder, color = C.accent, suggestions
 function FormSection({ num, Icon, title, subtitle, active, children }) {
   return (
     <section style={{
-      background:'#fff', borderRadius:18, padding:'22px 24px',
+      background:'#fff', borderRadius:18, padding:window.innerWidth < 640 ? '16px 14px' : '22px 24px',
       border: active ? `1.5px solid ${C.accent}` : `1px solid ${C.gray200}`,
       boxShadow: active ? `0 6px 24px ${C.accent}16` : 'none',
     }}>
@@ -418,6 +419,7 @@ export default function CreateJobPage() {
 
   // ── Input class helper ────────────────────────────────────
   const iClass = (f) => ({ ...inputStyle(!!fieldErrors[f]) });
+  const isMobile = useIsMobile();
 
   const ErrMsg = ({ field }) => fieldErrors[field]
     ? <p style={{ color:'#ef4444', fontSize:11, marginTop:4 }}>⚠ {fieldErrors[field]}</p>
@@ -429,7 +431,7 @@ export default function CreateJobPage() {
     <DashboardLayout>
 
       {/* ── Page header ── */}
-      <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom:24, gap:16 }}>
+      <div style={{ display:'flex', alignItems:isMobile ? 'flex-start' : 'flex-start', justifyContent:'space-between', marginBottom:24, gap:16, flexDirection:isMobile ? 'column' : 'row' }}>
         <div style={{ display:'flex', alignItems:'flex-start', gap:14 }}>
           <button
             type="button"
@@ -442,7 +444,7 @@ export default function CreateJobPage() {
             <p style={{ fontSize:11.5, color:C.accent, fontWeight:700, letterSpacing:2, textTransform:'uppercase', margin:'0 0 5px' }}>
               New Posting
             </p>
-            <h1 style={{ fontWeight:900, fontSize:28, color:C.gray900, margin:'0 0 4px', letterSpacing:'-0.8px', lineHeight:1 }}>
+            <h1 style={{ fontWeight:900, fontSize:isMobile ? 20 : 28, color:C.gray900, margin:'0 0 4px', letterSpacing:'-0.8px', lineHeight:1 }}>
               Post a New Job
             </h1>
             <p style={{ fontSize:13.5, color:C.gray400, margin:0 }}>
@@ -488,11 +490,11 @@ export default function CreateJobPage() {
       )}
 
       {/* ── Main 2-column layout ── */}
-      <form id="job-create-form" onSubmit={handleSubmit}>
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 380px', gap:20, alignItems:'flex-start' }}>
+      <form id="job-create-form" onSubmit={handleSubmit} style={{ maxWidth:"100%", overflowX:"hidden" }}>
+        <div style={{ display:'grid', gridTemplateColumns:isMobile ? '1fr' : '1fr 380px', gap:20, minWidth:0, width:'100%', alignItems:'flex-start' }}>
 
           {/* LEFT — Form sections */}
-          <div style={{ display:'flex', flexDirection:'column', gap:18 }}>
+          <div style={{ display:'flex', flexDirection:'column', gap:18, minWidth:0, width:'100%' }}>
 
             {/* Section 1 — Basics */}
             <FormSection num={1} Icon={FileText} title="The Basics" subtitle="Start with the essentials" active={activeSection === 1}>
@@ -645,7 +647,8 @@ export default function CreateJobPage() {
           </div>
 
           {/* RIGHT — Live Preview */}
-          <LivePreview form={form} profile={profile} />
+          {isMobile && null}
+          {!isMobile && <LivePreview form={form} profile={profile} />}
         </div>
       </form>
 
