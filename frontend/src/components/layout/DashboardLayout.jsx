@@ -267,7 +267,7 @@ export default function DashboardLayout({ children }) {
       )}
 
       {/* Page Content */}
-      <main>{children}</main>
+      <main style={{ padding:"24px 32px" }}>{children}</main>
 
       <style>{`
         @media (max-width: 768px) {
