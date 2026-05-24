@@ -548,7 +548,7 @@ export default function CreateJobPage() {
                 </FormRow>
               </div>
 
-              <div style={{ display:'grid', gridTemplateColumns:'2fr 1fr 1fr', gap:14 }}>
+              <div style={{ display:'grid', gridTemplateColumns:isMobile ? '1fr' : '2fr 1fr 1fr', gap:14 }}>
                 <FormRow label="Experience Level">
                   <select value={form.experienceLevel} onChange={e => { set('experienceLevel', e.target.value); setActiveSection(2); }} style={iClass('experienceLevel')}>
                     {EXPERIENCE_LEVELS.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
