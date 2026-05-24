@@ -18,6 +18,7 @@ const jobRoutes = require('./routes/v1/jobRoutes');
 const applicationRoutes = require('./routes/v1/applicationRoutes');
 const savedJobRoutes = require('./routes/v1/savedJobRoutes');
 const { startCronJobs } = require('./utils/cronJobs');
+const aiRoutes = require("./routes/v1/aiRoutes");
 const adminRoutes = require('./routes/v1/adminRoutes');
 
 
@@ -101,7 +102,8 @@ app.use('/api/v1/public',       publicRoutes);
 app.use('/api/v1/jobs',         apiLimiter, writeLimiter, jobRoutes);
 app.use('/api/v1/applications', apiLimiter, writeLimiter, applicationRoutes);
 app.use('/api/v1/saved',        apiLimiter, writeLimiter, savedJobRoutes);
-app.use('/api/v1/admin',        apiLimiter, adminRoutes);
+app.use("/api/v1/admin",        apiLimiter, adminRoutes);
+app.use("/api/v1/ai",           apiLimiter, aiRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
