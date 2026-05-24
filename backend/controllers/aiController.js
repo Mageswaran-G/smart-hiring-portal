@@ -19,7 +19,7 @@ const getMatchScore = async (req, res) => {
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
     const candidateSkills = user.parsedSkills?.length ? user.parsedSkills : (user.skills || []);
-    const jobSkills = job.skillsRequired || [];
+    const jobSkills = [...new Set(job.skillsRequired || [])];
     const descriptionSkills = extractSkills(job.description || '');
     const allJobSkills = [...new Set([...jobSkills, ...descriptionSkills])];
 
@@ -61,17 +61,19 @@ const getRecommendations = async (req, res) => {
       status: 'published',
       isDeleted: false,
       _id: { $nin: appliedJobIds },
+      deadline: { $gte: new Date() },
     }).limit(50);
 
     const scored = jobs.map(job => {
-      const jobSkills = job.skillsRequired || [];
+      const jobSkills = [...new Set(job.skillsRequired || [])];
       const result = calculateMatch(candidateSkills, jobSkills);
       return { job, score: result.score, matchedSkills: result.matchedSkills, missingSkills: result.missingSkills };
     });
 
-    scored.sort((a, b) => b.score - a.score);
+    const filteredScored = scored.filter(item => item.score >= 25);
+    filteredScored.sort((a, b) => b.score - a.score);
 
-    const recommendations = scored.slice(0, 10).map(item => ({
+    const recommendations = filteredScored.slice(0, 10).map(item => ({
       ...item.job.toObject(),
       matchScore: item.score,
       matchedSkills: item.matchedSkills,

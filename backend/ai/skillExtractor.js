@@ -1,5 +1,5 @@
-// Extract skills from any text using word boundaries
-// Fixes: "java" should NOT match "javascript"
+// Extract skills from text using tokenization
+// Safer than regex — no false positives like java vs javascript
 
 const SKILLS = require('../constants/skills');
 const normalizeSkill = require('./normalizeText');
@@ -7,11 +7,17 @@ const normalizeSkill = require('./normalizeText');
 function extractSkills(text = '') {
   if (!text) return [];
 
+  // Tokenize: split by non-alphanumeric chars, normalize each token
+  const tokens = text
+    .toLowerCase()
+    .split(/[^a-zA-Z0-9.#+]+/)
+    .map(normalizeSkill)
+    .filter(Boolean);
+
+  // Match skills against tokens
   return SKILLS.filter(skill => {
     const normalizedSkill = normalizeSkill(skill);
-    // Word boundary check — java won't match javascript
-    const regex = new RegExp(`(?<![a-z])${normalizedSkill}(?![a-z])`, 'i');
-    return regex.test(normalizeSkill(text));
+    return tokens.includes(normalizedSkill);
   });
 }
 
