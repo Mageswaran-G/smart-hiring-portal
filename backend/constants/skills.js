@@ -26,7 +26,7 @@ module.exports = [
   'reactnative', 'flutter', 'swift', 'kotlin', 'android', 'ios',
 
   // AI / Data
-  'python', 'tensorflow', 'pytorch', 'pandas',
+  'tensorflow', 'pytorch', 'pandas',
   'numpy', 'scikit', 'machinelearning', 'deeplearning',
 
   // Other

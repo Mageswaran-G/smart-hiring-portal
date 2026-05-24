@@ -1,13 +1,26 @@
-// Normalize skill names for comparison
-// react.js === reactjs === react
+// Normalize skill names using alias mapping
+
+const aliases = {
+  'react.js': 'react',
+  'reactjs': 'react',
+  'node.js': 'nodejs',
+  'nodejs': 'nodejs',
+  'next.js': 'nextjs',
+  'vue.js': 'vue',
+  'nuxt.js': 'nuxt',
+  'express.js': 'express',
+  'tailwindcss': 'tailwind',
+  'postgresql': 'postgresql',
+  'mongo': 'mongodb',
+  'ts': 'typescript',
+  'js': 'javascript',
+};
 
 function normalizeSkill(skill = '') {
-  return skill
-    .toLowerCase()
-    .replace(/\s+/g, '')      // remove spaces
-    .replace(/\.js$/g, 'js')  // react.js → reactjs
-    .replace(/\./g, '')       // node.js → nodejs
-    .replace(/-/g, '');       // next-js → nextjs
+  const lower = skill.toLowerCase().trim();
+  return aliases[lower] || lower
+    .replace(/\s+/g, '')
+    .replace(/-/g, '');
 }
 
 module.exports = normalizeSkill;

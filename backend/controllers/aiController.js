@@ -3,6 +3,7 @@
 const calculateMatch = require('../ai/matchEngine');
 const extractSkills = require('../ai/skillExtractor');
 const Job = require('../models/Job');
+const Application = require('../models/Application');
 const User = require('../models/User');
 
 // POST /api/v1/ai/match/:jobId
@@ -17,7 +18,7 @@ const getMatchScore = async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
-    const candidateSkills = user.skills || [];
+    const candidateSkills = user.parsedSkills?.length ? user.parsedSkills : (user.skills || []);
     const jobSkills = job.skillsRequired || [];
     const descriptionSkills = extractSkills(job.description || '');
     const allJobSkills = [...new Set([...jobSkills, ...descriptionSkills])];
@@ -48,12 +49,18 @@ const getRecommendations = async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
-    const candidateSkills = user.skills || [];
+    const candidateSkills = user.parsedSkills?.length ? user.parsedSkills : (user.skills || []);
 
+    // Get jobs candidate already applied to
+    const applied = await Application.find({ candidate: userId }).select('job');
+    const appliedJobIds = applied.map(a => a.job.toString());
+
+    // Get active jobs excluding already applied
     const jobs = await Job.find({
       isActive: true,
       status: 'published',
       isDeleted: false,
+      _id: { $nin: appliedJobIds },
     }).limit(50);
 
     const scored = jobs.map(job => {
