@@ -371,16 +371,25 @@ export default function CompanyJobsPage() {
     setConfirmModal({ isOpen: true, jobId: id });
   };
 
+
   const handleDelete = async () => {
-    try {
-      await deleteJob(confirmModal.jobId);
-      setJobs(prev => prev.filter(j => j._id !== confirmModal.jobId));
-      toast.success('Job deleted');
-    } catch {
-      toast.error('Failed to delete job');
-    } finally {
-      setConfirmModal({ isOpen: false, jobId: null });
-    }
+    const jobId = confirmModal.jobId;
+    const deletedJob = jobs.find(j => j._id === jobId);
+    setJobs(prev => prev.filter(j => j._id !== jobId));
+    setConfirmModal({ isOpen: false, jobId: null });
+    let undone = false;
+    toast((t) => (
+      <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+        <span>Job deleted</span>
+        <button onClick={() => { undone = true; setJobs(prev => [...prev, deletedJob]); toast.dismiss(t.id); toast.success("Undo successful!"); }} style={{ background:"#fff", color:"#dc2626", border:"1px solid #dc2626", borderRadius:6, padding:"3px 10px", fontSize:12, fontWeight:700, cursor:"pointer" }}>Undo</button>
+      </div>
+    ), { duration: 5000 });
+    setTimeout(async () => {
+      if (!undone) {
+        try { await deleteJob(jobId); }
+        catch { setJobs(prev => [...prev, deletedJob]); toast.error("Delete failed — job restored"); }
+      }
+    }, 5000);
   };
 
   const published = jobs.filter(j => j.status === 'published').length;

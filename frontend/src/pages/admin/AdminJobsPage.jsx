@@ -31,6 +31,7 @@ export default function AdminJobsPage() {
   const [page, setPage]       = useState(1);
   const [confirmModal, setConfirmModal] = useState({ isOpen:false, jobId:null });
   
+  const [closeModal, setCloseModal] = useState({ isOpen:false, jobId:null });
   
   
   const queryClient = useQueryClient();
@@ -48,6 +49,8 @@ export default function AdminJobsPage() {
 
   const handleClose = async (id) => {
     // Optimistic update — immediately mark job as closed in UI
+
+  const confirmClose = (id) => setCloseModal({ isOpen:true, jobId:id });
     queryClient.setQueryData(
       ['adminJobs', search, filter, page],
       (old) => {
@@ -171,7 +174,7 @@ export default function AdminJobsPage() {
                     <span style={{ background: badge.bg, color: badge.color, fontSize: 10, fontWeight: 700, borderRadius: 8, padding: '3px 8px', marginLeft: 'auto' }}>{badge.label}</span>
                   </div>
                   <div style={{ display: 'flex', gap: 8 }}>
-                    {job.isActive && <Button variant="outline" size="sm" onClick={() => handleClose(job._id)}>Close</Button>}
+                    {job.isActive && <Button variant="outline" size="sm" onClick={() => confirmClose(job._id)}>Close</Button>}
                     <Button variant="danger" size="sm" onClick={() => confirmDeleteJob(job._id)}>Delete</Button>
                   </div>
                 </div>
@@ -204,7 +207,7 @@ export default function AdminJobsPage() {
               <div key="type"><Badge variant="primary">{job.jobType || "Full-time"}</Badge></div>,
               <div key="status">{(() => { const badge = statusBadge(job); return <span style={{ background: badge.bg, color: badge.color, padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{badge.label}</span>; })()}</div>,
               <div key="action" style={{ display: "flex", gap: 6 }}>
-                {job.isActive && <button onClick={() => handleClose(job._id)} style={{ padding: "6px 12px", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer", border: "none", background: COLORS.dangerBg, color: COLORS.dangerText, display: "flex", alignItems: "center", gap: 4 }}><XCircle size={12} /> Close</button>}
+                {job.isActive && <button onClick={() => confirmClose(job._id)} style={{ padding: "6px 12px", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer", border: "none", background: COLORS.dangerBg, color: COLORS.dangerText, display: "flex", alignItems: "center", gap: 4 }}><XCircle size={12} /> Close</button>}
                 <Button variant="danger" size="sm" onClick={() => confirmDeleteJob(job._id)}>Delete</Button>
               </div>,
             ]}
@@ -222,6 +225,16 @@ export default function AdminJobsPage() {
         type="danger"
         onConfirm={handleDeleteJob}
         onCancel={() => setConfirmModal({ isOpen:false, jobId:null })}
+      />
+      <ConfirmModal
+        isOpen={closeModal.isOpen}
+        title="Close Job"
+        message="Are you sure you want to close this job? Candidates will no longer be able to apply."
+        confirmText="Close Job"
+        cancelText="Cancel"
+        type="warning"
+        onConfirm={() => { handleClose(closeModal.jobId); setCloseModal({ isOpen:false, jobId:null }); }}
+        onCancel={() => setCloseModal({ isOpen:false, jobId:null })}
       />
     </DashboardLayout>
   );
