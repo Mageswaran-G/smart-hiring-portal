@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import DashboardLayout from '../components/layout/DashboardLayout';
 import { useAuth } from '../context/AuthContext';
 import { getTheme } from '../utils/theme';
 import { ROUTES } from '../constants/routes';
@@ -57,27 +58,8 @@ export default function ProfilePage() {
   const theme       = getTheme(user?.role);
 
   return (
-    <div className="min-h-screen bg-gray-100 font-sans">
+    <DashboardLayout>
 
-      <nav className="flex items-center justify-between bg-white px-4 py-3.5 border-b border-gray-100 sticky top-0 z-10">
-        <div className="flex items-center gap-2 cursor-pointer"
-          onClick={() => navigate(isCandidate ? ROUTES.CANDIDATE_DASHBOARD : ROUTES.COMPANY_DASHBOARD)}>
-          <span className={`font-sora w-9 h-9 rounded-lg flex items-center justify-center font-extrabold text-base text-white ${theme.logo}`}>
-            HP
-          </span>
-          <span className="font-sora font-bold text-lg text-gray-900">HirePortal</span>
-        </div>
-        <div className="flex gap-2">
-          <button onClick={() => navigate(-1)}
-            className={`px-4 py-2 rounded-lg text-sm border bg-white cursor-pointer ${theme.buttonLight}`}>
-            Back
-          </button>
-          <button onClick={logoutUser}
-            className={`px-4 py-2 rounded-lg text-sm font-semibold text-white border-none cursor-pointer ${theme.button}`}>
-            Logout
-          </button>
-        </div>
-      </nav>
 
       <div className="max-w-4xl mx-auto px-6 py-8 flex flex-col gap-4">
 
@@ -250,6 +232,6 @@ export default function ProfilePage() {
         )}
 
       </div>
-    </div>
+    </DashboardLayout>
   );
 }
