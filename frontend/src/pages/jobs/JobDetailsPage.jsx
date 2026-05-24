@@ -9,6 +9,7 @@ import {
   CheckCircle2, ChevronRight
 } from 'lucide-react';
 import { getJobBySlug } from '../../services/jobService'; 
+import { getMatchScore } from "../../services/aiService";
 import { applyToJob }   from '../../services/applicationService'; // ← correct service
 
 import { useAuth }         from '../../context/AuthContext';
@@ -42,6 +43,8 @@ export default function JobDetailsPage() {
   const [isSaved,        setIsSaved]        = useState(false);
   const [saving,         setSaving]         = useState(false);
   const [showApplyModal, setShowApplyModal] = useState(false);
+  const [matchScore,     setMatchScore]     = useState(null);
+  const [matchLoading,   setMatchLoading]   = useState(false);
   const [applied,        setApplied]        = useState(false);
   const jobId = job?._id;
 
@@ -82,6 +85,17 @@ export default function JobDetailsPage() {
     };
 
     checkStatus();
+
+    // AI: Fetch match score for this job
+    const fetchMatch = async () => {
+      try {
+        setMatchLoading(true);
+        const data = await getMatchScore(jobId);
+        setMatchScore(data);
+      } catch (_) {}
+      finally { setMatchLoading(false); }
+    };
+    fetchMatch();
   }, [jobId, user]);  // ← jobId here: runs after job is fetched
 
   const handleApply = async (coverLetter) => {
@@ -255,6 +269,49 @@ export default function JobDetailsPage() {
               />
             </div>
 
+
+            {/* AI Match Score — only for candidates */}
+            {user?.role === "candidate" && matchScore && (
+              <div style={{ background: "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)", borderRadius: 20, border: "1px solid #bbf7d0", padding: "24px 28px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+                  <div style={{ width: 52, height: 52, borderRadius: "50%", background: matchScore.score >= 70 ? "#16a34a" : matchScore.score >= 40 ? "#d97706" : "#dc2626", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ color: "#fff", fontWeight: 900, fontSize: 15 }}>{matchScore.score}%</span>
+                  </div>
+                  <div>
+                    <p style={{ fontWeight: 800, fontSize: 16, color: "#111827", margin: 0 }}>Your Match Score</p>
+                    <p style={{ fontSize: 13, color: "#6b7280", margin: 0 }}>
+                      {matchScore.score >= 70 ? "Strong match! 🎉" : matchScore.score >= 40 ? "Moderate match" : matchScore.score > 0 ? "Weak match — consider upskilling" : "No strong skill match found"}
+                    </p>
+                  </div>
+                </div>
+                {matchScore.matchedSkills?.length > 0 && (
+                  <div style={{ marginBottom: 12 }}>
+                    <p style={{ fontSize: 12, fontWeight: 700, color: "#16a34a", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>✅ Matched Skills</p>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                      {matchScore.matchedSkills.map((s, i) => (
+                        <span key={i} style={{ background: "#dcfce7", color: "#15803d", padding: "3px 10px", borderRadius: 8, fontSize: 12, fontWeight: 600 }}>{s}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {matchScore.missingSkills?.length > 0 && (
+                  <div>
+                    <p style={{ fontSize: 12, fontWeight: 700, color: "#dc2626", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>❌ Missing Skills</p>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                      {matchScore.missingSkills.map((s, i) => (
+                        <span key={i} style={{ background: "#fef2f2", color: "#dc2626", padding: "3px 10px", borderRadius: 8, fontSize: 12, fontWeight: 600 }}>{s}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            {user?.role === "candidate" && matchLoading && (
+              <div style={{ background: "#f9fafb", borderRadius: 20, border: "1px solid #e5e7eb", padding: "20px 28px", display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ width: 20, height: 20, borderRadius: "50%", border: "3px solid #16a34a", borderTopColor: "transparent", animation: "spin 0.8s linear infinite" }} />
+                <span style={{ color: "#6b7280", fontSize: 14 }}>Calculating your match score...</span>
+              </div>
+            )}
             {/* Skills Required */}
             {job.skillsRequired?.length > 0 && (
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">

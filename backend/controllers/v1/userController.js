@@ -67,7 +67,8 @@ exports.uploadResume = async (req, res, next) => {
       const User = require("../../models/User");
       const buffer = fs.readFileSync(req.file.path);
       const { skills } = await parseResume(buffer, req.file.mimetype);
-      if (skills.length > 0) {
+      // Always replace parsedSkills (fixes stale data bug)
+      if (true) {
         await User.findByIdAndUpdate(req.user.id, {
           parsedSkills: skills,
           lastResumeParsedAt: new Date(),
