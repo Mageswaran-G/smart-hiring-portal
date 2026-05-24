@@ -47,9 +47,11 @@ export default function AdminJobsPage() {
 
   useEffect(() => { setPage(1); }, [search, filter]);
   const confirmClose = (id) => setCloseModal({ isOpen:true, jobId:id });
+  
   const handleClose = async (id) => {
-    // Optimistic update — immediately mark job as closed in UI
+    setCloseModal({ isOpen: false, jobId: null });
 
+    // Optimistic update — immediately mark as closed in UI
     queryClient.setQueryData(
       ['adminJobs', search, filter, page],
       (old) => {
@@ -65,15 +67,29 @@ export default function AdminJobsPage() {
         };
       }
     );
-    try {
-      await closeJob(id);
-      toast.success("Job closed successfully");
-      queryClient.invalidateQueries({ queryKey: ['adminJobs'] });
-    } catch {
-      toast.error("Action failed");
-      // Revert on error
-      queryClient.invalidateQueries({ queryKey: ['adminJobs'] });
-    }
+
+    let undone = false;
+    toast((t) => (
+      <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+        <span>Job closed</span>
+        <button onClick={() => {
+          undone = true;
+          toast.dismiss(t.id);
+          queryClient.invalidateQueries({ queryKey: ['adminJobs'] });
+          toast.success('Close undone!');
+        }}
+          style={{ background:'#fff', color:'#d97706', border:'1px solid #d97706', borderRadius:6, padding:'3px 10px', fontSize:12, fontWeight:700, cursor:'pointer' }}>
+          Undo
+        </button>
+      </div>
+    ), { duration: 5000 });
+
+    setTimeout(async () => {
+      if (!undone) {
+        try { await closeJob(id); }
+        catch { queryClient.invalidateQueries({ queryKey: ['adminJobs'] }); toast.error('Close failed — restored'); }
+      }
+    }, 5000);
   };
 
   const confirmDeleteJob = (id) => {
@@ -81,15 +97,35 @@ export default function AdminJobsPage() {
   };
 
   const handleDeleteJob = async () => {
-    try {
-      await deleteJob(confirmModal.jobId);
-      toast.success('Job deleted');
-      queryClient.invalidateQueries({ queryKey: ['adminJobs'] });
-    } catch {
-      toast.error('Delete failed');
-    } finally {
-      setConfirmModal({ isOpen: false, jobId: null });
-    }
+    const jobId = confirmModal.jobId;
+    setConfirmModal({ isOpen: false, jobId: null });
+    
+    // Optimistic remove from UI
+    queryClient.setQueryData(
+      ['adminJobs', search, filter, page],
+      (old) => {
+        if (!old?.data?.jobs) return old;
+        return { ...old, data: { ...old.data, jobs: old.data.jobs.filter(j => j._id !== jobId) }};
+      }
+    );
+
+    let undone = false;
+    toast((t) => (
+      <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+        <span>Job deleted</span>
+        <button onClick={() => { undone = true; toast.dismiss(t.id); queryClient.invalidateQueries({ queryKey: ['adminJobs'] }); toast.success('Delete undone!'); }}
+          style={{ background:'#fff', color:'#dc2626', border:'1px solid #dc2626', borderRadius:6, padding:'3px 10px', fontSize:12, fontWeight:700, cursor:'pointer' }}>
+          Undo
+        </button>
+      </div>
+    ), { duration: 5000 });
+
+    setTimeout(async () => {
+      if (!undone) {
+        try { await deleteJob(jobId); }
+        catch { queryClient.invalidateQueries({ queryKey: ['adminJobs'] }); toast.error('Delete failed — restored'); }
+      }
+    }, 5000);
   };
 
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
