@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { X, Send, FileText, Sparkles } from 'lucide-react';
 import { generateCoverLetter } from '../../services/aiService';
+import toast from 'react-hot-toast';
 
 export default function ApplyModal({ jobId, jobTitle, onConfirm, onClose, loading }) {
 
@@ -11,13 +12,17 @@ export default function ApplyModal({ jobId, jobTitle, onConfirm, onClose, loadin
   const [aiLoading, setAiLoading] = useState(false);
   const charLimit = 2000;
 
+  const [generated, setGenerated] = useState(false);
+
   const handleGenerate = async () => {
+    if (aiLoading) return;
     try {
       setAiLoading(true);
       const data = await generateCoverLetter(jobId);
       setCoverLetter(data.coverLetter);
+      setGenerated(true);
     } catch (err) {
-      alert('Failed to generate. Try again.');
+      toast.error('Failed to generate cover letter');
     } finally {
       setAiLoading(false);
     }
@@ -72,7 +77,7 @@ export default function ApplyModal({ jobId, jobTitle, onConfirm, onClose, loadin
               className="flex items-center gap-1.5 text-xs font-semibold text-purple-600 hover:text-purple-800 border border-purple-200 hover:border-purple-400 px-3 py-1.5 rounded-lg transition disabled:opacity-50"
             >
               <Sparkles size={12} />
-              {aiLoading ? 'Generating...' : 'Generate with AI'}
+              {aiLoading ? 'Generating...' : generated ? 'Regenerate with AI' : 'Generate with AI'}
             </button>
           </div>  
           <textarea
