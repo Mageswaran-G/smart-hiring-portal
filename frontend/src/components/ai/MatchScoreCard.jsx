@@ -1,5 +1,5 @@
 // Reusable AI match score card for candidates
-
+import { getScoreMeta } from '../../utils/matchScore';
 export default function MatchScoreCard({ matchScore, loading }) {
 
   if (loading) {
@@ -13,8 +13,7 @@ export default function MatchScoreCard({ matchScore, loading }) {
 
   if (!matchScore) return null;
 
-  const scoreColor = matchScore.score >= 70 ? "#16a34a" : matchScore.score >= 40 ? "#d97706" : "#dc2626";
-  const scoreLabel = matchScore.score >= 70 ? "Strong match! 🎉" : matchScore.score >= 40 ? "Moderate match" : matchScore.score > 0 ? "Weak match — consider upskilling" : "No strong skill match found";
+  const { color: scoreColor, label: scoreLabel } = getScoreMeta(matchScore.score);
 
   return (
     <div style={{ background: "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)", borderRadius: 20, border: "1px solid #bbf7d0", padding: "24px 28px" }}>

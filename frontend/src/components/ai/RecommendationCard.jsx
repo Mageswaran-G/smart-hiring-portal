@@ -1,16 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, MapPin, Briefcase, ChevronRight } from 'lucide-react';
-
-function ScoreBadge({ score }) {
-  const color = score >= 70 ? '#16a34a' : score >= 40 ? '#d97706' : '#dc2626';
-  const bg    = score >= 70 ? '#dcfce7' : score >= 40 ? '#fef3c7' : '#fef2f2';
-  return (
-    <div style={{ display:'inline-flex', alignItems:'center', gap:4, background:bg, color, padding:'3px 10px', borderRadius:20, fontSize:12, fontWeight:700 }}>
-      <Sparkles size={11} />
-      {score}% Match
-    </div>
-  );
-}
+import { MapPin, Briefcase, ChevronRight } from 'lucide-react';
+import ScoreBadge from './ScoreBadge';
 
 export default function RecommendationCard({ job, index }) {
   const navigate = useNavigate();

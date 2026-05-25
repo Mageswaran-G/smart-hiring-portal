@@ -1,3 +1,5 @@
+import { getScoreMeta } from '../../utils/matchScore';
+
 export default function CandidateRankCard({ ranking, loading }) {
   return (
     <div style={{ marginTop: 12, background: "#fff", borderRadius: 16, border: "1px solid #e5e7eb", overflow: "hidden" }}>
@@ -36,9 +38,9 @@ export default function CandidateRankCard({ ranking, loading }) {
           {/* Score badge */}
           <div style={{ textAlign: "right" }}>
             <div style={{
-              background: r.score >= 70 ? "#dcfce7" : r.score >= 40 ? "#fef3c7" : "#fef2f2",
-              color: r.score >= 70 ? "#16a34a" : r.score >= 40 ? "#d97706" : "#dc2626",
-              padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 700
+              background: getScoreMeta(r.score).bg,
+              color: getScoreMeta(r.score).color,
+              padding:"3px 10px", borderRadius:20, fontSize:12, fontWeight:700
             }}>
               {r.score}% Match
             </div>
