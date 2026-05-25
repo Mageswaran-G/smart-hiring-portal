@@ -8,9 +8,8 @@ export default function RecommendationCard({ job, index }) {
   return (
     <div
       onClick={() => navigate(`/jobs/${job.slug}`)}
-      style={{ background:'#fff', borderRadius:18, border:'1px solid #e5e7eb', padding:'20px 24px', cursor:'pointer', transition:'all 0.15s', boxShadow:'0 1px 4px rgba(0,0,0,0.04)' }}
-      onMouseEnter={e => { e.currentTarget.style.boxShadow='0 8px 24px rgba(124,58,237,0.12)'; e.currentTarget.style.borderColor='#c4b5fd'; }}
-      onMouseLeave={e => { e.currentTarget.style.boxShadow='0 1px 4px rgba(0,0,0,0.04)'; e.currentTarget.style.borderColor='#e5e7eb'; }}
+      className="bg-white rounded-2xl border border-gray-200 hover:border-purple-300 hover:shadow-xl transition-all duration-200 cursor-pointer"
+      style={{ padding:'20px 24px' }}
     >
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:12 }}>
         <div style={{ flex:1, minWidth:0 }}>

@@ -37,13 +37,14 @@ export default function CandidateRankCard({ ranking, loading }) {
 
           {/* Score badge */}
           <div style={{ textAlign: "right" }}>
-            <div style={{
-              background: getScoreMeta(r.score).bg,
-              color: getScoreMeta(r.score).color,
-              padding:"3px 10px", borderRadius:20, fontSize:12, fontWeight:700
-            }}>
-              {r.score}% Match
-            </div>
+            {(() => {
+              const meta = getScoreMeta(r.score);
+              return (
+                <div style={{ background: meta.bg, color: meta.color, padding:"3px 10px", borderRadius:20, fontSize:12, fontWeight:700 }}>
+                  {r.score}% Match
+                </div>
+              );
+            })()}
             <p style={{ fontSize: 11, color: "#6b7280", margin: "2px 0 0" }}>
               {r.matchedSkills?.length || 0} skills matched
             </p>
