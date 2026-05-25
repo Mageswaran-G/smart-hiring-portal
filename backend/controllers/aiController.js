@@ -13,7 +13,12 @@ const getMatchScore = async (req, res) => {
     const userId = req.user.id;
 
     const job = await Job.findById(jobId);
-    if (!job) return res.status(404).json({ success: false, message: 'Job not found' });
+    if (!job) return res.status(404).json({ success: false, message: "Job not found" });
+
+    // Security: company can only rank candidates for their own jobs
+    if (job.postedBy.toString() !== req.user.id) {
+      return res.status(403).json({ success: false, message: "Access denied" });
+    }
 
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
@@ -108,7 +113,13 @@ const rankCandidates = async (req, res) => {
 
     // Get the job
     const job = await Job.findById(jobId);
-    if (!job) return res.status(404).json({ success: false, message: 'Job not found' });
+    if (!job) return res.status(404).json({ success: false, message: "Job not found" });
+
+    // Security: company can only rank candidates for their own jobs
+    if (job.postedBy.toString() !== req.user.id) {
+      return res.status(403).json({ success: false, message: "Access denied — not your job" });
+    }
+
 
     // Get all applications for this job
     const Application = require('../models/Application');
