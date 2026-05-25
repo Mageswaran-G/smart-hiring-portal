@@ -14,6 +14,7 @@ import { ROUTES }                                         from '../../constants/
 import { APPLICATION_STATUS, APPLICATION_STATUS_OPTIONS } from '../../constants/applicationStatus';
 import { getCompanyApplicationsPaginated, updateApplicationStatus } from '../../services/applicationService';
 import { getRankedCandidates } from '../../services/aiService';
+import CandidateRankCard from '../../components/ai/CandidateRankCard';
 import { useDebounce }                                    from '../../hooks/useDebounce';
 
 const LIMIT = 10;
@@ -221,28 +222,7 @@ export default function CompanyApplicationsPage() {
             AI Candidate Ranking {showRanking ? "— Hide" : "— Show"}
           </button>
           {showRanking && (
-            <div style={{ marginTop:12, background:"#fff", borderRadius:16, border:"1px solid #e5e7eb", overflow:"hidden" }}>
-              <div style={{ padding:"14px 20px", background:"linear-gradient(135deg,#7c3aed,#a855f7)", color:"#fff" }}>
-                <p style={{ fontWeight:800, fontSize:15, margin:0 }}>AI Candidate Ranking</p>
-                <p style={{ fontSize:12, margin:0, opacity:0.8 }}>Sorted by skill match score</p>
-              </div>
-              {rankLoading && <div style={{ padding:20, textAlign:"center", color:"#6b7280" }}>Calculating rankings...</div>}
-              {!rankLoading && ranking.map((r, i) => (
-                <div key={r.applicationId} style={{ display:"flex", alignItems:"center", gap:12, padding:"12px 20px", borderBottom:"1px solid #f3f4f6" }}>
-                  <span style={{ fontWeight:800, fontSize:14, color:"#7c3aed", minWidth:24 }}>#{i+1}</span>
-                  <div style={{ width:36, height:36, borderRadius:"50%", background:"#ede9fe", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:700, color:"#7c3aed", fontSize:14 }}>{r.candidate.name?.charAt(0).toUpperCase()}</div>
-                  <div style={{ flex:1 }}>
-                    <p style={{ fontWeight:700, fontSize:14, color:"#111827", margin:0 }}>{r.candidate.name}</p>
-                    <p style={{ fontSize:12, color:"#6b7280", margin:0 }}>{r.candidate.email}</p>
-                  </div>
-                  <div style={{ textAlign:"right" }}>
-                    <div style={{ background: r.score>=70?"#dcfce7":r.score>=40?"#fef3c7":"#fef2f2", color: r.score>=70?"#16a34a":r.score>=40?"#d97706":"#dc2626", padding:"3px 10px", borderRadius:20, fontSize:12, fontWeight:700 }}>{r.score}% Match</div>
-                    <p style={{ fontSize:11, color:"#6b7280", margin:"2px 0 0" }}>{r.matchedSkills?.length || 0} skills matched</p>
-                  </div>
-                </div>
-              ))}
-              {!rankLoading && ranking.length === 0 && <div style={{ padding:20, textAlign:"center", color:"#6b7280" }}>No applicants yet</div>}
-            </div>
+            <CandidateRankCard ranking={ranking} loading={rankLoading} />
           )}
         </div>
       )}
