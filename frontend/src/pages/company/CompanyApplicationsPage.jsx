@@ -211,10 +211,10 @@ export default function CompanyApplicationsPage() {
       </div>
 
       {/* ── AI Candidate Ranking ── */}
-      {filterJob !== "all" && (
+      {jobOptions.length > 0 && (
         <div style={{ marginBottom: 16 }}>
           <button
-            onClick={() => showRanking ? setShowRanking(false) : fetchRanking(filterJob)}
+            onClick={() => showRanking ? setShowRanking(false) : fetchRanking(filterJob === "all" ? jobOptions[0]?.[0] : filterJob)}
             style={{ display:"flex", alignItems:"center", gap:8, padding:"10px 18px", borderRadius:12, border:"1px solid #7c3aed", background: showRanking ? "#7c3aed" : "#fff", color: showRanking ? "#fff" : "#7c3aed", fontSize:13, fontWeight:700, cursor:"pointer" }}
           >
             AI Candidate Ranking {showRanking ? "— Hide" : "— Show"}
