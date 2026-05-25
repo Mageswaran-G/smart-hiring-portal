@@ -18,7 +18,9 @@ export default function CandidateRankCard({ ranking, loading }) {
       )}
 
       {/* Candidate rows */}
-      {!loading && ranking.map((r, i) => (
+      {!loading && ranking.map((r, i) => {
+        const scoreMeta = getScoreMeta(r.score);
+        return (
         <div key={r.applicationId} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 20px", borderBottom: "1px solid #f3f4f6" }}>
 
           {/* Rank number */}
@@ -37,21 +39,17 @@ export default function CandidateRankCard({ ranking, loading }) {
 
           {/* Score badge */}
           <div style={{ textAlign: "right" }}>
-            {(() => {
-              const meta = getScoreMeta(r.score);
-              return (
-                <div style={{ background: meta.bg, color: meta.color, padding:"3px 10px", borderRadius:20, fontSize:12, fontWeight:700 }}>
-                  {r.score}% Match
-                </div>
-              );
-            })()}
+            <div style={{ background: scoreMeta.bg, color: scoreMeta.color, padding:"3px 10px", borderRadius:20, fontSize:12, fontWeight:700 }}>
+              {r.score}% Match
+            </div>
             <p style={{ fontSize: 11, color: "#6b7280", margin: "2px 0 0" }}>
               {r.matchedSkills?.length || 0} skills matched
             </p>
           </div>
 
         </div>
-      ))}
+        );
+      })}
 
       {/* Empty state */}
       {!loading && ranking.length === 0 && (
