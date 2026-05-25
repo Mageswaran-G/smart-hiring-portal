@@ -286,7 +286,7 @@ export default function JobDetailsPage() {
                 </div>
                 {matchScore.matchedSkills?.length > 0 && (
                   <div style={{ marginBottom: 12 }}>
-                    <p style={{ fontSize: 12, fontWeight: 700, color: "#16a34a", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>✅ Matched Skills</p>
+                    <p style={{ fontSize: 12, fontWeight: 700, color: "#16a34a", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>Matched Skills</p>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                       {matchScore.matchedSkills.map((s, i) => (
                         <span key={i} style={{ background: "#dcfce7", color: "#15803d", padding: "3px 10px", borderRadius: 8, fontSize: 12, fontWeight: 600 }}>{s}</span>
@@ -296,7 +296,7 @@ export default function JobDetailsPage() {
                 )}
                 {matchScore.missingSkills?.length > 0 && (
                   <div>
-                    <p style={{ fontSize: 12, fontWeight: 700, color: "#dc2626", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>❌ Missing Skills</p>
+                    <p style={{ fontSize: 12, fontWeight: 700, color: "#dc2626", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>Missing Skills</p>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                       {matchScore.missingSkills.map((s, i) => (
                         <span key={i} style={{ background: "#fef2f2", color: "#dc2626", padding: "3px 10px", borderRadius: 8, fontSize: 12, fontWeight: 600 }}>{s}</span>

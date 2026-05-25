@@ -121,7 +121,7 @@ export default function RecommendationsPage() {
                 {/* Matched Skills */}
                 {job.matchedSkills?.length > 0 && (
                   <div style={{ marginBottom:8 }}>
-                    <p style={{ fontSize:11, color:'#16a34a', fontWeight:700, margin:'0 0 4px', textTransform:'uppercase', letterSpacing:0.5 }}>✅ Matched</p>
+                    <p style={{ fontSize:11, color:'#16a34a', fontWeight:700, margin:'0 0 4px', textTransform:'uppercase', letterSpacing:0.5 }}>Matched</p>
                     <div style={{ display:'flex', gap:5, flexWrap:'wrap' }}>
                       {job.matchedSkills.slice(0, 5).map((s, j) => (
                         <span key={j} style={{ background:'#dcfce7', color:'#15803d', padding:'2px 8px', borderRadius:6, fontSize:11, fontWeight:600 }}>{s}</span>
@@ -133,7 +133,7 @@ export default function RecommendationsPage() {
                 {/* Missing Skills */}
                 {job.missingSkills?.length > 0 && (
                   <div>
-                    <p style={{ fontSize:11, color:'#dc2626', fontWeight:700, margin:'0 0 4px', textTransform:'uppercase', letterSpacing:0.5 }}>❌ Missing</p>
+                    <p style={{ fontSize:11, color:'#dc2626', fontWeight:700, margin:'0 0 4px', textTransform:'uppercase', letterSpacing:0.5 }}>Missing</p>
                     <div style={{ display:'flex', gap:5, flexWrap:'wrap' }}>
                       {job.missingSkills.slice(0, 3).map((s, j) => (
                         <span key={j} style={{ background:'#fef2f2', color:'#dc2626', padding:'2px 8px', borderRadius:6, fontSize:11, fontWeight:600 }}>{s}</span>
