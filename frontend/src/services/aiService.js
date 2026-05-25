@@ -19,3 +19,13 @@ export const getRecommendations = async () => {
     throw err.response?.data || err;
   }
 };
+
+// Get ranked candidates for a job (company only)
+export const getRankedCandidates = async (jobId) => {
+  try {
+    const res = await API.get(`/ai/rank/${jobId}`);
+    return res.data.data;
+  } catch (err) {
+    throw err.response?.data || err;
+  }
+};

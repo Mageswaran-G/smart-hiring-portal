@@ -99,4 +99,59 @@ const getRecommendations = async (req, res) => {
   }
 };
 
-module.exports = { getMatchScore, getRecommendations };
+
+// GET /api/v1/ai/rank/:jobId
+// Company sees applicants ranked by AI match score
+const rankCandidates = async (req, res) => {
+  try {
+    const { jobId } = req.params;
+
+    // Get the job
+    const job = await Job.findById(jobId);
+    if (!job) return res.status(404).json({ success: false, message: 'Job not found' });
+
+    // Get all applications for this job
+    const Application = require('../models/Application');
+    const applications = await Application.find({ job: jobId })
+      .populate('candidate', 'name email avatar parsedSkills skills')
+      .lean();
+
+    const jobSkills = [...new Set(job.skillsRequired || [])];
+
+    // Score each candidate
+    const ranked = applications.map(app => {
+      const candidate = app.candidate;
+      const candidateSkills = candidate?.parsedSkills?.length
+        ? candidate.parsedSkills
+        : (candidate?.skills?.map(s => typeof s === 'string' ? s : s.name) || []);
+
+      const result = calculateMatch(candidateSkills, jobSkills);
+
+      return {
+        applicationId: app._id,
+        status: app.status,
+        appliedAt: app.createdAt,
+        candidate: {
+          id: candidate?._id,
+          name: candidate?.name,
+          email: candidate?.email,
+          avatar: candidate?.avatar,
+        },
+        score: result.score,
+        matchedSkills: result.matchedSkills,
+        missingSkills: result.missingSkills,
+      };
+    });
+
+    // Sort by score descending
+    ranked.sort((a, b) => b.score - a.score);
+
+    return res.json({ success: true, data: { ranked, jobTitle: job.title, totalApplicants: ranked.length } });
+
+  } catch (err) {
+    console.error('Rank candidates error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to rank candidates' });
+  }
+};
+
+module.exports = { getMatchScore, getRecommendations, rankCandidates };

@@ -32,6 +32,9 @@ export default function CompanyApplicationsPage() {
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchName,   setSearchName]   = useState('');
   const [updating,     setUpdating]     = useState(null);
+  const [showRanking,  setShowRanking]  = useState(false);
+  const [ranking,      setRanking]      = useState([]);
+  const [rankLoading,  setRankLoading]  = useState(false);
 
   const debouncedSearch = useDebounce(searchName, 300);
 
@@ -119,6 +122,20 @@ export default function CompanyApplicationsPage() {
   };
 
   // ── Are any filters active? ───────────────────────────────
+
+  const fetchRanking = async (jobId) => {
+    if (!jobId || jobId === "all") return;
+    try {
+      setRankLoading(true);
+      setShowRanking(true);
+      const data = await getRankedCandidates(jobId);
+      setRanking(data.ranked || []);
+    } catch {
+      setShowRanking(false);
+    } finally {
+      setRankLoading(false);
+    }
+  };
   const filtersActive = filterJob !== 'all' || filterStatus !== 'all' || searchName;
 
   return (
@@ -192,6 +209,42 @@ export default function CompanyApplicationsPage() {
           </button>
         )}
       </div>
+
+      {/* ── AI Candidate Ranking ── */}
+      {filterJob !== "all" && (
+        <div style={{ marginBottom: 16 }}>
+          <button
+            onClick={() => showRanking ? setShowRanking(false) : fetchRanking(filterJob)}
+            style={{ display:"flex", alignItems:"center", gap:8, padding:"10px 18px", borderRadius:12, border:"1px solid #7c3aed", background: showRanking ? "#7c3aed" : "#fff", color: showRanking ? "#fff" : "#7c3aed", fontSize:13, fontWeight:700, cursor:"pointer" }}
+          >
+            AI Candidate Ranking {showRanking ? "— Hide" : "— Show"}
+          </button>
+          {showRanking && (
+            <div style={{ marginTop:12, background:"#fff", borderRadius:16, border:"1px solid #e5e7eb", overflow:"hidden" }}>
+              <div style={{ padding:"14px 20px", background:"linear-gradient(135deg,#7c3aed,#a855f7)", color:"#fff" }}>
+                <p style={{ fontWeight:800, fontSize:15, margin:0 }}>AI Candidate Ranking</p>
+                <p style={{ fontSize:12, margin:0, opacity:0.8 }}>Sorted by skill match score</p>
+              </div>
+              {rankLoading && <div style={{ padding:20, textAlign:"center", color:"#6b7280" }}>Calculating rankings...</div>}
+              {!rankLoading && ranking.map((r, i) => (
+                <div key={r.applicationId} style={{ display:"flex", alignItems:"center", gap:12, padding:"12px 20px", borderBottom:"1px solid #f3f4f6" }}>
+                  <span style={{ fontWeight:800, fontSize:14, color:"#7c3aed", minWidth:24 }}>#{i+1}</span>
+                  <div style={{ width:36, height:36, borderRadius:"50%", background:"#ede9fe", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:700, color:"#7c3aed", fontSize:14 }}>{r.candidate.name?.charAt(0).toUpperCase()}</div>
+                  <div style={{ flex:1 }}>
+                    <p style={{ fontWeight:700, fontSize:14, color:"#111827", margin:0 }}>{r.candidate.name}</p>
+                    <p style={{ fontSize:12, color:"#6b7280", margin:0 }}>{r.candidate.email}</p>
+                  </div>
+                  <div style={{ textAlign:"right" }}>
+                    <div style={{ background: r.score>=70?"#dcfce7":r.score>=40?"#fef3c7":"#fef2f2", color: r.score>=70?"#16a34a":r.score>=40?"#d97706":"#dc2626", padding:"3px 10px", borderRadius:20, fontSize:12, fontWeight:700 }}>{r.score}% Match</div>
+                    <p style={{ fontSize:11, color:"#6b7280", margin:"2px 0 0" }}>{r.matchedSkills?.length || 0} skills matched</p>
+                  </div>
+                </div>
+              ))}
+              {!rankLoading && ranking.length === 0 && <div style={{ padding:20, textAlign:"center", color:"#6b7280" }}>No applicants yet</div>}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── Loading skeletons ── */}
       {loading && (
