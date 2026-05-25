@@ -1,7 +1,6 @@
 // Modal that appears when candidate clicks Apply Now
 // Lets them write a cover letter before submitting
-
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, Send, FileText, Sparkles } from 'lucide-react';
 import { generateCoverLetter } from '../../services/aiService';
 import toast from 'react-hot-toast';
@@ -14,11 +13,29 @@ export default function ApplyModal({ jobId, jobTitle, onConfirm, onClose, loadin
 
   const [generated, setGenerated] = useState(false);
 
+  const textareaRef = useRef(null);
+
+  useEffect(() => {
+    textareaRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [onClose]);
+
   const handleGenerate = async () => {
     if (aiLoading) return;
     try {
       setAiLoading(true);
       const data = await generateCoverLetter(jobId);
+      if (!data?.coverLetter) {
+        toast.error('No cover letter generated');
+        return;
+      }
       setCoverLetter(data.coverLetter);
       setGenerated(true);
     } catch (err) {
@@ -73,14 +90,21 @@ export default function ApplyModal({ jobId, jobTitle, onConfirm, onClose, loadin
             </label>
             <button
               onClick={handleGenerate}
-              disabled={aiLoading}
+              disabled={aiLoading || loading}
               className="flex items-center gap-1.5 text-xs font-semibold text-purple-600 hover:text-purple-800 border border-purple-200 hover:border-purple-400 px-3 py-1.5 rounded-lg transition disabled:opacity-50"
             >
               <Sparkles size={12} />
               {aiLoading ? 'Generating...' : generated ? 'Regenerate with AI' : 'Generate with AI'}
             </button>
-          </div>  
+          </div>
+          {generated && (
+            <div className="mb-2 text-xs text-purple-600 font-medium flex items-center gap-1">
+              <Sparkles size={12} />
+              AI-generated draft — you can edit before submitting
+            </div>
+          )}  
           <textarea
+            ref={textareaRef}
             rows={6}
             value={coverLetter}
             onChange={(e) => {
@@ -106,7 +130,7 @@ export default function ApplyModal({ jobId, jobTitle, onConfirm, onClose, loadin
         <div className="flex gap-3">
           <button
             onClick={onClose}
-            disabled={loading}
+            disabled={loading || aiLoading}
             className="
               flex-1 border border-gray-200 text-gray-600
               font-semibold py-3 rounded-xl text-sm
@@ -117,7 +141,7 @@ export default function ApplyModal({ jobId, jobTitle, onConfirm, onClose, loadin
           </button>
           <button
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || aiLoading}
             className="
               flex-1 bg-green-600 hover:bg-green-700
               text-white font-semibold
