@@ -1,4 +1,4 @@
-// CompanyApplicationsPage.jsx
+
 // Shows all applicants for company's jobs
 // Pagination: Load More loads next page from backend
 // Filtering: works on all loaded data (client-side)
@@ -13,6 +13,7 @@ import SafeAvatar                                         from '../../components
 import { ROUTES }                                         from '../../constants/routes';
 import { APPLICATION_STATUS, APPLICATION_STATUS_OPTIONS } from '../../constants/applicationStatus';
 import { getCompanyApplicationsPaginated, updateApplicationStatus } from '../../services/applicationService';
+import { getRankedCandidates } from '../../services/aiService';
 import { useDebounce }                                    from '../../hooks/useDebounce';
 
 const LIMIT = 10;
@@ -52,7 +53,7 @@ export default function CompanyApplicationsPage() {
       setHasMore(pagination.hasMore);
       setPage(pageNum);
 
-    } catch {
+    } catch (err) {
       toast.error('Failed to load applications');
     } finally {
       setLoading(false);
@@ -130,7 +131,7 @@ export default function CompanyApplicationsPage() {
       setShowRanking(true);
       const data = await getRankedCandidates(jobId);
       setRanking(data.ranked || []);
-    } catch {
+    } catch (err) {
       setShowRanking(false);
     } finally {
       setRankLoading(false);
