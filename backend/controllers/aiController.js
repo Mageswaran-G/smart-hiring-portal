@@ -1,6 +1,7 @@
 // AI Controller — Match Score, Recommendations
 
-const calculateMatch = require('../ai/matchEngine');
+const calculateMatch = require("../ai/matchEngine");
+const { getSuggestions } = require("../ai/skillResources");
 const extractSkills = require('../ai/skillExtractor');
 const Job = require('../models/Job');
 const Application = require('../models/Application');
@@ -41,6 +42,7 @@ const getMatchScore = async (req, res) => {
         matchedSkills: result.matchedSkills,
         missingSkills: result.missingSkills,
         totalJobSkills: allJobSkills.length,
+        suggestions: getSuggestions(result.missingSkills),
       }
     });
 

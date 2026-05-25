@@ -304,6 +304,21 @@ export default function JobDetailsPage() {
                     </div>
                   </div>
                 )}
+                {matchScore.suggestions?.length > 0 && (
+                  <div style={{ marginTop: 12, padding: "12px 16px", background: "#fffbeb", borderRadius: 12, border: "1px solid #fde68a" }}>
+                    <p style={{ fontSize: 12, fontWeight: 700, color: "#92400e", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>Skill Gap — Suggested Learning</p>
+                    {matchScore.suggestions.map((s, i) => (
+                      <div key={i} style={{ marginBottom: 6 }}>
+                        <p style={{ fontSize: 12, fontWeight: 700, color: "#b45309", margin: "0 0 3px" }}>Learn {s.skill}:</p>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                          {s.resources.map((r, j) => (
+                            <span key={j} style={{ background: "#fef3c7", color: "#92400e", padding: "2px 8px", borderRadius: 6, fontSize: 11, fontWeight: 500 }}>{r}</span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
             {user?.role === "candidate" && matchLoading && (
