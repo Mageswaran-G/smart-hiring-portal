@@ -111,7 +111,7 @@ const rankCandidates = async (req, res) => {
     const { jobId } = req.params;
 
     // Get the job
-    const job = await Job.findById(jobId);
+    const job = await Job.findById(jobId).select('title postedBy skillsRequired');
     if (!job) return res.status(404).json({ success: false, message: "Job not found" });
 
     // Security: company can only rank candidates for their own jobs
@@ -121,7 +121,7 @@ const rankCandidates = async (req, res) => {
 
 
     // Get all applications for this job
-    const Application = require('../models/Application');
+    
     const applications = await Application.find({ job: jobId })
       .populate('candidate', 'name email avatar parsedSkills skills')
       .lean();
@@ -154,7 +154,10 @@ const rankCandidates = async (req, res) => {
     });
 
     // Sort by score descending
-    ranked.sort((a, b) => b.score - a.score);
+    ranked.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return new Date(a.appliedAt) - new Date(b.appliedAt);
+    });
 
     return res.json({ success: true, data: { ranked, jobTitle: job.title, totalApplicants: ranked.length } });
 
