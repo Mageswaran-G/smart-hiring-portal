@@ -568,6 +568,7 @@ export default function JobDetailsPage() {
       {/* Apply Modal */}
       {showApplyModal && (
         <ApplyModal
+          jobId={job._id}
           jobTitle={job.title}
           loading={applying}
           onConfirm={handleApply}

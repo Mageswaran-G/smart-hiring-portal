@@ -1,14 +1,27 @@
-// ApplyModal.jsx
 // Modal that appears when candidate clicks Apply Now
 // Lets them write a cover letter before submitting
 
 import { useState } from 'react';
-import { X, Send, FileText } from 'lucide-react';
+import { X, Send, FileText, Sparkles } from 'lucide-react';
+import { generateCoverLetter } from '../../services/aiService';
 
-export default function ApplyModal({ jobTitle, onConfirm, onClose, loading }) {
+export default function ApplyModal({ jobId, jobTitle, onConfirm, onClose, loading }) {
 
   const [coverLetter, setCoverLetter] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
   const charLimit = 2000;
+
+  const handleGenerate = async () => {
+    try {
+      setAiLoading(true);
+      const data = await generateCoverLetter(jobId);
+      setCoverLetter(data.coverLetter);
+    } catch (err) {
+      alert('Failed to generate. Try again.');
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   const handleSubmit = () => {
     // coverLetter is optional — can submit with empty
@@ -48,10 +61,20 @@ export default function ApplyModal({ jobTitle, onConfirm, onClose, loading }) {
 
         {/* Cover letter textarea */}
         <div className="mb-5">
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Cover Letter
-            <span className="font-normal text-gray-400 ml-1">(optional)</span>
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-sm font-semibold text-gray-700">
+              Cover Letter
+              <span className="font-normal text-gray-400 ml-1">(optional)</span>
+            </label>
+            <button
+              onClick={handleGenerate}
+              disabled={aiLoading}
+              className="flex items-center gap-1.5 text-xs font-semibold text-purple-600 hover:text-purple-800 border border-purple-200 hover:border-purple-400 px-3 py-1.5 rounded-lg transition disabled:opacity-50"
+            >
+              <Sparkles size={12} />
+              {aiLoading ? 'Generating...' : 'Generate with AI'}
+            </button>
+          </div>  
           <textarea
             rows={6}
             value={coverLetter}

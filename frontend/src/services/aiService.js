@@ -29,3 +29,13 @@ export const getRankedCandidates = async (jobId) => {
     throw err.response?.data || err;
   }
 };
+
+// Generate cover letter using AI
+export const generateCoverLetter = async (jobId) => {
+  try {
+    const res = await API.post('/ai/cover-letter', { jobId });
+    return res.data.data;
+  } catch (err) {
+    throw err.response?.data || err;
+  }
+};

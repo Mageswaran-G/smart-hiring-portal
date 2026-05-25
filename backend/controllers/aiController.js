@@ -167,4 +167,55 @@ const rankCandidates = async (req, res) => {
   }
 };
 
-module.exports = { getMatchScore, getRecommendations, rankCandidates };
+// POST /api/v1/ai/cover-letter
+const generateCoverLetter = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { jobId } = req.body;
+
+    if (!jobId) {
+      return res.status(400).json({ success: false, message: 'jobId is required' });
+    }
+
+    const [user, job] = await Promise.all([
+      User.findById(userId).select('name skills parsedSkills'),
+      Job.findById(jobId).select('title postedBy skillsRequired')
+    ]);
+
+    if (!user || !job) {
+      return res.status(404).json({ success: false, message: 'User or Job not found' });
+    }
+
+    const candidateSkills = user.parsedSkills?.length
+      ? user.parsedSkills
+      : (user.skills || []).map(s => typeof s === 'string' ? s : s.name);
+
+    const jobSkills = job.skillsRequired || [];
+    const result = calculateMatch(candidateSkills, jobSkills);
+
+    const matchedList = result.matchedSkills.join(', ') || 'various technologies';
+    const missingList = result.missingSkills.join(', ');
+
+    const coverLetter = `Dear Hiring Manager,
+
+I am writing to express my interest in the ${job.title} position. I am confident that my technical background makes me a strong candidate for this role.
+
+I have hands-on experience with ${matchedList}, which directly aligns with your requirements. I am passionate about writing clean, scalable code and contributing to high-impact products.${
+  missingList
+    ? `\n\nI am also actively expanding my knowledge in ${missingList}, and I look forward to growing further in these areas.`
+    : ''
+}
+
+I would welcome the opportunity to discuss how I can contribute to your team.
+
+Warm regards,
+${user.name}`;
+
+    return res.json({ success: true, data: { coverLetter } });
+
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+module.exports = { getMatchScore, getRecommendations, rankCandidates, generateCoverLetter };
