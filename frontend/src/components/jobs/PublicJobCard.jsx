@@ -3,7 +3,7 @@
 // Bookmark button for candidates only
 
 import { MapPin, Briefcase, Bookmark } from 'lucide-react';
-import { stripHtml } from '../../utils/matchScore';
+import { stripHtml } from '../../utils/text';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../constants/routes';
 import ScoreBadge from '../ai/ScoreBadge';

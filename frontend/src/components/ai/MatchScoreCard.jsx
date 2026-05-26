@@ -18,17 +18,14 @@ export default function MatchScoreCard({ matchScore, loading }) {
 
   if (!matchScore) return null;
 
-  const { color: scoreColor, label: scoreLabel } = getScoreMeta(matchScore.score);
+  const { circleClass, label: scoreLabel } = getScoreMeta(matchScore.score);
 
   return (
     <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl border border-green-200 px-7 py-6">
 
       {/* Score circle + label */}
       <div className="flex items-center gap-3 mb-4">
-        <div
-          className="w-14 h-14 rounded-full flex items-center justify-center shrink-0"
-          style={{ background: scoreColor }}
-        >
+        <div className={`w-14 h-14 rounded-full flex items-center justify-center shrink-0 ${circleClass}`}>
           <span className="text-white font-black text-sm">{matchScore.score}%</span>
         </div>
         <div>
