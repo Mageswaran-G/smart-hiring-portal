@@ -35,6 +35,7 @@ function ExpandableRow({ r, i, initials, expanded, onToggle }) {
             {r.matchedSkills?.length || 0} skills matched
           </p>
           <button
+            type="button"
             onClick={onToggle}
             aria-expanded={expanded}
             aria-label={expanded ? 'Hide AI candidate details' : 'View AI candidate details'}
@@ -47,8 +48,8 @@ function ExpandableRow({ r, i, initials, expanded, onToggle }) {
       </div>
 
       {/* Expanded AI breakdown */}
-      {expanded && (
-        <div className="px-5 pb-4 bg-violet-50 border-t border-violet-100 transition-all duration-200">
+      <div className={`overflow-hidden transition-all duration-300 ${expanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+        <div className="px-5 pb-4 bg-violet-50 border-t border-violet-100">
 
           {/* Matched Skills */}
           {r.matchedSkills?.length > 0 && (
@@ -86,7 +87,8 @@ function ExpandableRow({ r, i, initials, expanded, onToggle }) {
           )}
 
         </div>
-      )}
+      </div>
+      
 
     </div>
   );
