@@ -3,20 +3,20 @@
 // Bookmark button for candidates only
 
 import { MapPin, Briefcase, Bookmark } from 'lucide-react';
+import { stripHtml } from '../../utils/matchScore';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../constants/routes';
 import ScoreBadge from '../ai/ScoreBadge';
 export default function PublicJobCard({ job, isSaved = false, onToggleSave, matchScore }) {
 
   const navigate = useNavigate();
-  // Strips HTML tags for plain text preview
-  const stripHtml = (html) => {
-    if (!html) return '';
-    return html.replace(/<[^>]*>/g, '').trim();
-  };
+  
 
   return (
-    <div className="rounded-2xl bg-white border border-gray-100 p-5 shadow-sm hover:shadow-md transition relative">
+    <div
+        className="rounded-2xl bg-white border border-gray-100 p-5 shadow-sm hover:shadow-md hover:border-blue-200 transition relative cursor-pointer"
+        onClick={() => navigate(ROUTES.JOB_DETAILS.replace(':slug', job.slug || job._id))}
+      >
 
       {/* Bookmark button — top right, candidates only */}
       {onToggleSave && (
@@ -52,18 +52,16 @@ export default function PublicJobCard({ job, isSaved = false, onToggleSave, matc
         )}
       </div>
 
-      {/* Location */}
-      <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
-        <MapPin size={15} />
-        {job.location}
-      </div>
-      
-      {/* AI Match Score badge — candidates only */}
-      {matchScore !== undefined && (
-        <div className="mt-3">
-          <ScoreBadge score={matchScore} />
+      {/* AI Match Score badge + Location row */}
+      <div className="mt-3 flex items-center justify-between flex-wrap gap-2">
+        <div className="flex items-center gap-2 text-sm text-gray-500">
+          <MapPin size={15} />
+          {job.location}
         </div>
-      )}
+        {matchScore !== undefined && (
+          <ScoreBadge score={matchScore} />
+        )}
+      </div>
 
       {/* Tags */}
       <div className="mt-4 flex flex-wrap gap-2">
@@ -89,13 +87,10 @@ export default function PublicJobCard({ job, isSaved = false, onToggleSave, matc
         {stripHtml(job.description)}
       </p>
 
-      {/* View Details button */}
-      <button
-        onClick={() => navigate(ROUTES.JOB_DETAILS.replace(':slug', job.slug || job._id))}
-        className="mt-5 w-full rounded-xl bg-blue-900 py-2.5 text-sm font-semibold text-white hover:bg-blue-800 transition"
-      >
+      {/* View Details — card is clickable, this is just visual hint */}
+      <div className="mt-5 w-full rounded-xl bg-blue-900 py-2.5 text-sm font-semibold text-white text-center">
         View Details
-      </button>
+      </div>
 
     </div>
   );

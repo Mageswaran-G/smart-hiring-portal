@@ -4,7 +4,7 @@ export const getScoreMeta = (score) => {
   if (score >= 70) return {
     color: '#16a34a',
     bg: '#dcfce7',
-    label: 'Strong match! 🎉'
+    label: 'Strong match! '
   };
   if (score >= 40) return {
     color: '#d97706',
@@ -21,4 +21,10 @@ export const getScoreMeta = (score) => {
     bg: '#fef2f2',
     label: 'No strong skill match found'
   };
+};
+
+// Strip HTML tags from rich text content
+export const stripHtml = (html) => {
+  if (!html) return '';
+  return html.replace(/<[^>]*>/g, '').trim();
 };
