@@ -1,12 +1,17 @@
-// Reusable AI match score card for candidates
+
+// Reusable AI match score card for candidates — Tailwind version
+
 import { getScoreMeta } from '../../utils/matchScore';
+import SkillChip from './SkillChip';
+
 export default function MatchScoreCard({ matchScore, loading }) {
 
+  // Loading state
   if (loading) {
     return (
-      <div style={{ background: "#f9fafb", borderRadius: 20, border: "1px solid #e5e7eb", padding: "20px 28px", display: "flex", alignItems: "center", gap: 12 }}>
-        <div style={{ width: 20, height: 20, borderRadius: "50%", border: "3px solid #16a34a", borderTopColor: "transparent", animation: "spin 0.8s linear infinite" }} />
-        <span style={{ color: "#6b7280", fontSize: 14 }}>Calculating your match score...</span>
+      <div className="bg-gray-50 rounded-2xl border border-gray-200 px-7 py-5 flex items-center gap-3">
+        <div className="w-5 h-5 rounded-full border-[3px] border-green-600 border-t-transparent animate-spin" />
+        <span className="text-gray-500 text-sm">Calculating your match score...</span>
       </div>
     );
   }
@@ -16,26 +21,31 @@ export default function MatchScoreCard({ matchScore, loading }) {
   const { color: scoreColor, label: scoreLabel } = getScoreMeta(matchScore.score);
 
   return (
-    <div style={{ background: "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)", borderRadius: 20, border: "1px solid #bbf7d0", padding: "24px 28px" }}>
+    <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl border border-green-200 px-7 py-6">
 
       {/* Score circle + label */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-        <div style={{ width: 52, height: 52, borderRadius: "50%", background: scoreColor, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <span style={{ color: "#fff", fontWeight: 900, fontSize: 15 }}>{matchScore.score}%</span>
+      <div className="flex items-center gap-3 mb-4">
+        <div
+          className="w-14 h-14 rounded-full flex items-center justify-center shrink-0"
+          style={{ background: scoreColor }}
+        >
+          <span className="text-white font-black text-sm">{matchScore.score}%</span>
         </div>
         <div>
-          <p style={{ fontWeight: 800, fontSize: 16, color: "#111827", margin: 0 }}>Your Match Score</p>
-          <p style={{ fontSize: 13, color: "#6b7280", margin: 0 }}>{scoreLabel}</p>
+          <p className="font-extrabold text-base text-gray-900 mb-0.5">Your Match Score</p>
+          <p className="text-sm text-gray-500">{scoreLabel}</p>
         </div>
       </div>
 
       {/* Matched Skills */}
       {matchScore.matchedSkills?.length > 0 && (
-        <div style={{ marginBottom: 12 }}>
-          <p style={{ fontSize: 12, fontWeight: 700, color: "#16a34a", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>Matched Skills</p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+        <div className="mb-3">
+          <p className="text-xs font-bold text-green-700 uppercase tracking-wide mb-1.5">
+            Matched Skills
+          </p>
+          <div className="flex flex-wrap gap-1.5">
             {matchScore.matchedSkills.map((s, i) => (
-              <span key={i} style={{ background: "#dcfce7", color: "#15803d", padding: "3px 10px", borderRadius: 8, fontSize: 12, fontWeight: 600 }}>{s}</span>
+              <SkillChip key={i} label={s} type="matched" />
             ))}
           </div>
         </div>
@@ -43,11 +53,13 @@ export default function MatchScoreCard({ matchScore, loading }) {
 
       {/* Missing Skills */}
       {matchScore.missingSkills?.length > 0 && (
-        <div>
-          <p style={{ fontSize: 12, fontWeight: 700, color: "#dc2626", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>Missing Skills</p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+        <div className="mb-3">
+          <p className="text-xs font-bold text-red-600 uppercase tracking-wide mb-1.5">
+            Missing Skills
+          </p>
+          <div className="flex flex-wrap gap-1.5">
             {matchScore.missingSkills.map((s, i) => (
-              <span key={i} style={{ background: "#fef2f2", color: "#dc2626", padding: "3px 10px", borderRadius: 8, fontSize: 12, fontWeight: 600 }}>{s}</span>
+              <SkillChip key={i} label={s} type="missing" />
             ))}
           </div>
         </div>
@@ -55,14 +67,16 @@ export default function MatchScoreCard({ matchScore, loading }) {
 
       {/* Skill Gap Suggestions */}
       {matchScore.suggestions?.length > 0 && (
-        <div style={{ marginTop: 12, padding: "12px 16px", background: "#fffbeb", borderRadius: 12, border: "1px solid #fde68a" }}>
-          <p style={{ fontSize: 12, fontWeight: 700, color: "#92400e", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>Skill Gap — Suggested Learning</p>
+        <div className="mt-3 bg-amber-50 rounded-xl border border-amber-200 px-4 py-3">
+          <p className="text-xs font-bold text-amber-800 uppercase tracking-wide mb-2">
+            Skill Gap — Suggested Learning
+          </p>
           {matchScore.suggestions.map((s, i) => (
-            <div key={i} style={{ marginBottom: 6 }}>
-              <p style={{ fontSize: 12, fontWeight: 700, color: "#b45309", margin: "0 0 3px" }}>Learn {s.skill}:</p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+            <div key={i} className="mb-1.5">
+              <p className="text-xs font-bold text-amber-700 mb-1">Learn {s.skill}:</p>
+              <div className="flex flex-wrap gap-1">
                 {s.resources.map((r, j) => (
-                  <span key={j} style={{ background: "#fef3c7", color: "#92400e", padding: "2px 8px", borderRadius: 6, fontSize: 11, fontWeight: 500 }}>{r}</span>
+                  <SkillChip key={j} label={r} type="suggestion" />
                 ))}
               </div>
             </div>

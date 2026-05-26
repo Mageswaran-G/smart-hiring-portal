@@ -1,18 +1,21 @@
+
+// Reusable AI candidate ranking panel for company — Tailwind version
+
 import { getScoreMeta } from '../../utils/matchScore';
 
 export default function CandidateRankCard({ ranking, loading }) {
   return (
-    <div style={{ marginTop: 12, background: "#fff", borderRadius: 16, border: "1px solid #e5e7eb", overflow: "hidden" }}>
+    <div className="mt-3 bg-white rounded-2xl border border-gray-200 overflow-hidden">
 
       {/* Header */}
-      <div style={{ padding: "14px 20px", background: "linear-gradient(135deg,#7c3aed,#a855f7)", color: "#fff" }}>
-        <p style={{ fontWeight: 800, fontSize: 15, margin: 0 }}>AI Candidate Ranking</p>
-        <p style={{ fontSize: 12, margin: 0, opacity: 0.8 }}>Sorted by skill match score</p>
+      <div className="px-5 py-3.5 bg-gradient-to-r from-violet-700 to-purple-500">
+        <p className="font-extrabold text-sm text-white mb-0">AI Candidate Ranking</p>
+        <p className="text-xs text-white/80 mb-0">Sorted by skill match score</p>
       </div>
 
       {/* Loading */}
       {loading && (
-        <div style={{ padding: 20, textAlign: "center", color: "#6b7280" }}>
+        <div className="py-5 text-center text-gray-500 text-sm">
           Calculating rankings...
         </div>
       )}
@@ -21,39 +24,46 @@ export default function CandidateRankCard({ ranking, loading }) {
       {!loading && ranking.map((r, i) => {
         const scoreMeta = getScoreMeta(r.score);
         return (
-        <div key={r.applicationId} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 20px", borderBottom: "1px solid #f3f4f6" }}>
+          <div
+            key={r.applicationId}
+            className="flex items-center gap-3 px-5 py-3 border-b border-gray-100 last:border-b-0"
+          >
+            {/* Rank number */}
+            <span className="font-extrabold text-sm text-violet-700 min-w-[24px]">
+              #{i + 1}
+            </span>
 
-          {/* Rank number */}
-          <span style={{ fontWeight: 800, fontSize: 14, color: "#7c3aed", minWidth: 24 }}>#{i + 1}</span>
-
-          {/* Avatar */}
-          <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#ede9fe", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: "#7c3aed", fontSize: 14 }}>
-            {r.candidate.name?.charAt(0).toUpperCase()}
-          </div>
-
-          {/* Name + email */}
-          <div style={{ flex: 1 }}>
-            <p style={{ fontWeight: 700, fontSize: 14, color: "#111827", margin: 0 }}>{r.candidate.name}</p>
-            <p style={{ fontSize: 12, color: "#6b7280", margin: 0 }}>{r.candidate.email}</p>
-          </div>
-
-          {/* Score badge */}
-          <div style={{ textAlign: "right" }}>
-            <div style={{ background: scoreMeta.bg, color: scoreMeta.color, padding:"3px 10px", borderRadius:20, fontSize:12, fontWeight:700 }}>
-              {r.score}% Match
+            {/* Avatar */}
+            <div className="w-9 h-9 rounded-full bg-violet-100 flex items-center justify-center font-bold text-violet-700 text-sm shrink-0">
+              {r.candidate.name?.charAt(0).toUpperCase()}
             </div>
-            <p style={{ fontSize: 11, color: "#6b7280", margin: "2px 0 0" }}>
-              {r.matchedSkills?.length || 0} skills matched
-            </p>
-          </div>
 
-        </div>
+            {/* Name + email */}
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-sm text-gray-900 mb-0">{r.candidate.name}</p>
+              <p className="text-xs text-gray-500 mb-0">{r.candidate.email}</p>
+            </div>
+
+            {/* Score badge */}
+            <div className="text-right shrink-0">
+              <div
+                className="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold"
+                style={{ background: scoreMeta.bg, color: scoreMeta.color }}
+              >
+                {r.score}% Match
+              </div>
+              <p className="text-[11px] text-gray-500 mt-0.5 mb-0">
+                {r.matchedSkills?.length || 0} skills matched
+              </p>
+            </div>
+
+          </div>
         );
       })}
 
       {/* Empty state */}
       {!loading && ranking.length === 0 && (
-        <div style={{ padding: 20, textAlign: "center", color: "#6b7280" }}>
+        <div className="py-5 text-center text-gray-500 text-sm">
           No applicants yet
         </div>
       )}
