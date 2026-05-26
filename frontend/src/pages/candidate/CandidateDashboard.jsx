@@ -612,20 +612,27 @@ export default function CandidateDashboard() {
             {/* Checklist */}
             <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
               {[
-                { label:'Photo uploaded',     done:!!profile?.photo },
-                { label:'Headline added',     done:!!profile?.headline },
-                { label:'Skills listed',      done:!!profile?.skills?.length },
-                { label:'Resume uploaded',    done:!!profile?.resumeUrl },
-                { label:'Bio written',        done:!!profile?.bio },
-                { label:'Education added',    done:!!profile?.education?.length },
-              ].map(({ label, done }) => (
+                { label:'Photo uploaded',    done:!!profile?.photo,             points: 10 },
+                { label:'Headline added',    done:!!profile?.headline,          points: 10 },
+                { label:'Skills listed',     done:!!profile?.skills?.length,    points: 15 },
+                { label:'Resume uploaded',   done:!!profile?.resumeUrl,         points: 20 },
+                { label:'Bio written',       done:!!profile?.bio,               points: 10 },
+                { label:'Education added',   done:!!profile?.education?.length, points: 10 },
+              ].map(({ label, done, points }) => (
                 <div key={label} style={{ display:'flex', alignItems:'center', gap:10 }}>
                   <div style={{ width:18, height:18, borderRadius:'50%', background: done ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.2)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                     {done ? <CheckCircle size={11} color={C.primary} /> : <Clock size={10} color="rgba(255,255,255,0.5)" />}
                   </div>
-                  <span style={{ fontSize:12, color: done ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.55)', textDecoration: done ? 'line-through' : 'none', fontWeight: done ? 400 : 500 }}>
-                    {label}
-                  </span>
+                  <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', flex:1 }}>
+                    <span style={{ fontSize:12, color: done ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.55)', textDecoration: done ? 'line-through' : 'none', fontWeight: done ? 400 : 500 }}>
+                      {label}
+                    </span>
+                    {!done && (
+                      <span style={{ fontSize:10, fontWeight:800, color:'rgba(255,255,255,0.7)', background:'rgba(255,255,255,0.15)', padding:'1px 6px', borderRadius:6 }}>
+                        +{points}%
+                      </span>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
