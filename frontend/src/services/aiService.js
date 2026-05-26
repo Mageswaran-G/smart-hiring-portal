@@ -39,3 +39,13 @@ export const generateCoverLetter = async (jobId) => {
     throw err.response?.data || err;
   }
 };
+
+// Get match scores for multiple jobs at once
+export const getMatchScoreBatch = async (jobIds) => {
+  try {
+    const res = await API.post('/ai/match-batch', { jobIds });
+    return res.data.data.scores;
+  } catch (err) {
+    return {}; // silently fail — scores are optional
+  }
+};

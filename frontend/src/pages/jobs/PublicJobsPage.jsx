@@ -5,6 +5,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useNavigate }         from 'react-router-dom';
 import { Search, SlidersHorizontal, X, LayoutDashboard, Loader2 } from 'lucide-react';
 import { getAllJobs }           from '../../services/jobService';
+import { getMatchScoreBatch } from '../../services/aiService';
 import { API }                 from '../../services/authService';
 import { API_ENDPOINTS }       from '../../constants/api';
 import { useAuth }             from '../../context/AuthContext';
@@ -113,25 +114,16 @@ export default function PublicJobsPage() {
     fetch();
   }, [isCandidate]);
 
-  // Fetch AI match scores for all jobs — candidate only
+  // Fetch AI match scores for all visible jobs — candidate only
   useEffect(() => {
-    if (!isCandidate) return;
+    if (!isCandidate || jobs.length === 0) return;
     const fetchMatchScores = async () => {
-      try {
-        const res = await API.get('/ai/recommendations');
-        const recommendations = res.data.data.recommendations || [];
-        // Build a map: jobId → matchScore
-        const scoreMap = {};
-        recommendations.forEach(job => {
-          scoreMap[job._id] = job.matchScore;
-        });
-        setMatchScores(scoreMap);
-      } catch (err) {
-        // Silently fail — match scores are optional
-      }
+      const jobIds = jobs.map(j => j._id);
+      const scores = await getMatchScoreBatch(jobIds);
+      setMatchScores(scores);
     };
     fetchMatchScores();
-  }, [isCandidate]);
+  }, [isCandidate, jobs]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));

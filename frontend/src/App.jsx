@@ -1,5 +1,11 @@
-import { BrowserRouter, Routes, Route, Navigate, Suspense } from 'react-router-dom';
-import { lazy } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
+import ErrorBoundary from './components/layout/ErrorBoundary';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { ROUTES } from './constants/routes';
+import ProtectedRoute from './components/layout/ProtectedRoute';
+import RoleRoute from './components/layout/RoleRoute';
+import { Toaster } from 'react-hot-toast';
 
 // Lazy loaded pages — load only when user navigates to that page
 const LoginPage                = lazy(() => import('./pages/LoginPage'));

@@ -6,6 +6,7 @@ const extractSkills = require('../ai/skillExtractor');
 const Job = require('../models/Job');
 const Application = require('../models/Application');
 const User = require('../models/User');
+const logger = require('../utils/logger');
 
 // POST /api/v1/ai/match/:jobId
 const getMatchScore = async (req, res) => {
@@ -218,4 +219,53 @@ ${user.name}`;
   }
 };
 
-module.exports = { getMatchScore, getRecommendations, rankCandidates, generateCoverLetter };
+// POST /api/v1/ai/match-batch
+// Returns match scores for multiple jobs at once
+const getMatchScoreBatch = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { jobIds } = req.body;
+
+    if (!jobIds || !Array.isArray(jobIds) || jobIds.length === 0) {
+      return res.status(400).json({ success: false, message: 'jobIds array is required' });
+    }
+
+    // Max 20 jobs per batch — prevent abuse
+    const limitedIds = jobIds.slice(0, 20);
+
+    const user = await User.findById(userId).select('skills parsedSkills');
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+    const candidateSkills = user.parsedSkills?.length
+      ? user.parsedSkills
+      : (user.skills || []).map(s => typeof s === 'string' ? s : s.name);
+
+    if (!candidateSkills.length) {
+      // No skills — return 0 for all jobs
+      const scores = {};
+      limitedIds.forEach(id => { scores[id] = 0; });
+      return res.json({ success: true, data: { scores } });
+    }
+
+    // Fetch all jobs in one query
+    const jobs = await Job.find({
+      _id: { $in: limitedIds }
+    }).select('skillsRequired');
+
+    // Score each job
+    const scores = {};
+    jobs.forEach(job => {
+      const jobSkills = [...new Set(job.skillsRequired || [])];
+      const result = calculateMatch(candidateSkills, jobSkills);
+      scores[job._id.toString()] = result.score;
+    });
+
+    return res.json({ success: true, data: { scores } });
+
+  } catch (err) {
+    logger.error('Batch match score error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to get batch match scores' });
+  }
+};
+
+module.exports = { getMatchScore, getRecommendations, rankCandidates, generateCoverLetter, getMatchScoreBatch };
