@@ -31,7 +31,7 @@ export default function CandidateRankCard({ ranking, loading }) {
         return (
           <div
             key={r.applicationId}
-            className="flex items-center gap-3 px-5 py-3 border-b border-gray-100 last:border-b-0"
+            className="flex flex-col sm:flex-row sm:items-center gap-3 px-5 py-3 border-b border-gray-100 last:border-b-0"
           >
             {/* Rank number */}
             <span className="font-extrabold text-sm text-violet-700 min-w-[24px]">
@@ -50,7 +50,7 @@ export default function CandidateRankCard({ ranking, loading }) {
             </div>
 
             {/* Score badge */}
-            <div className="text-right shrink-0">
+            <div className="w-full sm:w-auto text-left sm:text-right shrink-0">
               <ScoreBadge score={r.score} />
               <p className="text-[11px] text-gray-500 mt-0.5 mb-0">
                 {r.matchedSkills?.length || 0} skills matched
