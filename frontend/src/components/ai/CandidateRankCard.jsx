@@ -1,6 +1,7 @@
 // Reusable AI candidate ranking panel for company — Tailwind version
 
 import { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 import ScoreBadge from './ScoreBadge';
 import SkillChip from './SkillChip';
 
@@ -41,7 +42,13 @@ function ExpandableRow({ r, i, initials, expanded, onToggle }) {
             aria-label={expanded ? 'Hide AI candidate details' : 'View AI candidate details'}
             className="mt-1 text-[11px] text-violet-600 hover:text-violet-800 font-semibold underline"
           >
-            {expanded ? 'Hide Details' : 'View AI Details'}
+            <span className="flex items-center gap-1">
+              {expanded ? 'Hide Details' : 'View AI Details'}
+              <ChevronDown
+                size={11}
+                className={`transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+              />
+            </span>
           </button>
         </div>
 
