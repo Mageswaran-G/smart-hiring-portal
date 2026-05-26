@@ -3,8 +3,9 @@
 
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../constants/routes';
+import { PROFILE_CHECKS, calcProfileStrength } from '../../utils/profileStrength';
 
-const CHECKS = [
+const PROFILE_CHECKS = [
   { key: 'photo',       label: 'Profile photo',      points: 10, check: p => !!p?.photo },
   { key: 'headline',    label: 'Headline',            points: 10, check: p => !!p?.headline },
   { key: 'bio',         label: 'Bio / About',         points: 10, check: p => !!p?.bio },
@@ -14,17 +15,18 @@ const CHECKS = [
   { key: 'workHistory', label: 'Work history added',  points: 10, check: p => (p?.workHistory?.length || 0) > 0 },
   { key: 'linkedin',    label: 'LinkedIn linked',     points: 10, check: p => !!p?.linkedin },
   { key: 'phone',       label: 'Phone number',        points: 5,  check: p => !!p?.phone },
+  { key: 'github', label: 'GitHub profile', points: 10, check: p => !!p?.github },
 ];
 
 export function calcProfileStrength(profile) {
   if (!profile) return 0;
-  return CHECKS.reduce((sum, c) => sum + (c.check(profile) ? c.points : 0), 0);
+  return PROFILE_CHECKS.reduce((sum, c) => sum + (c.check(profile) ? c.points : 0), 0);
 }
 
 export default function ProfileStrengthCard({ profile }) {
   const navigate = useNavigate();
-  const score = calcProfileStrength(profile);
-  const missing = CHECKS.filter(c => !c.check(profile));
+  const score = Math.min(calcProfileStrength(profile), 100);
+  const missing = PROFILE_CHECKS.filter(c => !c.check(profile));
 
   const color = score >= 80 ? 'bg-green-500' :
                 score >= 50 ? 'bg-amber-500' : 'bg-red-400';

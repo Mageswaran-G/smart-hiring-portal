@@ -18,6 +18,7 @@ import { getAllJobs } from '../../services/jobService';
 import { ROUTES } from '../../constants/routes';
 import useIsMobile from '../../hooks/useIsMobile';
 import SafeAvatar from '../../components/ui/SafeAvatar';
+import { calcProfileStrength } from '../../utils/profileStrength';
 
 // ─── Brand Colors ────────────────────────────────────────────
 const C = {
@@ -239,7 +240,7 @@ export default function CandidateDashboard() {
   };
 
   // ── Derived stats ──
-  const completion  = calcCompletion(profile);
+  const completion = calcProfileStrength(profile);
   const shortlisted = applications.filter(a => a.status === 'shortlisted').length;
   const hired       = applications.filter(a => a.status === 'hired').length;
 
