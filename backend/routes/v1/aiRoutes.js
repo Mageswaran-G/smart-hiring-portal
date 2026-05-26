@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getMatchScore, getRecommendations, rankCandidates, generateCoverLetter, getMatchScoreBatch } = require('../../controllers/aiController');
+const { getMatchScore, getRecommendations, rankCandidates, generateCoverLetter, getMatchScoreBatch, generateInterviewQuestions } = require('../../controllers/aiController');
 const { verifyToken, authorizeRole } = require('../../middleware/authMiddleware');
 
 // All AI routes require login
@@ -11,6 +11,7 @@ router.get('/rank/:jobId', authorizeRole('company'), rankCandidates);
 router.get('/recommendations', authorizeRole('candidate'), getRecommendations);
 router.get('/match/:jobId', authorizeRole('candidate'), getMatchScore);
 router.post('/cover-letter', authorizeRole('candidate'), generateCoverLetter);
+router.post('/interview-questions', authorizeRole('company'), generateInterviewQuestions);
 router.post('/match-batch', authorizeRole('candidate'), getMatchScoreBatch);
 
 module.exports = router;

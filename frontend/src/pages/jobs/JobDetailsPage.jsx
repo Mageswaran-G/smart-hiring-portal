@@ -11,6 +11,7 @@ import {
 import { getJobBySlug } from '../../services/jobService'; 
 import { getMatchScore } from "../../services/aiService";
 import MatchScoreCard from '../../components/ai/MatchScoreCard';
+import InterviewQuestionsPanel from '../../components/ai/InterviewQuestionsPanel';
 import { applyToJob }   from '../../services/applicationService'; // ← correct service
 
 import { useAuth }         from '../../context/AuthContext';
@@ -506,7 +507,10 @@ export default function JobDetailsPage() {
               ) : null}
 
             </div>
-
+            {/* AI Interview Questions — company who owns this job only */}
+            {user?.role === 'company' && (
+              <InterviewQuestionsPanel jobId={job._id} />
+            )}
           </div>
 
         </div>

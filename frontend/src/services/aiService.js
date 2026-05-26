@@ -49,3 +49,13 @@ export const getMatchScoreBatch = async (jobIds) => {
     return {}; // silently fail — scores are optional
   }
 };
+
+// Generate interview questions for a job
+export const generateInterviewQuestions = async (jobId) => {
+  try {
+    const res = await API.post('/ai/interview-questions', { jobId });
+    return res.data.data;
+  } catch (err) {
+    throw err.response?.data || err;
+  }
+};

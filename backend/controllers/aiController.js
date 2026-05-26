@@ -299,4 +299,75 @@ const generateCandidateSummary = (candidateName, score, matchedSkills, missingSk
   return summary;
 };
 
-module.exports = { getMatchScore, getRecommendations, rankCandidates, generateCoverLetter, getMatchScoreBatch };
+// POST /api/v1/ai/interview-questions
+const generateInterviewQuestions = async (req, res) => {
+  try {
+    const { jobId } = req.body;
+
+    if (!jobId) {
+      return res.status(400).json({ success: false, message: 'jobId is required' });
+    }
+
+    const job = await Job.findById(jobId).select('title skillsRequired experienceLevel');
+    if (!job) {
+      return res.status(404).json({ success: false, message: 'Job not found' });
+    }
+
+    const skills = job.skillsRequired || [];
+    const level = job.experienceLevel || 'mid';
+    const title = job.title;
+
+    // Generate questions based on skills and level
+    const questions = [];
+
+    // Technical questions from skills
+    skills.slice(0, 3).forEach(skill => {
+      questions.push({
+        type: 'Technical',
+        question: `Can you describe your experience with ${skill} and how you have used it in a real project?`
+      });
+    });
+
+    // Experience level question
+    if (level === 'senior' || level === 'lead') {
+      questions.push({
+        type: 'Leadership',
+        question: `As a senior ${title}, how do you approach mentoring junior developers and conducting code reviews?`
+      });
+    } else if (level === 'mid') {
+      questions.push({
+        type: 'Problem Solving',
+        question: `Describe a challenging technical problem you faced and how you solved it.`
+      });
+    } else {
+      questions.push({
+        type: 'Learning',
+        question: `How do you approach learning a new technology or framework quickly?`
+      });
+    }
+
+    // Missing skills question
+    if (skills.length > 3) {
+      questions.push({
+        type: 'Technical',
+        question: `This role requires ${skills.slice(3).join(', ')}. How familiar are you with these technologies?`
+      });
+    }
+
+    // Behavioural question always
+    questions.push({
+      type: 'Behavioural',
+      question: `Tell me about a time you worked under tight deadlines. How did you manage priorities?`
+    });
+
+    return res.json({
+      success: true,
+      data: { questions, jobTitle: title }
+    });
+
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+module.exports = { getMatchScore, getRecommendations, rankCandidates, generateCoverLetter, getMatchScoreBatch, generateInterviewQuestions };
