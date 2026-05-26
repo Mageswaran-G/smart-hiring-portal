@@ -46,10 +46,7 @@ export default function CandidateRankCard({ ranking, loading }) {
 
             {/* Score badge */}
             <div className="text-right shrink-0">
-              <div
-                className="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold"
-                style={{ background: scoreMeta.bg, color: scoreMeta.color }}
-              >
+              <div className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${scoreMeta.badgeClass}`}>
                 {r.score}% Match
               </div>
               <p className="text-[11px] text-gray-500 mt-0.5 mb-0">
