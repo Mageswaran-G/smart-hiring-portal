@@ -14,13 +14,14 @@ export const PROFILE_CHECKS = [
   { key: 'phone',       label: 'Phone number',        points: 5,  check: p => !!p?.phone },
 ];
 
+export const MAX_PROFILE_POINTS = PROFILE_CHECKS.reduce(
+  (sum, c) => sum + c.points, 0
+);
+
 export const calcProfileStrength = (profile) => {
   if (!profile) return 0;
   const total = PROFILE_CHECKS.reduce(
     (sum, c) => sum + (c.check(profile) ? c.points : 0), 0
   );
-  const maxPoints = PROFILE_CHECKS.reduce(
-    (sum, c) => sum + c.points, 0
-  );
-  return Math.round((total / maxPoints) * 100);
+  return Math.round((total / MAX_PROFILE_POINTS) * 100);
 };
