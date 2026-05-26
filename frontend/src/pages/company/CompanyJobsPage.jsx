@@ -736,7 +736,7 @@ export default function CompanyJobsPage() {
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            {interviewModal.questions.map((q, i) => (
+            {Array.isArray(interviewModal.questions) && interviewModal.questions.map((q, i) => (
               <div key={i} className="bg-gray-50 rounded-xl p-4 border border-gray-100">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-xs font-bold text-gray-400">Q{i + 1}</span>
@@ -758,14 +758,27 @@ export default function CompanyJobsPage() {
 
       {/* Modal Footer */}
       {!interviewModal.loading && (
-        <div className="px-6 py-4 border-t border-gray-100">
+        <div className="px-6 py-4 border-t border-gray-100 flex gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              const text = interviewModal.questions.map((q, i) =>
+                `Q${i + 1} [${q.type}]\n${q.question}`
+              ).join('\n\n');
+              navigator.clipboard.writeText(text);
+              toast.success('Questions copied to clipboard');
+            }}
+            className="flex-1 border border-gray-200 text-gray-600 hover:border-gray-400 font-semibold py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-2"
+          >
+            Copy All
+          </button>
           <button
             type="button"
             onClick={() => handleGenerateQuestions(jobs.find(j => j.title === interviewModal.jobTitle)?._id)}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-2"
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-2"
           >
             <Sparkles size={14} />
-            Regenerate Questions
+            Regenerate
           </button>
         </div>
       )}
