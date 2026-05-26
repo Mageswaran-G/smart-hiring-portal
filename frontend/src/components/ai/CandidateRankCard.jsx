@@ -4,8 +4,7 @@ import { useState } from 'react';
 import ScoreBadge from './ScoreBadge';
 import SkillChip from './SkillChip';
 
-function ExpandableRow({ r, i, initials }) {
-  const [expanded, setExpanded] = useState(false);
+function ExpandableRow({ r, i, initials, expanded, onToggle }) {
 
   return (
     <div className="border-b border-gray-100 last:border-b-0">
@@ -36,7 +35,7 @@ function ExpandableRow({ r, i, initials }) {
             {r.matchedSkills?.length || 0} skills matched
           </p>
           <button
-            onClick={() => setExpanded(prev => !prev)}
+            onClick={onToggle}
             aria-expanded={expanded}
             aria-label={expanded ? 'Hide AI candidate details' : 'View AI candidate details'}
             className="mt-1 text-[11px] text-violet-600 hover:text-violet-800 font-semibold underline"
@@ -49,7 +48,7 @@ function ExpandableRow({ r, i, initials }) {
 
       {/* Expanded AI breakdown */}
       {expanded && (
-        <div className="px-5 pb-4 bg-violet-50 border-t border-violet-100">
+        <div className="px-5 pb-4 bg-violet-50 border-t border-violet-100 transition-all duration-200">
 
           {/* Matched Skills */}
           {r.matchedSkills?.length > 0 && (
@@ -94,6 +93,8 @@ function ExpandableRow({ r, i, initials }) {
 }
 
 export default function CandidateRankCard({ ranking, loading }) {
+  const [expandedId, setExpandedId] = useState(null);
+
   return (
     <div className="mt-3 bg-white rounded-2xl border border-gray-200 overflow-hidden">
 
@@ -119,7 +120,16 @@ export default function CandidateRankCard({ ranking, loading }) {
           .join('')
           .toUpperCase() || '?';
         return (
-          <ExpandableRow key={r.applicationId} r={r} i={i} initials={initials} />
+          <ExpandableRow
+            key={r.applicationId}
+            r={r}
+            i={i}
+            initials={initials}
+            expanded={expandedId === r.applicationId}
+            onToggle={() => setExpandedId(prev =>
+              prev === r.applicationId ? null : r.applicationId
+            )}
+          />
         );
       })}
 
