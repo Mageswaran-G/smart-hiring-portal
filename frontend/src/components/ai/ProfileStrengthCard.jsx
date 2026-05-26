@@ -1,31 +1,13 @@
 // ProfileStrengthCard.jsx
-// Shows candidate profile strength with missing items
+// Reusable profile strength card for candidates
 
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../constants/routes';
 import { PROFILE_CHECKS, calcProfileStrength } from '../../utils/profileStrength';
 
-const PROFILE_CHECKS = [
-  { key: 'photo',       label: 'Profile photo',      points: 10, check: p => !!p?.photo },
-  { key: 'headline',    label: 'Headline',            points: 10, check: p => !!p?.headline },
-  { key: 'bio',         label: 'Bio / About',         points: 10, check: p => !!p?.bio },
-  { key: 'skills',      label: 'At least 3 skills',   points: 15, check: p => (p?.skills?.length || 0) >= 3 },
-  { key: 'resume',      label: 'Resume uploaded',     points: 20, check: p => !!p?.resumeUrl },
-  { key: 'education',   label: 'Education added',     points: 10, check: p => (p?.education?.length || 0) > 0 },
-  { key: 'workHistory', label: 'Work history added',  points: 10, check: p => (p?.workHistory?.length || 0) > 0 },
-  { key: 'linkedin',    label: 'LinkedIn linked',     points: 10, check: p => !!p?.linkedin },
-  { key: 'phone',       label: 'Phone number',        points: 5,  check: p => !!p?.phone },
-  { key: 'github', label: 'GitHub profile', points: 10, check: p => !!p?.github },
-];
-
-export function calcProfileStrength(profile) {
-  if (!profile) return 0;
-  return PROFILE_CHECKS.reduce((sum, c) => sum + (c.check(profile) ? c.points : 0), 0);
-}
-
 export default function ProfileStrengthCard({ profile }) {
   const navigate = useNavigate();
-  const score = Math.min(calcProfileStrength(profile), 100);
+  const score = calcProfileStrength(profile);
   const missing = PROFILE_CHECKS.filter(c => !c.check(profile));
 
   const color = score >= 80 ? 'bg-green-500' :
@@ -67,14 +49,14 @@ export default function ProfileStrengthCard({ profile }) {
                   <div className="w-1.5 h-1.5 rounded-full bg-gray-300" />
                   <span className="text-xs text-gray-600">{item.label}</span>
                 </div>
-                <span className="text-xs font-bold text-green-600">+{item.points}%</span>
+                <span className="text-xs font-bold text-green-600">+{item.points}pts</span>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Complete profile button */}
+      {/* CTA button */}
       {score < 100 && (
         <button
           type="button"
@@ -85,7 +67,6 @@ export default function ProfileStrengthCard({ profile }) {
         </button>
       )}
 
-      {/* Complete state */}
       {score === 100 && (
         <div className="mt-3 text-center text-sm font-bold text-green-600">
           Profile is complete!

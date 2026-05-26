@@ -16,6 +16,11 @@ export const PROFILE_CHECKS = [
 
 export const calcProfileStrength = (profile) => {
   if (!profile) return 0;
-  const total = PROFILE_CHECKS.reduce((sum, c) => sum + (c.check(profile) ? c.points : 0), 0);
-  return Math.min(total, 100);
+  const total = PROFILE_CHECKS.reduce(
+    (sum, c) => sum + (c.check(profile) ? c.points : 0), 0
+  );
+  const maxPoints = PROFILE_CHECKS.reduce(
+    (sum, c) => sum + c.points, 0
+  );
+  return Math.round((total / maxPoints) * 100);
 };
