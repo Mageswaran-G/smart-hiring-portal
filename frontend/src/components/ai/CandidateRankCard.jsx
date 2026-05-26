@@ -86,6 +86,18 @@ function ExpandableRow({ r, i, initials, expanded, onToggle }) {
             </div>
           )}
 
+          {/* AI Summary */}
+          {r.summary && (
+            <div className="mt-3 pt-3 border-t border-violet-200">
+              <p className="text-xs font-bold text-violet-700 uppercase tracking-wide mb-1.5">
+                AI Summary
+              </p>
+              <p className="text-xs text-gray-600 leading-relaxed">
+                {r.summary}
+              </p>
+            </div>
+          )}
+
           {/* No skills case */}
           {!r.matchedSkills?.length && !r.missingSkills?.length && (
             <p className="mt-3 text-xs text-gray-400">

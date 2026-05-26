@@ -151,6 +151,13 @@ const rankCandidates = async (req, res) => {
         score: result.score,
         matchedSkills: result.matchedSkills,
         missingSkills: result.missingSkills,
+        summary: generateCandidateSummary(
+          candidate?.name,
+          result.score,
+          result.matchedSkills,
+          result.missingSkills,
+          job.title
+        ),
       };
     });
 
@@ -266,6 +273,30 @@ const getMatchScoreBatch = async (req, res) => {
     logger.error('Batch match score error:', err);
     return res.status(500).json({ success: false, message: 'Failed to get batch match scores' });
   }
+};
+
+// Generate AI summary for a candidate — used in recruiter ranking
+const generateCandidateSummary = (candidateName, score, matchedSkills, missingSkills, jobTitle) => {
+  const matched = matchedSkills.join(', ') || 'general skills';
+  const missing = missingSkills.join(', ');
+
+  const strengthLabel = score >= 70 ? 'Strong' : score >= 40 ? 'Moderate' : 'Weak';
+
+  let summary = `${strengthLabel} candidate with experience in ${matched}.`;
+
+  if (missing) {
+    summary += ` Missing ${missing} which are required for this ${jobTitle} role.`;
+  }
+
+  if (score >= 70) {
+    summary += ` Recommended for technical screening.`;
+  } else if (score >= 40) {
+    summary += ` Consider for screening with skill assessment.`;
+  } else {
+    summary += ` May need significant upskilling before this role.`;
+  }
+
+  return summary;
 };
 
 module.exports = { getMatchScore, getRecommendations, rankCandidates, generateCoverLetter, getMatchScoreBatch };
