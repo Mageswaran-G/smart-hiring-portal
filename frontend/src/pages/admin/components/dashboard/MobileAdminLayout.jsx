@@ -1,7 +1,6 @@
 import { Shield, Users, Building2, Briefcase, FileText, Lock, LogOut, LayoutDashboard, BarChart3, Settings } from 'lucide-react';
 import SafeAvatar from '../../../../components/ui/SafeAvatar';
-import ProgressRing from '../../../../components/charts/ProgressRing';
-import Sparkline from '../../../../components/charts/Sparkline';
+import { ProgressRing, Sparkline } from '../../../../components/ui/charts';
 import { COLORS, GRADIENTS } from '../../../../theme/adminTheme';
 import ActionCenter from '../../../../components/admin/ActionCenter';
 

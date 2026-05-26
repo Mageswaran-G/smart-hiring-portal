@@ -1,5 +1,5 @@
 import SystemStatusCard from './SystemStatusCard';
-import ProgressRing from '../../../../components/charts/ProgressRing';
+import { ProgressRing } from '../../../../components/ui/charts';
 import { COLORS, GRADIENTS } from '../../../../theme/adminTheme';
 
 export default function AdminHero({ adminName, adminEmail, stats, hireRate }) {

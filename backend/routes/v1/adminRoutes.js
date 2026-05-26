@@ -2,8 +2,8 @@
 const express = require('express');
 const router = express.Router();
 
-const { verifyToken } = require('../../middleware/authMiddleware');
-const { authorize }   = require('../../middleware/roleMiddleware');
+const { verifyToken, authorizeRole } = require('../../middleware/authMiddleware');
+
 const {
   getPlatformStats,
   getAllCompanies,
@@ -21,7 +21,7 @@ const {
 } = require('../../controllers/v1/adminController');
 
 // Every admin route needs token + admin role check
-router.use(verifyToken, authorize('admin'));
+router.use(verifyToken, authorizeRole('admin'));
 
 // GET  /api/v1/admin/stats
 router.get('/stats', getPlatformStats);
