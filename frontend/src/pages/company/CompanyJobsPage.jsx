@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Plus, Briefcase, MapPin, Users, Pencil, Trash2,
   LayoutGrid, List, Clock, CheckCircle, FileText,
-  XCircle, ChevronRight, Building2, PlusCircle,
+  XCircle, ChevronRight, Building2, PlusCircle, Sparkles,
 } from 'lucide-react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { getMyJobs, updateJobStatus, deleteJob } from '../../services/jobService';
@@ -15,6 +15,7 @@ import { ROUTES } from '../../constants/routes';
 import useIsMobile from '../../hooks/useIsMobile';
 import toast from 'react-hot-toast';
 import ConfirmModal from '../../components/ui/ConfirmModal';
+import { generateInterviewQuestions } from '../../services/aiService';
 
 // ─── Colors ──────────────────────────────────────────────────
 const C = {
@@ -87,6 +88,24 @@ function StatCard({ label, value, sub, color, Icon, trend }) {
 
 // ─── Desktop Job Card ─────────────────────────────────────────
 function JobCard({ job, onToggle, onDelete, onEdit, onViewApplicants, view }) {
+  const [showQuestions, setShowQuestions] = useState(false);
+  const [questions, setQuestions]         = useState([]);
+  const [qLoading, setQLoading]           = useState(false);
+
+  const handleGenerateQuestions = async () => {
+    if (qLoading) return;
+    try {
+      setQLoading(true);
+      const data = await generateInterviewQuestions(job._id);
+      setQuestions(data.questions || []);
+      setShowQuestions(true);
+    } catch (err) {
+      toast.error('Failed to generate questions');
+    } finally {
+      setQLoading(false);
+    }
+  };
+
   const st    = STATUS[job.status?.toLowerCase()] || STATUS.draft;
   const dl    = daysLeft(job.deadline);
   const isList = view === 'list';
@@ -216,8 +235,12 @@ function JobCard({ job, onToggle, onDelete, onEdit, onViewApplicants, view }) {
         <button onClick={() => onViewApplicants()} title="View applicants" style={{ width:32, height:32, borderRadius:8, background:'transparent', border:`1px solid ${C.gray200}`, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'#4b5563' }}>
           <Users size={14} />
         </button>
-        <button onClick={() => onEdit(job._id)} title="Edit" style={{ width:32, height:32, borderRadius:8, background:'transparent', border:`1px solid ${C.gray200}`, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'#4b5563' }}>
-          <Pencil size={14} />
+        <button
+          onClick={handleGenerateQuestions}
+          title="Generate interview questions"
+          style={{ width:32, height:32, borderRadius:8, background:'transparent', border:`1px solid ${C.gray200}`, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'#7c3aed' }}
+        >
+          <Sparkles size={14} />
         </button>
         {isList && (
           <button onClick={() => onDelete(job._id)} title="Delete" style={{ width:32, height:32, borderRadius:8, background:'#fef2f2', border:'1px solid #fecaca', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:C.red }}>
@@ -225,6 +248,60 @@ function JobCard({ job, onToggle, onDelete, onEdit, onViewApplicants, view }) {
           </button>
         )}
       </div>
+      {/* Interview Questions Modal */}
+        {showQuestions && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+            onClick={() => setShowQuestions(false)}
+          >
+            <div
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 max-h-[80vh] overflow-y-auto"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
+                    <Sparkles size={16} color="#fff" />
+                  </div>
+                  <div>
+                    <h2 className="font-bold text-base text-gray-900">AI Interview Questions</h2>
+                    <p className="text-xs text-gray-400">{job.title}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowQuestions(false)}
+                  className="text-gray-400 hover:text-gray-600 font-bold text-lg"
+                >
+                  X
+                </button>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                {questions.map((q, i) => (
+                  <div key={i} className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xs font-bold text-gray-400">Q{i + 1}</span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
+                        {q.type}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-700 leading-relaxed">{q.question}</p>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={handleGenerateQuestions}
+                disabled={qLoading}
+                className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-sm transition disabled:opacity-50"
+              >
+                {qLoading ? 'Regenerating...' : 'Regenerate Questions'}
+              </button>
+            </div>
+          </div>
+)}
     </div>
   );
 }
