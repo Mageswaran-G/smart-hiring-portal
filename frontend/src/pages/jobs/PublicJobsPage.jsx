@@ -13,6 +13,7 @@ import { JOB_TYPES, WORK_MODES, EXPERIENCE_LEVELS } from '../../constants/jobCon
 import { useDebounce }         from '../../hooks/useDebounce';
 import { ROUTES }              from '../../constants/routes';
 
+
 const DEFAULT_FILTERS = {
   search:          '',
   jobType:         '',
@@ -40,6 +41,7 @@ export default function PublicJobsPage() {
 
   const [jobs,       setJobs]       = useState([]);
   const [savedIds,   setSavedIds]   = useState(new Set());
+  const [matchScores, setMatchScores] = useState({}); // jobId → score
   const [loading,    setLoading]    = useState(true);
   const [loadingMore,setLoadingMore]= useState(false);
   const [filters,    setFilters]    = useState(DEFAULT_FILTERS);
@@ -109,6 +111,26 @@ export default function PublicJobsPage() {
       } catch (_) {}
     };
     fetch();
+  }, [isCandidate]);
+
+  // Fetch AI match scores for all jobs — candidate only
+  useEffect(() => {
+    if (!isCandidate) return;
+    const fetchMatchScores = async () => {
+      try {
+        const res = await API.get('/ai/recommendations');
+        const recommendations = res.data.data.recommendations || [];
+        // Build a map: jobId → matchScore
+        const scoreMap = {};
+        recommendations.forEach(job => {
+          scoreMap[job._id] = job.matchScore;
+        });
+        setMatchScores(scoreMap);
+      } catch (err) {
+        // Silently fail — match scores are optional
+      }
+    };
+    fetchMatchScores();
   }, [isCandidate]);
 
   const handleFilterChange = (key, value) => {
@@ -259,6 +281,7 @@ export default function PublicJobsPage() {
                   job={job}
                   isSaved={savedIds.has(job._id)}
                   onToggleSave={isCandidate ? handleToggleSave : undefined}
+                  matchScore={matchScores[job._id]}
                 />
               ))}
             </div>

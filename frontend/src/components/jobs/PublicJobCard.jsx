@@ -5,8 +5,8 @@
 import { MapPin, Briefcase, Bookmark } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../constants/routes';
-
-export default function PublicJobCard({ job, isSaved = false, onToggleSave }) {
+import ScoreBadge from '../ai/ScoreBadge';
+export default function PublicJobCard({ job, isSaved = false, onToggleSave, matchScore }) {
 
   const navigate = useNavigate();
   // Strips HTML tags for plain text preview
@@ -57,6 +57,13 @@ export default function PublicJobCard({ job, isSaved = false, onToggleSave }) {
         <MapPin size={15} />
         {job.location}
       </div>
+      
+      {/* AI Match Score badge — candidates only */}
+      {matchScore !== undefined && (
+        <div className="mt-3">
+          <ScoreBadge score={matchScore} />
+        </div>
+      )}
 
       {/* Tags */}
       <div className="mt-4 flex flex-wrap gap-2">
