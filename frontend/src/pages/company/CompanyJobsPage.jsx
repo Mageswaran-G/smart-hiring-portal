@@ -87,24 +87,8 @@ function StatCard({ label, value, sub, color, Icon, trend }) {
 }
 
 // ─── Desktop Job Card ─────────────────────────────────────────
-function JobCard({ job, onToggle, onDelete, onEdit, onViewApplicants, view }) {
-  const [showQuestions, setShowQuestions] = useState(false);
-  const [questions, setQuestions]         = useState([]);
-  const [qLoading, setQLoading]           = useState(false);
-
-  const handleGenerateQuestions = async () => {
-    if (qLoading) return;
-    try {
-      setQLoading(true);
-      const data = await generateInterviewQuestions(job._id);
-      setQuestions(data.questions || []);
-      setShowQuestions(true);
-    } catch (err) {
-      toast.error('Failed to generate questions');
-    } finally {
-      setQLoading(false);
-    }
-  };
+function JobCard({ job, onToggle, onDelete, onEdit, onViewApplicants, view, onGenerateQuestions }) {
+  
 
   const st    = STATUS[job.status?.toLowerCase()] || STATUS.draft;
   const dl    = daysLeft(job.deadline);
@@ -236,7 +220,7 @@ function JobCard({ job, onToggle, onDelete, onEdit, onViewApplicants, view }) {
           <Users size={14} />
         </button>
         <button
-          onClick={handleGenerateQuestions}
+          onClick={() => onGenerateQuestions(job._id)}
           title="Generate interview questions"
           style={{ width:32, height:32, borderRadius:8, background:'transparent', border:`1px solid ${C.gray200}`, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'#7c3aed' }}
         >
@@ -248,60 +232,7 @@ function JobCard({ job, onToggle, onDelete, onEdit, onViewApplicants, view }) {
           </button>
         )}
       </div>
-      {/* Interview Questions Modal */}
-        {showQuestions && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
-            onClick={() => setShowQuestions(false)}
-          >
-            <div
-              className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 max-h-[80vh] overflow-y-auto"
-              onClick={e => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-                    <Sparkles size={16} color="#fff" />
-                  </div>
-                  <div>
-                    <h2 className="font-bold text-base text-gray-900">AI Interview Questions</h2>
-                    <p className="text-xs text-gray-400">{job.title}</p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowQuestions(false)}
-                  className="text-gray-400 hover:text-gray-600 font-bold text-lg"
-                >
-                  X
-                </button>
-              </div>
 
-              <div className="flex flex-col gap-3">
-                {questions.map((q, i) => (
-                  <div key={i} className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xs font-bold text-gray-400">Q{i + 1}</span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
-                        {q.type}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-700 leading-relaxed">{q.question}</p>
-                  </div>
-                ))}
-              </div>
-
-              <button
-                type="button"
-                onClick={handleGenerateQuestions}
-                disabled={qLoading}
-                className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-sm transition disabled:opacity-50"
-              >
-                {qLoading ? 'Regenerating...' : 'Regenerate Questions'}
-              </button>
-            </div>
-          </div>
-)}
     </div>
   );
 }
@@ -418,6 +349,20 @@ export default function CompanyJobsPage() {
   const [tab,     setTab]     = useState('all');
   const [view,    setView]    = useState('grid');
   const [confirmModal, setConfirmModal] = useState({ isOpen:false, jobId:null });
+
+  const [interviewModal, setInterviewModal] = useState({ isOpen:false, questions:[], jobTitle:'', loading:false });
+
+  const handleGenerateQuestions = async (jobId) => {
+    const job = jobs.find(j => j._id === jobId);
+    setInterviewModal({ isOpen:true, questions:[], jobTitle: job?.title || '', loading:true });
+    try {
+      const data = await generateInterviewQuestions(jobId);
+      setInterviewModal(prev => ({ ...prev, questions: data.questions || [], loading:false }));
+    } catch (err) {
+      toast.error('Failed to generate questions');
+      setInterviewModal(prev => ({ ...prev, isOpen:false, loading:false }));
+    }
+  };
 
   useEffect(() => {
     if (fetchedRef.current) return;
@@ -610,6 +555,7 @@ export default function CompanyJobsPage() {
               onDelete={confirmDelete}
               onEdit={(id) => navigate(ROUTES.COMPANY_JOB_EDIT.replace(':id', id))}
               onViewApplicants={() => navigate(ROUTES.COMPANY_APPLICATIONS)}
+              onGenerateQuestions={handleGenerateQuestions}
             />
           ))}
 
@@ -718,6 +664,7 @@ export default function CompanyJobsPage() {
                 onDelete={confirmDelete}
                 onEdit={(id) => navigate(ROUTES.COMPANY_JOB_EDIT.replace(':id', id))}
                 onViewApplicants={() => navigate(ROUTES.COMPANY_APPLICATIONS)}
+                onGenerateQuestions={handleGenerateQuestions}
               />
             ))}
             {view === 'grid' && (
@@ -749,6 +696,82 @@ export default function CompanyJobsPage() {
         onConfirm={handleDelete}
         onCancel={() => setConfirmModal({ isOpen:false, jobId:null })}
       />
+
+      {/* AI Interview Questions Modal */}
+{interviewModal.isOpen && (
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+    onClick={() => setInterviewModal(prev => ({ ...prev, isOpen:false }))}
+  >
+    <div
+      className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] overflow-hidden flex flex-col"
+      onClick={e => e.stopPropagation()}
+    >
+      {/* Modal Header */}
+      <div className="bg-gradient-to-r from-blue-700 to-blue-500 px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
+            <Sparkles size={18} color="#fff" />
+          </div>
+          <div>
+            <h2 className="font-bold text-base text-white">AI Interview Questions</h2>
+            <p className="text-xs text-white/70">{interviewModal.jobTitle}</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setInterviewModal(prev => ({ ...prev, isOpen:false }))}
+          className="text-white/70 hover:text-white transition text-xl font-bold"
+        >
+          X
+        </button>
+      </div>
+
+      {/* Modal Body */}
+      <div className="overflow-y-auto flex-1 p-6">
+        {interviewModal.loading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="w-8 h-8 rounded-full border-4 border-blue-600 border-t-transparent animate-spin" />
+            <span className="ml-3 text-gray-500 text-sm">Generating questions...</span>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {interviewModal.questions.map((q, i) => (
+              <div key={i} className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs font-bold text-gray-400">Q{i + 1}</span>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                    q.type === 'Technical' ? 'bg-blue-50 text-blue-700' :
+                    q.type === 'Leadership' ? 'bg-amber-50 text-amber-700' :
+                    q.type === 'Behavioural' ? 'bg-purple-50 text-purple-700' :
+                    'bg-green-50 text-green-700'
+                  }`}>
+                    {q.type}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed">{q.question}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Modal Footer */}
+      {!interviewModal.loading && (
+        <div className="px-6 py-4 border-t border-gray-100">
+          <button
+            type="button"
+            onClick={() => handleGenerateQuestions(jobs.find(j => j.title === interviewModal.jobTitle)?._id)}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-2"
+          >
+            <Sparkles size={14} />
+            Regenerate Questions
+          </button>
+        </div>
+      )}
+    </div>
+  </div>
+)}
     </DashboardLayout>
   );
 }
