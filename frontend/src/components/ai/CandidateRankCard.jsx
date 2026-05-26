@@ -1,7 +1,7 @@
 
 // Reusable AI candidate ranking panel for company — Tailwind version
 
-import { getScoreMeta } from '../../utils/matchScore';
+import ScoreBadge from './ScoreBadge';
 
 export default function CandidateRankCard({ ranking, loading }) {
   return (
@@ -22,7 +22,12 @@ export default function CandidateRankCard({ ranking, loading }) {
 
       {/* Candidate rows */}
       {!loading && ranking.map((r, i) => {
-        const scoreMeta = getScoreMeta(r.score);
+        const initials = r.candidate.name
+          ?.split(' ')
+          .map(n => n[0])
+          .slice(0, 2)
+          .join('')
+          .toUpperCase() || '?';
         return (
           <div
             key={r.applicationId}
@@ -35,20 +40,18 @@ export default function CandidateRankCard({ ranking, loading }) {
 
             {/* Avatar */}
             <div className="w-9 h-9 rounded-full bg-violet-100 flex items-center justify-center font-bold text-violet-700 text-sm shrink-0">
-              {r.candidate.name?.charAt(0).toUpperCase()}
+              {initials}
             </div>
 
             {/* Name + email */}
             <div className="flex-1 min-w-0">
               <p className="font-bold text-sm text-gray-900 mb-0">{r.candidate.name}</p>
-              <p className="text-xs text-gray-500 mb-0">{r.candidate.email}</p>
+              <p className="text-xs text-gray-500 truncate mb-0">{r.candidate.email}</p>
             </div>
 
             {/* Score badge */}
             <div className="text-right shrink-0">
-              <div className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${scoreMeta.badgeClass}`}>
-                {r.score}% Match
-              </div>
+              <ScoreBadge score={r.score} />
               <p className="text-[11px] text-gray-500 mt-0.5 mb-0">
                 {r.matchedSkills?.length || 0} skills matched
               </p>
