@@ -37,6 +37,8 @@ function ExpandableRow({ r, i, initials }) {
           </p>
           <button
             onClick={() => setExpanded(prev => !prev)}
+            aria-expanded={expanded}
+            aria-label={expanded ? 'Hide AI candidate details' : 'View AI candidate details'}
             className="mt-1 text-[11px] text-violet-600 hover:text-violet-800 font-semibold underline"
           >
             {expanded ? 'Hide Details' : 'View AI Details'}
