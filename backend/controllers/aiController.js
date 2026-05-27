@@ -7,6 +7,7 @@ const Job = require('../models/Job');
 const Application = require('../models/Application');
 const User = require('../models/User');
 const logger = require('../utils/logger');
+const { setCache, getCache, deleteCache } = require('../utils/cache');
 
 // POST /api/v1/ai/match/:jobId
 const getMatchScore = async (req, res) => {
@@ -17,7 +18,9 @@ const getMatchScore = async (req, res) => {
     const job = await Job.findById(jobId);
     if (!job) return res.status(404).json({ success: false, message: "Job not found" });
 
-    
+    const cacheKey = `match:${userId}:${jobId}`;
+    const cached = getCache(cacheKey);
+    if (cached) return res.json({ success: true, data: cached, fromCache: true });
 
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
@@ -32,16 +35,17 @@ const getMatchScore = async (req, res) => {
     const allJobSkills = [...new Set([...jobSkills, ...descriptionSkills])];
 
     const result = calculateMatch(candidateSkills, allJobSkills);
-
+    const matchData = {
+      score: result.score,
+      matchedSkills: result.matchedSkills,
+      missingSkills: result.missingSkills,
+      totalJobSkills: allJobSkills.length,
+      suggestions: getSuggestions(result.missingSkills),
+    };
+    setCache(cacheKey, matchData, 600);
     return res.json({
       success: true,
-      data: {
-        score: result.score,
-        matchedSkills: result.matchedSkills,
-        missingSkills: result.missingSkills,
-        totalJobSkills: allJobSkills.length,
-        suggestions: getSuggestions(result.missingSkills),
-      }
+      data: matchData
     });
 
   } catch (err) {
@@ -54,6 +58,10 @@ const getMatchScore = async (req, res) => {
 const getRecommendations = async (req, res) => {
   try {
     const userId = req.user.id;
+
+    const cacheKey = `recommendations:${userId}`;
+    const cached = getCache(cacheKey);
+    if (cached) return res.json({ success: true, data: cached, fromCache: true });
 
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
@@ -96,6 +104,7 @@ const getRecommendations = async (req, res) => {
       missingSkills: item.missingSkills,
     }));
 
+    setCache(cacheKey, { recommendations }, 300);
     return res.json({ success: true, data: { recommendations } });
 
   } catch (err) {
