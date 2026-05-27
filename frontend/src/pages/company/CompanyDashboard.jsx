@@ -267,6 +267,11 @@ export default function CompanyDashboard() {
           </button>
         </section>
 
+        {/* ── Mobile AI Analytics ── */}
+        <section style={{ padding:'14px 14px 0' }}>
+          <AIAnalyticsCard />
+        </section>
+
         <MobileTabBar active={activeTab} onTab={handleTab} jobCount={jobs.length} appCount={applications.length} />
       </div>
     );

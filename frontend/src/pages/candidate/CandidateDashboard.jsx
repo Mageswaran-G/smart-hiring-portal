@@ -413,6 +413,11 @@ export default function CandidateDashboard() {
           </button>
         </section>
 
+        {/* ── Mobile AI Insights ── */}
+        <section style={{ padding:'14px 14px 0' }}>
+          <CandidateAIWidget profile={profile} />
+        </section>
+
         {/* ── Mobile Bottom Tab Bar ── */}
         <MTabBar active={activeTab} onTab={handleTab} savedCount={savedCount} appCount={applications.length} />
       </div>
