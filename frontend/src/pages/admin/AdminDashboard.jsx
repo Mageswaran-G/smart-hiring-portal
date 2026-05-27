@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { COLORS, GRADIENTS } from '../../theme/adminTheme';
 import { useAuth } from '../../context/AuthContext';
 import { API } from '../../services/authService';
+import { getAIHealthMetrics } from '../../services/adminService';
 import { API_ENDPOINTS } from '../../constants/api';
 import { ROUTES } from '../../constants/routes';
 import useIsMobile from '../../hooks/useIsMobile';
@@ -18,6 +19,7 @@ import LoadingScreen from './components/dashboard/LoadingScreen';
 import AdminHero from './components/dashboard/AdminHero';
 import DesktopAdminNav from './components/dashboard/DesktopAdminNav';
 import MobileAdminLayout from './components/dashboard/MobileAdminLayout';
+import AIHealthCard from './components/dashboard/AIHealthCard';
 
 // ─── Main Component ───────────────────────────────────────────
 export default function AdminDashboard() {
@@ -28,6 +30,7 @@ export default function AdminDashboard() {
   const [activeTab,    setActiveTab]   = useState('overview');
   const [stats,        setStats]       = useState(null);
   const [loading,      setLoading]     = useState(true);
+  const [aiHealth,     setAiHealth]    = useState(null);
 
   
   const fetchedRef = useRef(false);
@@ -40,6 +43,8 @@ export default function AdminDashboard() {
       try {
         const res = await API.get(API_ENDPOINTS.ADMIN_STATS);
         setStats(res.data.data || res.data);
+        const aiRes = await getAIHealthMetrics();
+        setAiHealth(aiRes.data);
       } catch (err) {
         console.error('AdminDashboard stats error:', err);
         setStats({ totalUsers:0, totalCandidates:0, totalCompanies:0, totalJobs:0, totalApplications:0, hired:0, shortlisted:0, recentUsers:[] });
@@ -132,6 +137,10 @@ export default function AdminDashboard() {
         <div style={{ height: 8 }} />
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 32px' }}>
           <ActionCenter />
+
+          <div style={{ marginTop: 20 }}>
+            <AIHealthCard data={aiHealth} />
+          </div>
         </div>
 
       {/* ── Desktop Main Content ── */}

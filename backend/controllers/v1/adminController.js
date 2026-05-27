@@ -580,3 +580,74 @@ exports.getActionCenter = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+
+// GET /api/v1/admin/ai-health
+// Shows AI usage stats for admin dashboard
+exports.getAIHealthMetrics = async (req, res, next) => {
+  try {
+    // Count candidates who used AI resume parser
+    const totalCandidates = await User.countDocuments({ 
+      role: 'candidate', 
+      isDeleted: { $ne: true } 
+    });
+
+    const aiParsedCandidates = await User.countDocuments({ 
+      role: 'candidate',
+      isDeleted: { $ne: true },
+      parsedSkills: { $exists: true, $not: { $size: 0 } }
+    });
+
+    // Get all parsedSkills from all candidates
+    const candidatesWithSkills = await User.find({
+      role: 'candidate',
+      isDeleted: { $ne: true },
+      parsedSkills: { $exists: true, $not: { $size: 0 } }
+    }).select('parsedSkills');
+
+    // Count how many candidates have each skill
+    const skillCount = {};
+    candidatesWithSkills.forEach(candidate => {
+      candidate.parsedSkills.forEach(skill => {
+        const s = skill.toLowerCase().trim();
+        skillCount[s] = (skillCount[s] || 0) + 1;
+      });
+    });
+
+    // Sort skills by count — most common first
+    const topSkills = Object.entries(skillCount)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([skill, count]) => ({ skill, count }));
+
+    // Total applications and jobs
+    const totalApplications = await Application.countDocuments({ 
+      isDeleted: { $ne: true } 
+    });
+    const totalActiveJobs = await Job.countDocuments({ 
+      isActive: true, 
+      status: 'published',
+      isDeleted: { $ne: true } 
+    });
+
+    // AI adoption rate = candidates using AI / total candidates
+    const adoptionRate = totalCandidates > 0 
+      ? Math.round((aiParsedCandidates / totalCandidates) * 100) 
+      : 0;
+
+    return res.json({
+      success: true,
+      data: {
+        totalCandidates,
+        aiParsedCandidates,
+        adoptionRate,
+        topSkills,
+        totalApplications,
+        totalActiveJobs,
+      }
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};

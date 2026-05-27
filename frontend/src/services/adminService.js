@@ -64,3 +64,8 @@ export const getActionCenter = async () => {
   const response = await API.get("/admin/action-center");
   return response.data;
 };
+
+export const getAIHealthMetrics = async () => {
+  const res = await API.get('/admin/ai-health');
+  return res.data;
+};
