@@ -260,6 +260,11 @@ export default function CompanyDashboard() {
           )}
         </section>
 
+        {/* ── Mobile AI Analytics ── */}
+        <section style={{ padding:'14px 14px 0' }}>
+          <AIAnalyticsCard />
+        </section>
+
         {/* ── Mobile Logout ── */}
         <section style={{ padding:'14px 14px 0' }}>
           <button onClick={handleLogout} style={{ width:'100%', background:'#fff', border:`1px solid ${C.gray200}`, borderRadius:14, padding:'14px', display:'flex', alignItems:'center', justifyContent:'center', gap:8, color:'#ef4444', fontSize:14, fontWeight:700, cursor:'pointer' }}>
@@ -267,10 +272,7 @@ export default function CompanyDashboard() {
           </button>
         </section>
 
-        {/* ── Mobile AI Analytics ── */}
-        <section style={{ padding:'14px 14px 0' }}>
-          <AIAnalyticsCard />
-        </section>
+        
 
         <MobileTabBar active={activeTab} onTab={handleTab} jobCount={jobs.length} appCount={applications.length} />
       </div>
