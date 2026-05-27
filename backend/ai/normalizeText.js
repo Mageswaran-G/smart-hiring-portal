@@ -146,4 +146,28 @@ function normalizeSkill(skill = '') {
   return cleaned;
 }
 
+// Skill Groups — for related skill scoring
+const SKILL_GROUPS = {
+  frontend:   ['react', 'vue', 'angular', 'nextjs', 'svelte', 'javascript', 'typescript', 'html', 'css', 'tailwind'],
+  backend:    ['nodejs', 'express', 'python', 'django', 'flask', 'java', 'spring', 'php', 'laravel', 'golang', 'nestjs'],
+  database:   ['mongodb', 'mysql', 'postgres', 'redis', 'firebase', 'sqlite', 'dynamodb', 'elasticsearch'],
+  devops:     ['docker', 'k8s', 'aws', 'azure', 'gcp', 'linux', 'nginx', 'jenkins', 'cicd', 'terraform'],
+  mobile:     ['reactnative', 'flutter', 'swift', 'kotlin', 'android', 'ios'],
+  ai:         ['ml', 'dl', 'nlp', 'tensorflow', 'pytorch', 'pandas', 'numpy', 'scikit'],
+  testing:    ['jest', 'cypress', 'selenium', 'playwright', 'mocha', 'vitest'],
+};
+
+// Find which group a skill belongs to
+function getSkillGroup(skill) {
+  const normalized = normalizeSkill(skill);
+  for (const [group, skills] of Object.entries(SKILL_GROUPS)) {
+    if (skills.includes(normalized)) return group;
+  }
+  return 'other';
+}
+
+module.exports = normalizeSkill;
+module.exports.SKILL_GROUPS = SKILL_GROUPS;
+module.exports.getSkillGroup = getSkillGroup;
+
 module.exports = normalizeSkill;
