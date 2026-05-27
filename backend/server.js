@@ -5,8 +5,8 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-const { aiLimiter } = require('./middleware/rateLimiters');
+
+
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/v1/authRoutes');
@@ -53,38 +53,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// ─── Rate Limiters ────────────────────────────────────────────
-
-// Strict limiter for login and signup only — prevents brute force
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,   // 15 minutes
-  max: 10,                     // 10 login/signup attempts per 15 min
-  message: { success: false, message: 'Too many requests, please try again later' }
-});
-
-// Generous limiter for refresh — user reloads browser many times normally
-const refreshLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 60,                     // 60 refreshes per 15 min
-  message: { success: false, message: 'Too many requests, please try again later' }
-});
-
-// API limiter for all job/application/saved routes
-// Dashboard makes 3 calls per load. User navigates many pages.
-// 500 per 15 min = safe for normal use while still blocking real abuse
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,   // 15 minutes
-  max: 500,                    // 500 API requests per 15 min (plenty for normal use)
-  message: { success: false, message: 'Too many requests, slow down.' }
-});
-
-// Write limiter — for POST/PUT/DELETE that change data (still strict)
-const writeLimiter = rateLimit({
-  windowMs: 60 * 1000,         // 1 minute window
-  max: 30,                     // 30 write operations per minute
-  message: { success: false, message: 'Too many write requests, slow down.' },
-  skip: (req) => req.method === 'GET', // Only count non-GET requests
-});
+const { authLimiter, refreshLimiter, apiLimiter, writeLimiter, aiLimiter } = require('./middleware/rateLimiters');
 
 // ─── Apply Rate Limiters ──────────────────────────────────────
 
