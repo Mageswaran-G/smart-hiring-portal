@@ -106,7 +106,7 @@ export default function CandidateAIWidget({ profile }) {
         {/* CTA */}
         <button
           type="button"
-          onClick={() => navigate(ROUTES.CANDIDATE_RECOMMENDATIONS)}
+          onClick={() => navigate(ROUTES.RECOMMENDATIONS)}
           className="w-full flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 text-white font-semibold py-2.5 rounded-xl text-xs transition"
         >
           <Sparkles size={12} />
