@@ -12,7 +12,7 @@ function preprocessText(text) {
     .replace(/tailwind\s+css/gi, 'tailwind')
     .replace(/next\s+js/gi, 'nextjs')
     .replace(/ci\s*\/\s*cd/gi, 'cicd')
-    .replace(/rest\s+api/gi, 'restapi');
+    .replace(/rest\s+apis?/gi, 'restapi');
 }
 
 function extractSkills(text = '') {
