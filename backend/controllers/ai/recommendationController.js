@@ -28,7 +28,7 @@ const getRecommendations = async (req, res) => {
     if (!candidateSkills.length)
       return res.json({ success: true, data: { recommendations: [], message: 'Add skills to get recommendations' } });
     const appliedApps   = await Application.find({ candidate: userId }).select('job');
-    const appliedJobIds = appliedApps.map(a => a.job.toString());
+    const appliedJobIds = appliedApps.map(a => a.job?.toString()).filter(Boolean);
     const jobs = await Job.find({ status: 'published', isActive: true, isDeleted: false, _id: { $nin: appliedJobIds } })
       .select('title location jobType workMode experienceLevel skillsRequired postedBy slug')
       .populate('postedBy', 'companyName isVerified').limit(20);

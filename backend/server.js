@@ -6,10 +6,18 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+// Light — cheap operations
 const aiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 30,                   // 30 AI requests per 15 mins
+  windowMs: 15 * 60 * 1000,
+  max: 60,
   message: { success: false, message: 'Too many AI requests. Please wait 15 minutes.' }
+});
+
+// Heavy — expensive generation operations
+const aiHeavyLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { success: false, message: 'Too many generation requests. Please wait 15 minutes.' }
 });
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
@@ -23,7 +31,7 @@ const jobRoutes = require('./routes/v1/jobRoutes');
 const applicationRoutes = require('./routes/v1/applicationRoutes');
 const savedJobRoutes = require('./routes/v1/savedJobRoutes');
 const { startCronJobs } = require('./utils/cronJobs');
-const aiRoutes = require("./routes/v1/aiRoutes");
+const aiRoutes = require('./routes/v1/aiRoutes')(aiHeavyLimiter);
 const adminRoutes = require('./routes/v1/adminRoutes');
 
 
