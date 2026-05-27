@@ -19,6 +19,7 @@ import { ROUTES } from '../../constants/routes';
 import useIsMobile from '../../hooks/useIsMobile';
 import SafeAvatar from '../../components/ui/SafeAvatar';
 import { calcProfileStrength } from '../../utils/profileStrength';
+import CandidateAIWidget from '../../components/ai/CandidateAIWidget';
 
 // ─── Brand Colors ────────────────────────────────────────────
 const C = {
@@ -641,7 +642,8 @@ export default function CandidateDashboard() {
               Improve Profile →
             </button>
           </div>
-
+              {/* AI Insights Widget */}
+              <CandidateAIWidget profile={profile} />
           {/* Recommended Jobs */}
           <div style={{ background:'#fff', borderRadius:20, padding:'22px', boxShadow:'0 1px 5px rgba(0,0,0,0.06)', border:`1px solid ${C.gray100}`, flex:1 }}>
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
