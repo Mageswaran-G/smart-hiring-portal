@@ -59,3 +59,12 @@ export const generateInterviewQuestions = async (jobId) => {
     throw err.response?.data || err;
   }
 };
+
+export const getResumeFeedback = async () => {
+  try {
+    const res = await API.post('/ai/resume-feedback');
+    return res.data.data;
+  } catch (err) {
+    throw err.response?.data || err;
+  }
+};

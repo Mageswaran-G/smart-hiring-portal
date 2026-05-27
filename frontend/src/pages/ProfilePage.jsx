@@ -28,6 +28,7 @@ import HiringStatusSection from '../components/profile/sections/HiringStatusSect
 import CompanyCultureSection from '../components/profile/sections/CompanyCultureSection';
 import EmployeeBenefitsSection from '../components/profile/sections/EmployeeBenefitsSection';
 import CompanyTechStackSection from '../components/profile/sections/CompanyTechStackSection';
+import ResumeFeedbackCard from '../components/ai/ResumeFeedbackCard';
 
 export default function ProfilePage() {
   const { user, logoutUser } = useAuth();
@@ -130,6 +131,9 @@ export default function ProfilePage() {
               isCandidate={isCandidate}
               onProfileRefresh={fetchProfile}
             />
+            <div className="mt-4">
+              <ResumeFeedbackCard />
+            </div>
             <EducationSection
               profile={profile}
               isCandidate={isCandidate}

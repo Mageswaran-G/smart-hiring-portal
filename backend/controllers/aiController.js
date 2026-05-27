@@ -370,4 +370,81 @@ const generateInterviewQuestions = async (req, res) => {
   }
 };
 
-module.exports = { getMatchScore, getRecommendations, rankCandidates, generateCoverLetter, getMatchScoreBatch, generateInterviewQuestions };
+// POST /api/v1/ai/resume-feedback
+const generateResumeFeedback = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId).select(
+      'name skills parsedSkills resume resumes bio headline education workHistory portfolioProjects certifications'
+    );
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+    const skills = user.parsedSkills?.length ? user.parsedSkills :
+      (user.skills || []).map(s => typeof s === 'string' ? s : s.name).filter(Boolean);
+
+    // Build feedback
+    const strengths = [];
+    const improvements = [];
+    const missing = [];
+
+    // Resume uploaded check
+    const hasResume = user.resumes?.length > 0 || user.resume?.url;
+    if (hasResume) strengths.push('Resume uploaded — recruiters can view your CV');
+    else missing.push('Upload your resume to increase visibility by 60%');
+
+    // Skills
+    if (skills.length >= 5) strengths.push(`Strong skill set — ${skills.length} skills listed`);
+    else if (skills.length > 0) improvements.push(`Add more skills — you have ${skills.length}, aim for at least 5`);
+    else missing.push('Add skills to your profile — critical for AI matching');
+
+    // Bio
+    if (user.bio && user.bio.length >= 50) strengths.push('Good bio — helps recruiters understand your background');
+    else if (user.bio) improvements.push('Expand your bio — aim for at least 50 characters');
+    else missing.push('Add a bio — recruiters read this first');
+
+    // Headline
+    if (user.headline) strengths.push('Professional headline present');
+    else missing.push('Add a headline — e.g. "Full Stack Developer | React | Node.js"');
+
+    // Work history
+    if (user.workHistory?.length > 0) strengths.push(`Work history added — ${user.workHistory.length} position${user.workHistory.length > 1 ? 's' : ''} listed`);
+    else improvements.push('Add work history or internship experience');
+
+    // Education
+    if (user.education?.length > 0) strengths.push('Education section complete');
+    else missing.push('Add your education details');
+
+    // Projects
+    if (user.portfolioProjects?.length > 0) strengths.push(`${user.portfolioProjects.length} portfolio project${user.portfolioProjects.length > 1 ? 's' : ''} listed — great for freshers`);
+    else improvements.push('Add portfolio projects — very important for freshers');
+
+    // Certifications
+    if (user.certifications?.length > 0) strengths.push('Certifications listed — builds recruiter trust');
+
+    // ATS Score calculation
+    let atsScore = 0;
+    if (hasResume) atsScore += 25;
+    if (skills.length >= 3) atsScore += 20;
+    if (user.headline) atsScore += 15;
+    if (user.bio) atsScore += 15;
+    if (user.education?.length > 0) atsScore += 10;
+    if (user.workHistory?.length > 0) atsScore += 15;
+
+    return res.json({
+      success: true,
+      data: {
+        atsScore,
+        strengths,
+        improvements,
+        missing,
+        totalSkills: skills.length,
+        skillsList: skills.slice(0, 8),
+      }
+    });
+
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+module.exports = { getMatchScore, getRecommendations, rankCandidates, generateCoverLetter, getMatchScoreBatch, generateInterviewQuestions, generateResumeFeedback };
