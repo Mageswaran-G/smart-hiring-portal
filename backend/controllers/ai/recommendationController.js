@@ -37,7 +37,7 @@ const getRecommendations = async (req, res) => {
       const result      = calculateMatch(candidateSkills, jobSkills);
       const suggestions = getSuggestions(result.missingSkills);
       return { ...job.toObject(), matchScore: result.score, matchedSkills: result.matchedSkills, missingSkills: result.missingSkills, suggestions };
-    }).filter(j => j.matchScore >= 25).sort((a, b) => b.matchScore - a.matchScore).slice(0, 10);
+    }).filter(j => j.matchScore >= 15).sort((a, b) => b.matchScore - a.matchScore).slice(0, 10);
     return res.json({ success: true, data: { recommendations: scored, totalSkills: candidateSkills.length } });
   } catch (err) {
     logger.error('Recommendations error:', err);

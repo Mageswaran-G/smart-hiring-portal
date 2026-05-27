@@ -6,6 +6,11 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const aiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 30,                   // 30 AI requests per 15 mins
+  message: { success: false, message: 'Too many AI requests. Please wait 15 minutes.' }
+});
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/v1/authRoutes');
@@ -103,7 +108,7 @@ app.use('/api/v1/jobs',         apiLimiter, writeLimiter, jobRoutes);
 app.use('/api/v1/applications', apiLimiter, writeLimiter, applicationRoutes);
 app.use('/api/v1/saved',        apiLimiter, writeLimiter, savedJobRoutes);
 app.use("/api/v1/admin",        apiLimiter, adminRoutes);
-app.use("/api/v1/ai",           apiLimiter, aiRoutes);
+app.use('/api/v1/ai', aiLimiter, aiRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
