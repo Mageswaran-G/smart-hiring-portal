@@ -1,7 +1,5 @@
 // Match Engine — Semantic + Weighted Skill Matching
-
-const normalizeSkill = require('./normalizeText');
-const { getSkillGroup } = require('./normalizeText');
+const { normalizeSkill, getSkillGroup } = require('./normalizeText');
 
 function calculateMatch(candidateSkills = [], jobSkills = [], options = {}) {
   if (!jobSkills || jobSkills.length === 0) {
@@ -18,7 +16,7 @@ function calculateMatch(candidateSkills = [], jobSkills = [], options = {}) {
 
   jobSkills.forEach(skill => {
     const normalized = normalizeSkill(skill);
-    const group = getSkillGroup(skill);
+    const group = getSkillGroup(normalized);
 
     // Weight by skill group importance
     // Core technical skills worth more

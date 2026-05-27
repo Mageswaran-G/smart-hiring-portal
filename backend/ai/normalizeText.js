@@ -166,8 +166,9 @@ function getSkillGroup(skill) {
   return 'other';
 }
 
-module.exports = normalizeSkill;
-module.exports.SKILL_GROUPS = SKILL_GROUPS;
-module.exports.getSkillGroup = getSkillGroup;
+module.exports = {
+  normalizeSkill,
+  SKILL_GROUPS,
+  getSkillGroup,
+};
 
-module.exports = normalizeSkill;

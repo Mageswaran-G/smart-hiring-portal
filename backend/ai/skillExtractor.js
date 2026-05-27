@@ -1,5 +1,5 @@
 const SKILLS = require('../constants/skills');
-const normalizeSkill = require('./normalizeText');
+const { normalizeSkill } = require('./normalizeText');
 
 // Pre-process multi-word skills before tokenizing
 function preprocessText(text) {
