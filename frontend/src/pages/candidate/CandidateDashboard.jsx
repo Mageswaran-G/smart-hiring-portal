@@ -1,6 +1,6 @@
 // CandidateDashboard
 // Orange theme — #ea580c / #c2410c
-// Self-contained: includes inline ProgressRing + Sparkline (no external chart imports needed)
+// Refactored: helper components extracted to components/dashboard/
 // Fully responsive: desktop grid layout + mobile stacked layout with bottom tab bar
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -20,103 +20,10 @@ import useIsMobile from '../../hooks/useIsMobile';
 import SafeAvatar from '../../components/ui/SafeAvatar';
 import { calcProfileStrength } from '../../utils/profileStrength';
 import CandidateAIWidget from '../../components/ai/CandidateAIWidget';
-
-// ─── Brand Colors ────────────────────────────────────────────
-const C = {
-  primary : '#ea580c',
-  dark    : '#c2410c',
-  light   : '#fff7ed',
-  border  : '#fed7aa',
-  grad    : 'linear-gradient(135deg, #9a3412 0%, #c2410c 30%, #ea580c 65%, #f97316 100%)',
-  white   : '#ffffff',
-  gray50  : '#f9fafb',
-  gray100 : '#f3f4f6',
-  gray200 : '#e5e7eb',
-  gray300 : '#d1d5db',
-  gray400 : '#9ca3af',
-  gray500 : '#6b7280',
-  gray600 : '#4b5563',
-  gray700 : '#374151',
-  gray800 : '#1f2937',
-  gray900 : '#111827',
-};
-
-// ─── Application status config ───────────────────────────────
-const STATUS = {
-  applied     : { label: 'Applied',      color: '#92400e', bg: '#fef3c7' },
-  reviewing   : { label: 'Reviewing',    color: '#1e40af', bg: '#dbeafe' },
-  shortlisted : { label: 'Shortlisted',  color: '#5b21b6', bg: '#ede9fe' },
-  rejected    : { label: 'Rejected',     color: '#991b1b', bg: '#fee2e2' },
-  hired       : { label: 'Hired',        color: '#065f46', bg: '#d1fae5' },
-};
-
-// ─── Helper: time ago ────────────────────────────────────────
-function timeAgo(date) {
-  if (!date) return '';
-  const d = Math.floor((Date.now() - new Date(date).getTime()) / 86400000);
-  if (d === 0) return 'Today';
-  if (d === 1) return '1d ago';
-  if (d < 30)  return `${d}d ago`;
-  return `${Math.floor(d / 30)}mo ago`;
-}
-
-// ─── Helper: profile completion ──────────────────────────────
-function calcCompletion(profile) {
-  if (!profile) return 0;
-  const fields = [
-    profile.name, profile.headline, profile.bio, profile.photo,
-    profile.phone, profile.skills?.length, profile.resumeUrl,
-    profile.linkedin, profile.education?.length, profile.workHistory?.length,
-  ];
-  return Math.round((fields.filter(Boolean).length / fields.length) * 100);
-}
-
-// ─── Inline ProgressRing ─────────────────────────────────────
-function ProgressRing({ value = 0, size = 80, stroke = 8, color = C.primary, bg = 'rgba(255,255,255,0.22)', textColor = '#fff' }) {
-  const r = (size - stroke) / 2;
-  const circ = 2 * Math.PI * r;
-  const offset = circ - (Math.min(100, Math.max(0, value)) / 100) * circ;
-  return (
-    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
-      <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={bg} strokeWidth={stroke} />
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={stroke}
-          strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
-          style={{ transition: 'stroke-dashoffset 0.7s ease' }} />
-      </svg>
-      <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}>
-        <span style={{ fontSize: size * 0.21, fontWeight: 800, color: textColor, lineHeight: 1 }}>{value}%</span>
-        <span style={{ fontSize: size * 0.13, color: textColor, opacity: 0.7, lineHeight: 1, marginTop: 1 }}>done</span>
-      </div>
-    </div>
-  );
-}
-
-// ─── Inline Sparkline ────────────────────────────────────────
-function Sparkline({ data = [], color = C.primary, w = 90, h = 36, id = 'c' }) {
-  if (!data || data.length < 2) return null;
-  const max = Math.max(...data); const min = Math.min(...data); const range = max - min || 1;
-  const pts = data.map((v, i) => ({
-    x: +((i / (data.length - 1)) * w).toFixed(2),
-    y: +((h - 4) - ((v - min) / range) * (h - 8)).toFixed(2),
-  }));
-  const line = `M ${pts.map(p => `${p.x} ${p.y}`).join(' L ')}`;
-  const area = `${line} L ${w} ${h} L 0 ${h} Z`;
-  const gId  = `sg-cand-${id}`;
-  return (
-    <svg width={w} height={h} style={{ display:'block', overflow:'visible' }}>
-      <defs>
-        <linearGradient id={gId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"   stopColor={color} stopOpacity="0.3" />
-          <stop offset="100%" stopColor={color} stopOpacity="0.02" />
-        </linearGradient>
-      </defs>
-      <path d={area} fill={`url(#${gId})`} />
-      <path d={line} fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx={pts[pts.length-1].x} cy={pts[pts.length-1].y} r="2.5" fill={color} />
-    </svg>
-  );
-}
+import { C, STATUS_CONFIG as STATUS, timeAgo } from './components/dashboard/constants';
+import ProgressRing from './components/dashboard/ProgressRing';
+import Sparkline from './components/dashboard/Sparkline';
+import LoadingScreen from './components/dashboard/LoadingScreen';
 
 // ─── Mobile Bottom Tab Bar (defined OUTSIDE main component) ──
 const MOB_TABS = [
@@ -165,16 +72,7 @@ function MTabBar({ active, onTab, savedCount, appCount }) {
   );
 }
 
-// ─── Loading Spinner ─────────────────────────────────────────
-function LoadingScreen() {
-  return (
-    <div style={{ minHeight:'100vh', background:C.gray50, display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:12 }}>
-      <div style={{ width:40, height:40, border:`3px solid ${C.border}`, borderTopColor:C.primary, borderRadius:'50%', animation:'spin 0.8s linear infinite' }} />
-      <p style={{ color:C.gray400, fontSize:14 }}>Loading dashboard…</p>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-    </div>
-  );
-}
+
 
 // ─── Avatar helper ───────────────────────────────────────────
 function Avatar({ profile, size = 44, border = '2px solid rgba(255,255,255,0.4)' }) {
