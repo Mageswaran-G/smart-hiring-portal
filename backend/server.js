@@ -25,8 +25,10 @@ const adminRoutes = require('./routes/v1/adminRoutes');
 
 
 const app = express();
-
 app.set('trust proxy', 1);
+
+const compression = require('compression');
+app.use(compression());
 
 // Security headers
 app.use(helmet());
