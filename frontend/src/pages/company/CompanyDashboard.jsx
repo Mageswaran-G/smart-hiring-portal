@@ -23,6 +23,7 @@ import RecentApplicantsTable from './components/dashboard/RecentApplicantsTable'
 import TopPerformingJobCard from './components/dashboard/TopPerformingJobCard';
 import RecentActivityCard from './components/dashboard/RecentActivityCard';
 import ApplicantAvatar from './components/dashboard/ApplicantAvatar';
+import AIAnalyticsCard from './components/dashboard/AIAnalyticsCard';
 
 // ─── Main Component ──────────────────────────────────────────
 export default function CompanyDashboard() {
@@ -290,6 +291,7 @@ export default function CompanyDashboard() {
 
           <div style={{ display:'flex', flexDirection:'column', gap:18 }}>
             <TopPerformingJobCard topJob={topJob} dashboardNow={dashboardNow} navigate={navigate} />
+            <AIAnalyticsCard />
             <RecentActivityCard recentActivity={recentActivity} />
           </div>
         </main>
