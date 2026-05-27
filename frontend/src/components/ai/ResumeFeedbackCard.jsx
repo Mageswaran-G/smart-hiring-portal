@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Sparkles, CheckCircle, AlertCircle, XCircle } from 'lucide-react';
-import { getResumeFeedback } from '../../services/aiService';
+import { generateResumeFeedback } from '../../services/aiService';
 import toast from 'react-hot-toast';
 
 export default function ResumeFeedbackCard() {
@@ -14,7 +14,7 @@ export default function ResumeFeedbackCard() {
     if (loading) return;
     try {
       setLoading(true);
-      const data = await getResumeFeedback();
+      const data = await generateResumeFeedback();
       setFeedback(data);
       setDone(true);
     } catch {

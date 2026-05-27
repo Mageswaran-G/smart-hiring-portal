@@ -60,7 +60,7 @@ export const generateInterviewQuestions = async (jobId) => {
   }
 };
 
-export const getResumeFeedback = async () => {
+export const generateResumeFeedback = async () => {
   try {
     const res = await API.post('/ai/resume-feedback');
     return res.data.data;

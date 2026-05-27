@@ -18,7 +18,7 @@ export default function MatchScoreCard({ matchScore, loading }) {
   const missing     = matchScore.missingSkills  || [];
   const suggestions = matchScore.suggestions    || [];
   const total       = matchScore.totalJobSkills || (matched.length + missing.length);
-  const pct         = total > 0 ? Math.round((matched.length / total) * 100) : matchScore.score;
+  
 
   return (
     <div className="rounded-2xl border border-gray-100 bg-white overflow-hidden shadow-sm">
