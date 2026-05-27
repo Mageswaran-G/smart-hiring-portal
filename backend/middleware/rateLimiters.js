@@ -20,7 +20,7 @@ const refreshLimiter = rateLimit({
 
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 300,
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, message: 'Too many requests. Please wait 15 minutes.' }
@@ -31,6 +31,7 @@ const writeLimiter = rateLimit({
   max: 50,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => req.method === 'GET',
   message: { success: false, message: 'Too many write requests. Please wait 15 minutes.' }
 });
 

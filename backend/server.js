@@ -2,7 +2,7 @@ require('dotenv').config();
 
 const config = require('./config');
 const express = require('express');
-const dotenv = require('dotenv');
+
 const cors = require('cors');
 const helmet = require('helmet');
 
@@ -25,6 +25,8 @@ const adminRoutes = require('./routes/v1/adminRoutes');
 
 
 const app = express();
+
+app.set('trust proxy', 1);
 
 // Security headers
 app.use(helmet());
