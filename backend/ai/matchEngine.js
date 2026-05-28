@@ -1,9 +1,12 @@
-// Match Engine — Semantic + Weighted Skill Matching
+// Match Engine — Semantic + Weighted + Required/Preferred Skill Matching
+
 const { normalizeSkill, getSkillGroup } = require('./normalizeText');
 
 function calculateMatch(candidateSkills = [], jobSkills = [], options = {}) {
+  const { preferredSkills = [] } = options;
+
   if (!jobSkills || jobSkills.length === 0) {
-    return { score: 0, matchedSkills: [], missingSkills: [] };
+    return { score: 0, matchedSkills: [], missingSkills: [], matchedPreferred: [] };
   }
 
   // Normalize all candidate skills
@@ -11,34 +14,54 @@ function calculateMatch(candidateSkills = [], jobSkills = [], options = {}) {
 
   const matchedSkills = [];
   const missingSkills = [];
+  const matchedPreferred = [];
   let totalWeight = 0;
   let earnedWeight = 0;
 
+  // ── Score required skills (higher weight) ──
   jobSkills.forEach(skill => {
     const normalized = normalizeSkill(skill);
     const group = getSkillGroup(normalized);
 
-    // Weight by skill group importance
-    // Core technical skills worth more
+    // Weight by group
     let weight = 1;
     if (group === 'frontend' || group === 'backend') weight = 2;
     if (group === 'database') weight = 1.5;
     if (group === 'devops') weight = 1.5;
     if (group === 'ai') weight = 2;
 
+    // Required skills get 1.5x multiplier
+    weight = weight * 1.5;
     totalWeight += weight;
 
     if (normalizedCandidate.includes(normalized)) {
       matchedSkills.push(skill);
       earnedWeight += weight;
     } else {
-      // Check partial group match — same group = partial credit
+      // Partial group credit — 30%
       const candidateGroups = normalizedCandidate.map(getSkillGroup);
       if (group !== 'other' && candidateGroups.includes(group)) {
-        earnedWeight += weight * 0.3; // 30% partial credit
+        earnedWeight += weight * 0.3;
       }
       missingSkills.push(skill);
     }
+  });
+
+  // ── Score preferred skills (bonus, lower weight) ──
+  preferredSkills.forEach(skill => {
+    const normalized = normalizeSkill(skill);
+    const group = getSkillGroup(normalized);
+
+    // Preferred skills weight = 0.5x (bonus only)
+    let weight = 0.5;
+    if (group === 'frontend' || group === 'backend' || group === 'ai') weight = 1;
+    totalWeight += weight;
+
+    if (normalizedCandidate.includes(normalized)) {
+      matchedPreferred.push(skill);
+      earnedWeight += weight;
+    }
+    // No penalty for missing preferred skills
   });
 
   // Calculate weighted score
@@ -46,7 +69,7 @@ function calculateMatch(candidateSkills = [], jobSkills = [], options = {}) {
     ? Math.min(100, Math.round((earnedWeight / totalWeight) * 100))
     : 0;
 
-  return { score, matchedSkills, missingSkills };
+  return { score, matchedSkills, missingSkills, matchedPreferred };
 }
 
 module.exports = calculateMatch;

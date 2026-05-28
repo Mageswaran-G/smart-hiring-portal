@@ -19,6 +19,7 @@ const emptyForm = {
   openings:         1,
   status:           'draft',
   skillsRequired:   '',
+  preferredSkills:  '',
   requirements:     '',
   responsibilities: '',
   benefits:         '',
@@ -52,7 +53,7 @@ export default function JobForm({ mode = 'create', initialData = null, onSubmit,
       return {
         ...emptyForm,
         ...initialData,
-        skillsRequired:   initialData.skillsRequired?.join(', ')   || '',
+        preferredSkills:  initialData.preferredSkills?.join(', ')  || '',
         requirements:     initialData.requirements?.join(', ')     || '',
         responsibilities: initialData.responsibilities?.join(', ') || '',
         benefits:         initialData.benefits?.join(', ')         || '',
@@ -237,6 +238,7 @@ export default function JobForm({ mode = 'create', initialData = null, onSubmit,
       openings:         Number(form.openings) || 1,
       status:           form.status,
       skillsRequired:   toArray(form.skillsRequired),
+      preferredSkills:  toArray(form.preferredSkills),
       requirements:     toArray(form.requirements),
       responsibilities: toArray(form.responsibilities),
       benefits:         toArray(form.benefits),
@@ -531,6 +533,22 @@ export default function JobForm({ mode = 'create', initialData = null, onSubmit,
             className={inputClass('skillsRequired')}
           />
           <p className="text-xs text-gray-400 mt-1">Separate with commas</p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">
+            Preferred Skills
+            <span className="text-xs font-normal text-gray-400 ml-2">(optional — nice to have)</span>
+          </label>
+          <input
+            type="text"
+            name="preferredSkills"
+            value={form.preferredSkills}
+            onChange={handleChange}
+            placeholder="Docker, AWS, Redis (comma separated)"
+            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+          />
+          <p className="text-xs text-gray-400 mt-1">Candidates with these skills get bonus points</p>
         </div>
 
         <div>

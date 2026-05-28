@@ -9,7 +9,7 @@ const getMatchScore = async (req, res) => {
     const { jobId } = req.params;
     const [user, job] = await Promise.all([
       User.findById(userId).select('skills parsedSkills'),
-      Job.findById(jobId).select('skillsRequired postedBy title'),
+      Job.findById(jobId).select('skillsRequired preferredSkills postedBy title'),
     ]);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     if (!job)  return res.status(404).json({ success: false, message: 'Job not found' });
@@ -17,7 +17,7 @@ const getMatchScore = async (req, res) => {
       ? user.parsedSkills
       : (user.skills || []).map(s => typeof s === 'string' ? s : s.name).filter(Boolean);
     const jobSkills = [...new Set(job.skillsRequired || [])];
-    const result    = calculateMatch(candidateSkills, jobSkills);
+    const result    = calculateMatch(candidateSkills, jobSkills, { preferredSkills: job.preferredSkills || [] });
     return res.json({ success: true, data: { score: result.score, matchedSkills: result.matchedSkills, missingSkills: result.missingSkills, totalJobSkills: jobSkills.length } });
   } catch (err) {
     logger.error('Match score error:', err);
@@ -42,11 +42,11 @@ const getMatchScoreBatch = async (req, res) => {
       limitedIds.forEach(id => { scores[id] = 0; });
       return res.json({ success: true, data: { scores } });
     }
-    const jobs = await Job.find({ _id: { $in: limitedIds } }).select('skillsRequired');
+    const jobs = await Job.find({ _id: { $in: limitedIds } }).select('skillsRequired preferredSkills');
     const scores = {};
     jobs.forEach(job => {
       const jobSkills = [...new Set(job.skillsRequired || [])];
-      scores[job._id.toString()] = calculateMatch(candidateSkills, jobSkills).score;
+      scores[job._id.toString()] = calculateMatch(candidateSkills, jobSkills, { preferredSkills: job.preferredSkills || [] }).score;
     });
     return res.json({ success: true, data: { scores } });
   } catch (err) {
@@ -73,7 +73,7 @@ const getJobATSMatch = async (req, res) => {
     // Fetch user and job together
     const [user, job] = await Promise.all([
       User.findById(userId).select('parsedResumeText parsedSkills skills bio'),
-      Job.findById(jobId).select('title skillsRequired experienceLevel companyName')
+      Job.findById(jobId).select('title skillsRequired preferredSkills experienceLevel companyName')
     ]);
 
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
@@ -89,7 +89,8 @@ const getJobATSMatch = async (req, res) => {
     // Get skill match against job requirements
     const matchResult = calculateMatch(
       user.parsedSkills?.length ? user.parsedSkills : (user.skills || []),
-      job.skillsRequired || []
+      job.skillsRequired || [],
+      { preferredSkills: job.preferredSkills || [] }
     );
 
     // Build response

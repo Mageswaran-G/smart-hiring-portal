@@ -35,6 +35,10 @@ const jobSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    preferredSkills: {
+      type: [String],
+      default: [],
+    },
 
     location: {
       type: String,

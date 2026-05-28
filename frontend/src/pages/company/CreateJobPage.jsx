@@ -346,6 +346,7 @@ export default function CreateJobPage() {
     openings:         1,
     status:           'draft',
     skillsRequired:   [],   // array (chip input)
+    preferredSkills:  [],   // array (chip input)
     requirements:     [],   // array (chip input)
     responsibilities: [],   // array (chip input)
     benefits:         [],   // array (chip input)
@@ -398,6 +399,7 @@ export default function CreateJobPage() {
       openings:         Number(form.openings) || 1,
       status:           form.status,
       skillsRequired:   form.skillsRequired,
+      preferredSkills:  form.preferredSkills,
       requirements:     form.requirements,
       responsibilities: form.responsibilities,
       benefits:         form.benefits,
@@ -619,6 +621,14 @@ export default function CreateJobPage() {
             <FormSection num={4} Icon={CheckCircle} title="Requirements & Skills" subtitle="What you need and what they'll do" active={activeSection === 4}>
               <FormRow label="Skills Required" hint="Press Enter or comma to add">
                 <ChipInput chips={form.skillsRequired} onChange={v => { set('skillsRequired', v); setActiveSection(4); }} placeholder="e.g. React, Node.js, MongoDB..." color={C.primary} suggestions={['React','Node.js','MongoDB','TypeScript','Python','AWS','Docker','Figma']} />
+                  <div style={{ marginTop: 16 }}>
+                    <label style={{ display:'block', fontSize:13, fontWeight:600, color:'#374151', marginBottom:6 }}>
+                      Preferred Skills
+                      <span style={{ fontSize:11, fontWeight:400, color:'#9CA3AF', marginLeft:8 }}>(optional — nice to have)</span>
+                    </label>
+                    <ChipInput chips={form.preferredSkills} onChange={v => set('preferredSkills', v)} placeholder="e.g. Docker, AWS, Redis..." color="#7C3AED" suggestions={['Docker','AWS','Redis','Kubernetes','GraphQL','TypeScript','Figma','PostgreSQL']} />
+                    <p style={{ fontSize:11, color:'#9CA3AF', marginTop:4 }}>Candidates with these skills get bonus points in AI matching</p>
+                  </div>
               </FormRow>
 
               <FormRow label="Requirements" hint="One per Enter">
