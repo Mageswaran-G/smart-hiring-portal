@@ -95,7 +95,48 @@ const rankCandidates = async (req, res) => {
         summary: generateCandidateSummary(c.name, finalScore, result.matchedSkills, result.missingSkills, job.title)
       };
     }).filter(Boolean).sort((a, b) => b.score - a.score);
-    return res.json({ success: true, data: { ranked, jobTitle: job.title } });
+    // Apply filters from query params
+    const { minScore, recommendation, confidence, sortBy } = req.query;
+
+    let filtered = ranked;
+
+    // Filter by minimum score
+    if (minScore) {
+      filtered = filtered.filter(r => r.score >= Number(minScore));
+    }
+
+    // Filter by recommendation label
+    if (recommendation) {
+      filtered = filtered.filter(r =>
+        r.recommendation?.toLowerCase() === recommendation.toLowerCase()
+      );
+    }
+
+    // Filter by confidence level
+    if (confidence) {
+      filtered = filtered.filter(r =>
+        r.confidence?.toLowerCase() === confidence.toLowerCase()
+      );
+    }
+
+    // Sort options
+    if (sortBy === 'name') {
+      filtered = filtered.sort((a, b) => a.candidate.name.localeCompare(b.candidate.name));
+    } else if (sortBy === 'recent') {
+      filtered = filtered.sort((a, b) => new Date(b.appliedAt) - new Date(a.appliedAt));
+    }
+    // default: already sorted by score
+
+    return res.json({
+      success: true,
+      data: {
+        ranked: filtered,
+        total: ranked.length,
+        filtered: filtered.length,
+        jobTitle: job.title,
+        appliedFilters: { minScore, recommendation, confidence, sortBy }
+      }
+    });
   } catch (err) {
     logger.error('Rank candidates error:', err);
     return res.status(500).json({ success: false, message: err.message });

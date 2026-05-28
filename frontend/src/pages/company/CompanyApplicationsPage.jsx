@@ -35,6 +35,7 @@ export default function CompanyApplicationsPage() {
   const [searchName,   setSearchName]   = useState('');
   const [updating,     setUpdating]     = useState(null);
   const [showRanking,  setShowRanking]  = useState(false);
+  const [rankFilters,  setRankFilters]  = useState({ minScore: '', recommendation: '', sortBy: 'score' });
   const [ranking,      setRanking]      = useState([]);
   const [rankLoading,  setRankLoading]  = useState(false);
 
@@ -130,7 +131,7 @@ export default function CompanyApplicationsPage() {
     try {
       setRankLoading(true);
       setShowRanking(true);
-      const data = await getRankedCandidates(jobId);
+      const data = await getRankedCandidates(jobId, rankFilters);
       setRanking(data.ranked || []);
     } catch (err) {
       setShowRanking(false);
@@ -222,7 +223,48 @@ export default function CompanyApplicationsPage() {
             AI Candidate Ranking {showRanking ? "— Hide" : "— Show"}
           </button>
           {showRanking && (
-            <CandidateRankCard ranking={ranking} loading={rankLoading} />
+            <div>
+              {/* Filter Bar */}
+              <div style={{ display:'flex', gap:8, flexWrap:'wrap', marginBottom:12, padding:'12px 16px', background:'#f5f3ff', borderRadius:12 }}>
+                <select
+                  value={rankFilters.minScore}
+                  onChange={e => setRankFilters(p => ({ ...p, minScore: e.target.value }))}
+                  style={{ fontSize:12, padding:'6px 10px', borderRadius:8, border:'1px solid #ddd', background:'#fff' }}
+                >
+                  <option value="">All Scores</option>
+                  <option value="80">80%+ only</option>
+                  <option value="65">65%+ only</option>
+                  <option value="50">50%+ only</option>
+                </select>
+                <select
+                  value={rankFilters.recommendation}
+                  onChange={e => setRankFilters(p => ({ ...p, recommendation: e.target.value }))}
+                  style={{ fontSize:12, padding:'6px 10px', borderRadius:8, border:'1px solid #ddd', background:'#fff' }}
+                >
+                  <option value="">All Labels</option>
+                  <option value="Strong Hire">Strong Hire</option>
+                  <option value="Hire">Hire</option>
+                  <option value="Consider">Consider</option>
+                  <option value="Reject">Reject</option>
+                </select>
+                <select
+                  value={rankFilters.sortBy}
+                  onChange={e => setRankFilters(p => ({ ...p, sortBy: e.target.value }))}
+                  style={{ fontSize:12, padding:'6px 10px', borderRadius:8, border:'1px solid #ddd', background:'#fff' }}
+                >
+                  <option value="score">Sort by Score</option>
+                  <option value="recent">Sort by Recent</option>
+                  <option value="name">Sort by Name</option>
+                </select>
+                <button
+                  onClick={() => fetchRanking(filterJob === "all" ? jobOptions[0]?.[0] : filterJob)}
+                  style={{ fontSize:12, padding:'6px 14px', borderRadius:8, background:'#7c3aed', color:'#fff', border:'none', cursor:'pointer', fontWeight:700 }}
+                >
+                  Apply Filters
+                </button>
+              </div>
+              <CandidateRankCard ranking={ranking} loading={rankLoading} />
+            </div>
           )}
         </div>
       )}
