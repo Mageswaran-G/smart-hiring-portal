@@ -1,3 +1,5 @@
+const { getRecommendation } = require('../../ai/thresholds');
+const extractCandidateSkills = require('../../utils/extractCandidateSkills');
 const calculateMatch     = require('../../ai/matchEngine');
 const { getSuggestions } = require('../../ai/skillResources');
 const Job         = require('../../models/Job');
@@ -56,14 +58,9 @@ const rankCandidates = async (req, res) => {
     const ranked = applications.map(app => {
       const c = app.candidate;
       if (!c) return null;
-      const cs = c.parsedSkills?.length ? c.parsedSkills : (c.skills || []).map(s => typeof s === 'string' ? s : s.name).filter(Boolean);
+      const cs = extractCandidateSkills(c);
       const result = calculateMatch(cs, jobSkills, { preferredSkills: job.preferredSkills || [] });
-      const recommendation = result.score >= 80 ? 'Strong Hire' :
-        result.score >= 65 ? 'Hire' :
-        result.score >= 50 ? 'Consider' : 'Reject';
-      const recommendationColor = result.score >= 80 ? 'green' :
-        result.score >= 65 ? 'blue' :
-        result.score >= 50 ? 'orange' : 'red';
+      const recommendation = getRecommendation(result.score);
       return {
         applicationId: app._id,
         status: app.status,
@@ -74,7 +71,6 @@ const rankCandidates = async (req, res) => {
         missingSkills: result.missingSkills,
         matchedPreferred: result.matchedPreferred || [],
         recommendation,
-        recommendationColor,
         summary: generateCandidateSummary(c.name, result.score, result.matchedSkills, result.missingSkills, job.title)
       };
     }).filter(Boolean).sort((a, b) => b.score - a.score);

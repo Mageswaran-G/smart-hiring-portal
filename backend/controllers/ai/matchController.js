@@ -2,6 +2,7 @@ const calculateMatch = require('../../ai/matchEngine');
 const Job  = require('../../models/Job');
 const User = require('../../models/User');
 const logger = require('../../utils/logger');
+const extractCandidateSkills = require('../../utils/extractCandidateSkills');
 
 const getMatchScore = async (req, res) => {
   try {
@@ -13,9 +14,7 @@ const getMatchScore = async (req, res) => {
     ]);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     if (!job)  return res.status(404).json({ success: false, message: 'Job not found' });
-    const candidateSkills = user.parsedSkills?.length
-      ? user.parsedSkills
-      : (user.skills || []).map(s => typeof s === 'string' ? s : s.name).filter(Boolean);
+    const candidateSkills = extractCandidateSkills(user);
     const jobSkills = [...new Set(job.skillsRequired || [])];
     const result    = calculateMatch(candidateSkills, jobSkills, { preferredSkills: job.preferredSkills || [] });
     return res.json({ success: true, data: { score: result.score, matchedSkills: result.matchedSkills, missingSkills: result.missingSkills, totalJobSkills: jobSkills.length } });
@@ -34,9 +33,7 @@ const getMatchScoreBatch = async (req, res) => {
     const limitedIds = jobIds.slice(0, 20);
     const user = await User.findById(userId).select('skills parsedSkills');
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
-    const candidateSkills = user.parsedSkills?.length
-      ? user.parsedSkills
-      : (user.skills || []).map(s => typeof s === 'string' ? s : s.name).filter(Boolean);
+    const candidateSkills = extractCandidateSkills(user);
     if (!candidateSkills.length) {
       const scores = {};
       limitedIds.forEach(id => { scores[id] = 0; });
@@ -88,7 +85,7 @@ const getJobATSMatch = async (req, res) => {
 
     // Get skill match against job requirements
     const matchResult = calculateMatch(
-      user.parsedSkills?.length ? user.parsedSkills : (user.skills || []),
+      extractCandidateSkills(user),
       job.skillsRequired || [],
       { preferredSkills: job.preferredSkills || [] }
     );
