@@ -7,6 +7,7 @@ const Application = require('../../models/Application');
 const User        = require('../../models/User');
 const logger      = require('../../utils/logger');
 const { getCache, setCache } = require('../../utils/cache');
+const { calcCompositeScore } = require('../../ai/compositeScore');
 
 const generateCandidateSummary = (candidateName, score, matchedSkills, missingSkills, jobTitle) => {
   const matched = matchedSkills.join(', ') || 'general skills';
@@ -58,7 +59,7 @@ const rankCandidates = async (req, res) => {
     const { jobId } = req.params;
     const job = await Job.findById(jobId).select('skillsRequired preferredSkills experienceLevel postedBy title');
     if (!job) return res.status(404).json({ success: false, message: 'Job not found' });
-    const applications = await Application.find({ job: jobId }).populate('candidate', 'name email avatar skills parsedSkills workHistory');
+    const applications = await Application.find({ job: jobId }).populate('candidate', 'name email avatar skills parsedSkills workHistory parsedResumeText bio resume photo profilePhoto headline educationList education phone');
     if (!applications.length) return res.json({ success: true, data: { ranked: [] } });
     const jobSkills = [...new Set(job.skillsRequired || [])];
     const ranked = applications.map(app => {
@@ -72,18 +73,22 @@ const rankCandidates = async (req, res) => {
         jobLevel: job.experienceLevel,
         candidateLevel,
       });
-      const recommendation = getRecommendation(result.score);
+      const composite = calcCompositeScore(c, result.score);
+      const finalScore = composite.compositeScore;
+      const recommendation = getRecommendation(finalScore);
       return {
         applicationId: app._id,
         status: app.status,
         appliedAt: app.createdAt,
         candidate: { id: c._id, name: c.name, email: c.email, avatar: c.avatar },
-        score: result.score,
+        score: finalScore,
+        skillMatchScore: result.score,
         matchedSkills: result.matchedSkills,
         missingSkills: result.missingSkills,
         matchedPreferred: result.matchedPreferred || [],
         recommendation,
-        summary: generateCandidateSummary(c.name, result.score, result.matchedSkills, result.missingSkills, job.title)
+        compositeBreakdown: composite.breakdown,
+        summary: generateCandidateSummary(c.name, finalScore, result.matchedSkills, result.missingSkills, job.title)
       };
     }).filter(Boolean).sort((a, b) => b.score - a.score);
     return res.json({ success: true, data: { ranked, jobTitle: job.title } });
