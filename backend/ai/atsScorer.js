@@ -59,6 +59,18 @@ function scoreATS(resumeText = '', candidateData = {}) {
   // Remove duplicates
   const uniqueFoundSkills = [...new Set(foundSkills)];
 
+  // Anti-keyword spam — count skill frequency in text
+  // If any skill appears more than 5 times — likely keyword stuffing
+  const spamDetected = uniqueFoundSkills.some(skill => {
+    const normalized = normalizeSkill(skill);
+    const escaped = escapeRegex(normalized);
+    const matches = text.match(new RegExp(`\\b${escaped}\\b`, 'gi'));
+    return matches && matches.length > 5;
+  });
+
+  // Apply spam penalty — reduce skill score by 30% if spam detected
+  const spamPenalty = spamDetected ? 0.7 : 1.0;
+
   // Weighted skill scoring — same as matchEngine
   let skillWeight = 0;
   uniqueFoundSkills.forEach(skill => {
@@ -67,7 +79,7 @@ function scoreATS(resumeText = '', candidateData = {}) {
     else if (group === 'database' || group === 'devops') skillWeight += 1.5;
     else skillWeight += 1;
   });
-  const skillScore = Math.min(40, Math.round((skillWeight / 16) * 40));
+  const skillScore = Math.min(40, Math.round((skillWeight / 16) * 40 * spamPenalty));
   totalScore += skillScore;
   breakdown.push({
     id: 'skills',
@@ -162,6 +174,7 @@ function scoreATS(resumeText = '', candidateData = {}) {
     breakdown,
     suggestions,
     foundSkills: uniqueFoundSkills,
+    spamDetected,
     wordCount,
   };
 }
