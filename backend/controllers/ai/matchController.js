@@ -55,4 +55,67 @@ const getMatchScoreBatch = async (req, res) => {
   }
 };
 
-module.exports = { getMatchScore, getMatchScoreBatch };
+// GET /api/v1/ai/job-ats/:jobId
+// Compare candidate resume against specific job requirements
+const getJobATSMatch = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { jobId } = req.params;
+
+    const { getCache, setCache } = require('../../utils/cache');
+    const { scoreATS } = require('../../ai/atsScorer');
+
+    // Check cache first
+    const cacheKey = `jobats:${userId}:${jobId}`;
+    const cached = getCache(cacheKey);
+    if (cached) return res.json({ success: true, data: cached, fromCache: true });
+
+    // Fetch user and job together
+    const [user, job] = await Promise.all([
+      User.findById(userId).select('parsedResumeText parsedSkills skills bio'),
+      Job.findById(jobId).select('title skillsRequired experienceLevel companyName')
+    ]);
+
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    if (!job) return res.status(404).json({ success: false, message: 'Job not found' });
+
+    // Get resume text
+    const resumeText = user.parsedResumeText ||
+      `${user.bio || ''} Skills: ${(user.parsedSkills || user.skills || []).join(', ')}`;
+
+    // Get ATS score against this specific job
+    const atsResult = scoreATS(resumeText, user);
+
+    // Get skill match against job requirements
+    const matchResult = calculateMatch(
+      user.parsedSkills?.length ? user.parsedSkills : (user.skills || []),
+      job.skillsRequired || []
+    );
+
+    // Build response
+    const result = {
+      jobId,
+      jobTitle: job.title,
+      overallATSScore: atsResult.score,
+      atsLabel: atsResult.label,
+      skillMatchScore: matchResult.score,
+      matchedSkills: matchResult.matchedSkills,
+      missingSkills: matchResult.missingSkills,
+      totalJobSkills: (job.skillsRequired || []).length,
+      resumeWordCount: atsResult.wordCount,
+      suggestions: atsResult.suggestions,
+      breakdown: atsResult.breakdown,
+    };
+
+    // Cache for 10 minutes
+    setCache(cacheKey, result, 600);
+
+    return res.json({ success: true, data: result });
+
+  } catch (err) {
+    logger.error('Job ATS match error:', err);
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+module.exports = { getMatchScore, getMatchScoreBatch, getJobATSMatch };

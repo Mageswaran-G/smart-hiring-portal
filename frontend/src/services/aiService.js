@@ -77,3 +77,12 @@ export const getATSScore = async () => {
     throw err.response?.data || err;
   }
 };
+
+export const getJobATSMatch = async (jobId) => {
+  try {
+    const res = await API.get(`/ai/job-ats/${jobId}`);
+    return res.data.data;
+  } catch (err) {
+    throw err.response?.data || err;
+  }
+};

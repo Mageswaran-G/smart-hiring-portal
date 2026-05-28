@@ -9,7 +9,8 @@ import {
   CheckCircle2, ChevronRight
 } from 'lucide-react';
 import { getJobBySlug } from '../../services/jobService'; 
-import { getMatchScore } from "../../services/aiService";
+import { getMatchScore, getJobATSMatch } from "../../services/aiService";
+import JobATSMatchCard from '../../components/ai/JobATSMatchCard';
 import MatchScoreCard from '../../components/ai/MatchScoreCard';
 import InterviewQuestionsPanel from '../../components/ai/InterviewQuestionsPanel';
 import { applyToJob }   from '../../services/applicationService'; // ← correct service
@@ -47,6 +48,8 @@ export default function JobDetailsPage() {
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [matchScore,     setMatchScore]     = useState(null);
   const [matchLoading,   setMatchLoading]   = useState(false);
+  const [jobATSData,     setJobATSData]     = useState(null);
+  const [jobATSLoading,  setJobATSLoading]  = useState(false);
   const [applied,        setApplied]        = useState(false);
   const jobId = job?._id;
 
@@ -98,7 +101,16 @@ export default function JobDetailsPage() {
       finally { setMatchLoading(false); }
     };
     fetchMatch();
-  }, [jobId, user]);  // ← jobId here: runs after job is fetched
+
+    // AI: Fetch job ATS match for this job
+    if (user?.role === 'candidate') {
+      setJobATSLoading(true);
+      getJobATSMatch(jobId)
+        .then(data => setJobATSData(data))
+        .catch(() => {})
+        .finally(() => setJobATSLoading(false));
+    }
+  }, [jobId, user]);
 
   const handleApply = async (coverLetter) => {
     try {
@@ -275,6 +287,9 @@ export default function JobDetailsPage() {
             {/* AI Match Score — only for candidates */}
             {user?.role === "candidate" && (
               <MatchScoreCard matchScore={matchScore} loading={matchLoading} />
+            )}
+            {user?.role === "candidate" && (
+              <JobATSMatchCard data={jobATSData} loading={jobATSLoading} />
             )}
             {/* Skills Required */}
             {job.skillsRequired?.length > 0 && (
