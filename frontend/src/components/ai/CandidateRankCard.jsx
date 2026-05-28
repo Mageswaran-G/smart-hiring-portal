@@ -29,9 +29,21 @@ function ExpandableRow({ r, i, initials, expanded, onToggle }) {
           <p className="text-xs text-gray-500 truncate mb-0">{r.candidate.email}</p>
         </div>
 
-        {/* Score + expand button */}
+        {/* Score + recommendation + expand button */}
         <div className="w-full sm:w-auto text-left sm:text-right shrink-0">
-          <ScoreBadge score={r.score} />
+          <div className="flex items-center gap-2 justify-end mb-1">
+            <ScoreBadge score={r.score} />
+            {r.recommendation && (
+              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                r.recommendationColor === 'green' ? 'bg-green-100 text-green-700' :
+                r.recommendationColor === 'blue'  ? 'bg-blue-100 text-blue-700' :
+                r.recommendationColor === 'orange'? 'bg-orange-100 text-orange-700' :
+                'bg-red-100 text-red-600'
+              }`}>
+                {r.recommendation}
+              </span>
+            )}
+          </div>
           <p className="text-[11px] text-gray-500 mt-0.5 mb-0">
             {r.matchedSkills?.length || 0} skills matched
           </p>
@@ -81,6 +93,22 @@ function ExpandableRow({ r, i, initials, expanded, onToggle }) {
               <div className="flex flex-wrap gap-1.5">
                 {r.missingSkills.map((s, j) => (
                   <SkillChip key={j} label={s} type="missing" />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Preferred Skills Matched */}
+          {r.matchedPreferred?.length > 0 && (
+            <div className="mt-3">
+              <p className="text-xs font-bold text-purple-600 uppercase tracking-wide mb-1.5">
+                Bonus Skills (Preferred)
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {r.matchedPreferred.map((s, j) => (
+                  <span key={j} className="bg-purple-50 text-purple-700 text-xs font-semibold px-2 py-0.5 rounded-full border border-purple-100">
+                    {s}
+                  </span>
                 ))}
               </div>
             </div>

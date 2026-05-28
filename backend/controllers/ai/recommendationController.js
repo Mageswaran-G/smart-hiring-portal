@@ -58,7 +58,25 @@ const rankCandidates = async (req, res) => {
       if (!c) return null;
       const cs = c.parsedSkills?.length ? c.parsedSkills : (c.skills || []).map(s => typeof s === 'string' ? s : s.name).filter(Boolean);
       const result = calculateMatch(cs, jobSkills, { preferredSkills: job.preferredSkills || [] });
-      return { applicationId: app._id, status: app.status, appliedAt: app.createdAt, candidate: { id: c._id, name: c.name, email: c.email, avatar: c.avatar }, score: result.score, matchedSkills: result.matchedSkills, missingSkills: result.missingSkills, summary: generateCandidateSummary(c.name, result.score, result.matchedSkills, result.missingSkills, job.title) };
+      const recommendation = result.score >= 80 ? 'Strong Hire' :
+        result.score >= 65 ? 'Hire' :
+        result.score >= 50 ? 'Consider' : 'Reject';
+      const recommendationColor = result.score >= 80 ? 'green' :
+        result.score >= 65 ? 'blue' :
+        result.score >= 50 ? 'orange' : 'red';
+      return {
+        applicationId: app._id,
+        status: app.status,
+        appliedAt: app.createdAt,
+        candidate: { id: c._id, name: c.name, email: c.email, avatar: c.avatar },
+        score: result.score,
+        matchedSkills: result.matchedSkills,
+        missingSkills: result.missingSkills,
+        matchedPreferred: result.matchedPreferred || [],
+        recommendation,
+        recommendationColor,
+        summary: generateCandidateSummary(c.name, result.score, result.matchedSkills, result.missingSkills, job.title)
+      };
     }).filter(Boolean).sort((a, b) => b.score - a.score);
     return res.json({ success: true, data: { ranked, jobTitle: job.title } });
   } catch (err) {
