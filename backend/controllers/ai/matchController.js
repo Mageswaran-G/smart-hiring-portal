@@ -3,6 +3,7 @@ const Job  = require('../../models/Job');
 const User = require('../../models/User');
 const logger = require('../../utils/logger');
 const extractCandidateSkills = require('../../utils/extractCandidateSkills');
+const { SCORING_VERSION } = require('../../ai/thresholds');
 
 // Infer candidate experience level from work history
 function inferExperienceLevel(user) {
@@ -37,6 +38,8 @@ const getMatchScore = async (req, res) => {
       matchedPreferred: result.matchedPreferred || [],
       totalJobSkills: jobSkills.length,
       breakdown: result.breakdown,
+      scoringVersion: SCORING_VERSION,
+      generatedAt: new Date().toISOString(),
     }});
   } catch (err) {
     logger.error('Match score error:', err);

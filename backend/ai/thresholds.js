@@ -1,3 +1,8 @@
+
+// Scoring version — increment when algorithm changes significantly
+const SCORING_VERSION = '2.0.0';
+// v1.0.0 — basic keyword matching
+// v2.0.0 — weighted groups, experience level, preferred skills, composite scoring
 // Centralized AI scoring thresholds and weights
 // Change here — affects entire platform
 
@@ -55,6 +60,7 @@ module.exports = {
   SKILL_WEIGHTS,
   PARTIAL_CREDIT,
   EXPERIENCE_RANK,
+  SCORING_VERSION,
   getRecommendation,
   getExperienceAdjustment
 };
