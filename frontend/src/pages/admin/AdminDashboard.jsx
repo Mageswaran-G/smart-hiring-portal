@@ -13,7 +13,6 @@ import useIsMobile from '../../hooks/useIsMobile';
 import AdminRecentUsers from './components/dashboard/AdminRecentUsers';
 import StatsGrid from './components/dashboard/StatsGrid';
 import PlatformAnalyticsCard from './components/dashboard/PlatformAnalyticsCard';
-import ModuleRoadmap from './components/dashboard/ModuleRoadmap';
 import ActionCenter from "../../components/admin/ActionCenter";
 import LoadingScreen from './components/dashboard/LoadingScreen';
 import AdminHero from './components/dashboard/AdminHero';
@@ -149,7 +148,7 @@ export default function AdminDashboard() {
           {/* Left Column */}
           <div style={{ display:"flex", flexDirection:"column", gap:20 }}>
             <PlatformAnalyticsCard stats={stats} />
-            <ModuleRoadmap />
+            
           </div>
         {/* Right Sidebar */}
         <div style={{ display:'flex', flexDirection:'column', gap:18 }}>
