@@ -20,7 +20,7 @@ import { API }             from '../../services/authService';
 import { API_ENDPOINTS }   from '../../constants/api';
 import { ROUTES }          from '../../constants/routes';
 import ApplyModal          from '../../components/jobs/ApplyModal';
-
+import ErrorBoundary from '../../components/ui/ErrorBoundary';
 import toast from 'react-hot-toast';
 
 // ── Days remaining helper ────────────────────────────
@@ -286,10 +286,14 @@ export default function JobDetailsPage() {
 
             {/* AI Match Score — only for candidates */}
             {user?.role === "candidate" && (
-              <MatchScoreCard matchScore={matchScore} loading={matchLoading} />
+              <ErrorBoundary title="AI Match Score Unavailable" description="Match score could not be calculated">
+                <MatchScoreCard matchScore={matchScore} loading={matchLoading} />
+              </ErrorBoundary>
             )}
             {user?.role === "candidate" && (
-              <JobATSMatchCard data={jobATSData} loading={jobATSLoading} />
+              <ErrorBoundary title="Resume vs Job Match Unavailable" description="ATS comparison could not be loaded">
+                <JobATSMatchCard data={jobATSData} loading={jobATSLoading} />
+              </ErrorBoundary>
             )}
             {/* Skills Required */}
             {job.skillsRequired?.length > 0 && (

@@ -32,6 +32,7 @@ import CompanyTechStackSection from '../components/profile/sections/CompanyTechS
 import ResumeFeedbackCard from '../components/ai/ResumeFeedbackCard';
 import ATSScoreCard from '../components/ai/ATSScoreCard';
 import { getATSScore } from '../services/aiService';
+import ErrorBoundary from '../components/ui/ErrorBoundary';
 
 export default function ProfilePage() {
   const { user, logoutUser } = useAuth();
@@ -152,7 +153,9 @@ export default function ProfilePage() {
             </div>
 
             <div className="mt-4">
-              <ATSScoreCard data={atsData} loading={atsLoading} />
+              <ErrorBoundary title="ATS Score Unavailable" description="Resume scoring could not be loaded">
+                <ATSScoreCard data={atsData} loading={atsLoading} />
+              </ErrorBoundary>
             </div>
 
             <EducationSection
