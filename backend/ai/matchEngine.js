@@ -18,6 +18,9 @@ function calculateMatch(candidateSkills = [], jobSkills = [], options = {}) {
   let totalWeight = 0;
   let earnedWeight = 0;
 
+  // Precompute once — not inside loop
+  const candidateGroups = normalizedCandidate.map(getSkillGroup);
+
   // ── Score required skills (higher weight) ──
   jobSkills.forEach(skill => {
     const normalized = normalizeSkill(skill);
@@ -39,7 +42,7 @@ function calculateMatch(candidateSkills = [], jobSkills = [], options = {}) {
       earnedWeight += weight;
     } else {
       // Partial group credit — 30%
-      const candidateGroups = normalizedCandidate.map(getSkillGroup);
+      
       if (group !== 'other' && candidateGroups.includes(group)) {
         earnedWeight += weight * 0.3;
       }
