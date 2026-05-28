@@ -34,7 +34,7 @@ const ATSScoreCard = ({ data, loading }) => {
         {/* Big Score */}
         <div className="text-right">
           <p className={`text-4xl font-black ${colors.ring}`}>
-            {Math.min(100, Math.max(0, data.score))}
+            {clampPercent(data.score)}
           </p>
           <p className="text-xs text-gray-400">out of 100</p>
         </div>
@@ -59,7 +59,7 @@ const ATSScoreCard = ({ data, loading }) => {
           {data.breakdown?.map((item) => {
             // Safe division — prevent divide by zero
             const progress = item.maxScore
-              ? Math.min(100, Math.max(0, (item.score / item.maxScore) * 100))
+              ? clampPercent((item.score / item.maxScore) * 100)
               : 0;
             const barColor = getBarColor(progress);
             return (
