@@ -1,14 +1,14 @@
 import React from 'react';
+import { FileText, Lightbulb } from 'lucide-react';
 
-// Color map for score label
 const COLOR_MAP = {
-  green:  { bg: 'bg-green-50',  ring: 'text-green-600',  badge: 'bg-green-100 text-green-700' },
-  blue:   { bg: 'bg-blue-50',   ring: 'text-blue-600',   badge: 'bg-blue-100 text-blue-700' },
-  orange: { bg: 'bg-orange-50', ring: 'text-orange-600', badge: 'bg-orange-100 text-orange-700' },
-  red:    { bg: 'bg-red-50',    ring: 'text-red-600',    badge: 'bg-red-100 text-red-700' },
+  green:  { bg: 'bg-green-50',  ring: 'text-green-600',  badge: 'bg-green-100 text-green-700',  bar: 'bg-green-500'  },
+  blue:   { bg: 'bg-blue-50',   ring: 'text-blue-600',   badge: 'bg-blue-100 text-blue-700',    bar: 'bg-blue-500'   },
+  orange: { bg: 'bg-orange-50', ring: 'text-orange-600', badge: 'bg-orange-100 text-orange-700',bar: 'bg-orange-500' },
+  red:    { bg: 'bg-red-50',    ring: 'text-red-600',    badge: 'bg-red-100 text-red-700',      bar: 'bg-red-500'    },
 };
 
-export default function ATSScoreCard({ data, loading }) {
+const ATSScoreCard = ({ data, loading }) => {
   if (loading) {
     return (
       <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm animate-pulse">
@@ -24,13 +24,13 @@ export default function ATSScoreCard({ data, loading }) {
   const colors = COLOR_MAP[data.color] || COLOR_MAP.orange;
 
   return (
-    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+    <div className={`rounded-2xl p-6 border border-gray-100 shadow-sm ${colors.bg}`}>
 
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center">
-            <span className="text-xl">📄</span>
+            <FileText size={20} className="text-indigo-600" />
           </div>
           <div>
             <h3 className="font-bold text-gray-900 text-base">ATS Resume Score</h3>
@@ -49,7 +49,9 @@ export default function ATSScoreCard({ data, loading }) {
         <span className={`text-xs font-bold px-3 py-1 rounded-full ${colors.badge}`}>
           {data.label}
         </span>
-        <span className="text-xs text-gray-400 ml-2">{data.wordCount} words in resume</span>
+        <span className="text-xs text-gray-400 ml-2">
+          Resume length: {data.wordCount} words
+        </span>
       </div>
 
       {/* Score Breakdown */}
@@ -58,33 +60,42 @@ export default function ATSScoreCard({ data, loading }) {
           Score Breakdown
         </p>
         <div className="space-y-2">
-          {data.breakdown?.map((item) => (
-            <div key={item.check}>
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-xs text-gray-600 font-medium">{item.check}</span>
-                <span className="text-xs font-bold text-gray-700">
-                  {item.score}/{item.maxScore}
-                </span>
+          {data.breakdown?.map((item) => {
+            // Safe division — prevent divide by zero
+            const progress = item.maxScore
+              ? (item.score / item.maxScore) * 100
+              : 0;
+            return (
+              <div key={item.check}>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-xs text-gray-600 font-medium">{item.check}</span>
+                  <span className="text-xs font-bold text-gray-700">
+                    {item.score}/{item.maxScore}
+                  </span>
+                </div>
+                {/* Progress bar — color matches score */}
+                <div className="w-full bg-gray-100 rounded-full h-1.5">
+                  <div
+                    className={`h-1.5 rounded-full ${colors.bar}`}
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+                <p className="text-xs text-gray-400 mt-0.5">{item.detail}</p>
               </div>
-              {/* Progress bar */}
-              <div className="w-full bg-gray-100 rounded-full h-1.5">
-                <div
-                  className="h-1.5 rounded-full bg-indigo-500"
-                  style={{ width: `${(item.score / item.maxScore) * 100}%` }}
-                />
-              </div>
-              <p className="text-xs text-gray-400 mt-0.5">{item.detail}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
       {/* Suggestions */}
       {data.suggestions?.length > 0 && (
         <div className="bg-amber-50 rounded-xl p-4 border border-amber-100">
-          <p className="text-xs font-bold text-amber-700 uppercase tracking-wide mb-2">
-            💡 How to Improve
-          </p>
+          <div className="flex items-center gap-2 mb-2">
+            <Lightbulb size={14} className="text-amber-700" />
+            <p className="text-xs font-bold text-amber-700 uppercase tracking-wide">
+              How to Improve
+            </p>
+          </div>
           <ul className="space-y-1">
             {data.suggestions.map((s, i) => (
               <li key={i} className="text-xs text-amber-800">• {s}</li>
@@ -95,4 +106,6 @@ export default function ATSScoreCard({ data, loading }) {
 
     </div>
   );
-}
+};
+
+export default React.memo(ATSScoreCard);
