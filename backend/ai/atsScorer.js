@@ -1,8 +1,13 @@
 // ATS Resume Scorer
 // Scores a resume text out of 100 based on ATS compatibility checks
 
-const { normalizeSkill } = require('./normalizeText');
+const { normalizeSkill, getSkillGroup } = require('./normalizeText');
 const SKILLS = require('../constants/skills');
+
+// Escape special regex characters — fixes c++, c#, node.js breaking regex
+function escapeRegex(str = '') {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 // Precompute normalized skills once at module load — not on every request
 const NORMALIZED_SKILLS = SKILLS.map(s => ({
@@ -33,18 +38,36 @@ function scoreATS(resumeText = '', candidateData = {}) {
 
   // ── CHECK 1: Skills Keywords (40 points) ──
   const foundSkills = NORMALIZED_SKILLS.filter(({ raw, normalized }) => {
+    const escapedNormalized = escapeRegex(normalized);
+    const escapedRaw = escapeRegex(raw);
+
+    // Resume text check — word boundary only (no includes fallback)
     const inResume = (
-      new RegExp(`\\b${normalized}\\b`, 'i').test(text) ||
-      new RegExp(`\\b${raw}\\b`, 'i').test(text)
+      new RegExp(`\\b${escapedNormalized}\\b`, 'i').test(text) ||
+      new RegExp(`\\b${escapedRaw}\\b`, 'i').test(text)
     );
-    const inProfile = profileSkills.includes(normalized) || profileSkills.includes(raw.toLowerCase());
+
+    // Profile skills check — exact match only
+    const inProfile = (
+      profileSkills.some(s => normalizeSkill(s) === normalized) ||
+      profileSkills.some(s => s.toLowerCase() === raw.toLowerCase())
+    );
+
     return inResume || inProfile;
   }).map(({ raw }) => raw);
 
   // Remove duplicates
   const uniqueFoundSkills = [...new Set(foundSkills)];
 
-  const skillScore = Math.min(40, Math.round((uniqueFoundSkills.length / 8) * 40));
+  // Weighted skill scoring — same as matchEngine
+  let skillWeight = 0;
+  uniqueFoundSkills.forEach(skill => {
+    const group = getSkillGroup(skill);
+    if (group === 'frontend' || group === 'backend' || group === 'ai') skillWeight += 2;
+    else if (group === 'database' || group === 'devops') skillWeight += 1.5;
+    else skillWeight += 1;
+  });
+  const skillScore = Math.min(40, Math.round((skillWeight / 16) * 40));
   totalScore += skillScore;
   breakdown.push({
     check: 'Skills Keywords',
@@ -52,7 +75,7 @@ function scoreATS(resumeText = '', candidateData = {}) {
     maxScore: 40,
     detail: `${uniqueFoundSkills.length} skills found`,
   });
-  if (foundSkills.length < 5) {
+  if (uniqueFoundSkills.length < 5) {
     suggestions.push('Add more technical skills to your resume — aim for at least 8 skills.');
   }
 
