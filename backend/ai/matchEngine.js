@@ -72,10 +72,24 @@ function calculateMatch(candidateSkills = [], jobSkills = [], options = {}) {
   const score = Math.min(100, Math.max(0, rawScore + expAdjustment));
 
   // Calculate breakdown scores
+  // Weighted breakdown — core skills count more
+  let requiredWeightTotal = 0;
+  let requiredWeightEarned = 0;
+
+  jobSkills.forEach(skill => {
+    const normalized = normalizeSkill(skill);
+    const group = getSkillGroup(normalized);
+    let w = SKILL_WEIGHTS.default;
+    if (group === 'frontend' || group === 'backend' || group === 'ai') w = SKILL_WEIGHTS.frontendBackendAI;
+    else if (group === 'database' || group === 'devops') w = SKILL_WEIGHTS.databaseDevops;
+    requiredWeightTotal += w;
+    if (matchedSkills.includes(skill)) requiredWeightEarned += w;
+  });
+
   const requiredTotal = jobSkills.length;
   const requiredMatched = matchedSkills.length;
-  const requiredScore = requiredTotal > 0
-    ? Math.round((requiredMatched / requiredTotal) * 100)
+  const requiredScore = requiredWeightTotal > 0
+    ? Math.round((requiredWeightEarned / requiredWeightTotal) * 100)
     : 0;
 
   const preferredTotal = preferredSkills.length;
