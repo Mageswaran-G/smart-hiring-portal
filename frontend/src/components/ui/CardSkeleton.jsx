@@ -1,5 +1,6 @@
 import React from 'react';
-
+const widths = ['w-full', 'w-5/6', 'w-4/5', 'w-3/4', 'w-2/3'];
+const subWidths = ['w-2/3', 'w-1/2', 'w-3/5', 'w-5/6', 'w-3/4'];
 const VARIANTS = {
   default: { lines: 3, showHeader: true },
   analytics: { lines: 5, showHeader: true },
@@ -24,8 +25,7 @@ const CardSkeleton = ({ lines, variant = 'default', showHeader }) => {
         </div>
       )}
       {Array.from({ length: lineCount }).map((_, i) => {
-      const widths = ['w-full', 'w-5/6', 'w-4/5', 'w-3/4', 'w-2/3'];
-      const subWidths = ['w-2/3', 'w-1/2', 'w-3/5', 'w-5/6', 'w-3/4'];
+      
       return (
         <div key={i} className="mb-3">
           <div className={`h-3 bg-gray-200 rounded ${widths[i % widths.length]} mb-1`} />

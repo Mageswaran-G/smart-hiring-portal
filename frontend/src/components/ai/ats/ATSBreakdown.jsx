@@ -1,7 +1,9 @@
 import React from 'react';
 import { clampPercent, getBarColor } from '../../../utils/scoreColors';
 
-const ATSBreakdown = ({ breakdown }) => (
+const ATSBreakdown = ({ breakdown }) => {
+  if (!Array.isArray(breakdown)) return null;
+  return (
   <div className="mb-5">
     <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">
       Score Breakdown
@@ -37,5 +39,6 @@ const ATSBreakdown = ({ breakdown }) => (
     </div>
   </div>
 );
+};
 
 export default React.memo(ATSBreakdown);
