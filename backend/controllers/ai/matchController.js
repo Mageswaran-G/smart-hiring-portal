@@ -4,19 +4,32 @@ const User = require('../../models/User');
 const logger = require('../../utils/logger');
 const extractCandidateSkills = require('../../utils/extractCandidateSkills');
 
+// Infer candidate experience level from work history
+function inferExperienceLevel(user) {
+  const workCount = user.workHistory?.length || 0;
+  if (workCount === 0) return 'fresher';
+  if (workCount === 1) return 'junior';
+  if (workCount === 2) return 'mid';
+  return 'senior';
+}
+
 const getMatchScore = async (req, res) => {
   try {
     const userId = req.user.id;
     const { jobId } = req.params;
     const [user, job] = await Promise.all([
-      User.findById(userId).select('skills parsedSkills'),
-      Job.findById(jobId).select('skillsRequired preferredSkills postedBy title'),
+      User.findById(userId).select('skills parsedSkills workHistory'),
+      Job.findById(jobId).select('skillsRequired preferredSkills experienceLevel postedBy title'),
     ]);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     if (!job)  return res.status(404).json({ success: false, message: 'Job not found' });
     const candidateSkills = extractCandidateSkills(user);
     const jobSkills = [...new Set(job.skillsRequired || [])];
-    const result    = calculateMatch(candidateSkills, jobSkills, { preferredSkills: job.preferredSkills || [] });
+    const result = calculateMatch(candidateSkills, jobSkills, {
+      preferredSkills: job.preferredSkills || [],
+      jobLevel: job.experienceLevel,
+      candidateLevel: inferExperienceLevel(user),
+    });
     return res.json({ success: true, data: { score: result.score, matchedSkills: result.matchedSkills, missingSkills: result.missingSkills, totalJobSkills: jobSkills.length } });
   } catch (err) {
     logger.error('Match score error:', err);

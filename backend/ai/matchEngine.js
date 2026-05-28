@@ -1,9 +1,10 @@
 // Match Engine — Semantic + Weighted + Required/Preferred Skill Matching
 
 const { normalizeSkill, getSkillGroup } = require('./normalizeText');
+const { SKILL_WEIGHTS, PARTIAL_CREDIT, getExperienceMultiplier } = require('./thresholds');
 
 function calculateMatch(candidateSkills = [], jobSkills = [], options = {}) {
-  const { preferredSkills = [] } = options;
+  const { preferredSkills = [], candidateLevel, jobLevel } = options;
 
   if (!jobSkills || jobSkills.length === 0) {
     return { score: 0, matchedSkills: [], missingSkills: [], matchedPreferred: [] };
@@ -67,10 +68,13 @@ function calculateMatch(candidateSkills = [], jobSkills = [], options = {}) {
     // No penalty for missing preferred skills
   });
 
-  // Calculate weighted score
-  const score = totalWeight > 0
-    ? Math.min(100, Math.round((earnedWeight / totalWeight) * 100))
+  
+  // Apply experience level multiplier
+  const expMultiplier = getExperienceMultiplier(candidateLevel, jobLevel);
+  const rawScore = totalWeight > 0
+    ? Math.round((earnedWeight / totalWeight) * 100)
     : 0;
+  const score = Math.min(100, Math.round(rawScore * expMultiplier));
 
   return { score, matchedSkills, missingSkills, matchedPreferred };
 }

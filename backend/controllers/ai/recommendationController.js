@@ -1,4 +1,4 @@
-const { getRecommendation } = require('../../ai/thresholds');
+const { getRecommendation, getExperienceMultiplier } = require('../../ai/thresholds');
 const extractCandidateSkills = require('../../utils/extractCandidateSkills');
 const calculateMatch     = require('../../ai/matchEngine');
 const { getSuggestions } = require('../../ai/skillResources');
@@ -6,6 +6,7 @@ const Job         = require('../../models/Job');
 const Application = require('../../models/Application');
 const User        = require('../../models/User');
 const logger      = require('../../utils/logger');
+
 
 const generateCandidateSummary = (candidateName, score, matchedSkills, missingSkills, jobTitle) => {
   const matched = matchedSkills.join(', ') || 'general skills';
@@ -52,14 +53,20 @@ const rankCandidates = async (req, res) => {
     const { jobId } = req.params;
     const job = await Job.findById(jobId).select('skillsRequired preferredSkills postedBy title');
     if (!job) return res.status(404).json({ success: false, message: 'Job not found' });
-    const applications = await Application.find({ job: jobId }).populate('candidate', 'name email avatar skills parsedSkills');
+    const applications = await Application.find({ job: jobId }).populate('candidate', 'name email avatar skills parsedSkills workHistory');
     if (!applications.length) return res.json({ success: true, data: { ranked: [] } });
     const jobSkills = [...new Set(job.skillsRequired || [])];
     const ranked = applications.map(app => {
       const c = app.candidate;
       if (!c) return null;
       const cs = extractCandidateSkills(c);
-      const result = calculateMatch(cs, jobSkills, { preferredSkills: job.preferredSkills || [] });
+      const workCount = c.workHistory?.length || 0;
+      const candidateLevel = workCount === 0 ? 'fresher' : workCount === 1 ? 'junior' : workCount === 2 ? 'mid' : 'senior';
+      const result = calculateMatch(cs, jobSkills, {
+        preferredSkills: job.preferredSkills || [],
+        jobLevel: job.experienceLevel,
+        candidateLevel,
+      });
       const recommendation = getRecommendation(result.score);
       return {
         applicationId: app._id,
