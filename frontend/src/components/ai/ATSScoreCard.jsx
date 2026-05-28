@@ -8,6 +8,14 @@ const COLOR_MAP = {
   red:    { bg: 'bg-red-50',    ring: 'text-red-600',    badge: 'bg-red-100 text-red-700',      bar: 'bg-red-500'    },
 };
 
+// Each bar gets its own color based on individual progress
+const getBarColor = (progress) => {
+  if (progress >= 80) return 'bg-green-500';
+  if (progress >= 60) return 'bg-blue-500';
+  if (progress >= 40) return 'bg-orange-500';
+  return 'bg-red-400';
+};
+
 const ATSScoreCard = ({ data, loading }) => {
   if (loading) {
     return (
@@ -39,7 +47,9 @@ const ATSScoreCard = ({ data, loading }) => {
         </div>
         {/* Big Score */}
         <div className="text-right">
-          <p className={`text-4xl font-black ${colors.ring}`}>{data.score}</p>
+          <p className={`text-4xl font-black ${colors.ring}`}>
+            {Math.min(100, Math.max(0, data.score))}
+          </p>
           <p className="text-xs text-gray-400">out of 100</p>
         </div>
       </div>
@@ -63,8 +73,9 @@ const ATSScoreCard = ({ data, loading }) => {
           {data.breakdown?.map((item) => {
             // Safe division — prevent divide by zero
             const progress = item.maxScore
-              ? (item.score / item.maxScore) * 100
+              ? Math.min(100, Math.max(0, (item.score / item.maxScore) * 100))
               : 0;
+            const barColor = getBarColor(progress);
             return (
               <div key={item.check}>
                 <div className="flex justify-between items-center mb-1">
@@ -76,7 +87,12 @@ const ATSScoreCard = ({ data, loading }) => {
                 {/* Progress bar — color matches score */}
                 <div className="w-full bg-gray-100 rounded-full h-1.5">
                   <div
-                    className={`h-1.5 rounded-full ${colors.bar}`}
+                    className={`h-1.5 rounded-full ${barColor}`}
+                    role="progressbar"
+                    aria-valuenow={progress}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label={`${item.check} score`}
                     style={{ width: `${progress}%` }}
                   />
                 </div>
