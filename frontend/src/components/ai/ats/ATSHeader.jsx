@@ -26,4 +26,4 @@ const ATSHeader = ({ score, color, label, wordCount }) => (
   </>
 );
 
-export default ATSHeader;
+export default React.memo(ATSHeader);

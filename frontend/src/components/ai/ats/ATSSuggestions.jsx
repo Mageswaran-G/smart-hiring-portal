@@ -20,4 +20,4 @@ const ATSSuggestions = ({ suggestions }) => {
   );
 };
 
-export default ATSSuggestions;
+export default React.memo(ATSSuggestions);

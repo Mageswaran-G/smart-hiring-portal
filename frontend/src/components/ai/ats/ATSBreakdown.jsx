@@ -37,4 +37,4 @@ const ATSBreakdown = ({ breakdown }) => (
   </div>
 );
 
-export default ATSBreakdown;
+export default React.memo(ATSBreakdown);
