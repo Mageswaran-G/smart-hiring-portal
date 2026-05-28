@@ -126,8 +126,14 @@ export default function CompanyApplicationsPage() {
 
   // ── Are any filters active? ───────────────────────────────
 
+  const abortRef = useRef(null);
+
   const fetchRanking = async (jobId) => {
-    if (!jobId || jobId === "all") return;
+      if (!jobId || jobId === "all") return;
+
+      // Cancel previous request if still running
+      if (abortRef.current) abortRef.current.abort();
+      abortRef.current = new AbortController();
     try {
       setRankLoading(true);
       setShowRanking(true);
