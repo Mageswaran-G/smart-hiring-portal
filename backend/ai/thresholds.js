@@ -33,20 +33,21 @@ const EXPERIENCE_RANK = {
   senior:  3,
 };
 
-// Calculate experience level bonus/penalty
-// Returns a multiplier between 0.7 and 1.1
-function getExperienceMultiplier(candidateLevel, jobLevel) {
-  if (!candidateLevel || !jobLevel) return 1;
+// Experience adjustment — additive (not multiplicative)
+// Returns points to ADD to raw score (-15 to +8)
+function getExperienceAdjustment(candidateLevel, jobLevel) {
+  if (!candidateLevel || !jobLevel) return 0;
 
   const candidateRank = EXPERIENCE_RANK[candidateLevel.toLowerCase()] ?? 1;
   const jobRank       = EXPERIENCE_RANK[jobLevel.toLowerCase()] ?? 1;
   const diff          = candidateRank - jobRank;
 
-  if (diff === 0)  return 1.1;  // Perfect match — 10% bonus
-  if (diff === 1)  return 1.05; // One level above — small bonus
-  if (diff === -1) return 0.9;  // One level below — small penalty
-  if (diff <= -2)  return 0.75; // Two+ levels below — big penalty
-  return 1.0;                   // Overqualified — neutral
+  if (diff === 0)  return 8;   // Perfect match — +8 points
+  if (diff === 1)  return 4;   // One level above — +4 points
+  if (diff === -1) return -5;  // One level below — -5 points
+  if (diff <= -2)  return -15; // Two+ below — -15 points
+  if (diff >= 2)   return -3;  // Overqualified — mild -3 penalty
+  return 0;
 }
 
 module.exports = {
@@ -55,6 +56,5 @@ module.exports = {
   PARTIAL_CREDIT,
   EXPERIENCE_RANK,
   getRecommendation,
-  getExperienceMultiplier
+  getExperienceAdjustment
 };
-

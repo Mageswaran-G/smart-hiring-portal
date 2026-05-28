@@ -1,7 +1,7 @@
 // Match Engine — Semantic + Weighted + Required/Preferred Skill Matching
 
 const { normalizeSkill, getSkillGroup } = require('./normalizeText');
-const { SKILL_WEIGHTS, PARTIAL_CREDIT, getExperienceMultiplier } = require('./thresholds');
+const { SKILL_WEIGHTS, PARTIAL_CREDIT, getExperienceAdjustment } = require('./thresholds');
 
 function calculateMatch(candidateSkills = [], jobSkills = [], options = {}) {
   const { preferredSkills = [], candidateLevel, jobLevel } = options;
@@ -28,14 +28,10 @@ function calculateMatch(candidateSkills = [], jobSkills = [], options = {}) {
     const group = getSkillGroup(normalized);
 
     // Weight by group
-    let weight = 1;
-    if (group === 'frontend' || group === 'backend') weight = 2;
-    if (group === 'database') weight = 1.5;
-    if (group === 'devops') weight = 1.5;
-    if (group === 'ai') weight = 2;
-
-    // Required skills get 1.5x multiplier
-    weight = weight * 1.5;
+    let weight = SKILL_WEIGHTS.default;
+    if (group === 'frontend' || group === 'backend' || group === 'ai') weight = SKILL_WEIGHTS.frontendBackendAI;
+    else if (group === 'database' || group === 'devops') weight = SKILL_WEIGHTS.databaseDevops;
+    weight = weight * SKILL_WEIGHTS.requiredMultiplier;
     totalWeight += weight;
 
     if (normalizedCandidate.includes(normalized)) {
@@ -45,7 +41,7 @@ function calculateMatch(candidateSkills = [], jobSkills = [], options = {}) {
       // Partial group credit — 30%
       
       if (group !== 'other' && candidateGroups.includes(group)) {
-        earnedWeight += weight * 0.3;
+        earnedWeight += weight * PARTIAL_CREDIT;
       }
       missingSkills.push(skill);
     }
@@ -57,8 +53,8 @@ function calculateMatch(candidateSkills = [], jobSkills = [], options = {}) {
     const group = getSkillGroup(normalized);
 
     // Preferred skills weight = 0.5x (bonus only)
-    let weight = 0.5;
-    if (group === 'frontend' || group === 'backend' || group === 'ai') weight = 1;
+    let weight = SKILL_WEIGHTS.preferredWeight;
+    if (group === 'frontend' || group === 'backend' || group === 'ai') weight = SKILL_WEIGHTS.preferredCoreWeight;
     totalWeight += weight;
 
     if (normalizedCandidate.includes(normalized)) {
@@ -69,12 +65,11 @@ function calculateMatch(candidateSkills = [], jobSkills = [], options = {}) {
   });
 
   
-  // Apply experience level multiplier
-  const expMultiplier = getExperienceMultiplier(candidateLevel, jobLevel);
   const rawScore = totalWeight > 0
     ? Math.round((earnedWeight / totalWeight) * 100)
     : 0;
-  const score = Math.min(100, Math.round(rawScore * expMultiplier));
+  const expAdjustment = getExperienceAdjustment(candidateLevel, jobLevel);
+  const score = Math.min(100, Math.max(0, rawScore + expAdjustment));
 
   return { score, matchedSkills, missingSkills, matchedPreferred };
 }
