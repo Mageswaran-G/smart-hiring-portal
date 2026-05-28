@@ -133,7 +133,7 @@ const userSchema = new mongoose.Schema({
     mimeType:     { type: String, default: '' },
     uploadedAt:   { type: Date }
   },
-  parsedResumeText: { type: String, default: '' },
+  resumeParseConfidence: { type: String, enum: ['high', 'medium', 'low', 'failed'], default: 'low' },
 
   // ── Company only fields ──
   companyName:        { type: String, default: '', trim: true },

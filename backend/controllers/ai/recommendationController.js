@@ -95,12 +95,22 @@ const rankCandidates = async (req, res) => {
     }
     // default: already sorted by score
 
+    // Pagination
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(20, parseInt(req.query.limit) || 10);
+    const startIndex = (page - 1) * limit;
+    const paginated = filtered.slice(startIndex, startIndex + limit);
+
     return res.json({
       success: true,
       data: {
-        ranked: filtered,
+        ranked: paginated,
         total: ranked.length,
         filtered: filtered.length,
+        page,
+        limit,
+        totalPages: Math.ceil(filtered.length / limit),
+        hasMore: startIndex + limit < filtered.length,
         jobTitle: job.title,
         appliedFilters: { minScore, recommendation, confidence, sortBy }
       }

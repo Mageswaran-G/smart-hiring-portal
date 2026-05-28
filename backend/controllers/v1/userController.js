@@ -67,12 +67,14 @@ exports.uploadResume = async (req, res, next) => {
       const User = require("../../models/User");
       const buffer = fs.readFileSync(req.file.path);
       const { skills, text } = await parseResume(buffer, req.file.mimetype);
-
-        await User.findByIdAndUpdate(req.user.id, {
-          parsedSkills: skills || [],
-          parsedResumeText: text || '',
-          lastResumeParsedAt: new Date(),
-        });
+      const parseConfidence = text?.length > 500 ? 'high' :
+        text?.length > 100 ? 'medium' : 'low';
+      await User.findByIdAndUpdate(req.user.id, {
+        parsedSkills: skills || [],
+        parsedResumeText: text || '',
+        lastResumeParsedAt: new Date(),
+        resumeParseConfidence: parseConfidence,
+      });
         // Invalidate all AI caches for this user — resume changed
         const { deleteByPrefix } = require('../../utils/cache');
         deleteByPrefix(`jobats:${req.user.id}`);
