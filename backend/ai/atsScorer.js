@@ -4,6 +4,12 @@
 const { normalizeSkill } = require('./normalizeText');
 const SKILLS = require('../constants/skills');
 
+// Precompute normalized skills once at module load — not on every request
+const NORMALIZED_SKILLS = SKILLS.map(s => ({
+  raw: s,
+  normalized: normalizeSkill(s)
+}));
+
 function scoreATS(resumeText = '', candidateData = {}) {
   if (!resumeText || resumeText.trim().length === 0) {
     return {
@@ -19,10 +25,9 @@ function scoreATS(resumeText = '', candidateData = {}) {
   let totalScore = 0;
 
   // ── CHECK 1: Skills Keywords (40 points) ──
-  const foundSkills = SKILLS.filter(skill => {
-    const normalized = normalizeSkill(skill);
-    return text.includes(normalized) || text.includes(skill);
-  });
+  const foundSkills = NORMALIZED_SKILLS.filter(({ raw, normalized }) => {
+  return text.includes(normalized) || text.includes(raw);
+  }).map(({ raw }) => raw);
   const skillScore = Math.min(40, Math.round((foundSkills.length / 8) * 40));
   totalScore += skillScore;
   breakdown.push({

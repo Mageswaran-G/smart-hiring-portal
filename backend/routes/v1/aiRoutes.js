@@ -18,7 +18,7 @@ router.get('/ats-score', authorizeRole('candidate'), getATSScore);
 // Candidate only — heavy generation
 router.post('/cover-letter',        authorizeRole('candidate'), aiHeavyLimiter, generateCoverLetter);
 router.post('/resume-feedback',     authorizeRole('candidate'), aiHeavyLimiter, generateResumeFeedback);
-router.get('/ats-score', authorizeRole('candidate'), getATSScore);
+
 
 // Company only
 router.get('/rank/:jobId',          authorizeRole('company'),   rankCandidates);
