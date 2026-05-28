@@ -13,6 +13,30 @@ function inferExperienceLevel(user) {
   return 'senior';
 }
 
+function buildCandidateSummary(recommendation, result, confidenceLabel, jobTitle) {
+  const matched = result.matchedSkills.length;
+  const missing = result.missingSkills.length;
+  const preferred = result.matchedPreferred?.length || 0;
+
+  const strengthPhrase =
+    matched >= 5 ? `Strong technical alignment with ${matched} core skills matched` :
+    matched >= 3 ? `Good skill coverage with ${matched} required skills` :
+    `Partial skill match — ${matched} of ${matched + missing} skills`;
+
+  const missingPhrase =
+    missing === 0 ? 'No skill gaps identified' :
+    missing === 1 ? `Missing ${result.missingSkills[0]} — otherwise strong fit` :
+    `Missing ${missing} skills including ${result.missingSkills.slice(0, 2).join(', ')}`;
+
+  const preferredPhrase = preferred > 0
+    ? `Also has ${preferred} preferred skill${preferred > 1 ? 's' : ''} as bonus.` : '';
+
+  const confidencePhrase = confidenceLabel === 'Low'
+    ? 'Limited profile data — verify manually.' : '';
+
+  return `${strengthPhrase}. ${missingPhrase}. ${preferredPhrase} ${confidencePhrase}`.trim().replace(/\s+/g, ' ');
+}
+
 function rankCandidate(application, job) {
   const c = application.candidate;
   if (!c) return null;
@@ -51,7 +75,7 @@ function rankCandidate(application, job) {
     confidenceScore: confidence.score,
     compositeBreakdown: composite.breakdown,
     breakdown: result.breakdown,
-    summary: `${recommendation} candidate. ${result.matchedSkills.length} skills matched for ${job.title}.`,
+    summary: buildCandidateSummary(recommendation, result, confidence.label, job.title),  
   };
 }
 
