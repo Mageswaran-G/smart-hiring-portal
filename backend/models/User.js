@@ -133,6 +133,7 @@ const userSchema = new mongoose.Schema({
     mimeType:     { type: String, default: '' },
     uploadedAt:   { type: Date }
   },
+  parsedResumeText: { type: String, default: '' },
 
   // ── Company only fields ──
   companyName:        { type: String, default: '', trim: true },

@@ -68,3 +68,12 @@ export const generateResumeFeedback = async () => {
     throw err.response?.data || err;
   }
 };
+
+export const getATSScore = async () => {
+  try {
+    const res = await API.get('/ai/ats-score');
+    return res.data.data;
+  } catch (err) {
+    throw err.response?.data || err;
+  }
+};

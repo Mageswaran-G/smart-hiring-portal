@@ -8,6 +8,7 @@ const Application = require('../models/Application');
 const User = require('../models/User');
 const logger = require('../utils/logger');
 const { setCache, getCache, deleteCache } = require('../utils/cache');
+const { scoreATS } = require('../ai/atsScorer');
 
 // POST /api/v1/ai/match/:jobId
 const getMatchScore = async (req, res) => {
@@ -456,4 +457,36 @@ const generateResumeFeedback = async (req, res) => {
   }
 };
 
-module.exports = { getMatchScore, getRecommendations, rankCandidates, generateCoverLetter, getMatchScoreBatch, generateInterviewQuestions, generateResumeFeedback };
+// GET /api/v1/ai/ats-score
+// Returns ATS score for candidate's uploaded resume
+const getATSScore = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    // Check cache first
+    const cacheKey = `ats:${userId}`;
+    const cached = getCache(cacheKey);
+    if (cached) return res.json({ success: true, data: cached, fromCache: true });
+
+    // Get candidate profile
+    const user = await User.findById(userId).select('parsedResumeText skills parsedSkills bio');
+
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+    // Use parsedResumeText if available, else fall back to bio + skills
+    const resumeText = user.parsedResumeText ||
+      `${user.bio || ''} Skills: ${(user.parsedSkills || user.skills || []).join(', ')}`;
+
+    const result = scoreATS(resumeText, user);
+
+    // Cache for 10 minutes
+    setCache(cacheKey, result, 600);
+
+    return res.json({ success: true, data: result });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { getMatchScore, getRecommendations, rankCandidates, generateCoverLetter, getMatchScoreBatch, generateInterviewQuestions, generateResumeFeedback, getATSScore };

@@ -1,5 +1,7 @@
 const Job  = require('../../models/Job');
 const User = require('../../models/User');
+const { scoreATS } = require('../../ai/atsScorer');
+const { getCache, setCache } = require('../../utils/cache');
 
 const generateCoverLetter = async (req, res) => {
   try {
@@ -94,4 +96,33 @@ const generateResumeFeedback = async (req, res) => {
   }
 };
 
-module.exports = { generateCoverLetter, generateInterviewQuestions, generateResumeFeedback };
+const getATSScore = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Check cache
+    const cacheKey = `ats:${userId}`;
+    const cached = getCache(cacheKey);
+    if (cached) return res.json({ success: true, data: cached, fromCache: true });
+
+    const user = await User.findById(userId)
+      .select('parsedResumeText parsedSkills skills bio');
+
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+    // Use parsedResumeText if available, else use bio + skills
+    const resumeText = user.parsedResumeText ||
+      `${user.bio || ''} Skills: ${(user.parsedSkills || user.skills || []).join(', ')}`;
+
+    const result = scoreATS(resumeText, user);
+
+    setCache(cacheKey, result, 600);
+
+    return res.json({ success: true, data: result });
+
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+module.exports = { generateCoverLetter, generateInterviewQuestions, generateResumeFeedback, getATSScore };

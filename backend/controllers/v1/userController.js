@@ -66,10 +66,11 @@ exports.uploadResume = async (req, res, next) => {
       const parseResume = require("../../ai/resumeParser");
       const User = require("../../models/User");
       const buffer = fs.readFileSync(req.file.path);
-      const { skills } = await parseResume(buffer, req.file.mimetype);
+      const { skills, text } = await parseResume(buffer, req.file.mimetype);
 
         await User.findByIdAndUpdate(req.user.id, {
           parsedSkills: skills || [],
+          parsedResumeText: text || '',
           lastResumeParsedAt: new Date(),
         });
     } catch (parseErr) {

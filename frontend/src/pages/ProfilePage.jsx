@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { useAuth } from '../context/AuthContext';
@@ -29,6 +30,8 @@ import CompanyCultureSection from '../components/profile/sections/CompanyCulture
 import EmployeeBenefitsSection from '../components/profile/sections/EmployeeBenefitsSection';
 import CompanyTechStackSection from '../components/profile/sections/CompanyTechStackSection';
 import ResumeFeedbackCard from '../components/ai/ResumeFeedbackCard';
+import ATSScoreCard from '../components/ai/ATSScoreCard';
+import { getATSScore } from '../services/aiService';
 
 export default function ProfilePage() {
   const { user, logoutUser } = useAuth();
@@ -52,8 +55,21 @@ export default function ProfilePage() {
     handleSectionSave,
   } = useProfile();
 
-  if (isLoading) return <ProfileSkeleton />;
+  const [atsData, setAtsData] = useState(null);
+  const [atsLoading, setAtsLoading] = useState(false);
 
+  useEffect(() => {
+    if (user?.role === 'candidate') {
+      setAtsLoading(true);
+      getATSScore()
+        .then(data => setAtsData(data))
+        .catch(() => {})
+        .finally(() => setAtsLoading(false));
+    }
+  }, [user]);
+  
+  if (isLoading) return <ProfileSkeleton />;
+  
   const isCandidate = user?.role === 'candidate';
   const isCompany   = user?.role === 'company';
   const theme       = getTheme(user?.role);
@@ -134,6 +150,11 @@ export default function ProfilePage() {
             <div className="mt-4">
               <ResumeFeedbackCard />
             </div>
+
+            <div className="mt-4">
+              <ATSScoreCard data={atsData} loading={atsLoading} />
+            </div>
+
             <EducationSection
               profile={profile}
               isCandidate={isCandidate}
