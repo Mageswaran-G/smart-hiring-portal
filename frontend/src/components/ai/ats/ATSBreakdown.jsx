@@ -13,7 +13,7 @@ const ATSBreakdown = ({ breakdown }) => (
           : 0;
         const barColor = getBarColor(progress);
         return (
-          <div key={item.id}>
+          <div key={item.id || item.check}>
             <div className="flex justify-between items-center mb-1">
               <span className="text-xs text-gray-600 font-medium">{item.check}</span>
               <span className="text-xs font-bold text-gray-700">{item.score}/{item.maxScore}</span>
@@ -27,6 +27,7 @@ const ATSBreakdown = ({ breakdown }) => (
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-label={`${item.check} score`}
+                aria-valuetext={`${Math.round(progress)}%`}
               />
             </div>
             <p className="text-xs text-gray-400 mt-0.5">{item.detail}</p>

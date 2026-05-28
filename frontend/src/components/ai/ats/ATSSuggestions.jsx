@@ -13,7 +13,7 @@ const ATSSuggestions = ({ suggestions }) => {
       </div>
       <ul className="space-y-1">
         {suggestions.map((s) => (
-          <li key={s.id} className="text-xs text-amber-800">• {s.text}</li>
+          <li key={s.id || s.text} className="text-xs text-amber-800">• {s.text}</li>
         ))}
       </ul>
     </div>

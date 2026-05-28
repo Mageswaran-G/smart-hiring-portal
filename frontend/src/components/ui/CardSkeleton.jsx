@@ -8,7 +8,7 @@ const VARIANTS = {
 };
 
 const CardSkeleton = ({ lines, variant = 'default', showHeader }) => {
-  const config = VARIANTS[variant];
+  const config = VARIANTS[variant] || VARIANTS.default;
   const lineCount = lines ?? config.lines;
   const header = showHeader ?? config.showHeader;
 
@@ -23,12 +23,16 @@ const CardSkeleton = ({ lines, variant = 'default', showHeader }) => {
           </div>
         </div>
       )}
-      {Array.from({ length: lineCount }).map((_, i) => (
+      {Array.from({ length: lineCount }).map((_, i) => {
+      const widths = ['w-full', 'w-5/6', 'w-4/5', 'w-3/4', 'w-2/3'];
+      const subWidths = ['w-2/3', 'w-1/2', 'w-3/5', 'w-5/6', 'w-3/4'];
+      return (
         <div key={i} className="mb-3">
-          <div className="h-3 bg-gray-200 rounded w-full mb-1" />
-          <div className="h-2 bg-gray-200 rounded w-2/3" />
+          <div className={`h-3 bg-gray-200 rounded ${widths[i % widths.length]} mb-1`} />
+          <div className={`h-2 bg-gray-200 rounded ${subWidths[i % subWidths.length]}`} />
         </div>
-      ))}
+      );
+    })}
     </div>
   );
 };
