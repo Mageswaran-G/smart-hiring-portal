@@ -1,111 +1,26 @@
 import React from 'react';
-import { FileText, Lightbulb } from 'lucide-react';
-import { clampPercent, getBarColor, SCORE_COLOR_MAP as COLOR_MAP } from '../../utils/scoreColors';
+import CardSkeleton from '../ui/CardSkeleton';
+import ATSHeader from './ats/ATSHeader';
+import ATSBreakdown from './ats/ATSBreakdown';
+import ATSSuggestions from './ats/ATSSuggestions';
+import { SCORE_COLOR_MAP } from '../../utils/scoreColors';
 
 const ATSScoreCard = ({ data, loading }) => {
-  if (loading) {
-    return (
-      <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm animate-pulse">
-        <div className="h-4 bg-gray-200 rounded w-1/3 mb-4" />
-        <div className="h-20 bg-gray-200 rounded mb-4" />
-        <div className="h-4 bg-gray-200 rounded w-2/3" />
-      </div>
-    );
-  }
-
+  if (loading) return <CardSkeleton lines={4} />;
   if (!data) return null;
 
-  const colors = COLOR_MAP[data.color] || COLOR_MAP.orange;
+  const colors = SCORE_COLOR_MAP[data.color] || SCORE_COLOR_MAP.orange;
 
   return (
     <div className={`rounded-2xl p-6 border border-gray-100 shadow-sm ${colors.bg}`}>
-
-      {/* Header */}
-      <div className="flex items-center justify-between mb-5">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center">
-            <FileText size={20} className="text-indigo-600" />
-          </div>
-          <div>
-            <h3 className="font-bold text-gray-900 text-base">ATS Resume Score</h3>
-            <p className="text-xs text-gray-500">How ATS-friendly is your resume?</p>
-          </div>
-        </div>
-        {/* Big Score */}
-        <div className="text-right">
-          <p className={`text-4xl font-black ${colors.ring}`}>
-            {clampPercent(data.score)}
-          </p>
-          <p className="text-xs text-gray-400">out of 100</p>
-        </div>
-      </div>
-
-      {/* Label Badge */}
-      <div className="mb-5">
-        <span className={`text-xs font-bold px-3 py-1 rounded-full ${colors.badge}`}>
-          {data.label}
-        </span>
-        <span className="text-xs text-gray-400 ml-2">
-          Resume length: {data.wordCount} words
-        </span>
-      </div>
-
-      {/* Score Breakdown */}
-      <div className="mb-5">
-        <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">
-          Score Breakdown
-        </p>
-        <div className="space-y-2">
-          {data.breakdown?.map((item) => {
-            // Safe division — prevent divide by zero
-            const progress = item.maxScore
-              ? clampPercent((item.score / item.maxScore) * 100)
-              : 0;
-            const barColor = getBarColor(progress);
-            return (
-              <div key={item.check}>
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-xs text-gray-600 font-medium">{item.check}</span>
-                  <span className="text-xs font-bold text-gray-700">
-                    {item.score}/{item.maxScore}
-                  </span>
-                </div>
-                {/* Progress bar — color matches score */}
-                <div className="w-full bg-gray-100 rounded-full h-1.5">
-                  <div
-                    className={`h-1.5 rounded-full ${barColor}`}
-                    role="progressbar"
-                    aria-valuenow={progress}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                    aria-label={`${item.check} score`}
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
-                <p className="text-xs text-gray-400 mt-0.5">{item.detail}</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Suggestions */}
-      {data.suggestions?.length > 0 && (
-        <div className="bg-amber-50 rounded-xl p-4 border border-amber-100">
-          <div className="flex items-center gap-2 mb-2">
-            <Lightbulb size={14} className="text-amber-700" />
-            <p className="text-xs font-bold text-amber-700 uppercase tracking-wide">
-              How to Improve
-            </p>
-          </div>
-          <ul className="space-y-1">
-            {data.suggestions.map((s, i) => (
-              <li key={i} className="text-xs text-amber-800">• {s}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
+      <ATSHeader
+        score={data.score}
+        color={colors}
+        label={data.label}
+        wordCount={data.wordCount}
+      />
+      <ATSBreakdown breakdown={data.breakdown} />
+      <ATSSuggestions suggestions={data.suggestions} />
     </div>
   );
 };

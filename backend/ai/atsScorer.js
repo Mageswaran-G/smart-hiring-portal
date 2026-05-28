@@ -70,13 +70,14 @@ function scoreATS(resumeText = '', candidateData = {}) {
   const skillScore = Math.min(40, Math.round((skillWeight / 16) * 40));
   totalScore += skillScore;
   breakdown.push({
+    id: 'skills',
     check: 'Skills Keywords',
     score: skillScore,
     maxScore: 40,
     detail: `${uniqueFoundSkills.length} skills found`,
   });
   if (uniqueFoundSkills.length < 5) {
-    suggestions.push('Add more technical skills to your resume — aim for at least 8 skills.');
+    suggestions.push({ id: 'add-skills', text: 'Add more technical skills to your resume — aim for at least 8 skills.' });
   }
 
   // ── CHECK 2: Resume Length (20 points) ──
@@ -87,13 +88,14 @@ function scoreATS(resumeText = '', candidateData = {}) {
   else if (wordCount >= 80) lengthScore = 6;
   totalScore += lengthScore;
   breakdown.push({
+    id: 'length',
     check: 'Resume Length',
     score: lengthScore,
     maxScore: 20,
     detail: `${wordCount} words`,
   });
   if (wordCount < 300) {
-    suggestions.push(`Resume is too short (${wordCount} words). Aim for at least 300 words.`);
+    suggestions.push({ id: 'resume-length', text: `Resume is too short (${wordCount} words). Aim for at least 300 words.` });
   }
 
   // ── CHECK 3: Contact Info (15 points) ──
@@ -104,13 +106,14 @@ function scoreATS(resumeText = '', candidateData = {}) {
   if (hasPhone) contactScore += 7;
   totalScore += contactScore;
   breakdown.push({
+    id: 'contact',
     check: 'Contact Information',
     score: contactScore,
     maxScore: 15,
     detail: `Email: ${hasEmail ? 'Found' : 'Missing'}, Phone: ${hasPhone ? 'Found' : 'Missing'}`,
   });
-  if (!hasEmail) suggestions.push('Add your email address to your resume.');
-  if (!hasPhone) suggestions.push('Add your phone number to your resume.');
+  if (!hasEmail) suggestions.push({ id: 'add-email', text: 'Add your email address to your resume.' });
+  if (!hasPhone) suggestions.push({ id: 'add-phone', text: 'Add your phone number to your resume.' });
 
   // ── CHECK 4: Education (15 points) ──
   const educationKeywords = ['education', 'degree', 'bachelor', 'master', 'b.e', 'b.tech',
@@ -119,12 +122,13 @@ function scoreATS(resumeText = '', candidateData = {}) {
   const educationScore = hasEducation ? 15 : 0;
   totalScore += educationScore;
   breakdown.push({
+    id: 'education',
     check: 'Education Section',
     score: educationScore,
     maxScore: 15,
     detail: hasEducation ? 'Education section found' : 'No education section found',
   });
-  if (!hasEducation) suggestions.push('Add an Education section with your degree and college name.');
+  if (!hasEducation) suggestions.push({ id: 'add-education', text: 'Add an Education section with your degree and college name.' });
 
   // ── CHECK 5: Experience (10 points) ──
   const experienceKeywords = ['experience', 'worked', 'internship', 'project', 'developed',
@@ -133,13 +137,14 @@ function scoreATS(resumeText = '', candidateData = {}) {
   const experienceScore = expMatches.length >= 3 ? 10 : expMatches.length >= 1 ? 5 : 0;
   totalScore += experienceScore;
   breakdown.push({
+    id: 'experience',
     check: 'Experience / Projects',
     score: experienceScore,
     maxScore: 10,
     detail: `${expMatches.length} experience keywords found`,
   });
   if (expMatches.length < 3) {
-    suggestions.push('Add more details about your work experience or projects (developed, built, implemented).');
+    suggestions.push({ id: 'add-experience', text: 'Add more details about your work experience or projects (developed, built, implemented).' });
   }
 
   // ── FINAL SCORE ──
