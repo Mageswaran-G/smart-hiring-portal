@@ -190,4 +190,11 @@ userSchema.methods.toJSON = function() {
 userSchema.index({ role: 1, isDeleted: 1 });
 userSchema.index({ createdAt: -1 });
 
+// Fast AI queries — candidates with parsed skills
+userSchema.index({ role: 1, parsedSkills: 1 });
+
+
+// Fast profile slug lookup
+userSchema.index({ profileSlug: 1 }, { sparse: true });
+
 module.exports = mongoose.model('User', userSchema);

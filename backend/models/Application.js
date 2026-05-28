@@ -57,6 +57,13 @@ applicationSchema.index({ status: 1 });
 applicationSchema.index({ candidate: 1 });
 applicationSchema.index({ job: 1 });
 
+// Fast candidate application history
+applicationSchema.index({ candidate: 1, createdAt: -1 });
+// Fast job applicants sorted by date
+applicationSchema.index({ job: 1, createdAt: -1 });
+// Fast status filtering per job
+applicationSchema.index({ job: 1, status: 1 });
+
 module.exports = mongoose.model(
   'Application',
   applicationSchema
