@@ -73,6 +73,12 @@ exports.uploadResume = async (req, res, next) => {
           parsedResumeText: text || '',
           lastResumeParsedAt: new Date(),
         });
+        // Invalidate all AI caches for this user — resume changed
+        const { deleteByPrefix } = require('../../utils/cache');
+        deleteByPrefix(`jobats:${req.user.id}`);
+        deleteByPrefix(`match:${req.user.id}`);
+        deleteByPrefix(`ats:${req.user.id}`);
+        deleteByPrefix(`recommendations:${req.user.id}`);
     } catch (parseErr) {
       console.error("Resume parsing failed (non-critical):", parseErr.message);
     }

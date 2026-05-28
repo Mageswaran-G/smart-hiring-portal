@@ -19,6 +19,10 @@ const JobATSMatchCard = ({ data, loading }) => {
     data.skillMatchScore >= 40 ? 'orange' : 'red'
   ];
 
+  const overallFit = clampPercent(
+    Math.round((data.skillMatchScore * 0.7) + (data.overallATSScore * 0.3))
+  );
+
   return (
     <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
 
@@ -56,13 +60,13 @@ const JobATSMatchCard = ({ data, loading }) => {
         <div className="flex justify-between mb-1">
           <span className="text-xs font-semibold text-gray-600">Overall Job Fit</span>
           <span className="text-xs font-bold text-gray-700">
-            {clampPercent(Math.round((data.overallATSScore + data.skillMatchScore) / 2))}%
+            {overallFit}%
           </span>
         </div>
         <div className="w-full bg-gray-100 rounded-full h-2">
           <div
-            className={`h-2 rounded-full ${getBarColor(Math.round((data.overallATSScore + data.skillMatchScore) / 2))}`}
-            style={{ width: `${clampPercent(Math.round((data.overallATSScore + data.skillMatchScore) / 2))}%` }}
+            className={`h-2 rounded-full ${getBarColor(overallFit)}`}
+            style={{ width: `${overallFit}%` }}
           />
         </div>
       </div>
@@ -78,7 +82,7 @@ const JobATSMatchCard = ({ data, loading }) => {
           </div>
           <div className="flex flex-wrap gap-1">
             {data.matchedSkills.map((skill, i) => (
-              <span key={i} className="bg-green-50 text-green-700 text-xs font-semibold px-2 py-0.5 rounded-full border border-green-100">
+              <span key={skill} className="bg-green-50 text-green-700 text-xs font-semibold px-2 py-0.5 rounded-full border border-green-100">
                 {skill}
               </span>
             ))}
@@ -97,7 +101,7 @@ const JobATSMatchCard = ({ data, loading }) => {
           </div>
           <div className="flex flex-wrap gap-1">
             {data.missingSkills.map((skill, i) => (
-              <span key={i} className="bg-red-50 text-red-600 text-xs font-semibold px-2 py-0.5 rounded-full border border-red-100">
+              <span key={skill} className="bg-red-50 text-red-600 text-xs font-semibold px-2 py-0.5 rounded-full border border-red-100">
                 {skill}
               </span>
             ))}
