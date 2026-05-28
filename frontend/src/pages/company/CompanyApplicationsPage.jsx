@@ -137,7 +137,7 @@ export default function CompanyApplicationsPage() {
     try {
       setRankLoading(true);
       setShowRanking(true);
-      const data = await getRankedCandidates(jobId, rankFilters);
+      const data = await getRankedCandidates(jobId, rankFilters, abortRef.current.signal);
       setRanking(data.ranked || []);
     } catch (err) {
       setShowRanking(false);

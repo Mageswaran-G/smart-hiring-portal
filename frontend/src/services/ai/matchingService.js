@@ -14,7 +14,7 @@ export const getMatchScoreBatch = async (jobIds) => {
     return res.data.data?.scores || {};
   } catch (err) {
     console.warn('[AI] Batch scoring unavailable:', err?.message);
-    return {};
+    return { degraded: true, scores: {} };
   }
 };
 

@@ -4,9 +4,10 @@
 const { scoreATS } = require('./atsScorer');
 const { calcProfileCompleteness } = require('../utils/profileCompleteness');
 
+// ATS and profile completeness partially overlap — reduce ATS weight to avoid double counting
 const WEIGHTS = {
-  skillMatch:          0.60,
-  atsScore:            0.25,
+  skillMatch:          0.65,
+  atsScore:            0.20,
   profileCompleteness: 0.15,
 };
 
