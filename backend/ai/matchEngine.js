@@ -71,7 +71,41 @@ function calculateMatch(candidateSkills = [], jobSkills = [], options = {}) {
   const expAdjustment = getExperienceAdjustment(candidateLevel, jobLevel);
   const score = Math.min(100, Math.max(0, rawScore + expAdjustment));
 
-  return { score, matchedSkills, missingSkills, matchedPreferred };
+  // Calculate breakdown scores
+  const requiredTotal = jobSkills.length;
+  const requiredMatched = matchedSkills.length;
+  const requiredScore = requiredTotal > 0
+    ? Math.round((requiredMatched / requiredTotal) * 100)
+    : 0;
+
+  const preferredTotal = preferredSkills.length;
+  const preferredMatched = matchedPreferred.length;
+  const preferredScore = preferredTotal > 0
+    ? Math.round((preferredMatched / preferredTotal) * 100)
+    : 0;
+
+  const expAdjLabel = !candidateLevel || !jobLevel ? 'Not evaluated' :
+    expAdjustment >= 8  ? 'Perfect match' :
+    expAdjustment >= 4  ? 'Good match' :
+    expAdjustment >= 0  ? 'Slight mismatch' :
+    expAdjustment >= -5 ? 'Below required' : 'Significantly below';
+
+  return {
+    score,
+    matchedSkills,
+    missingSkills,
+    matchedPreferred,
+    breakdown: {
+      requiredScore,
+      preferredScore,
+      experienceLabel: expAdjLabel,
+      experienceAdjustment: expAdjustment,
+      requiredMatched,
+      requiredTotal,
+      preferredMatched,
+      preferredTotal,
+    }
+  };
 }
 
 module.exports = calculateMatch;

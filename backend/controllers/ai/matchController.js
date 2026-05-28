@@ -30,7 +30,14 @@ const getMatchScore = async (req, res) => {
       jobLevel: job.experienceLevel,
       candidateLevel: inferExperienceLevel(user),
     });
-    return res.json({ success: true, data: { score: result.score, matchedSkills: result.matchedSkills, missingSkills: result.missingSkills, totalJobSkills: jobSkills.length } });
+    return res.json({ success: true, data: {
+      score: result.score,
+      matchedSkills: result.matchedSkills,
+      missingSkills: result.missingSkills,
+      matchedPreferred: result.matchedPreferred || [],
+      totalJobSkills: jobSkills.length,
+      breakdown: result.breakdown,
+    }});
   } catch (err) {
     logger.error('Match score error:', err);
     return res.status(500).json({ success: false, message: err.message });

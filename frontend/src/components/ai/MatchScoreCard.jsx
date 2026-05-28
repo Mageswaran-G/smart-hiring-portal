@@ -67,6 +67,34 @@ export default function MatchScoreCard({ matchScore, loading }) {
         
       </div>
 
+          
+
+      {/* Score Breakdown */}
+      {matchScore.breakdown && (
+        <div className="px-6 py-3 border-b border-gray-100">
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Score Breakdown</p>
+          <div className="grid grid-cols-3 gap-2">
+            <div className="bg-gray-50 rounded-xl p-2 text-center">
+              <p className="text-sm font-black text-gray-900">{matchScore.breakdown.requiredScore}%</p>
+              <p className="text-[10px] text-gray-400 font-semibold mt-0.5">Required</p>
+              <p className="text-[10px] text-gray-300">{matchScore.breakdown.requiredMatched}/{matchScore.breakdown.requiredTotal}</p>
+            </div>
+            <div className="bg-gray-50 rounded-xl p-2 text-center">
+              <p className="text-sm font-black text-gray-900">{matchScore.breakdown.preferredScore}%</p>
+              <p className="text-[10px] text-gray-400 font-semibold mt-0.5">Preferred</p>
+              <p className="text-[10px] text-gray-300">{matchScore.breakdown.preferredMatched}/{matchScore.breakdown.preferredTotal}</p>
+            </div>
+            <div className="bg-gray-50 rounded-xl p-2 text-center">
+              <p className="text-[10px] font-black text-gray-900 leading-tight">{matchScore.breakdown.experienceLabel}</p>
+              <p className="text-[10px] text-gray-400 font-semibold mt-0.5">Experience</p>
+              <p className={`text-[10px] font-bold ${matchScore.breakdown.experienceAdjustment >= 0 ? 'text-green-500' : 'text-red-400'}`}>
+                {matchScore.breakdown.experienceAdjustment >= 0 ? '+' : ''}{matchScore.breakdown.experienceAdjustment}pts
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Skills section */}
       <div className="px-6 py-4 flex flex-col gap-4">
 
