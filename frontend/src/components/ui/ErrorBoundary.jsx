@@ -4,7 +4,7 @@ import { AlertCircle, RefreshCw } from 'lucide-react';
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, retryCount: 0 };
   }
 
   static getDerivedStateFromError(error) {
@@ -12,11 +12,16 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, info) {
-    console.error('AI Widget Error:', error, info);
+    // Log to console in dev — replace with Sentry in production
+    console.error('[AI Widget Error]', error, info);
   }
 
   handleReset() {
-    this.setState({ hasError: false, error: null });
+    this.setState(prev => ({
+      hasError: false,
+      error: null,
+      retryCount: prev.retryCount + 1
+    }));
   }
 
   render() {
@@ -47,7 +52,12 @@ class ErrorBoundary extends React.Component {
       );
     }
 
-    return this.props.children;
+    // key={retryCount} forces full remount on retry — clears child state
+    return (
+      <React.Fragment key={this.state.retryCount}>
+        {this.props.children}
+      </React.Fragment>
+    );
   }
 }
 

@@ -166,7 +166,6 @@ jobSchema.index({ deadline: 1 });
 jobSchema.index({ isDeleted: 1, isActive: 1, status: 1, deadline: 1 });
 // Fast experience level filtering
 jobSchema.index({ experienceLevel: 1, isActive: 1 });
-// Fast preferred skills lookup
-jobSchema.index({ preferredSkills: 1 });
+
 
 module.exports = mongoose.model('Job', jobSchema);

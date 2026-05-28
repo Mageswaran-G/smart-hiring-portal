@@ -6,7 +6,7 @@ const Job         = require('../../models/Job');
 const Application = require('../../models/Application');
 const User        = require('../../models/User');
 const logger      = require('../../utils/logger');
-
+const { getCache, setCache } = require('../../utils/cache');
 
 const generateCandidateSummary = (candidateName, score, matchedSkills, missingSkills, jobTitle) => {
   const matched = matchedSkills.join(', ') || 'general skills';
@@ -23,6 +23,9 @@ const generateCandidateSummary = (candidateName, score, matchedSkills, missingSk
 const getRecommendations = async (req, res) => {
   try {
     const userId = req.user.id;
+    const cacheKey = `recommendations:${userId}`;
+    const cached = getCache(cacheKey);
+    if (cached) return res.json({ success: true, data: cached, fromCache: true });
     const user   = await User.findById(userId).select('skills parsedSkills');
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     const candidateSkills = user.parsedSkills?.length
@@ -41,7 +44,9 @@ const getRecommendations = async (req, res) => {
       const suggestions = getSuggestions(result.missingSkills);
       return { ...job.toObject(), matchScore: result.score, matchedSkills: result.matchedSkills, missingSkills: result.missingSkills, suggestions };
     }).filter(j => j.matchScore >= 15).sort((a, b) => b.matchScore - a.matchScore).slice(0, 10);
-    return res.json({ success: true, data: { recommendations: scored, totalSkills: candidateSkills.length } });
+    const responseData = { recommendations: scored, totalSkills: candidateSkills.length };
+    setCache(cacheKey, responseData, 300);
+    return res.json({ success: true, data: responseData });
   } catch (err) {
     logger.error('Recommendations error:', err);
     return res.status(500).json({ success: false, message: err.message });
@@ -51,7 +56,7 @@ const getRecommendations = async (req, res) => {
 const rankCandidates = async (req, res) => {
   try {
     const { jobId } = req.params;
-    const job = await Job.findById(jobId).select('skillsRequired preferredSkills postedBy title');
+    const job = await Job.findById(jobId).select('skillsRequired preferredSkills experienceLevel postedBy title');
     if (!job) return res.status(404).json({ success: false, message: 'Job not found' });
     const applications = await Application.find({ job: jobId }).populate('candidate', 'name email avatar skills parsedSkills workHistory');
     if (!applications.length) return res.json({ success: true, data: { ranked: [] } });
