@@ -3,14 +3,34 @@ import { CheckCircle } from 'lucide-react';
 
 const MODULES = [
   {
+    num: 1, status: 'done', title: 'Authentication & Security',
+    icon: Shield, color: '#7c3aed', progress: 100, 
+    features: ['JWT auth', 'Refresh tokens', 'Role-based access', 'bcrypt passwords'],
+  },
+  {
+    num: 2, status: 'done', title: 'User Profile Management',
+    icon: Shield, color: '#7c3aed', progress: 100,
+    features: ['Candidate profiles', 'Company profiles', 'Resume upload', 'Photo upload'],
+  },
+  {
+    num: 3, status: 'done', title: 'Job Posting System',
+    icon: Shield, color: '#7c3aed', progress: 100,
+    features: ['Job CRUD', 'SEO URLs', 'Rich text editor', 'Expiry cron job'],
+  },
+  {
+    num: 4, status: 'done', title: 'Application System',
+    icon: Shield, color: '#7c3aed', progress: 100,
+    features: ['Apply flow', 'Status tracking', 'Email notifications', 'Save jobs'],
+  },
+  {
     num: 5, status: 'done', title: 'Admin Dashboard',
-    icon: Shield, color: '#7c3aed', progress: 100, locked: false,
-    features: ['User management', 'Job moderation', 'Platform analytics', 'Role controls'],
+    icon: Shield, color: '#7c3aed', progress: 100,
+    features: ['User management', 'Job moderation', 'Platform analytics', 'Action center'],
   },
   {
     num: 6, status: 'In Progress', title: 'Advanced & AI Features',
-    icon: Brain, color: '#7c3aed', progress: 15, locked: false,
-    features: ['Email notifications', 'AI job suggestions', 'Resume matching', 'Smart screening'],
+    icon: Brain, color: '#7c3aed', progress: 92,
+    features: ['Match scoring', 'ATS scoring', 'Semantic matching', 'Composite ranking', 'Confidence scoring', 'Recruiter filters'],
   },
 ];
 
@@ -33,7 +53,7 @@ const ModuleRoadmap = () => (
       fontSize: 12, color: '#16a34a', display: 'flex', gap: 8, alignItems: 'center',
     }}>
       <CheckCircle size={14} color="#16a34a" />
-      Module 5 complete! Now working on Module 6 — Advanced & AI Features.
+      Modules 1-5 complete! Module 6 Advanced AI Features — 92% complete.
     </div>
 
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
