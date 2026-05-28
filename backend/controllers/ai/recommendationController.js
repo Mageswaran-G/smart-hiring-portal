@@ -7,7 +7,8 @@ const Application = require('../../models/Application');
 const User        = require('../../models/User');
 const logger      = require('../../utils/logger');
 const { getCache, setCache } = require('../../utils/cache');
-const { calcCompositeScore } = require('../../ai/compositeScore');
+const { calcCompositeScore, calcConfidenceScore } = require('../../ai/compositeScore');
+
 
 const generateCandidateSummary = (candidateName, score, matchedSkills, missingSkills, jobTitle) => {
   const matched = matchedSkills.join(', ') || 'general skills';
@@ -74,6 +75,7 @@ const rankCandidates = async (req, res) => {
         candidateLevel,
       });
       const composite = calcCompositeScore(c, result.score);
+      const confidence = calcConfidenceScore(c, result.score);
       const finalScore = composite.compositeScore;
       const recommendation = getRecommendation(finalScore);
       return {
@@ -88,6 +90,8 @@ const rankCandidates = async (req, res) => {
         matchedPreferred: result.matchedPreferred || [],
         recommendation,
         compositeBreakdown: composite.breakdown,
+        confidence: confidence.label,
+        confidenceScore: confidence.score,
         summary: generateCandidateSummary(c.name, finalScore, result.matchedSkills, result.missingSkills, job.title)
       };
     }).filter(Boolean).sort((a, b) => b.score - a.score);

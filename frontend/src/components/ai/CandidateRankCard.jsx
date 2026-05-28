@@ -35,12 +35,22 @@ function ExpandableRow({ r, i, initials, expanded, onToggle }) {
             <ScoreBadge score={r.score} />
             {r.recommendation && (
               <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                
                 r.recommendation === 'Strong Hire' ? 'bg-green-100 text-green-700' :
                 r.recommendation === 'Hire'        ? 'bg-blue-100 text-blue-700' :
                 r.recommendation === 'Consider'    ? 'bg-orange-100 text-orange-700' :
                 'bg-red-100 text-red-600'
               }`}>
                 {r.recommendation}
+              </span>
+            )}
+            {r.confidence && (
+              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                r.confidence === 'High'   ? 'bg-gray-100 text-gray-600' :
+                r.confidence === 'Medium' ? 'bg-yellow-50 text-yellow-600' :
+                'bg-red-50 text-red-400'
+              }`}>
+                {r.confidence} confidence
               </span>
             )}
           </div>
