@@ -8,7 +8,7 @@ const User        = require('../../models/User');
 const logger      = require('../../utils/logger');
 const { getCache, setCache } = require('../../utils/cache');
 const { calcCompositeScore, calcConfidenceScore } = require('../../ai/compositeScore');
-
+const { rankCandidates: rankCandidatesService } = require('../../services/ai/rankingService');
 
 const generateCandidateSummary = (candidateName, score, matchedSkills, missingSkills, jobTitle) => {
   const matched = matchedSkills.join(', ') || 'general skills';
@@ -62,39 +62,7 @@ const rankCandidates = async (req, res) => {
     if (!job) return res.status(404).json({ success: false, message: 'Job not found' });
     const applications = await Application.find({ job: jobId }).populate('candidate', 'name email avatar skills parsedSkills workHistory parsedResumeText bio resume photo profilePhoto headline educationList education phone');
     if (!applications.length) return res.json({ success: true, data: { ranked: [] } });
-    const jobSkills = [...new Set(job.skillsRequired || [])];
-    const ranked = applications.map(app => {
-      const c = app.candidate;
-      if (!c) return null;
-      const cs = extractCandidateSkills(c);
-      const workCount = c.workHistory?.length || 0;
-      const candidateLevel = workCount === 0 ? 'fresher' : workCount === 1 ? 'junior' : workCount === 2 ? 'mid' : 'senior';
-      const result = calculateMatch(cs, jobSkills, {
-        preferredSkills: job.preferredSkills || [],
-        jobLevel: job.experienceLevel,
-        candidateLevel,
-      });
-      const composite = calcCompositeScore(c, result.score);
-      const confidence = calcConfidenceScore(c, result.score);
-      const finalScore = composite.compositeScore;
-      const recommendation = getRecommendation(finalScore);
-      return {
-        applicationId: app._id,
-        status: app.status,
-        appliedAt: app.createdAt,
-        candidate: { id: c._id, name: c.name, email: c.email, avatar: c.avatar },
-        score: finalScore,
-        skillMatchScore: result.score,
-        matchedSkills: result.matchedSkills,
-        missingSkills: result.missingSkills,
-        matchedPreferred: result.matchedPreferred || [],
-        recommendation,
-        compositeBreakdown: composite.breakdown,
-        confidence: confidence.label,
-        confidenceScore: confidence.score,
-        summary: generateCandidateSummary(c.name, finalScore, result.matchedSkills, result.missingSkills, job.title)
-      };
-    }).filter(Boolean).sort((a, b) => b.score - a.score);
+    const ranked = rankCandidatesService(applications, job);
     // Apply filters from query params
     const { minScore, recommendation, confidence, sortBy } = req.query;
 
