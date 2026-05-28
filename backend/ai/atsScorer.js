@@ -20,21 +20,37 @@ function scoreATS(resumeText = '', candidateData = {}) {
   }
 
   const text = resumeText.toLowerCase();
+
+  // Supplement with candidate profile data if resume text is weak
+  const profileSkills = [
+    ...(candidateData?.parsedSkills || []),
+    ...(candidateData?.skills || []),
+  ].map(s => (typeof s === 'string' ? s.toLowerCase() : ''));
+
   const breakdown = [];
   const suggestions = [];
   let totalScore = 0;
 
   // ── CHECK 1: Skills Keywords (40 points) ──
   const foundSkills = NORMALIZED_SKILLS.filter(({ raw, normalized }) => {
-  return text.includes(normalized) || text.includes(raw);
+    const inResume = (
+      new RegExp(`\\b${normalized}\\b`, 'i').test(text) ||
+      new RegExp(`\\b${raw}\\b`, 'i').test(text)
+    );
+    const inProfile = profileSkills.includes(normalized) || profileSkills.includes(raw.toLowerCase());
+    return inResume || inProfile;
   }).map(({ raw }) => raw);
-  const skillScore = Math.min(40, Math.round((foundSkills.length / 8) * 40));
+
+  // Remove duplicates
+  const uniqueFoundSkills = [...new Set(foundSkills)];
+
+  const skillScore = Math.min(40, Math.round((uniqueFoundSkills.length / 8) * 40));
   totalScore += skillScore;
   breakdown.push({
     check: 'Skills Keywords',
     score: skillScore,
     maxScore: 40,
-    detail: `${foundSkills.length} skills found`,
+    detail: `${uniqueFoundSkills.length} skills found`,
   });
   if (foundSkills.length < 5) {
     suggestions.push('Add more technical skills to your resume — aim for at least 8 skills.');
@@ -117,7 +133,7 @@ function scoreATS(resumeText = '', candidateData = {}) {
     color,
     breakdown,
     suggestions,
-    foundSkills,
+    foundSkills: uniqueFoundSkills,
     wordCount,
   };
 }
