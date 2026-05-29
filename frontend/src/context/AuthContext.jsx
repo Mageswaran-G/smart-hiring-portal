@@ -70,13 +70,7 @@ export const AuthProvider = ({ children }) => {
     tokenRef.current = token;
     setAccessToken(token);
     setUser(userData);
-    // Fetch profile immediately after login
-    try {
-      const res = await API.get('/users/profile');
-      setProfile(normalizeProfile(res.data.data));  // normalize field names
-    } catch (err) {
-      console.error('Profile fetch after login failed:', err.message);
-    }
+    await fetchProfile();
   };
 
   // Logout — called when user clicks logout
@@ -100,14 +94,7 @@ export const AuthProvider = ({ children }) => {
         setAccessToken(accessToken);
         setUser(user);
 
-        // Fetch profile after successful refresh
-        // So profile photo shows in dashboard on page reload
-        try {
-          const profileRes = await API.get('/users/profile');
-          setProfile(normalizeProfile(profileRes.data.data));  // normalize field names
-        } catch (err) {
-          console.error('Profile fetch after refresh failed:', err.message);
-        }
+        await fetchProfile();
 
       } catch (err) {
         // Refresh failed — clear everything silently
