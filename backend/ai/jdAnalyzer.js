@@ -3,6 +3,7 @@
 
 const { normalizeSkill, getSkillGroup } = require('./normalizeText');
 const SKILLS = require('../constants/skills');
+const { SALARY_RANGES, PREMIUM_SKILLS_MULTIPLIER } = require('../config/salaryRanges');
 
 // Precompute normalized skills once
 const NORMALIZED_SKILLS = SKILLS.map(s => ({
@@ -43,7 +44,7 @@ function analyzeJD(description = '') {
     experienceLevel = 'mid';
   } else if (/\b(junior|jr\.|1\+|2\+|1 year|2 years|entry.level|entry level)\b/i.test(text)) {
     experienceLevel = 'junior';
-  } else if (/\b(fresher|fresh graduate|0.1|0-1|trainee|intern|no experience)\b/i.test(text)) {
+  } else if (/\b(fresher|fresh graduate|0[-–]1|trainee|intern|no experience)\b/i.test(text)) {
     experienceLevel = 'fresher';
   }
 
@@ -59,18 +60,10 @@ function analyzeJD(description = '') {
   else if (skillCount >= 5 || hasDevOps || experienceLevel === 'senior') difficulty = 'Medium';
 
   // ── Step 4: Estimate salary range (INR/year) ──
-  const salaryRanges = {
-    fresher: { min: 300000,  max: 600000  },
-    junior:  { min: 600000,  max: 1200000 },
-    mid:     { min: 1200000, max: 2500000 },
-    senior:  { min: 2500000, max: 5000000 },
-  };
-
-  // Adjust salary if AI/ML or DevOps skills found
-  let salary = { ...salaryRanges[experienceLevel] };
+  let salary = { ...SALARY_RANGES[experienceLevel] };
   if (hasAI || hasDevOps) {
-    salary.min = Math.round(salary.min * 1.2);
-    salary.max = Math.round(salary.max * 1.3);
+    salary.min = Math.round(salary.min * PREMIUM_SKILLS_MULTIPLIER.min);
+    salary.max = Math.round(salary.max * PREMIUM_SKILLS_MULTIPLIER.max);
   }
 
   // ── Step 5: Generate suggestions ──

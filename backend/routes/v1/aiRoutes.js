@@ -24,6 +24,5 @@ router.post('/resume-feedback',     authorizeRole('candidate'), aiHeavyLimiter, 
 // Company only
 router.get('/rank/:jobId',          authorizeRole('company'),   rankCandidates);
 router.post('/interview-questions', authorizeRole('company'),   aiHeavyLimiter, generateInterviewQuestions);
-router.post('/analyze-jd',          authorizeRole('company'),   analyzeJobDescription);
-
+router.post('/analyze-jd',          authorizeRole('company'),   aiHeavyLimiter, analyzeJobDescription);
 module.exports = router;
