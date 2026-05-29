@@ -81,6 +81,7 @@ exports.uploadResume = async (req, res, next) => {
         deleteByPrefix(`match:${req.user.id}`);
         deleteByPrefix(`ats:${req.user.id}`);
         deleteByPrefix(`recommendations:${req.user.id}`);
+        deleteByPrefix(`batch:${req.user.id}`);
     } catch (parseErr) {
       console.error("Resume parsing failed (non-critical):", parseErr.message);
     }

@@ -62,12 +62,22 @@ const getMatchScoreBatch = async (req, res) => {
       limitedIds.forEach(id => { scores[id] = 0; });
       return res.json({ success: true, data: { scores } });
     }
+
+    // Check cache first — batch key per user
+    const batchCacheKey = `batch:${userId}:${limitedIds.sort().join(',')}`;
+    const cached = getCache(batchCacheKey);
+    if (cached) return res.json({ success: true, data: { scores: cached }, fromCache: true });
+
     const jobs = await Job.find({ _id: { $in: limitedIds } }).select('skillsRequired preferredSkills');
     const scores = {};
     jobs.forEach(job => {
       const jobSkills = [...new Set(job.skillsRequired || [])];
       scores[job._id.toString()] = calculateMatch(candidateSkills, jobSkills, { preferredSkills: job.preferredSkills || [] }).score;
     });
+
+    // Cache for 5 minutes
+    setCache(batchCacheKey, scores, 300);
+
     return res.json({ success: true, data: { scores } });
   } catch (err) {
     logger.error('Batch match error:', err);

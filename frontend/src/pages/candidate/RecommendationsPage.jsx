@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, MapPin, Briefcase, ChevronRight, BookOpen } from 'lucide-react';
+import { Sparkles, BookOpen } from 'lucide-react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { getRecommendations } from '../../services/ai/recommendationService';
 import RecommendationCard from '../../components/ai/RecommendationCard';
@@ -30,48 +30,46 @@ export default function RecommendationsPage() {
 
   return (
     <DashboardLayout>
-      <div style={{ maxWidth: 860, margin: '0 auto', padding: '24px 16px' }}>
+      <div className="max-w-3xl mx-auto px-4 py-6">
 
         {/* Header */}
-        <div style={{ marginBottom: 28 }}>
-          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:8 }}>
-            <div style={{ width:40, height:40, borderRadius:12, background:'linear-gradient(135deg, #7c3aed, #a855f7)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-              <Sparkles size={20} color="#fff" />
-            </div>
-            <div>
-              <h1 style={{ fontWeight:900, fontSize:24, color:'#111827', margin:0, letterSpacing:'-0.5px' }}>
-                AI Recommendations
-              </h1>
-              <p style={{ fontSize:13, color:'#6b7280', margin:0 }}>
-                Jobs matched to your skills
-              </p>
-            </div>
+        <div className="flex items-center gap-3 mb-7">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-500 flex items-center justify-center shrink-0">
+            <Sparkles size={20} color="#fff" />
+          </div>
+          <div>
+            <h1 className="font-black text-2xl text-gray-900 tracking-tight mb-0">
+              AI Recommendations
+            </h1>
+            <p className="text-sm text-gray-500 mt-0">
+              Jobs matched to your skills
+            </p>
           </div>
         </div>
 
         {/* Loading */}
         {loading && (
-          <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-            {[1,2,3].map(i => (
-              <div key={i} style={{ height:120, background:'#f3f4f6', borderRadius:16, animation:'pulse 1.5s ease-in-out infinite' }} />
+          <div className="flex flex-col gap-3">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-28 bg-gray-100 rounded-2xl animate-pulse" />
             ))}
-            <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}`}</style>
           </div>
         )}
 
         {/* Empty / Message */}
         {!loading && (jobs.length === 0 || message) && (
-          <div style={{ textAlign:'center', padding:'48px 20px', background:'#f9fafb', borderRadius:20, border:'1px solid #e5e7eb' }}>
-            <BookOpen size={40} color="#9ca3af" style={{ margin:'0 auto 12px' }} />
-            <p style={{ fontWeight:700, fontSize:16, color:'#374151', margin:'0 0 6px' }}>
+          <div className="text-center py-12 px-5 bg-gray-50 rounded-2xl border border-gray-200">
+            <BookOpen size={40} className="text-gray-400 mx-auto mb-3" />
+            <p className="font-bold text-base text-gray-700 mb-1">
               {jobs.length === 0 ? 'No recommendations yet' : 'Getting ready...'}
             </p>
-            <p style={{ fontSize:13, color:'#6b7280', margin:'0 0 16px' }}>
+            <p className="text-sm text-gray-500 mb-4">
               {message || 'Upload your resume or add skills to get AI-powered job recommendations'}
             </p>
             <button
+              type="button"
               onClick={() => navigate(ROUTES.PROFILE)}
-              style={{ background:'#7c3aed', color:'#fff', border:'none', borderRadius:10, padding:'10px 20px', fontSize:13, fontWeight:700, cursor:'pointer' }}
+              className="bg-violet-600 text-white border-none rounded-xl px-5 py-2.5 text-sm font-bold cursor-pointer hover:bg-violet-700 transition-colors"
             >
               Update Profile
             </button>
@@ -80,12 +78,13 @@ export default function RecommendationsPage() {
 
         {/* Job Cards */}
         {!loading && jobs.length > 0 && (
-          <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+          <div className="flex flex-col gap-3">
             {jobs.map((job, i) => (
               <RecommendationCard key={job._id} job={job} index={i} />
             ))}
-              </div>
+          </div>
         )}
+
       </div>
     </DashboardLayout>
   );

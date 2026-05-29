@@ -56,7 +56,7 @@ app.use(xssMiddleware);
 // Excludes: /auth/refresh and /auth/login (cookie-based, no CSRF needed)
 
 app.use((req, res, next) => {
-  const excluded = ['/api/v1/auth/refresh', '/api/v1/auth/login', '/api/v1/auth/signup', '/api/v1/auth/csrf-token'];
+  const excluded = ['/api/v1/auth/refresh', '/api/v1/auth/login', '/api/v1/auth/signup', '/api/v1/auth/logout', '/api/v1/auth/csrf-token'];
   if (excluded.some(path => req.path.startsWith(path))) return next();
   return validateCsrf(req, res, next);
 });
