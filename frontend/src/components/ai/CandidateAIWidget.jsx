@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Sparkles, TrendingUp, BookOpen, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../constants/routes';
-import { getMatchScoreBatch } from '../../services/aiService';
+import { getMatchScoreBatch } from '../../services/ai/matchingService';
 import { getAllJobs } from '../../services/jobService';
 
 export default function CandidateAIWidget({ profile }) {

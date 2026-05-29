@@ -2,7 +2,7 @@
 // Lets them write a cover letter before submitting
 import { useState, useEffect, useRef } from 'react';
 import { X, Send, FileText, Sparkles } from 'lucide-react';
-import { generateCoverLetter } from '../../services/aiService';
+import { generateCoverLetter } from '../../services/ai/generationService';
 import toast from 'react-hot-toast';
 
 export default function ApplyModal({ jobId, jobTitle, onConfirm, onClose, loading }) {

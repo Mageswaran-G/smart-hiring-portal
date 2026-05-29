@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { Sparkles, ChevronDown } from 'lucide-react';
-import { generateInterviewQuestions } from '../../services/aiService';
+import { generateInterviewQuestions } from '../../services/ai/generationService';
 import toast from 'react-hot-toast';
 
 const TYPE_STYLES = {

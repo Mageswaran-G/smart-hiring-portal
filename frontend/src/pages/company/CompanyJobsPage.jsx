@@ -15,7 +15,7 @@ import { ROUTES } from '../../constants/routes';
 import useIsMobile from '../../hooks/useIsMobile';
 import toast from 'react-hot-toast';
 import ConfirmModal from '../../components/ui/ConfirmModal';
-import { generateInterviewQuestions } from '../../services/aiService';
+import { generateInterviewQuestions } from '../../services/ai/generationService';
 
 // ─── Colors ──────────────────────────────────────────────────
 const C = {

@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { Sparkles, TrendingUp } from 'lucide-react';
-import { getRankedCandidates } from '../../../../services/aiService';
+import { getRankedCandidates } from '../../../../services/ai/rankingService';
 import { getMyJobs } from '../../../../services/jobService';
 
 export default function AIAnalyticsCard() {

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, MapPin, Briefcase, ChevronRight, BookOpen } from 'lucide-react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
-import { getRecommendations } from '../../services/aiService';
+import { getRecommendations } from '../../services/ai/recommendationService';
 import RecommendationCard from '../../components/ai/RecommendationCard';
 import { ROUTES } from '../../constants/routes';
 

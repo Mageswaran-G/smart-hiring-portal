@@ -9,7 +9,7 @@ import {
   CheckCircle2, ChevronRight
 } from 'lucide-react';
 import { getJobBySlug } from '../../services/jobService'; 
-import { getMatchScore, getJobATSMatch } from "../../services/aiService";
+import { getMatchScore, getJobATSMatch } from '../../services/ai/matchingService';
 import JobATSMatchCard from '../../components/ai/JobATSMatchCard';
 import MatchScoreCard from '../../components/ai/MatchScoreCard';
 import InterviewQuestionsPanel from '../../components/ai/InterviewQuestionsPanel';

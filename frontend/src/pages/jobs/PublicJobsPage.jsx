@@ -5,7 +5,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useNavigate }         from 'react-router-dom';
 import { Search, SlidersHorizontal, X, LayoutDashboard, Loader2 } from 'lucide-react';
 import { getAllJobs }           from '../../services/jobService';
-import { getMatchScoreBatch } from '../../services/aiService';
+import { getMatchScoreBatch } from '../../services/ai/matchingService';
 import { API }                 from '../../services/authService';
 import { API_ENDPOINTS }       from '../../constants/api';
 import { useAuth }             from '../../context/AuthContext';

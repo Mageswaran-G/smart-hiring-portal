@@ -31,7 +31,7 @@ import EmployeeBenefitsSection from '../components/profile/sections/EmployeeBene
 import CompanyTechStackSection from '../components/profile/sections/CompanyTechStackSection';
 import ResumeFeedbackCard from '../components/ai/ResumeFeedbackCard';
 import ATSScoreCard from '../components/ai/ATSScoreCard';
-import { getATSScore } from '../services/aiService';
+import { getATSScore } from '../services/ai/atsService';
 import ErrorBoundary from '../components/ui/ErrorBoundary';
 
 export default function ProfilePage() {

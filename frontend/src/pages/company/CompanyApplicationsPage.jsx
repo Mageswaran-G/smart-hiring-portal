@@ -13,7 +13,7 @@ import SafeAvatar                                         from '../../components
 import { ROUTES }                                         from '../../constants/routes';
 import { APPLICATION_STATUS, APPLICATION_STATUS_OPTIONS } from '../../constants/applicationStatus';
 import { getCompanyApplicationsPaginated, updateApplicationStatus } from '../../services/applicationService';
-import { getRankedCandidates } from '../../services/aiService';
+import { getRankedCandidates } from '../../services/ai/rankingService';
 import CandidateRankCard from '../../components/ai/CandidateRankCard';
 import { useDebounce }                                    from '../../hooks/useDebounce';
 

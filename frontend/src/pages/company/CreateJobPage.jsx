@@ -16,7 +16,7 @@ import { JOB_TYPES, WORK_MODES, EXPERIENCE_LEVELS } from '../../constants/jobCon
 import { useAuth } from '../../context/AuthContext';
 import useIsMobile from '../../hooks/useIsMobile';
 import toast from 'react-hot-toast';
-import { analyzeJobDescription } from '../../services/aiService';
+import { analyzeJobDescription } from '../../services/ai/generationService';
 
 // ─── Colors ──────────────────────────────────────────────────
 const C = {
