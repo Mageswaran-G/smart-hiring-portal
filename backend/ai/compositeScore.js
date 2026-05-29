@@ -1,5 +1,5 @@
 // Composite Candidate Score
-// Combines: Skill Match (60%) + ATS Score (25%) + Profile Completeness (15%)
+// Combines: Skill Match (65%) + ATS Score (20%) + Profile Completeness (15%)
 
 const { scoreATS } = require('./atsScorer');
 const { calcProfileCompleteness } = require('../utils/profileCompleteness');
@@ -31,8 +31,8 @@ function calcCompositeScore(user, skillMatchScore) {
   return {
     compositeScore: Math.min(100, composite),
     breakdown: {
-      skillMatch:          { score: skillMatchScore, weight: '60%' },
-      atsScore:            { score: atsScore,        weight: '25%' },
+      skillMatch:          { score: skillMatchScore, weight: '65%' },
+      atsScore:            { score: atsScore,        weight: '20%' },
       profileCompleteness: { score: profileScore,    weight: '15%' },
     }
   };

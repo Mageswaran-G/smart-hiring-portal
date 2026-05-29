@@ -88,6 +88,9 @@ export const AuthProvider = ({ children }) => {
   // Auto-refresh on app startup
   // Restores session if user refreshes the browser
   useEffect(() => {
+    // Fetch CSRF token on app load — sets csrfToken cookie
+    API.get('/auth/csrf-token').catch(() => {});
+
     const refreshUser = async () => {
       try {
         const res = await API.post('/auth/refresh');

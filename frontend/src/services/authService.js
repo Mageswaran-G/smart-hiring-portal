@@ -22,12 +22,27 @@ const processQueue = (error, token = null) => {
   refreshQueue = [];
 };
 
-// Request interceptor — attach token to every request
+// Helper — read cookie value by name
+const getCookie = (name) => {
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  return match ? match[2] : null;
+};
+
+// Request interceptor — attach token + CSRF to every request
 API.interceptors.request.use(
   (config) => {
+    // Attach JWT token
     const token = getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+    // Attach CSRF token for state-changing requests
+    const safeMethods = ['get', 'head', 'options'];
+    if (!safeMethods.includes(config.method?.toLowerCase())) {
+      const csrfToken = getCookie('csrfToken');
+      if (csrfToken) {
+        config.headers['X-CSRF-Token'] = csrfToken;
+      }
     }
     return config;
   },
