@@ -2,6 +2,7 @@ const Job  = require('../../models/Job');
 const User = require('../../models/User');
 const { scoreATS } = require('../../ai/atsScorer');
 const { getCache, setCache } = require('../../utils/cache');
+const { analyzeJD } = require('../../ai/jdAnalyzer');
 
 const generateCoverLetter = async (req, res) => {
   try {
@@ -125,4 +126,21 @@ const getATSScore = async (req, res) => {
   }
 };
 
-module.exports = { generateCoverLetter, generateInterviewQuestions, generateResumeFeedback, getATSScore };
+const analyzeJobDescription = async (req, res) => {
+  try {
+    const { description } = req.body;
+    if (!description || description.trim().length < 20) {
+      return res.status(400).json({ success: false, message: 'Description must be at least 20 characters' });
+    }
+    const result = analyzeJD(description);
+    if (result.error) {
+      return res.status(400).json({ success: false, message: result.error });
+    }
+    return res.json({ success: true, data: result });
+  } catch (err) {
+    logger.error('JD Analyzer error:', err);
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+module.exports = { generateCoverLetter, generateInterviewQuestions, generateResumeFeedback, getATSScore, analyzeJobDescription};

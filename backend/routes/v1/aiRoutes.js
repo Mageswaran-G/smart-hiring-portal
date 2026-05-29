@@ -4,7 +4,7 @@ const { verifyToken, authorizeRole }             = require('../../middleware/aut
 const { aiHeavyLimiter }                         = require('../../middleware/rateLimiters');
 const { getMatchScore, getMatchScoreBatch, getJobATSMatch } = require('../../controllers/ai/matchController');
 const { getRecommendations, rankCandidates }      = require('../../controllers/ai/recommendationController');
-const { generateCoverLetter, generateInterviewQuestions, generateResumeFeedback, getATSScore } = require('../../controllers/ai/generationController');
+const { generateCoverLetter, generateInterviewQuestions, generateResumeFeedback, getATSScore, analyzeJobDescription } = require('../../controllers/ai/generationController');
 
 // All AI routes require login
 router.use(verifyToken);
@@ -24,5 +24,6 @@ router.post('/resume-feedback',     authorizeRole('candidate'), aiHeavyLimiter, 
 // Company only
 router.get('/rank/:jobId',          authorizeRole('company'),   rankCandidates);
 router.post('/interview-questions', authorizeRole('company'),   aiHeavyLimiter, generateInterviewQuestions);
+router.post('/analyze-jd',          authorizeRole('company'),   analyzeJobDescription);
 
 module.exports = router;

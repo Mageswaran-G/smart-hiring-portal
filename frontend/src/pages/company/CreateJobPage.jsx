@@ -16,6 +16,7 @@ import { JOB_TYPES, WORK_MODES, EXPERIENCE_LEVELS } from '../../constants/jobCon
 import { useAuth } from '../../context/AuthContext';
 import useIsMobile from '../../hooks/useIsMobile';
 import toast from 'react-hot-toast';
+import { analyzeJobDescription } from '../../services/aiService';
 
 // ─── Colors ──────────────────────────────────────────────────
 const C = {
@@ -335,6 +336,10 @@ export default function CreateJobPage() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [activeSection, setActiveSection] = useState(1);
 
+
+  const [jdAnalyzing,  setJdAnalyzing]  = useState(false);
+  const [jdResult,     setJdResult]     = useState(null); 
+
   // ── Form state (lifted up for live preview) ───────────────
   const [form, setForm] = useState({
     title:            '',
@@ -429,6 +434,34 @@ export default function CreateJobPage() {
 
   const errorCount = Object.values(fieldErrors).filter(Boolean).length;
 
+
+  const handleAnalyzeJD = async () => {
+    const desc = stripHtml(form.description);
+    if (!desc || desc.length < 20) {
+      toast.error('Please write a description first (at least 20 characters)');
+      return;
+    }
+    try {
+      setJdAnalyzing(true);
+      setJdResult(null);
+      const result = await analyzeJobDescription(form.description);
+      setJdResult(result);
+      // Auto-fill skills if empty
+      if (form.skillsRequired.length === 0 && result.extractedSkills.length > 0) {
+        set('skillsRequired', result.extractedSkills);
+      }
+      // Auto-fill experience level
+      if (result.experienceLevel) {
+        set('experienceLevel', result.experienceLevel);
+      }
+      toast.success('JD analyzed! Skills and experience level auto-filled.');
+    } catch (err) {
+      toast.error('Could not analyze description. Please try again.');
+    } finally {
+      setJdAnalyzing(false);
+    }
+  };
+
   return (
     <DashboardLayout>
 
@@ -518,6 +551,72 @@ export default function CreateJobPage() {
                   style={{ ...iClass('description'), resize:'vertical', lineHeight:1.6 }}
                 />
                 <ErrMsg field="description" />
+                {/* Analyze JD Button */}
+                <div style={{ marginTop: 10 }}>
+                  <button
+                    type="button"
+                    onClick={handleAnalyzeJD}
+                    disabled={jdAnalyzing}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 6,
+                      padding: '8px 16px', borderRadius: 8,
+                      background: jdAnalyzing ? '#E5E7EB' : '#EEF2FF',
+                      color: jdAnalyzing ? '#9CA3AF' : '#4F46E5',
+                      border: '1px solid #C7D2FE',
+                      fontSize: 12, fontWeight: 700, cursor: jdAnalyzing ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    {jdAnalyzing ? (
+                      <>
+                        <div style={{ width:12, height:12, borderRadius:'50%', border:'2px solid #9CA3AF', borderTopColor:'transparent', animation:'spin 0.8s linear infinite' }} />
+                        Analyzing...
+                      </>
+                    ) : (
+                      <>
+                        <span style={{ fontSize:14 }}>AI</span>
+                        Analyze JD — Auto-fill Skills
+                      </>
+                    )}
+                  </button>
+                  <p style={{ fontSize:11, color:'#9CA3AF', marginTop:4 }}>
+                    AI will extract skills and suggest experience level from your description
+                  </p>
+                </div>
+
+                {/* JD Analysis Result */}
+                {jdResult && (
+                  <div style={{ marginTop: 12, padding: 14, background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 10 }}>
+                    <p style={{ fontSize: 12, fontWeight: 700, color: '#15803D', marginBottom: 8 }}>
+                      JD Analysis Result — Confidence: {jdResult.confidence}
+                    </p>
+                    <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 8 }}>
+                      <span style={{ fontSize: 11, color: '#374151' }}>
+                        Experience: <strong>{jdResult.experienceLevel}</strong>
+                      </span>
+                      <span style={{ fontSize: 11, color: '#374151' }}>
+                        Difficulty: <strong>{jdResult.difficulty}</strong>
+                      </span>
+                      <span style={{ fontSize: 11, color: '#374151' }}>
+                        Est. Salary: <strong>
+                          {(jdResult.estimatedSalary.min / 100000).toFixed(0)}L –
+                          {(jdResult.estimatedSalary.max / 100000).toFixed(0)}L INR/yr
+                        </strong>
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                      {jdResult.extractedSkills.map(s => (
+                        <span key={s} style={{ fontSize: 11, background: '#DCFCE7', color: '#15803D', padding: '2px 8px', borderRadius: 20, fontWeight: 600 }}>
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                    {jdResult.suggestions?.length > 0 && (
+                      <p style={{ fontSize: 11, color: '#92400E', marginTop: 8 }}>
+                        Tip: {jdResult.suggestions[0]}
+                      </p>
+                    )}
+                  </div>
+                )}
               </FormRow>
             </FormSection>
 

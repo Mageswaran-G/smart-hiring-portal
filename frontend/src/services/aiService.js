@@ -102,3 +102,12 @@ export const getJobATSMatch = async (jobId) => {
     throw normalizeAIError(err);
   }
 };
+
+export const analyzeJobDescription = async (description) => {
+  try {
+    const res = await API.post('/ai/analyze-jd', { description }, { timeout: 10000 });
+    return res.data.data;
+  } catch (err) {
+    throw normalizeAIError(err);
+  }
+};
