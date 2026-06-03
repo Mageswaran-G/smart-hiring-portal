@@ -119,9 +119,9 @@ export default function MobileDashboard({
             <p style={{ color:'#fff', fontWeight:700, fontSize:13, margin:'0 0 10px', lineHeight:1.3 }}>
               {completion < 40 ? 'Just starting!' : completion < 70 ? 'Good progress!' : completion < 90 ? 'Almost complete!' : 'Excellent profile!'}
             </p>
-            <button onClick={() => navigate(ROUTES.PROFILE)} style={{ background:'rgba(255,255,255,0.2)', border:'1px solid rgba(255,255,255,0.25)', borderRadius:9, color:'#fff', fontSize:11, fontWeight:700, padding:'6px 14px', cursor:'pointer' }}>
-              Complete Profile
-            </button>
+            <button onClick={() => navigate(ROUTES.PROFILE)} style={{ background:'rgba(255,255,255,0.9)', border:'none', borderRadius:9, color:'#c2410c', fontSize:11, fontWeight:700, padding:'6px 14px', cursor:'pointer' }}>
+                Complete Profile
+                </button>
           </div>
         </div>
       </section>

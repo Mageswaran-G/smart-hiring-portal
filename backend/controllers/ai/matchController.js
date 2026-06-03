@@ -4,6 +4,7 @@ const User = require('../../models/User');
 const logger = require('../../utils/logger');
 const extractCandidateSkills = require('../../utils/extractCandidateSkills');
 const { SCORING_VERSION } = require('../../ai/thresholds');
+const { getCache, setCache, deleteByPrefix } = require('../../utils/cache');
 
 // Infer candidate experience level from work history
 function inferExperienceLevel(user) {

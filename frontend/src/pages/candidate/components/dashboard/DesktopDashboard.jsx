@@ -86,9 +86,9 @@ export default function DesktopDashboard({
                   <p style={{ color:'#fff', fontWeight:800, fontSize:18, margin:'0 0 18px', letterSpacing:'-0.3px' }}>
                     {completion < 40 ? 'Build your profile' : completion < 70 ? 'Keep going!' : completion < 90 ? 'Almost done!' : 'Outstanding!'}
                   </p>
-                  <button onClick={() => navigate(ROUTES.PROFILE)} style={{ background:'rgba(255,255,255,0.9)', color:C.dark, border:'none', borderRadius:12, padding:'11px 22px', fontWeight:800, fontSize:13, cursor:'pointer' }}>
+                  <button onClick={() => navigate(ROUTES.PROFILE)} style={{ background:'rgba(255,255,255,0.92)', color:'#c2410c', border:'none', borderRadius:12, padding:'11px 22px', fontWeight:800, fontSize:13, cursor:'pointer' }}>
                     Complete Profile →
-                  </button>
+                    </button>
                 </div>
               </div>
               <button onClick={() => navigate(ROUTES.PUBLIC_JOBS)} style={{ background:'#fff', color:C.primary, border:'none', borderRadius:18, padding:'18px 32px', fontWeight:900, fontSize:16, cursor:'pointer', display:'flex', alignItems:'center', gap:11, boxShadow:'0 8px 28px rgba(0,0,0,0.2)', letterSpacing:'-0.3px', flexShrink:0 }}>
