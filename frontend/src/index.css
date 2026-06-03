@@ -101,15 +101,6 @@ html, body {
   background: #f8f7ff !important;
 }
 
-.shimmer {
-  animation: shimmer 1.5s ease-in-out infinite;
-}
-
-@keyframes shimmer {
-  0%   { opacity: 1; }
-  50%  { opacity: 0.4; }
-  100% { opacity: 1; }
-}
 
 /* Hide less important table columns on mobile */
 @media (max-width: 640px) {
