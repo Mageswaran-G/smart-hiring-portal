@@ -231,11 +231,32 @@ export default function CompanyApplicationsPage() {
           {showRanking && (
             <div>
               {/* Filter Bar */}
-              <div style={{ display:'flex', gap:8, flexWrap:'wrap', marginBottom:12, padding:'12px 16px', background:'#f5f3ff', borderRadius:12 }}>
+              <div
+                style={{
+                  display:'flex',
+                  gap:8,
+                  flexWrap:'wrap',
+                  marginBottom:20,
+                  padding:'12px 16px',
+                  background:'#f5f3ff',
+                  borderRadius:12,
+                  position:'relative',
+                  zIndex:9999
+                }}
+              >
                 <select
                   value={rankFilters.minScore}
                   onChange={e => setRankFilters(p => ({ ...p, minScore: e.target.value }))}
-                  style={{ fontSize:12, padding:'6px 10px', borderRadius:8, border:'1px solid #ddd', background:'#fff' }}
+                  style={{
+                    fontSize:12,
+                    padding:'8px 12px',
+                    borderRadius:10,
+                    border:'1px solid #c4b5fd',
+                    background:'#f5f3ff',
+                    color:'#374151',
+                    fontWeight:600,
+                    minWidth:170
+                  }}
                 >
                   <option value="">All Scores</option>
                   <option value="80">80%+ only</option>
@@ -245,7 +266,16 @@ export default function CompanyApplicationsPage() {
                 <select
                   value={rankFilters.recommendation}
                   onChange={e => setRankFilters(p => ({ ...p, recommendation: e.target.value }))}
-                  style={{ fontSize:12, padding:'6px 10px', borderRadius:8, border:'1px solid #ddd', background:'#fff' }}
+                  style={{
+                    fontSize:12,
+                    padding:'8px 12px',
+                    borderRadius:10,
+                    border:'1px solid #c4b5fd',
+                    background:'#f5f3ff',
+                    color:'#374151',
+                    fontWeight:600,
+                    minWidth:170
+                  }}
                 >
                   <option value="">All Labels</option>
                   <option value="Strong Hire">Strong Hire</option>
@@ -256,7 +286,16 @@ export default function CompanyApplicationsPage() {
                 <select
                   value={rankFilters.sortBy}
                   onChange={e => setRankFilters(p => ({ ...p, sortBy: e.target.value }))}
-                  style={{ fontSize:12, padding:'6px 10px', borderRadius:8, border:'1px solid #ddd', background:'#fff' }}
+                  style={{
+                    fontSize:12,
+                    padding:'8px 12px',
+                    borderRadius:10,
+                    border:'1px solid #c4b5fd',
+                    background:'#f5f3ff',
+                    color:'#374151',
+                    fontWeight:600,
+                    minWidth:170
+                  }}
                 >
                   <option value="score">Sort by Score</option>
                   <option value="recent">Sort by Recent</option>
@@ -264,12 +303,33 @@ export default function CompanyApplicationsPage() {
                 </select>
                 <button
                   onClick={() => fetchRanking(filterJob === "all" ? jobOptions[0]?.[0] : filterJob)}
-                  style={{ fontSize:12, padding:'6px 14px', borderRadius:8, background:'#7c3aed', color:'#fff', border:'none', cursor:'pointer', fontWeight:700 }}
+                
+                  style={{
+                    fontSize:12,
+                    padding:'8px 16px',
+                    borderRadius:10,
+                    background:'#7c3aed',
+                    color:'#fff',
+                    border:'none',
+                    cursor:'pointer',
+                    fontWeight:700,
+                    minWidth:140
+                  }}
                 >
                   Apply Filters
                 </button>
               </div>
-              <CandidateRankCard ranking={ranking} loading={rankLoading} />
+              <div
+                style={{
+                  position:'relative',
+                  zIndex:1
+                }}
+              >
+                <CandidateRankCard
+                  ranking={ranking}
+                  loading={rankLoading}
+                />
+              </div>
             </div>
           )}
         </div>

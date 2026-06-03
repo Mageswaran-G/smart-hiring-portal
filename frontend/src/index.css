@@ -12,6 +12,45 @@
   --font-inter: 'Inter', sans-serif;
 }
 
+/* ── Light Mode (default) ── */
+:root {
+  --bg-primary:    #ffffff;
+  --bg-secondary:  #f9fafb;
+  --bg-card:       #ffffff;
+  --text-primary:  #111827;
+  --text-secondary:#6b7280;
+  --text-muted:    #9ca3af;
+  --border-color:  #e5e7eb;
+  --border-light:  #f3f4f6;
+  --shadow:        0 2px 8px rgba(0,0,0,0.06);
+  --nav-bg:        #ffffff;
+  --input-bg:      #ffffff;
+  --hover-bg:      #f3f4f6;
+}
+
+/* ── Dark Mode ── */
+.dark {
+  --bg-primary:    #0f172a;
+  --bg-secondary:  #1e293b;
+  --bg-card:       #1e293b;
+  --text-primary:  #f1f5f9;
+  --text-secondary:#94a3b8;
+  --text-muted:    #64748b;
+  --border-color:  #334155;
+  --border-light:  #1e293b;
+  --shadow:        0 2px 8px rgba(0,0,0,0.3);
+  --nav-bg:        #0f172a;
+  --input-bg:      #1e293b;
+  --hover-bg:      #334155;
+}
+
+/* ── Apply variables globally ── */
+body {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 html, body {
   overflow-x: hidden;
   max-width: 100vw;
