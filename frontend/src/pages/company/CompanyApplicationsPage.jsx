@@ -1,172 +1,124 @@
-
-// Shows all applicants for company's jobs
-// Pagination: Load More loads next page from backend
-// Filtering: works on all loaded data (client-side)
-
+// CompanyApplicationsPage.jsx — Company applicants with AI ranking
 import { useCallback, useEffect, useState, useMemo, useRef } from 'react';
-import { Users, Mail, MapPin, FileText, Search, ChevronDown } from 'lucide-react';
-import toast                                              from 'react-hot-toast';
-import DashboardLayout                                    from '../../components/layout/DashboardLayout';
-import PageHeader                                         from '../../components/ui/PageHeader';
-import EmptyState                                         from '../../components/ui/EmptyState';
-import SafeAvatar                                         from '../../components/ui/SafeAvatar';
-import { ROUTES }                                         from '../../constants/routes';
-import { APPLICATION_STATUS, APPLICATION_STATUS_OPTIONS } from '../../constants/applicationStatus';
+import { Users, ChevronDown } from 'lucide-react';
+import { Search } from 'lucide-react';
+import toast from 'react-hot-toast';
+import DashboardLayout from '../../components/layout/DashboardLayout';
+import PageHeader from '../../components/ui/PageHeader';
+import EmptyState from '../../components/ui/EmptyState';
+import { ROUTES } from '../../constants/routes';
+import { APPLICATION_STATUS_OPTIONS } from '../../constants/applicationStatus';
 import { getCompanyApplicationsPaginated, updateApplicationStatus } from '../../services/applicationService';
 import { getRankedCandidates } from '../../services/ai/rankingService';
-import CandidateRankCard from '../../components/ai/CandidateRankCard';
-import { useDebounce }                                    from '../../hooks/useDebounce';
+import { useDebounce } from '../../hooks/useDebounce';
+import AIRankingPanel from './components/applications/AIRankingPanel';
+import ApplicationCard from './components/applications/ApplicationCard';
 
 const LIMIT = 10;
 
 export default function CompanyApplicationsPage() {
-
-  const fetchedRef = useRef(false);
-
   const [applications, setApplications] = useState([]);
   const [loading,      setLoading]      = useState(true);
   const [loadingMore,  setLoadingMore]  = useState(false);
-  const [page,         setPage]         = useState(1);
-  const [hasMore,      setHasMore]      = useState(false);
   const [total,        setTotal]        = useState(0);
-
+  const [hasMore,      setHasMore]      = useState(false);
+  const [page,         setPage]         = useState(1);
+  const [updating,     setUpdating]     = useState(null);
+  const [searchName,   setSearchName]   = useState('');
   const [filterJob,    setFilterJob]    = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
-  const [searchName,   setSearchName]   = useState('');
-  const [updating,     setUpdating]     = useState(null);
   const [showRanking,  setShowRanking]  = useState(false);
   const [rankFilters,  setRankFilters]  = useState({ minScore: '', recommendation: '', sortBy: 'score' });
   const [ranking,      setRanking]      = useState([]);
   const [rankLoading,  setRankLoading]  = useState(false);
-
-  const debouncedSearch = useDebounce(searchName, 300);
+  const debouncedSearch = useDebounce(searchName, 400);
+  const abortRef = useRef(null);
 
   const loadPage = useCallback(async (pageNum, isFirstLoad = false) => {
+    isFirstLoad ? setLoading(true) : setLoadingMore(true);
     try {
       const { data, pagination } = await getCompanyApplicationsPaginated(pageNum, LIMIT);
-
-      if (isFirstLoad) {
-        setApplications(data);
-      } else {
-        setApplications(prev => [...prev, ...data]);
-      }
-
+      isFirstLoad ? setApplications(data) : setApplications(prev => [...prev, ...data]);
       setTotal(pagination.total);
       setHasMore(pagination.hasMore);
       setPage(pageNum);
-
-    } catch (err) {
-      toast.error('Failed to load applications');
+    } catch {
+      toast.error('Failed to load applicants');
     } finally {
-      setLoading(false);
-      setLoadingMore(false);
+      isFirstLoad ? setLoading(false) : setLoadingMore(false);
     }
   }, []);
 
-  // ── Load first page on mount ──────────────────────────────
-  useEffect(() => {
-    if (fetchedRef.current) return;
-    fetchedRef.current = true;
-    loadPage(1, true);
-  }, [loadPage]);
+  useEffect(() => { loadPage(1, true); }, [loadPage]);
 
-  const handleLoadMore = () => {
-    setLoadingMore(true);
-    loadPage(page + 1, false);
-  };
+  const handleLoadMore = () => loadPage(page + 1);
 
-  // ── Build job filter options from loaded data ─────────────
   const jobOptions = useMemo(() => {
-    const seen = new Map();
-    applications.forEach((app) => {
-      if (app.job && !seen.has(app.job._id)) {
-        seen.set(app.job._id, app.job.title);
-      }
+    const map = new Map();
+    applications.forEach(app => {
+      if (app.job?._id && app.job?.title) map.set(app.job._id, app.job.title);
     });
-    return Array.from(seen.entries());
+    return Array.from(map.entries());
   }, [applications]);
 
-  // ── 3-level filter on loaded data ────────────────────────
   const filtered = useMemo(() => {
     let result = applications;
-
-    if (filterJob !== 'all') {
-      result = result.filter(app => app.job?._id === filterJob);
-    }
-    if (filterStatus !== 'all') {
-      result = result.filter(app => app.status === filterStatus);
-    }
+    if (filterJob !== 'all') result = result.filter(app => app.job?._id === filterJob);
+    if (filterStatus !== 'all') result = result.filter(app => app.status === filterStatus);
     if (debouncedSearch.trim()) {
       const q = debouncedSearch.toLowerCase();
-      result = result.filter(app =>
-        app.candidate?.name?.toLowerCase().includes(q)
-      );
+      result = result.filter(app => app.candidate?.name?.toLowerCase().includes(q));
     }
-
     return result;
   }, [applications, filterJob, filterStatus, debouncedSearch]);
 
-  // ── Update status ─────────────────────────────────────────
   const handleStatusChange = async (applicationId, newStatus) => {
     setUpdating(applicationId);
     try {
       await updateApplicationStatus(applicationId, newStatus);
       setApplications(prev =>
-        prev.map(app =>
-          app._id === applicationId ? { ...app, status: newStatus } : app
-        )
+        prev.map(app => app._id === applicationId ? { ...app, status: newStatus } : app)
       );
-      toast.success(`Moved to ${APPLICATION_STATUS[newStatus]?.label}`);
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to update');
+      toast.success('Status updated');
+    } catch {
+      toast.error('Failed to update status');
     } finally {
       setUpdating(null);
     }
   };
 
-  // ── Are any filters active? ───────────────────────────────
-
-  const abortRef = useRef(null);
+  const filtersActive = filterJob !== 'all' || filterStatus !== 'all' || debouncedSearch.trim() !== '';
 
   const fetchRanking = async (jobId) => {
-      if (!jobId || jobId === "all") return;
-
-      // Cancel previous request if still running
-      if (abortRef.current) abortRef.current.abort();
-      abortRef.current = new AbortController();
+    if (!jobId || jobId === 'all') return;
+    if (abortRef.current) abortRef.current.abort();
+    abortRef.current = new AbortController();
+    setRankLoading(true);
     try {
-      setRankLoading(true);
-      setShowRanking(true);
       const data = await getRankedCandidates(jobId, rankFilters, abortRef.current.signal);
       setRanking(data.ranked || []);
+      setShowRanking(true);
     } catch (err) {
-      setShowRanking(false);
+      if (err?.message !== 'canceled') toast.error('Ranking failed');
     } finally {
       setRankLoading(false);
     }
   };
-  const filtersActive = filterJob !== 'all' || filterStatus !== 'all' || searchName;
 
   return (
     <DashboardLayout>
-
-      {/* ── Page Header ── */}
       <PageHeader
         title="Applicants"
         subtitle={
-          loading
-            ? 'Loading...'
-            : filtersActive
-              ? `${filtered.length} result${filtered.length !== 1 ? 's' : ''} (filtered)`
-              : `${total} total applicant${total !== 1 ? 's' : ''}`
+          loading ? 'Loading...' :
+          filtersActive ? `${filtered.length} result${filtered.length !== 1 ? 's' : ''} (filtered)` :
+          `${total} total applicant${total !== 1 ? 's' : ''}`
         }
         backRoute={ROUTES.COMPANY_DASHBOARD}
       />
 
-      {/* ── Search + Filter Bar ── */}
+      {/* Search + Filter Bar */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-6 flex flex-col sm:flex-row flex-wrap gap-3">
-
-        {/* Search by name */}
         <div className="relative w-full sm:flex-1 sm:min-w-[200px]">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
@@ -177,165 +129,44 @@ export default function CompanyApplicationsPage() {
             className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
           />
         </div>
-
-        {/* Filter by job */}
         {jobOptions.length > 1 && (
-          <select
-            value={filterJob}
-            onChange={(e) => setFilterJob(e.target.value)}
-            className="w-full sm:w-auto border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white"
-          >
+          <select value={filterJob} onChange={(e) => setFilterJob(e.target.value)}
+            className="w-full sm:w-auto border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white">
             <option value="all">All Jobs</option>
-            {jobOptions.map(([id, title]) => (
-              <option key={id} value={id}>{title}</option>
-            ))}
+            {jobOptions.map(([id, title]) => <option key={id} value={id}>{title}</option>)}
           </select>
         )}
-
-        {/* Filter by status */}
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-          className="w-full sm:w-auto border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white"
-        >
+        <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}
+          className="w-full sm:w-auto border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white">
           <option value="all">All Statuses</option>
           {APPLICATION_STATUS_OPTIONS.map((s) => (
-            <option key={s} value={s}>{APPLICATION_STATUS[s].label}</option>
+            <option key={s} value={s}>{s}</option>
           ))}
         </select>
-
-        {/* Clear filters button */}
         {filtersActive && (
-          <button
-            onClick={() => {
-              setFilterJob('all');
-              setFilterStatus('all');
-              setSearchName('');
-            }}
-            className="w-full sm:w-auto text-sm text-red-500 hover:text-red-700 border border-red-200 hover:border-red-400 px-4 py-2 rounded-xl transition"
-          >
+          <button onClick={() => { setFilterJob('all'); setFilterStatus('all'); setSearchName(''); }}
+            className="w-full sm:w-auto text-sm text-red-500 hover:text-red-700 border border-red-200 hover:border-red-400 px-4 py-2 rounded-xl transition">
             Clear
           </button>
         )}
       </div>
 
-      {/* ── AI Candidate Ranking ── */}
+      {/* AI Ranking Panel */}
       {jobOptions.length > 0 && (
-        <div style={{ marginBottom: 16 }}>
-          <button
-            onClick={() => showRanking ? setShowRanking(false) : fetchRanking(filterJob === "all" ? jobOptions[0]?.[0] : filterJob)}
-            style={{ display:"flex", alignItems:"center", gap:8, padding:"10px 18px", borderRadius:12, border:"1px solid #7c3aed", background: showRanking ? "#7c3aed" : "#fff", color: showRanking ? "#fff" : "#7c3aed", fontSize:13, fontWeight:700, cursor:"pointer" }}
-          >
-            AI Candidate Ranking {showRanking ? "— Hide" : "— Show"}
-          </button>
-          {showRanking && (
-            <div>
-              {/* Filter Bar */}
-              <div
-                style={{
-                  display:'flex',
-                  gap:8,
-                  flexWrap:'wrap',
-                  marginBottom:20,
-                  padding:'12px 16px',
-                  background:'#f5f3ff',
-                  borderRadius:12,
-                  position:'relative',
-                  zIndex:9999
-                }}
-              >
-                <select
-                  value={rankFilters.minScore}
-                  onChange={e => setRankFilters(p => ({ ...p, minScore: e.target.value }))}
-                  style={{
-                    fontSize:12,
-                    padding:'8px 12px',
-                    borderRadius:10,
-                    border:'1px solid #c4b5fd',
-                    background:'#f5f3ff',
-                    color:'#374151',
-                    fontWeight:600,
-                    minWidth:170
-                  }}
-                >
-                  <option value="">All Scores</option>
-                  <option value="80">80%+ only</option>
-                  <option value="65">65%+ only</option>
-                  <option value="50">50%+ only</option>
-                </select>
-                <select
-                  value={rankFilters.recommendation}
-                  onChange={e => setRankFilters(p => ({ ...p, recommendation: e.target.value }))}
-                  style={{
-                    fontSize:12,
-                    padding:'8px 12px',
-                    borderRadius:10,
-                    border:'1px solid #c4b5fd',
-                    background:'#f5f3ff',
-                    color:'#374151',
-                    fontWeight:600,
-                    minWidth:170
-                  }}
-                >
-                  <option value="">All Labels</option>
-                  <option value="Strong Hire">Strong Hire</option>
-                  <option value="Hire">Hire</option>
-                  <option value="Consider">Consider</option>
-                  <option value="Reject">Reject</option>
-                </select>
-                <select
-                  value={rankFilters.sortBy}
-                  onChange={e => setRankFilters(p => ({ ...p, sortBy: e.target.value }))}
-                  style={{
-                    fontSize:12,
-                    padding:'8px 12px',
-                    borderRadius:10,
-                    border:'1px solid #c4b5fd',
-                    background:'#f5f3ff',
-                    color:'#374151',
-                    fontWeight:600,
-                    minWidth:170
-                  }}
-                >
-                  <option value="score">Sort by Score</option>
-                  <option value="recent">Sort by Recent</option>
-                  <option value="name">Sort by Name</option>
-                </select>
-                <button
-                  onClick={() => fetchRanking(filterJob === "all" ? jobOptions[0]?.[0] : filterJob)}
-                
-                  style={{
-                    fontSize:12,
-                    padding:'8px 16px',
-                    borderRadius:10,
-                    background:'#7c3aed',
-                    color:'#fff',
-                    border:'none',
-                    cursor:'pointer',
-                    fontWeight:700,
-                    minWidth:140
-                  }}
-                >
-                  Apply Filters
-                </button>
-              </div>
-              <div
-                style={{
-                  position:'relative',
-                  zIndex:1
-                }}
-              >
-                <CandidateRankCard
-                  ranking={ranking}
-                  loading={rankLoading}
-                />
-              </div>
-            </div>
-          )}
-        </div>
+        <AIRankingPanel
+          jobOptions={jobOptions}
+          showRanking={showRanking}
+          setShowRanking={setShowRanking}
+          rankFilters={rankFilters}
+          setRankFilters={setRankFilters}
+          ranking={ranking}
+          rankLoading={rankLoading}
+          fetchRanking={fetchRanking}
+          filterJob={filterJob}
+        />
       )}
 
-      {/* ── Loading skeletons ── */}
+      {/* Loading skeletons */}
       {loading && (
         <div className="flex flex-col gap-4">
           {[1, 2, 3].map(i => (
@@ -353,193 +184,56 @@ export default function CompanyApplicationsPage() {
         </div>
       )}
 
-      {/* ── Empty state ── */}
+      {/* Empty state */}
       {!loading && filtered.length === 0 && (
         <EmptyState
           icon={<Users size={32} />}
           title="No applicants found"
-          subtitle={
-            filtersActive
-              ? 'Try adjusting your search or filters'
-              : 'Applications will appear here once candidates apply'
-          }
+          subtitle={filtersActive ? 'Try adjusting your search or filters' : 'Applications will appear here once candidates apply'}
           variant="company"
         />
       )}
 
-      {/* ── Applications list ── */}
+      {/* Applications list */}
       {!loading && filtered.length > 0 && (
         <>
           <div className="flex flex-col gap-4">
             {filtered.map((app) => (
-              <div
+              <ApplicationCard
                 key={app._id}
-                className="bg-white rounded-2xl p-5 md:p-6 shadow-sm border border-gray-100"
-              >
-                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-
-                  {/* ── Left: Candidate info ── */}
-                  <div className="flex items-start gap-3 flex-1 min-w-0">
-
-                    {/* Avatar */}
-                    <SafeAvatar
-                      src={app.candidate?.profilePhoto ? `${import.meta.env.VITE_API_URL}${app.candidate.profilePhoto}` : ''}
-                      name={app.candidate?.name}
-                      alt={app.candidate?.name || 'Candidate'}
-                      className="w-11 h-11 rounded-full object-cover shrink-0"
-                      fallbackClassName="w-11 h-11 rounded-full bg-blue-100 flex items-center justify-center shrink-0 overflow-hidden"
-                      textClassName="text-blue-700 font-bold text-base"
-                    />
-
-                    {/* Details */}
-                    <div className="min-w-0 flex-1">
-                      <p className="font-sora font-bold text-gray-900">
-                        {app.candidate?.name || 'Unknown'}
-                      </p>
-                      <p className="text-sm text-gray-400 flex items-center gap-1 mt-0.5 min-w-0">
-                        <Mail size={12} className="shrink-0" />
-                        <span className="truncate">{app.candidate?.email || '—'}</span>
-                      </p>
-                      {app.candidate?.headline && (
-                        <p className="text-sm text-gray-500 mt-1 truncate">
-                          {app.candidate.headline}
-                        </p>
-                      )}
-
-                      {/* Resume buttons */}
-                      {app.resume ? (
-                        <div className="flex items-center gap-2 mt-2 flex-wrap">
-                          <a
-                            href={`${import.meta.env.VITE_API_URL}${app.resume}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-800 border border-blue-200 hover:border-blue-400 px-3 py-1.5 rounded-lg transition font-medium"
-                          >
-                            <FileText size={12} /> View
-                          </a>
-                          <a
-                            href={`${import.meta.env.VITE_API_URL}${app.resume}`}
-                            download
-                            className="inline-flex items-center gap-1.5 text-xs text-gray-600 hover:text-gray-800 border border-gray-200 hover:border-gray-400 px-3 py-1.5 rounded-lg transition font-medium"
-                          >
-                            ↓ Download
-                          </a>
-                        </div>
-                      ) : (
-                        <p className="text-xs text-gray-400 mt-2">No resume uploaded</p>
-                      )}
-
-                      {/* Job title + location + date */}
-                      <div className="flex flex-wrap gap-2 mt-3 text-sm text-gray-400">
-                        <span className="font-medium text-gray-600">
-                          {app.job?.title || '—'}
-                        </span>
-                        {app.job?.location && (
-                          <span className="flex items-center gap-1">
-                            <MapPin size={12} />
-                            {app.job.location}
-                          </span>
-                        )}
-                        <span>
-                          Applied {new Date(app.createdAt).toLocaleDateString()}
-                        </span>
-                      </div>
-
-                      {/* Cover letter */}
-                      {app.coverLetter && (
-                        <p className="mt-3 text-sm text-gray-500 bg-gray-50 rounded-lg px-3 py-2 w-full sm:max-w-lg break-words">
-                          "{app.coverLetter}"
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* ── Right: Status control ── */}
-                  <div className="
-                    flex flex-row md:flex-col
-                    items-center md:items-end
-                    justify-between md:justify-start
-                    gap-3 md:gap-2
-                    shrink-0
-                    pt-3 md:pt-0
-                    border-t md:border-0
-                    border-gray-100
-                  ">
-                    {/* Status badge */}
-                    <span className={`
-                      px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap
-                      ${APPLICATION_STATUS[app.status]?.color || 'bg-gray-100 text-gray-600'}
-                    `}>
-                      {APPLICATION_STATUS[app.status]?.label || app.status}
-                    </span>
-
-                    {/* Status dropdown */}
-                    <select
-                      value={app.status}
-                      disabled={updating === app._id}
-                      onChange={(e) => handleStatusChange(app._id, e.target.value)}
-                      className="border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50 bg-white"
-                    >
-                      {APPLICATION_STATUS_OPTIONS.map((s) => (
-                        <option key={s} value={s}>
-                          {APPLICATION_STATUS[s].label}
-                        </option>
-                      ))}
-                    </select>
-
-                    {updating === app._id && (
-                      <span className="text-xs text-gray-400">Saving...</span>
-                    )}
-                  </div>
-
-                </div>
-              </div>
+                app={app}
+                updating={updating}
+                onStatusChange={handleStatusChange}
+              />
             ))}
           </div>
 
-          {/* ── Load More button ── */}
+          {/* Load More */}
           {hasMore && !filtersActive && (
             <div className="flex flex-col items-center gap-2 mt-6">
-              <p className="text-sm text-gray-400">
-                Showing {applications.length} of {total} applicants
-              </p>
-              <button
-                onClick={handleLoadMore}
-                disabled={loadingMore}
-                className="flex items-center gap-2 px-6 py-3 rounded-xl border border-blue-200 text-blue-700 font-semibold text-sm hover:bg-blue-50 hover:border-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+              <p className="text-sm text-gray-400">Showing {applications.length} of {total} applicants</p>
+              <button onClick={handleLoadMore} disabled={loadingMore}
+                className="flex items-center gap-2 px-6 py-3 rounded-xl border border-blue-200 text-blue-700 font-semibold text-sm hover:bg-blue-50 hover:border-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed">
                 {loadingMore ? (
-                  <>
-                    <span className="w-4 h-4 border-2 border-blue-300 border-t-blue-600 rounded-full animate-spin" />
-                    Loading...
-                  </>
+                  <><span className="w-4 h-4 border-2 border-blue-300 border-t-blue-600 rounded-full animate-spin" />Loading...</>
                 ) : (
-                  <>
-                    <ChevronDown size={16} />
-                    Load More Applicants
-                  </>
+                  <><ChevronDown size={16} />Load More Applicants</>
                 )}
               </button>
             </div>
           )}
 
-          {/* Note when filters are active and more data exists on server */}
           {hasMore && filtersActive && (
             <p className="text-center text-xs text-gray-400 mt-4 bg-yellow-50 border border-yellow-100 rounded-xl py-3 px-4">
-              Showing filtered results from {applications.length} loaded applicants.
-              Clear filters and use Load More to see all {total} applicants.
+              Showing filtered results from {applications.length} loaded applicants. Clear filters and use Load More to see all {total} applicants.
             </p>
           )}
 
-          {/* End of list message */}
           {!hasMore && applications.length > 0 && total > LIMIT && (
-            <p className="text-center text-sm text-gray-300 mt-6">
-              All {total} applicants loaded
-            </p>
+            <p className="text-center text-sm text-gray-300 mt-6">All {total} applicants loaded</p>
           )}
         </>
       )}
-
     </DashboardLayout>
   );
 }
