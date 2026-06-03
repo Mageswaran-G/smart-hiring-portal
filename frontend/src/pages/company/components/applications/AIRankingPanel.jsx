@@ -25,11 +25,11 @@ export default function AIRankingPanel({
       {showRanking && (
         <div className="mt-3">
           {/* Filter Bar */}
-          <div className="flex flex-wrap gap-2 mb-5 p-3 bg-violet-50 rounded-xl border border-violet-100">
+          <div className="flex flex-wrap gap-2 mb-5 p-3 bg-violet-50 rounded-xl border border-violet-100 mt-3">
             <select
               value={rankFilters.minScore}
               onChange={e => setRankFilters(p => ({ ...p, minScore: e.target.value }))}
-              className="text-sm px-3 py-2 rounded-lg border border-violet-200 bg-white text-gray-700 font-semibold focus:outline-none"
+              className="flex-1 min-w-[140px] text-sm px-3 py-2 rounded-lg border border-violet-200 bg-white text-gray-700 font-semibold focus:outline-none"
             >
               <option value="">All Scores</option>
               <option value="80">80%+ only</option>
@@ -40,7 +40,7 @@ export default function AIRankingPanel({
             <select
               value={rankFilters.recommendation}
               onChange={e => setRankFilters(p => ({ ...p, recommendation: e.target.value }))}
-              className="text-sm px-3 py-2 rounded-lg border border-violet-200 bg-white text-gray-700 font-semibold focus:outline-none"
+              className="flex-1 min-w-[140px] text-sm px-3 py-2 rounded-lg border border-violet-200 bg-white text-gray-700 font-semibold focus:outline-none"
             >
               <option value="">All Labels</option>
               <option value="Strong Hire">Strong Hire</option>
@@ -52,7 +52,7 @@ export default function AIRankingPanel({
             <select
               value={rankFilters.sortBy}
               onChange={e => setRankFilters(p => ({ ...p, sortBy: e.target.value }))}
-              className="text-sm px-3 py-2 rounded-lg border border-violet-200 bg-white text-gray-700 font-semibold focus:outline-none"
+              className="flex-1 min-w-[140px] text-sm px-3 py-2 rounded-lg border border-violet-200 bg-white text-gray-700 font-semibold focus:outline-none"
             >
               <option value="score">Sort by Score</option>
               <option value="recent">Sort by Recent</option>
@@ -61,7 +61,7 @@ export default function AIRankingPanel({
 
             <button
               onClick={() => fetchRanking(currentJobId)}
-              className="text-sm px-4 py-2 rounded-lg bg-violet-600 text-white font-bold hover:bg-violet-700 transition"
+              className="text-sm px-4 py-2 rounded-lg bg-violet-600 text-white font-bold hover:bg-violet-700 transition whitespace-nowrap"
             >
               Apply Filters
             </button>

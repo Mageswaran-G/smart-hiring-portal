@@ -1,18 +1,18 @@
 // CompanyApplicationsPage.jsx — Company applicants with AI ranking
 import { useCallback, useEffect, useState, useMemo, useRef } from 'react';
 import { Users, ChevronDown } from 'lucide-react';
-import { Search } from 'lucide-react';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import PageHeader from '../../components/ui/PageHeader';
 import EmptyState from '../../components/ui/EmptyState';
 import { ROUTES } from '../../constants/routes';
-import { APPLICATION_STATUS_OPTIONS } from '../../constants/applicationStatus';
 import { getCompanyApplicationsPaginated, updateApplicationStatus } from '../../services/applicationService';
 import { getRankedCandidates } from '../../services/ai/rankingService';
 import { useDebounce } from '../../hooks/useDebounce';
 import AIRankingPanel from './components/applications/AIRankingPanel';
 import ApplicationCard from './components/applications/ApplicationCard';
+import ApplicationFilters from './components/applications/ApplicationFilters';
+import ApplicationSkeleton from './components/applications/ApplicationSkeleton';
 
 const LIMIT = 10;
 
@@ -50,6 +50,10 @@ export default function CompanyApplicationsPage() {
   }, []);
 
   useEffect(() => { loadPage(1, true); }, [loadPage]);
+
+  useEffect(() => {
+    return () => { abortRef.current?.abort(); };
+  }, []);
 
   const handleLoadMore = () => loadPage(page + 1);
 
@@ -99,7 +103,7 @@ export default function CompanyApplicationsPage() {
       setRanking(data.ranked || []);
       setShowRanking(true);
     } catch (err) {
-      if (err?.message !== 'canceled') toast.error('Ranking failed');
+      if (err?.code !== 'ERR_CANCELED') toast.error('Ranking failed');
     } finally {
       setRankLoading(false);
     }
@@ -117,39 +121,16 @@ export default function CompanyApplicationsPage() {
         backRoute={ROUTES.COMPANY_DASHBOARD}
       />
 
-      {/* Search + Filter Bar */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-6 flex flex-col sm:flex-row flex-wrap gap-3">
-        <div className="relative w-full sm:flex-1 sm:min-w-[200px]">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search candidate name..."
-            value={searchName}
-            onChange={(e) => setSearchName(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
-          />
-        </div>
-        {jobOptions.length > 1 && (
-          <select value={filterJob} onChange={(e) => setFilterJob(e.target.value)}
-            className="w-full sm:w-auto border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white">
-            <option value="all">All Jobs</option>
-            {jobOptions.map(([id, title]) => <option key={id} value={id}>{title}</option>)}
-          </select>
-        )}
-        <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}
-          className="w-full sm:w-auto border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white">
-          <option value="all">All Statuses</option>
-          {APPLICATION_STATUS_OPTIONS.map((s) => (
-            <option key={s} value={s}>{s}</option>
-          ))}
-        </select>
-        {filtersActive && (
-          <button onClick={() => { setFilterJob('all'); setFilterStatus('all'); setSearchName(''); }}
-            className="w-full sm:w-auto text-sm text-red-500 hover:text-red-700 border border-red-200 hover:border-red-400 px-4 py-2 rounded-xl transition">
-            Clear
-          </button>
-        )}
-      </div>
+      <ApplicationFilters
+        searchName={searchName}
+        setSearchName={setSearchName}
+        filterJob={filterJob}
+        setFilterJob={setFilterJob}
+        filterStatus={filterStatus}
+        setFilterStatus={setFilterStatus}
+        jobOptions={jobOptions}
+        filtersActive={filtersActive}
+      />
 
       {/* AI Ranking Panel */}
       {jobOptions.length > 0 && (
@@ -166,23 +147,7 @@ export default function CompanyApplicationsPage() {
         />
       )}
 
-      {/* Loading skeletons */}
-      {loading && (
-        <div className="flex flex-col gap-4">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="bg-white rounded-2xl p-6 animate-pulse border border-gray-100">
-              <div className="flex gap-4">
-                <div className="w-12 h-12 bg-gray-200 rounded-full shrink-0" />
-                <div className="flex-1">
-                  <div className="h-4 bg-gray-200 rounded w-1/4 mb-2" />
-                  <div className="h-3 bg-gray-100 rounded w-1/3 mb-2" />
-                  <div className="h-3 bg-gray-100 rounded w-1/2" />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      {loading && <ApplicationSkeleton />}
 
       {/* Empty state */}
       {!loading && filtered.length === 0 && (
