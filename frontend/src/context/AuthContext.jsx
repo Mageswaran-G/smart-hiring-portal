@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }) => {
       const res = await API.get('/users/profile');
       setProfile(normalizeProfile(res.data.data));  // normalize field names
     } catch (err) {
-      console.error('Profile fetch failed:', err.message);
+      
     }
   };
 

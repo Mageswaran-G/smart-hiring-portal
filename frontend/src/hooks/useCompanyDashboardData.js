@@ -53,7 +53,7 @@ export default function useCompanyDashboardData() {
       } catch (err) {
         if (!isMounted) return;
         toast.error('Failed to load dashboard');
-        console.error('CompanyDashboard load error:', err);
+        
       } finally {
         if (isMounted) setLoading(false);
       }

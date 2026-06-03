@@ -1,8 +1,8 @@
 import { COLORS, TYPOGRAPHY, SPACING } from '../../theme/adminTheme';
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Users, Search, ChevronLeft, ChevronRight, ShieldOff, Shield, Trash2, AlertTriangle } from "lucide-react";
-import { getAllUsers, suspendUser, deleteUser } from "../../services/adminService";
+import { Users, Search, ChevronLeft, ChevronRight, ShieldOff, Shield, Trash2, AlertTriangle, RotateCcw } from "lucide-react";
+import { getAllUsers, suspendUser, deleteUser, restoreUser } from "../../services/adminService";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import toast from "react-hot-toast";
 import Button from '../../components/ui/Button';
@@ -86,6 +86,16 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleRestore = async (id) => {
+    try {
+      await restoreUser(id);
+      toast.success("User restored successfully");
+      queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
+    } catch {
+      toast.error("Restore failed");
+    }
+  };
+
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
 
   const roleColor = (role) =>
@@ -135,7 +145,7 @@ export default function AdminUsersPage() {
             placeholder="Search by job title or location..."
           />
           <FilterTabs
-            tabs={["all", "candidates", "companies", "suspended"]}
+            tabs={["all", "candidates", "companies", "suspended", "deleted"]}
             active={filter}
             onChange={setFilter}
           />
@@ -170,8 +180,12 @@ export default function AdminUsersPage() {
                   <span style={{ fontSize: 11, color: COLORS.gray400 }}>Joined {new Date(user.createdAt).toLocaleDateString()}</span>
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <Button variant="outline" size="sm" onClick={() => handleSuspend(user._id, user.isSuspended)}>{user.isSuspended ? 'Unsuspend' : 'Suspend'}</Button>
-                  <Button variant="danger" size="sm" onClick={() => setDeleteConfirm(user._id)}>Delete</Button>
+                  {user.isDeleted ? (
+                    <Button variant="outline" size="sm" onClick={() => handleRestore(user._id)}><RotateCcw size={13} style={{ marginRight: 4 }} />Restore</Button>
+                  ) : (
+                    <Button variant="outline" size="sm" onClick={() => handleSuspend(user._id, user.isSuspended)}>{user.isSuspended ? 'Unsuspend' : 'Suspend'}</Button>
+                  )}
+                  {!user.isDeleted && <Button variant="danger" size="sm" onClick={() => setDeleteConfirm(user._id)}>Delete</Button>}
                 </div>
               </div>
             )}

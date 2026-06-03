@@ -216,10 +216,14 @@ exports.getAllUsers = async (req, res) => {
     const skip = (safePage - 1) * safeLimit;
 
     // Build query — exclude admin accounts
-    const query = { 
-      role: { $ne: "admin" },
-      isDeleted: { $ne: true }  // exclude soft deleted users
-    };
+    const query = { role: { $ne: "admin" } };
+
+    // When filter is "deleted" show only deleted users, otherwise exclude them
+    if (filter === "deleted") {
+      query.isDeleted = true;
+    } else {
+      query.isDeleted = { $ne: true };
+    }
 
     // Search by name or email
     if (search) {
@@ -540,7 +544,7 @@ exports.getActionCenter = async (req, res) => {
       isDeleted: { $ne: true },
     })
       .select("title location createdAt")
-      .populate("company", "name") // get company name
+      .populate("postedBy", "name companyName")
       .sort({ createdAt: -1 })
       .limit(5);
 
@@ -621,9 +625,7 @@ exports.getAIHealthMetrics = async (req, res, next) => {
       .map(([skill, count]) => ({ skill, count }));
 
     // Total applications and jobs
-    const totalApplications = await Application.countDocuments({ 
-      isDeleted: { $ne: true } 
-    });
+    const totalApplications = await Application.countDocuments();
     const totalActiveJobs = await Job.countDocuments({ 
       isActive: true, 
       status: 'published',

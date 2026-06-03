@@ -141,7 +141,7 @@ export const logoutAPI = async () => {
     // 401 is expected when token is expired — ignore silently
     // User still gets logged out from frontend state
     if (err.response?.status !== 401) {
-      console.error('Logout API error:', err.message);
+      if (import.meta.env.DEV) console.error('Logout API error:', err.message);
     }
   }
 };

@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { COLORS, GRADIENTS } from '../../theme/adminTheme';
 import { useAuth } from '../../context/AuthContext';
 import { API } from '../../services/authService';
-import { getAIHealthMetrics } from '../../services/adminService';
+import { getAIHealthMetrics, getAdminAnalytics } from '../../services/adminService';
 import { API_ENDPOINTS } from '../../constants/api';
 import { ROUTES } from '../../constants/routes';
 import useIsMobile from '../../hooks/useIsMobile';
@@ -40,12 +40,17 @@ export default function AdminDashboard() {
     fetchedRef.current = true;
     (async () => {
       try {
-        const res = await API.get(API_ENDPOINTS.ADMIN_STATS);
-        setStats(res.data.data || res.data);
-        const aiRes = await getAIHealthMetrics();
+        const [statsRes, analyticsRes, aiRes] = await Promise.all([
+          API.get(API_ENDPOINTS.ADMIN_STATS),
+          getAdminAnalytics(),
+          getAIHealthMetrics(),
+        ]);
+        const statsData = statsRes.data.data || statsRes.data;
+        const analyticsData = analyticsRes?.data || {};
+        setStats({ ...statsData, userGrowth: analyticsData.userGrowth || [] });
         setAiHealth(aiRes.data);
       } catch (err) {
-        console.error('AdminDashboard stats error:', err);
+        
         setStats({ totalUsers:0, totalCandidates:0, totalCompanies:0, totalJobs:0, totalApplications:0, hired:0, shortlisted:0, recentUsers:[] });
       } finally {
         setLoading(false);
@@ -148,7 +153,7 @@ export default function AdminDashboard() {
           {/* Left Column */}
           <div style={{ display:"flex", flexDirection:"column", gap:20 }}>
             <PlatformAnalyticsCard stats={stats} />
-            
+            <ModuleRoadmap />
           </div>
         {/* Right Sidebar */}
         <div style={{ display:'flex', flexDirection:'column', gap:18 }}>

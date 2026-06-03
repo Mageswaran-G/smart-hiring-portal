@@ -13,6 +13,7 @@ import { ROUTES } from '../../../../constants/routes';
 import { C, STATUS_CONFIG as STATUS, timeAgo } from './constants';
 import ProgressRing from './ProgressRing';
 import Sparkline from './Sparkline';
+import { PROFILE_CHECKS } from '../../../../utils/profileStrength';
 
 // Avatar helper
 function Avatar({ profile, size = 44, border = '2px solid rgba(255,255,255,0.4)' }) {
@@ -219,14 +220,9 @@ export default function DesktopDashboard({
                 <ProgressRing value={completion} size={64} stroke={6} />
               </div>
               <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-                {[
-                  { label:'Photo uploaded',  done:!!profile?.photo,             points:10 },
-                  { label:'Headline added',  done:!!profile?.headline,          points:10 },
-                  { label:'Skills listed',   done:!!profile?.skills?.length,    points:15 },
-                  { label:'Resume uploaded', done:!!profile?.resumeUrl,         points:20 },
-                  { label:'Bio written',     done:!!profile?.bio,               points:10 },
-                  { label:'Education added', done:!!profile?.education?.length, points:10 },
-                ].map(({ label, done, points }) => (
+                {PROFILE_CHECKS.map(({ label, points, check }) => {
+                  const done = check(profile);
+                  return (
                   <div key={label} style={{ display:'flex', alignItems:'center', gap:10 }}>
                     <div style={{ width:18, height:18, borderRadius:'50%', background: done ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.2)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                       {done ? <CheckCircle size={11} color={C.primary} /> : <Clock size={10} color="rgba(255,255,255,0.5)" />}
@@ -242,7 +238,8 @@ export default function DesktopDashboard({
                       )}
                     </div>
                   </div>
-                ))}
+                );
+                })}
               </div>
               <button onClick={() => navigate(ROUTES.PROFILE)} style={{ marginTop:18, width:'100%', background:'rgba(255,255,255,0.16)', border:'1px solid rgba(255,255,255,0.28)', borderRadius:12, color:'#fff', fontWeight:800, fontSize:13, padding:'11px', cursor:'pointer' }}>
                 Improve Profile →

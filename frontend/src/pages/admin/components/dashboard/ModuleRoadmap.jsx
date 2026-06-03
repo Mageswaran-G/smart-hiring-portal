@@ -28,9 +28,9 @@ const MODULES = [
     features: ['User management', 'Job moderation', 'Platform analytics', 'Action center'],
   },
   {
-    num: 6, status: 'In Progress', title: 'Advanced & AI Features',
-    icon: Brain, color: '#7c3aed', progress: 92,
-    features: ['Match scoring', 'ATS scoring', 'Semantic matching', 'Composite ranking', 'Confidence scoring', 'Recruiter filters'],
+    num: 6, status: 'done', title: 'Advanced & AI Features',
+    icon: Brain, color: '#7c3aed', progress: 100,
+    features: ['Match scoring', 'ATS scoring', 'JD Analyzer', 'Composite ranking', 'Confidence scoring', 'CSRF security'],
   },
 ];
 
@@ -53,7 +53,7 @@ const ModuleRoadmap = () => (
       fontSize: 12, color: '#16a34a', display: 'flex', gap: 8, alignItems: 'center',
     }}>
       <CheckCircle size={14} color="#16a34a" />
-      Modules 1-5 complete! Module 6 Advanced AI Features — 92% complete.
+      All 6 modules complete! Smart Hiring Portal is production ready.
     </div>
 
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

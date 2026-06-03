@@ -8,7 +8,6 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { ROUTES } from '../../constants/routes';
 import SafeAvatar from '../ui/SafeAvatar';
-import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 
 
@@ -48,7 +47,7 @@ const NAV_LINKS = {
 
 export default function DashboardLayout({ children }) {
   const { user, profile, logoutUser } = useAuth();
-  const { isDark, toggleTheme } = useTheme();
+  useTheme(); // ThemeContext kept for future dark mode implementation
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -168,26 +167,8 @@ export default function DashboardLayout({ children }) {
             }}
           />
 
-          {/* Theme Toggle */}
-          <button
-            type="button"
-            onClick={toggleTheme}
-            title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            style={{
-              display:'flex', alignItems:'center', justifyContent:'center',
-              width:34, height:34, borderRadius:9,
-              border:'1px solid rgba(0,0,0,0.08)',
-              background: isDark ? '#1e293b' : '#f9fafb',
-              color: isDark ? '#f1f5f9' : '#6b7280',
-              cursor:'pointer', flexShrink:0,
-              transition:'all 0.2s ease',
-            }}
-          >
-            {isDark ? <Sun size={16} /> : <Moon size={16} />}
-          </button>
-
-          {/* Divider — desktop */}
-          <div style={{ width:1, height:22, background:'rgba(0,0,0,0.08)' }} className="desktop-nav" />
+          {/* Theme Toggle — hidden until full dark mode is implemented */}
+          {/* TODO: Uncomment when all 85+ components are converted to CSS variables */}
 
           {/* Divider — desktop */}
           <div style={{ width:1, height:22, background:'rgba(0,0,0,0.08)' }} className="desktop-nav" />

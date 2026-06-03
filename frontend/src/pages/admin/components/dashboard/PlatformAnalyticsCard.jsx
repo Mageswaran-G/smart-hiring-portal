@@ -1,15 +1,20 @@
 import { MiniBarChart, ProgressRing } from '@/components/ui/charts';
 import { TrendingUp, Users, Building2 } from 'lucide-react';
-
-const C = {
-  primary: '#7c3aed',
-  grad: 'linear-gradient(135deg, #1e0b4b 0%, #2e1065 25%, #4c1d95 55%, #6d28d9 80%, #7c3aed 100%)',
-};
+import { COLORS, GRADIENTS } from '../../../../theme/adminTheme';
 
 const PlatformAnalyticsCard = ({ stats }) => {
   const hireRate = stats?.totalApplications > 0
     ? Math.round((stats.hired / stats.totalApplications) * 100) : 0;
-  const userTrend = stats?.userTrend || [1,1,2,2,3,3,4];
+
+  // userTrend: use real 7-day growth data from backend if available
+  // stats.userGrowth comes from getAdminAnalytics — array of { _id: date, count: number }
+  // For the dashboard quick view we use the last 7 days count array
+  const userTrend = Array.isArray(stats?.userGrowth) && stats.userGrowth.length > 0
+    ? stats.userGrowth.map(d => d.count)
+    : Array.isArray(stats?.userTrend) && stats.userTrend.length > 0
+      ? stats.userTrend
+      : [0, 0, 0, 0, 0, 0, 0];
+
   const breakdown = [
     { label: 'Candidates', value: stats?.totalCandidates || 0, total: stats?.totalUsers || 1, color: '#ea580c', icon: Users },
     { label: 'Companies',  value: stats?.totalCompanies  || 0, total: stats?.totalUsers || 1, color: '#0891b2', icon: Building2 },
@@ -34,7 +39,7 @@ const PlatformAnalyticsCard = ({ stats }) => {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
 
         {/* Left: Hire Rate */}
-        <div style={{ background: C.grad, borderRadius: 16, padding: '22px 20px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ background: GRADIENTS.admin, borderRadius: 16, padding: '22px 20px', position: 'relative', overflow: 'hidden' }}>
           {/* Decorative circle */}
           <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, position: 'relative', zIndex: 1 }}>
@@ -55,7 +60,7 @@ const PlatformAnalyticsCard = ({ stats }) => {
 
         {/* Right: User Breakdown */}
         <div style={{ background: '#fafafa', borderRadius: 16, padding: '20px', border: '1px solid rgba(0,0,0,0.06)' }}>
-          <p style={{ fontSize: 13, fontWeight: 800, color: C.primary, margin: '0 0 16px', letterSpacing: '-0.2px' }}>
+          <p style={{ fontSize: 13, fontWeight: 800, color: COLORS.primary, margin: '0 0 16px', letterSpacing: '-0.2px' }}>
             User Breakdown
           </p>
 
@@ -83,7 +88,7 @@ const PlatformAnalyticsCard = ({ stats }) => {
 
           {/* 7-day trend */}
           <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(0,0,0,0.06)' }}>
-            <MiniBarChart data={userTrend} color={C.primary} w={180} h={36} />
+            <MiniBarChart data={userTrend} color={COLORS.primary} w={180} h={36} />
             <p style={{ fontSize: 10, color: '#9ca3af', margin: '5px 0 0', fontWeight: 500 }}>
               User signups — 7-day trend
             </p>

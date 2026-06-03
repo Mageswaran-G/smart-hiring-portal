@@ -42,7 +42,7 @@ export default function CandidateDashboard() {
         const jArr = Array.isArray(jobsRes) ? jobsRes : (jobsRes?.jobs || jobsRes?.data || []);
         setJobs(jArr);
       } catch (err) {
-        console.error('CandidateDashboard load error:', err);
+        
       } finally {
         setLoading(false);
       }

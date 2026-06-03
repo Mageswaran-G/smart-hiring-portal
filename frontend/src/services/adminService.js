@@ -54,6 +54,12 @@ export const deleteJob = async (id) => {
   return response.data;
 };
 
+// Restore a soft-deleted user
+export const restoreUser = async (id) => {
+  const response = await API.patch(`/admin/users/${id}/restore`);
+  return response.data;
+};
+
 export const getAdminAnalytics = async () => {
   const response = await API.get('/admin/analytics');
   return response.data;

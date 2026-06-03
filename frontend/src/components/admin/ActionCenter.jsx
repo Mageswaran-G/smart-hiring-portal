@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Target, CheckCircle } from "lucide-react";
 import { getActionCenter } from "../../services/adminService";
 import { COLORS } from '../../theme/adminTheme';
+import { ROUTES } from '../../constants/routes';
 
 export default function ActionCenter() {
   const [data, setData] = useState(null);
@@ -50,11 +52,11 @@ export default function ActionCenter() {
     return (
       <div style={styles.container}>
         <div style={styles.header}>
-          <h2 style={styles.title}>🎯 Action Center</h2>
+          <h2 style={styles.title}><Target size={16} style={{ display:'inline', marginRight:6, verticalAlign:'middle' }} />Action Center</h2>
           <span style={styles.clearBadge}>All Clear</span>
         </div>
         <div style={styles.allClear}>
-          <div style={{ fontSize: "2.5rem" }}>✅</div>
+          <CheckCircle size={36} color={COLORS.successText} style={{ margin:'0 auto' }} />
           <p style={{ color: COLORS.successText, fontWeight: 600, marginTop: 8 }}>
             No pending actions
           </p>
@@ -92,7 +94,7 @@ export default function ActionCenter() {
       {/* Header */}
       <div style={styles.header}>
         <div>
-          <h2 style={styles.title}>🎯 Action Center</h2>
+          <h2 style={styles.title}><Target size={16} style={{ display:'inline', marginRight:6, verticalAlign:'middle' }} />Action Center</h2>
           <p style={styles.subtitle}>Items that need your attention</p>
         </div>
         <span style={styles.alertBadge}>{counts.total} alerts</span>
@@ -149,7 +151,7 @@ export default function ActionCenter() {
                     </p>
                   </div>
                   <button
-                    onClick={() => navigate("/admin/companies")}
+                    onClick={() => navigate(ROUTES.ADMIN_COMPANIES)}
                     style={styles.actionBtn(COLORS.warning)}
                   >
                     Verify →
@@ -159,7 +161,7 @@ export default function ActionCenter() {
             )}
             {counts.unverified > 5 && (
               <button
-                onClick={() => navigate("/admin/companies")}
+                onClick={() => navigate(ROUTES.ADMIN_COMPANIES)}
                 style={styles.viewAllBtn}
               >
                 View all {counts.unverified} unverified companies →
@@ -192,7 +194,7 @@ export default function ActionCenter() {
                     </p>
                   </div>
                   <button
-                    onClick={() => navigate("/admin/users")}
+                    onClick={() => navigate(ROUTES.ADMIN_USERS)}
                     style={styles.actionBtn(COLORS.danger)}
                   >
                     Review →
@@ -202,7 +204,7 @@ export default function ActionCenter() {
             )}
             {counts.suspended > 5 && (
               <button
-                onClick={() => navigate("/admin/users")}
+                onClick={() => navigate(ROUTES.ADMIN_USERS)}
                 style={styles.viewAllBtn}
               >
                 View all {counts.suspended} suspended users →
@@ -223,14 +225,14 @@ export default function ActionCenter() {
                   <div style={{ flex: 1 }}>
                     <p style={styles.alertName}>{job.title}</p>
                     <p style={styles.alertSub}>
-                      {job.company?.name || "Unknown"} • {job.location}
+                      {job.postedBy?.companyName || job.postedBy?.name || "Unknown"} • {job.location}
                     </p>
                     <p style={styles.alertTime}>
                       Expired {timeAgo(job.createdAt)}
                     </p>
                   </div>
                   <button
-                    onClick={() => navigate("/admin/jobs")}
+                    onClick={() => navigate(ROUTES.ADMIN_JOBS)}
                     style={styles.actionBtn(COLORS.gray500)}
                   >
                     View →
@@ -240,7 +242,7 @@ export default function ActionCenter() {
             )}
             {counts.expired > 5 && (
               <button
-                onClick={() => navigate("/admin/jobs")}
+                onClick={() => navigate(ROUTES.ADMIN_JOBS)}
                 style={styles.viewAllBtn}
               >
                 View all {counts.expired} expired jobs →

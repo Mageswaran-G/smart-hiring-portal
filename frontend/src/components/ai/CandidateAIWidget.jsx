@@ -1,5 +1,3 @@
-
-
 import { useEffect, useState } from 'react';
 import { Sparkles, TrendingUp, BookOpen, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -55,7 +53,29 @@ export default function CandidateAIWidget({ profile }) {
     );
   }
 
-  if (!insights) return null;
+  if (!insights) {
+    return (
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-7 h-7 rounded-lg bg-violet-600 flex items-center justify-center">
+            <Sparkles size={14} color="#fff" />
+          </div>
+          <p className="font-bold text-sm text-gray-900">AI Insights</p>
+        </div>
+        <p className="text-xs text-gray-400 text-center py-4">
+          Upload your resume to see AI job match insights.
+        </p>
+        <button
+          type="button"
+          onClick={() => navigate(ROUTES.PROFILE)}
+          className="w-full flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 text-white font-semibold py-2.5 rounded-xl text-xs transition"
+        >
+          <ArrowRight size={12} />
+          Complete Your Profile
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Brain } from 'lucide-react';
 
 export default function AIHealthCard({ data }) {
   if (!data) return null;
@@ -9,7 +10,7 @@ export default function AIHealthCard({ data }) {
       {/* Header */}
       <div className="flex items-center gap-3 mb-5">
         <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center">
-          <span className="text-xl">🤖</span>
+          <Brain size={20} className="text-purple-600" />
         </div>
         <div>
           <h3 className="font-bold text-gray-900 text-base">AI Health Metrics</h3>

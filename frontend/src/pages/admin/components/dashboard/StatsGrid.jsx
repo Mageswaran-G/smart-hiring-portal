@@ -1,11 +1,11 @@
-import { Users, Building2, Briefcase, FileText, ArrowUpRight } from 'lucide-react';
+import { Users, Building2, Briefcase, FileText } from 'lucide-react';
 import { COLORS } from '../../../../theme/adminTheme';
 
 const getCards = (stats) => [
-  { label: 'Total Users', value: stats?.totalUsers ?? '--', sub: `${stats?.totalCandidates ?? 0} candidates`, icon: Users, color: COLORS.primary, bg: '#f5f3ff', trend: '+12%' },
-  { label: 'Companies', value: stats?.totalCompanies ?? '--', sub: 'registered', icon: Building2, color: COLORS.blue, bg: '#eff6ff', trend: '+5%' },
-  { label: 'Jobs Posted', value: stats?.totalJobs ?? '--', sub: 'all time', icon: Briefcase, color: '#7c3aed', bg: '#faf5ff', trend: '+8%' },
-  { label: 'Applications', value: stats?.totalApplications ?? '--', sub: `${stats?.hired ?? 0} hired`, icon: FileText, color: COLORS.successText, bg: '#f0fdf4', trend: '+18%' },
+  { label: 'Total Users', value: stats?.totalUsers ?? '--', sub: `${stats?.totalCandidates ?? 0} candidates`, icon: Users, color: COLORS.primary, bg: '#f5f3ff' },
+  { label: 'Companies', value: stats?.totalCompanies ?? '--', sub: 'registered', icon: Building2, color: COLORS.blue, bg: '#eff6ff' },
+  { label: 'Jobs Posted', value: stats?.totalJobs ?? '--', sub: 'all time', icon: Briefcase, color: '#7c3aed', bg: '#faf5ff' },
+  { label: 'Applications', value: stats?.totalApplications ?? '--', sub: `${stats?.hired ?? 0} hired`, icon: FileText, color: COLORS.successText, bg: '#f0fdf4' },
 ];
 
 const StatsGrid = ({ stats, isMobile = false }) => (
@@ -22,9 +22,6 @@ const StatsGrid = ({ stats, isMobile = false }) => (
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
               <div style={{ width: 44, height: 44, borderRadius: 14, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Icon size={20} color={card.color} />
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 3, background: '#f0fdf4', color: COLORS.successText, fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 8 }}>
-                <ArrowUpRight size={11} />{card.trend}
               </div>
             </div>
             <div style={{ fontSize: isMobile ? 28 : 36, fontWeight: 900, color: '#111827', letterSpacing: '-1px', lineHeight: 1, marginBottom: 6 }}>{card.value}</div>

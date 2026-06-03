@@ -148,7 +148,7 @@ export default function App() {
           <Route path={ROUTES.PUBLIC_JOBS}  element={<PublicJobsPage />} />
           <Route path={ROUTES.JOB_DETAILS}  element={<JobDetailsPage />} />
 
-          <Route path="/admin/companies" element={
+          <Route path={ROUTES.ADMIN_COMPANIES} element={
             <ProtectedRoute>
               <RoleRoute allowedRoles={['admin']}>
                 <AdminCompaniesPage />
@@ -156,7 +156,7 @@ export default function App() {
             </ProtectedRoute>
           } />
 
-          <Route path="/admin/users" element={
+          <Route path={ROUTES.ADMIN_USERS} element={
             <ProtectedRoute>
               <RoleRoute allowedRoles={['admin']}>
                 <AdminUsersPage />
@@ -164,7 +164,7 @@ export default function App() {
             </ProtectedRoute>
           } />
 
-          <Route path="/admin/jobs" element={
+          <Route path={ROUTES.ADMIN_JOBS} element={
             <ProtectedRoute>
               <RoleRoute allowedRoles={['admin']}>
                 <AdminJobsPage />
@@ -172,7 +172,7 @@ export default function App() {
             </ProtectedRoute>
           } />
 
-          <Route path="/admin/analytics" element={
+          <Route path={ROUTES.ADMIN_ANALYTICS} element={
             <ProtectedRoute>
               <RoleRoute allowedRoles={['admin']}>
                 <AdminAnalyticsPage />

@@ -20,7 +20,10 @@ export const ROUTES = {
 
   // Admin
   ADMIN_DASHBOARD:         '/admin/dashboard',
-  ADMIN_COMPANIES:         "/admin/companies",
+  ADMIN_COMPANIES:         '/admin/companies',
+  ADMIN_USERS:             '/admin/users',
+  ADMIN_JOBS:              '/admin/jobs',
+  ADMIN_ANALYTICS:         '/admin/analytics',
 
   // Public
   JOB_DETAILS:             '/jobs/:slug',
