@@ -1,7 +1,7 @@
 // ApplicationFilters.jsx — Search, job filter, status filter
 import React from 'react';
 import { Search } from 'lucide-react';
-import { APPLICATION_STATUS_OPTIONS } from '../../../../constants/applicationStatus';
+import { APPLICATION_STATUS, APPLICATION_STATUS_OPTIONS } from '../../../../constants/applicationStatus';
 
 export default function ApplicationFilters({
   searchName, setSearchName,
@@ -34,7 +34,7 @@ export default function ApplicationFilters({
         className="w-full sm:w-auto border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white">
         <option value="all">All Statuses</option>
         {APPLICATION_STATUS_OPTIONS.map((s) => (
-          <option key={s} value={s}>{s}</option>
+          <option key={s} value={s}>{APPLICATION_STATUS[s].label}</option>
         ))}
       </select>
 
