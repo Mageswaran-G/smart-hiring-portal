@@ -26,6 +26,7 @@ const AdminCompaniesPage       = lazy(() => import('./pages/admin/AdminCompanies
 const AdminUsersPage           = lazy(() => import('./pages/admin/AdminUsersPage'));
 const AdminJobsPage            = lazy(() => import('./pages/admin/AdminJobsPage'));
 const AdminAnalyticsPage       = lazy(() => import('./pages/admin/AdminAnalyticsPage'));
+const AdminChatPage            = lazy(() => import('./pages/admin/AdminChatPage'));
 const PublicJobsPage           = lazy(() => import('./pages/jobs/PublicJobsPage'));
 const JobDetailsPage           = lazy(() => import('./pages/jobs/JobDetailsPage'));
 
@@ -168,6 +169,14 @@ export default function App() {
             <ProtectedRoute>
               <RoleRoute allowedRoles={['admin']}>
                 <AdminJobsPage />
+              </RoleRoute>
+            </ProtectedRoute>
+          } />
+
+          <Route path={ROUTES.ADMIN_CHAT} element={
+            <ProtectedRoute>
+              <RoleRoute allowedRoles={['admin']}>
+                <AdminChatPage />
               </RoleRoute>
             </ProtectedRoute>
           } />

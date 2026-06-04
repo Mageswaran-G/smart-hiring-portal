@@ -24,6 +24,7 @@ export const ROUTES = {
   ADMIN_USERS:             '/admin/users',
   ADMIN_JOBS:              '/admin/jobs',
   ADMIN_ANALYTICS:         '/admin/analytics',
+  ADMIN_CHAT:              '/admin/chat',
 
   // Public
   JOB_DETAILS:             '/jobs/:slug',

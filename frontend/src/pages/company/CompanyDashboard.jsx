@@ -24,6 +24,7 @@ import TopPerformingJobCard from './components/dashboard/TopPerformingJobCard';
 import RecentActivityCard from './components/dashboard/RecentActivityCard';
 import ApplicantAvatar from './components/dashboard/ApplicantAvatar';
 import AIAnalyticsCard from './components/dashboard/AIAnalyticsCard';
+import CompanyChatSidebar from './components/dashboard/CompanyChatSidebar';
 
 // ─── Main Component ──────────────────────────────────────────
 export default function CompanyDashboard() {
@@ -303,6 +304,7 @@ export default function CompanyDashboard() {
           </div>
         </main>
       </div>
+      <CompanyChatSidebar />
     </DashboardLayout>
   );
 }

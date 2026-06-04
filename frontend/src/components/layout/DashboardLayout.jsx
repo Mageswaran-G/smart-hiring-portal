@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Briefcase, Bookmark, FileText,
   User, Users, PlusCircle, Building2, TrendingUp, Sparkles,
-  Shield, LogOut, Menu, X,
+  Shield, LogOut, Menu, X, MessageSquare,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ROUTES } from '../../constants/routes';
@@ -42,6 +42,7 @@ const NAV_LINKS = {
     { label:'Users',     Icon:Users,           path:'/admin/users'          },
     { label:'Jobs',      Icon:Briefcase,       path:'/admin/jobs'           },
     { label:'Analytics', Icon:TrendingUp,      path:'/admin/analytics'      },
+    { label:'HireBot',   Icon:MessageSquare,  path:ROUTES.ADMIN_CHAT         },
   ],
 };
 
@@ -113,13 +114,13 @@ export default function DashboardLayout({ children }) {
         <div style={{ width:1, height:22, background:'rgba(0,0,0,0.08)', flexShrink:0 }} className="desktop-nav" />
 
         {/* Desktop Nav */}
-        <nav style={{ display:'flex', gap:2, alignItems:'center' }} className="desktop-nav">
+        <nav style={{ display:'flex', gap:1, alignItems:'center' }} className="desktop-nav">
           {links.map(({ label, Icon, path, activeWhen }) => {
             const active = isActive({ path, activeWhen });
             return (
               <Link key={path} to={path} style={{
                 display:'flex', alignItems:'center', gap:6,
-                padding:'7px 12px', borderRadius:9,
+                padding:'7px 9px', borderRadius:9,
                 textDecoration:'none', fontSize:13,
                 fontWeight: active ? 700 : 500,
                 color: active ? colors.primary : '#6b7280',
