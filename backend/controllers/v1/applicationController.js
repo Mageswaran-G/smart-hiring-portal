@@ -1,7 +1,8 @@
 // applicationController
 // All application-related business logic
 
-const Application    = require('../../models/Application');
+const Application    = require("../../models/Application");
+const mongoose       = require("mongoose");
 const Job            = require('../../models/Job');
 const User           = require('../../models/User');
 const AppError       = require('../../utils/AppError');
@@ -139,7 +140,7 @@ exports.getMyApplicationTrend = async (req, res, next) => {
     const dailyRaw = await Application.aggregate([
       {
         $match: {
-          candidate: require('mongoose').Types.ObjectId.createFromHexString(candidateId),
+          candidate: new mongoose.Types.ObjectId(candidateId),
           createdAt: { $gte: weekAgo },
         }
       },

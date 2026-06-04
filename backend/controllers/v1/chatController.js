@@ -6,6 +6,15 @@ const Application = require('../../models/Application');
 exports.sendMessage = async (req, res) => {
   try {
     const { message, history = [] } = req.body;
+
+  // Sanitize history — prevent prompt injection attacks
+  const safeHistory = history
+    .slice(-10)
+    .filter(h => ['user', 'bot'].includes(h.role))
+    .map(h => ({
+      role: h.role,
+      text: String(h.text || '').slice(0, 500),
+    }));
     const userId = req.user.id;
     const role   = req.user.role;
 
@@ -18,7 +27,7 @@ exports.sendMessage = async (req, res) => {
 
     if (role === 'candidate') {
       const user = await User.findById(userId).select('name skills');
-      const apps = await Application.find({ candidate: userId });
+      const apps = await Application.find({ candidate: userId }).select('status');
       context = {
         name:              user?.name || '',
         skills:            user?.skills || [],
@@ -30,9 +39,9 @@ exports.sendMessage = async (req, res) => {
 
     if (role === 'company') {
       const user = await User.findById(userId).select('companyName');
-      const jobs = await Job.find({ postedBy: userId, isDeleted: false });
+      const jobs = await Job.find({ postedBy: userId, isDeleted: false }).select('_id');
       const jobIds = jobs.map(j => j._id);
-      const apps = await Application.find({ job: { $in: jobIds } });
+      const apps = await Application.find({ job: { $in: jobIds } }).select('status');
       context = {
         companyName: user?.companyName || '',
         totalJobs:   jobs.length,
@@ -52,7 +61,7 @@ exports.sendMessage = async (req, res) => {
       context = { totalUsers, totalCompanies, totalJobs, totalApplications };
     }
 
-    const result = await getChatResponse(message.trim(), role, context, history);
+    const result = await getChatResponse(message.trim(), role, context, safeHistory);
 
     return res.status(200).json({
       success: true,

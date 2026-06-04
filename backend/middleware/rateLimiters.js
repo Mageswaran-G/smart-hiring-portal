@@ -51,4 +51,12 @@ const aiHeavyLimiter = rateLimit({
   message: { success: false, message: 'Too many generation requests. Please wait 15 minutes.' }
 });
 
-module.exports = { authLimiter, refreshLimiter, apiLimiter, writeLimiter, aiLimiter, aiHeavyLimiter };
+const chatLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many chat messages. Please wait 15 minutes.' }
+});
+
+module.exports = { authLimiter, refreshLimiter, apiLimiter, writeLimiter, aiLimiter, aiHeavyLimiter, chatLimiter };
