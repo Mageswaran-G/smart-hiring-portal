@@ -1,12 +1,27 @@
+import { useEffect, useState } from 'react';
 import { Activity, CheckCircle, ShieldCheck } from 'lucide-react';
+import { API } from '../../../../services/authService';
+import { API_ENDPOINTS } from '../../../../constants/api';
 
-const SYSTEM_STATUS = [
-  { label: 'API Server',   status: 'online', icon: Activity     },
-  { label: 'Database',     status: 'online', icon: CheckCircle  },
-  { label: 'File Storage', status: 'online', icon: ShieldCheck  },
+const STATUS_CONFIG = [
+  { key: 'api',      label: 'API Server',   icon: Activity     },
+  { key: 'database', label: 'Database',     icon: CheckCircle  },
+  { key: 'storage',  label: 'File Storage', icon: ShieldCheck  },
 ];
 
 export default function SystemStatusCard({ hireRate, ProgressRing }) {
+  const [health, setHealth] = useState({
+    api:      'online',
+    database: 'online',
+    storage:  'online',
+  });
+
+  useEffect(() => {
+    API.get(API_ENDPOINTS.ADMIN_SYSTEM_HEALTH)
+      .then(res => { if (res.data?.data) setHealth(res.data.data); })
+      .catch(() => {});
+  }, []);
+
   return (
     <div style={{
       background:    'rgba(255,255,255,0.07)',
@@ -26,7 +41,7 @@ export default function SystemStatusCard({ hireRate, ProgressRing }) {
             Platform Status
           </p>
           <p style={{ color:'#fff', fontSize:15, margin:0, fontWeight:700 }}>
-            All Systems Operational
+            {Object.values(health).every(s => s === 'online') ? 'All Systems Operational' : 'Service Degraded'}
           </p>
         </div>
         <ProgressRing
@@ -43,38 +58,44 @@ export default function SystemStatusCard({ hireRate, ProgressRing }) {
       <div style={{ height:1, background:'rgba(255,255,255,0.08)', marginBottom:14 }} />
 
       {/* Status rows */}
-      {SYSTEM_STATUS.map(({ label, icon: Icon }) => (
-        <div key={label} style={{
-          display:'flex', alignItems:'center',
-          justifyContent:'space-between',
-          padding:'9px 0',
-          borderBottom:'1px solid rgba(255,255,255,0.06)',
-        }}>
-          <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-            <div style={{
-              width:28, height:28, borderRadius:8,
-              background:'#4ade8018',
-              display:'flex', alignItems:'center', justifyContent:'center',
-            }}>
-              <Icon size={13} color="#86efac" />
-            </div>
-            <span style={{ fontSize:13, color:'rgba(255,255,255,0.8)', fontWeight:500 }}>
-              {label}
-            </span>
-          </div>
-          <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-            <span style={{
-              width:6, height:6, borderRadius:'50%',
-              background:'#4ade80', display:'inline-block',
-              boxShadow:'0 0 6px #4ade80',
-            }} />
-            <span style={{ fontSize:11, fontWeight:700, color:'#86efac' }}>
-              Online
-            </span>
-          </div>
-        </div>
-      ))}
+      {STATUS_CONFIG.map(({ key, label, icon: Icon }) => {
+        const isOnline  = health[key] === 'online';
+        const dotColor  = isOnline ? '#4ade80' : '#f87171';
+        const textColor = isOnline ? '#86efac' : '#fca5a5';
+        const statusLabel = isOnline ? 'Online' : 'Offline';
 
+        return (
+          <div key={key} style={{
+            display:'flex', alignItems:'center',
+            justifyContent:'space-between',
+            padding:'9px 0',
+            borderBottom:'1px solid rgba(255,255,255,0.06)',
+          }}>
+            <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+              <div style={{
+                width:28, height:28, borderRadius:8,
+                background:`${dotColor}18`,
+                display:'flex', alignItems:'center', justifyContent:'center',
+              }}>
+                <Icon size={13} color={textColor} />
+              </div>
+              <span style={{ fontSize:13, color:'rgba(255,255,255,0.8)', fontWeight:500 }}>
+                {label}
+              </span>
+            </div>
+            <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+              <span style={{
+                width:6, height:6, borderRadius:'50%',
+                background:dotColor, display:'inline-block',
+                boxShadow:`0 0 6px ${dotColor}`,
+              }} />
+              <span style={{ fontSize:11, fontWeight:700, color:textColor }}>
+                {statusLabel}
+              </span>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

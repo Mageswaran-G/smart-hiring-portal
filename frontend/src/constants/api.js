@@ -60,5 +60,6 @@ export const API_ENDPOINTS = {
   ADMIN_CLOSE_JOB:       (id) => `/admin/jobs/${id}/close`,
   ADMIN_DELETE_JOB:      (id) => `/admin/jobs/${id}`,
   CHAT_MESSAGE:          '/chat/message',
+  ADMIN_SYSTEM_HEALTH:   '/admin/system-health',
   
 };

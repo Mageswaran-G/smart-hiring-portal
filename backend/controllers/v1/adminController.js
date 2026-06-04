@@ -664,3 +664,42 @@ exports.getAIHealthMetrics = async (req, res, next) => {
     next(error);
   }
 };
+
+// GET /api/v1/admin/system-health
+// Returns real server and database health status
+exports.getSystemHealth = async (req, res) => {
+  try {
+    const mongoose = require('mongoose');
+
+    // Check MongoDB connection state
+    // 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+    const dbState = mongoose.connection.readyState;
+    const dbStatus = dbState === 1 ? 'online' : 'offline';
+
+    // API server is always online if this runs
+    const apiStatus = 'online';
+
+    // File storage — check uploads folder exists
+    const fs = require('fs');
+    const uploadsExists = fs.existsSync('./uploads');
+    const storageStatus = uploadsExists ? 'online' : 'offline';
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        api:     apiStatus,
+        database: dbStatus,
+        storage:  storageStatus,
+      }
+    });
+  } catch (error) {
+    return res.status(200).json({
+      success: true,
+      data: {
+        api:      'online',
+        database: 'offline',
+        storage:  'offline',
+      }
+    });
+  }
+};
