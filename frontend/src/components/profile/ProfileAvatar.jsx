@@ -1,6 +1,6 @@
 import { useRef, useMemo } from 'react';
 import { Camera } from 'lucide-react';
-import { calculateCompletion } from '../../utils/profileCompletion';
+import { calcProfileStrength as calculateCompletion } from '../../utils/profileStrength';
 import SafeAvatar from '../ui/SafeAvatar';
 
 function CompletionRing({ pct, color }) {
