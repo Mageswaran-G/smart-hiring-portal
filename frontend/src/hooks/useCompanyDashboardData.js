@@ -19,12 +19,13 @@ const EMPTY_STATS = {
 };
 
 const mapDashboardStats = (statsData = {}) => ({
-  total: statsData.totalJobs || 0,
-  activeCount: statsData.activeJobs || 0,
-  applications: statsData.totalApps || 0,
-  reviewing: statsData.reviewing || 0,
+  total:       statsData.totalJobs   || 0,
+  activeCount: statsData.activeJobs  || 0,
+  applications:statsData.totalApps   || 0,
+  reviewing:   statsData.reviewing   || 0,
   shortlisted: statsData.shortlisted || 0,
-  hired: statsData.hired || 0,
+  hired:       statsData.hired       || 0,
+  appTrend:    Array.isArray(statsData.appTrend) ? statsData.appTrend : [0,0,0,0,0,0,0],
 });
 
 export default function useCompanyDashboardData() {
@@ -78,7 +79,7 @@ export default function useCompanyDashboardData() {
   );
   const topJob = useMemo(() => getTopJob(jobs), [jobs]);
   const recentActivity = useMemo(() => getRecentActivity(applications), [applications]);
-  const trends = useMemo(() => getDashboardTrends(stats), [stats]);
+  const trends = useMemo(() => getDashboardTrends(stats, stats.appTrend), [stats]);
   const statCards = useMemo(() => getStatCards(stats, trends), [stats, trends]);
 
   return {

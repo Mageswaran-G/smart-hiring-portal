@@ -313,6 +313,15 @@ const getCompanyDashboardStats = async (req, res, next) => {
   try {
     const companyId = req.user.id;
 
+    // Build last 7 days date array
+    const days = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date();
+      d.setHours(0, 0, 0, 0);
+      d.setDate(d.getDate() - (6 - i));
+      return d;
+    });
+    const weekAgo = days[0];
+
     const jobs = await Job.find({
       postedBy:  companyId,
       isDeleted: false,
@@ -320,6 +329,7 @@ const getCompanyDashboardStats = async (req, res, next) => {
 
     const jobIds = jobs.map(j => j._id);
 
+    // Aggregate app stats + daily trend in one pipeline
     const [appStats] = await Application.aggregate([
       { $match: { job: { $in: jobIds } } },
       {
@@ -335,6 +345,32 @@ const getCompanyDashboardStats = async (req, res, next) => {
       }
     ]);
 
+    // Daily application counts for last 7 days
+    const dailyRaw = await Application.aggregate([
+      {
+        $match: {
+          job:       { $in: jobIds },
+          createdAt: { $gte: weekAgo },
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: '%Y-%m-%d', date: '$createdAt' }
+          },
+          count: { $sum: 1 },
+        }
+      }
+    ]);
+
+    // Map daily counts to 7-slot array (0 if no applications that day)
+    const dailyMap = {};
+    dailyRaw.forEach(d => { dailyMap[d._id] = d.count; });
+    const appTrend = days.map(d => {
+      const key = d.toISOString().slice(0, 10);
+      return dailyMap[key] || 0;
+    });
+
     return res.status(200).json({
       success: true,
       data: {
@@ -348,6 +384,7 @@ const getCompanyDashboardStats = async (req, res, next) => {
         shortlisted:   appStats?.shortlisted || 0,
         rejected:      appStats?.rejected    || 0,
         hired:         appStats?.hired       || 0,
+        appTrend,
       }
     });
   } catch (error) {

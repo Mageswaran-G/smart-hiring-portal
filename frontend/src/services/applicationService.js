@@ -54,3 +54,9 @@ export const updateApplicationStatus = async (applicationId, status) => {
   );
   return res.data;
 };
+
+// ─── Candidate 7-day application trend ───────────────────────
+export const getMyApplicationTrend = async () => {
+  const res = await API.get(API_ENDPOINTS.MY_APPLICATIONS_TREND);
+  return res.data;
+};

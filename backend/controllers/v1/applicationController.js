@@ -119,3 +119,48 @@ exports.updateApplicationStatus = async (req, res, next) => {
     return res.status(200).json({ success: true, message: `Status updated to ${status}`, data: application });
   } catch (error) { next(error); }
 };
+
+// GET /api/v1/applications/my/trend
+// Returns candidate's daily application counts for last 7 days
+exports.getMyApplicationTrend = async (req, res, next) => {
+  try {
+    const candidateId = req.user.id;
+
+    // Build last 7 days date array
+    const days = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date();
+      d.setHours(0, 0, 0, 0);
+      d.setDate(d.getDate() - (6 - i));
+      return d;
+    });
+    const weekAgo = days[0];
+
+    // Count applications per day for last 7 days
+    const dailyRaw = await Application.aggregate([
+      {
+        $match: {
+          candidate: require('mongoose').Types.ObjectId.createFromHexString(candidateId),
+          createdAt: { $gte: weekAgo },
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: '%Y-%m-%d', date: '$createdAt' }
+          },
+          count: { $sum: 1 },
+        }
+      }
+    ]);
+
+    // Map to 7-slot array — 0 if no applications that day
+    const dailyMap = {};
+    dailyRaw.forEach(d => { dailyMap[d._id] = d.count; });
+    const trend = days.map(d => {
+      const key = d.toISOString().slice(0, 10);
+      return dailyMap[key] || 0;
+    });
+
+    return res.status(200).json({ success: true, data: { trend } });
+  } catch (error) { next(error); }
+};

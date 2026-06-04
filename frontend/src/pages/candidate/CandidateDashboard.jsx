@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { getMyApplications } from '../../services/applicationService';
+import { getMyApplications, getMyApplicationTrend } from '../../services/applicationService';
 import { getSavedJobIds } from '../../services/savedJobService';
 import { getAllJobs } from '../../services/jobService';
 import { ROUTES } from '../../constants/routes';
@@ -23,6 +23,7 @@ export default function CandidateDashboard() {
   const [applications, setApplications] = useState([]);
   const [savedCount,   setSavedCount]   = useState(0);
   const [jobs,         setJobs]         = useState([]);
+  const [appTrendData, setAppTrendData] = useState([0,0,0,0,0,0,0]);
   const [loading,      setLoading]      = useState(true);
 
   const fetchedRef = useRef(false);
@@ -32,15 +33,18 @@ export default function CandidateDashboard() {
     fetchedRef.current = true;
     (async () => {
       try {
-        const [apps, savedIds, jobsRes] = await Promise.all([
+        const [apps, savedIds, jobsRes, trendRes] = await Promise.all([
           getMyApplications(),
           getSavedJobIds(),
           getAllJobs({ limit: 4 }),
+          getMyApplicationTrend(),
         ]);
         setApplications(Array.isArray(apps) ? apps : []);
         setSavedCount(Array.isArray(savedIds) ? savedIds.length : 0);
         const jArr = Array.isArray(jobsRes) ? jobsRes : (jobsRes?.jobs || jobsRes?.data || []);
         setJobs(jArr);
+        const trendArr = trendRes?.data?.trend;
+        if (Array.isArray(trendArr) && trendArr.length === 7) setAppTrendData(trendArr);
       } catch (err) {
         
       } finally {
@@ -67,10 +71,10 @@ export default function CandidateDashboard() {
   const shortlisted = applications.filter(a => a.status === 'shortlisted').length;
   const hired       = applications.filter(a => a.status === 'hired').length;
 
-  // Sparkline trends
-  const appTrend   = [2, 3, 2, 5, 4, 5, applications.length];
-  const savedTrend = [1, 2, 2, 3, 3, 4, savedCount];
-  const shortTrend = [0, 0, 1, 1, 1, 2, shortlisted];
+  // Sparkline trends — appTrend is real 7-day data from backend
+  const appTrend   = appTrendData;
+  const savedTrend = [0, 0, 0, 0, 0, 0, savedCount];
+  const shortTrend = [0, 0, 0, 0, 0, 0, shortlisted];
   const hiredTrend = [0, 0, 0, 0, 0, 0, hired];
 
   if (loading) return <LoadingScreen />;

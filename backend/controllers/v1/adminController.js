@@ -518,53 +518,64 @@ exports.getAdminAnalytics = async (req, res) => {
 // ACTION CENTER — alerts for admin
 exports.getActionCenter = async (req, res) => {
   try {
-    // 1. Unverified companies (not verified, not suspended, not deleted)
-    const unverifiedCompanies = await User.find({
-      role: "company",
-      isVerified: false,
-      isSuspended: { $ne: true },
-      isDeleted: { $ne: true },
-    })
-      .select("name email createdAt")
-      .sort({ createdAt: -1 })
-      .limit(5);
+    const [
+      unverifiedCompanies,
+      suspendedUsers,
+      expiredJobs,
+      unverifiedCount,
+      suspendedCount,
+      expiredCount,
+    ] = await Promise.all([
+      // 1. Unverified companies
+      User.find({
+        role: 'company',
+        isVerified: false,
+        isSuspended: { $ne: true },
+        isDeleted:   { $ne: true },
+      })
+        .select('name email createdAt')
+        .sort({ createdAt: -1 })
+        .limit(5),
 
-    // 2. Suspended users (any role, not deleted)
-    const suspendedUsers = await User.find({
-      isSuspended: true,
-      isDeleted: { $ne: true },
-    })
-      .select("name email role createdAt")
-      .sort({ createdAt: -1 })
-      .limit(5);
+      // 2. Suspended users
+      User.find({
+        isSuspended: true,
+        isDeleted:   { $ne: true },
+      })
+        .select('name email role createdAt')
+        .sort({ createdAt: -1 })
+        .limit(5),
 
-    // 3. Expired jobs (status = expired, not deleted)
-    const expiredJobs = await Job.find({
-      status: "expired",
-      isDeleted: { $ne: true },
-    })
-      .select("title location createdAt")
-      .populate("postedBy", "name companyName")
-      .sort({ createdAt: -1 })
-      .limit(5);
+      // 3. Expired jobs
+      Job.find({
+        status:    'expired',
+        isDeleted: { $ne: true },
+      })
+        .select('title location createdAt')
+        .populate('postedBy', 'name companyName')
+        .sort({ createdAt: -1 })
+        .limit(5),
 
-    // 4. Counts for badges
-    const unverifiedCount = await User.countDocuments({
-      role: "company",
-      isVerified: false,
-      isSuspended: { $ne: true },
-      isDeleted: { $ne: true },
-    });
+      // 4. Count unverified companies
+      User.countDocuments({
+        role:      'company',
+        isVerified: false,
+        isSuspended: { $ne: true },
+        isDeleted:   { $ne: true },
+      }),
 
-    const suspendedCount = await User.countDocuments({
-      isSuspended: true,
-      isDeleted: { $ne: true },
-    });
+      // 5. Count suspended users
+      User.countDocuments({
+        isSuspended: true,
+        isDeleted:   { $ne: true },
+      }),
 
-    const expiredCount = await Job.countDocuments({
-      status: "expired",
-      isDeleted: { $ne: true },
-    });
+      // 6. Count expired jobs
+      Job.countDocuments({
+        status:    'expired',
+        isDeleted: { $ne: true },
+      }),
+    ]);
 
     res.status(200).json({
       success: true,
@@ -574,9 +585,9 @@ exports.getActionCenter = async (req, res) => {
         expiredJobs,
         counts: {
           unverified: unverifiedCount,
-          suspended: suspendedCount,
-          expired: expiredCount,
-          total: unverifiedCount + suspendedCount + expiredCount,
+          suspended:  suspendedCount,
+          expired:    expiredCount,
+          total:      unverifiedCount + suspendedCount + expiredCount,
         },
       },
     });

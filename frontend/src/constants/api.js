@@ -27,7 +27,8 @@ export const API_ENDPOINTS = {
 
   // ── Applications — Candidate ─────────────────────────
   APPLY_TO_JOB:     (jobId) => `/applications/${jobId}/apply`,
-  MY_APPLICATIONS:  '/applications/my',
+  MY_APPLICATIONS:       '/applications/my',
+  MY_APPLICATIONS_TREND: '/applications/my/trend',
 
   // ── Applications — Company ───────────────────────────
   COMPANY_APPLICATIONS:      '/applications/company',

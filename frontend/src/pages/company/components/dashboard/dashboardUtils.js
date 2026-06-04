@@ -37,12 +37,14 @@ export function getRecentActivity(applications) {
   }));
 }
 
-export function getDashboardTrends(stats) {
+export function getDashboardTrends(stats, realAppTrend) {
   return {
-    appTrend: [3, 5, 4, 8, 7, 9, stats.applications || 0],
-    jobTrend: [1, 1, 2, 2, 3, 3, stats.total || 0],
-    shortTrend: [0, 1, 1, 2, 3, 3, stats.shortlisted || 0],
-    hireTrend: [0, 0, 0, 1, 1, 1, stats.hired || 0],
+    appTrend:   Array.isArray(realAppTrend) && realAppTrend.length === 7
+                  ? realAppTrend
+                  : [0, 0, 0, 0, 0, 0, stats.applications || 0],
+    jobTrend:   [0, 0, 0, 0, 0, 0, stats.total       || 0],
+    shortTrend: [0, 0, 0, 0, 0, 0, stats.shortlisted  || 0],
+    hireTrend:  [0, 0, 0, 0, 0, 0, stats.hired        || 0],
   };
 }
 

@@ -19,6 +19,7 @@ import AdminHero from './components/dashboard/AdminHero';
 import DesktopAdminNav from './components/dashboard/DesktopAdminNav';
 import MobileAdminLayout from './components/dashboard/MobileAdminLayout';
 import AIHealthCard from './components/dashboard/AIHealthCard';
+import ModuleRoadmap from './components/dashboard/ModuleRoadmap';
 
 // ─── Main Component ───────────────────────────────────────────
 export default function AdminDashboard() {

@@ -14,6 +14,14 @@ router.get(
   applicationController.getMyApplications
 );
 
+// GET  /api/v1/applications/my/trend
+router.get(
+  '/my/trend',
+  verifyToken,
+  authorizeRole('candidate'),
+  applicationController.getMyApplicationTrend
+);
+
 // POST /api/v1/applications/:jobId/apply
 router.post(
   '/:jobId/apply',
