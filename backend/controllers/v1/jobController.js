@@ -429,59 +429,6 @@ const getJobBySlug = async (req, res) => {
 };
 
 
-// GET /api/v1/jobs/company/trend
-// Returns company's daily application counts for last 7 days
-const getCompanyDashboardTrend = async (req, res) => {
-  try {
-    const companyId = req.user.id;
-
-    // Get all job IDs for this company
-    const jobs = await Job.find({
-      postedBy:  companyId,
-      isDeleted: { $ne: true },
-    }).select('_id');
-
-    const jobIds = jobs.map(j => j._id);
-
-    // Build last 7 days date array
-    const days = Array.from({ length: 7 }, (_, i) => {
-      const d = new Date();
-      d.setHours(0, 0, 0, 0);
-      d.setDate(d.getDate() - (6 - i));
-      return d;
-    });
-    const weekAgo = days[0];
-
-    // Count applications per day across all company jobs
-    const dailyRaw = await Application.aggregate([
-      {
-        $match: {
-          job:       { $in: jobIds },
-          createdAt: { $gte: weekAgo },
-        }
-      },
-      {
-        $group: {
-          _id:   { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
-          count: { $sum: 1 },
-        }
-      }
-    ]);
-
-    const dailyMap = {};
-    dailyRaw.forEach(d => { dailyMap[d._id] = d.count; });
-
-    const trend = days.map(d => {
-      const key = d.toISOString().slice(0, 10);
-      return dailyMap[key] || 0;
-    });
-
-    return res.status(200).json({ success: true, data: { trend } });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
 // ─────────────────────────────────────────
 // EXPORTS — all functions declared above
 // ─────────────────────────────────────────
@@ -495,5 +442,4 @@ module.exports = {
   updateJobStatus,
   getMyJobs,
   getCompanyDashboardStats,
-  getCompanyDashboardTrend,
 };

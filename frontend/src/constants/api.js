@@ -24,7 +24,6 @@ export const API_ENDPOINTS = {
   MY_JOBS:           '/jobs/company/my-jobs',
   JOB_BY_SLUG:       (slug) => `/jobs/slug/${slug}`,
   COMPANY_DASHBOARD_STATS: '/jobs/company/dashboard-stats',
-  COMPANY_TREND:             '/jobs/company/trend',
 
   // ── Applications — Candidate ─────────────────────────
   APPLY_TO_JOB:     (jobId) => `/applications/${jobId}/apply`,

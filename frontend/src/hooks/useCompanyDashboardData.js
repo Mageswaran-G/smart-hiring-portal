@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { getCompanyDashboardStats, getMyJobs, getCompanyTrend } from '../services/jobService';
+import { getCompanyDashboardStats, getMyJobs } from '../services/jobService';
 import { getCompanyApplications } from '../services/applicationService';
 import {
   getDashboardTrends,
@@ -40,17 +40,15 @@ export default function useCompanyDashboardData() {
 
     const loadDashboard = async () => {
       try {
-        const [statsData, appsData, jobsData, trendRes] = await Promise.all([
+        const [statsData, appsData, jobsData] = await Promise.all([
           getCompanyDashboardStats(),
           getCompanyApplications(),
           getMyJobs(),
-          getCompanyTrend(),
         ]);
 
         if (!isMounted) return;
 
-        const realTrend = trendRes?.trend;
-        setStats(mapDashboardStats(statsData, realTrend));
+        setStats(mapDashboardStats(statsData, statsData.appTrend));
         setApplications(Array.isArray(appsData) ? appsData : []);
         setJobs(Array.isArray(jobsData) ? jobsData : []);
       } catch (err) {
