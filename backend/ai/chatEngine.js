@@ -1,4 +1,5 @@
 const Groq = require('groq-sdk');
+const logger = require('../utils/logger');
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -75,7 +76,7 @@ async function getChatResponse(message, role, context, history = []) {
     const reply = completion.choices[0]?.message?.content || 'I could not generate a response.';
     return { success: true, reply };
   } catch (error) {
-    console.error('Groq error:', error.message);
+    logger.error(`Groq error: ${error.message}`);
     return { success: false, reply: 'Sorry, I am unable to respond right now. Please try again.' };
   }
 }

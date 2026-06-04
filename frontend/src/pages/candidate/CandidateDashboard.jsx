@@ -13,7 +13,7 @@ import { calcProfileStrength } from '../../utils/profileStrength';
 import LoadingScreen from './components/dashboard/LoadingScreen';
 import MobileDashboard from './components/dashboard/MobileDashboard';
 import DesktopDashboard from "./components/dashboard/DesktopDashboard";
-import CandidateChatBubble from "../../components/chat/CandidateChatBubble";
+import HireBot from "../../components/chat/HireBot";
 
 export default function CandidateDashboard() {
   const navigate  = useNavigate();
@@ -95,7 +95,7 @@ export default function CandidateDashboard() {
           handleTab={handleTab}
           handleLogout={handleLogout}
         />
-        <CandidateChatBubble />
+        <HireBot />
       </>
     );
   }
@@ -103,7 +103,7 @@ export default function CandidateDashboard() {
   return (
     <>
       <DesktopDashboard {...sharedProps} />
-      <CandidateChatBubble />
+      <HireBot />
     </>
   );
 }

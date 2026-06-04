@@ -19,7 +19,9 @@ export default function SystemStatusCard({ hireRate, ProgressRing }) {
   useEffect(() => {
     API.get(API_ENDPOINTS.ADMIN_SYSTEM_HEALTH)
       .then(res => { if (res.data?.data) setHealth(res.data.data); })
-      .catch(() => {});
+      .catch(() => {
+        setHealth({ api: 'offline', database: 'offline', storage: 'offline' });
+      });
   }, []);
 
   return (

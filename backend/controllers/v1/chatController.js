@@ -8,18 +8,24 @@ exports.sendMessage = async (req, res) => {
     const { message, history = [] } = req.body;
 
   // Sanitize history — prevent prompt injection attacks
-  const safeHistory = history
-    .slice(-10)
-    .filter(h => ['user', 'bot'].includes(h.role))
-    .map(h => ({
-      role: h.role,
-      text: String(h.text || '').slice(0, 500),
-    }));
+  const safeHistory = Array.isArray(history)
+    ? history
+        .slice(-10)
+        .filter(h => ['user', 'bot'].includes(h.role))
+        .map(h => ({
+          role: h.role,
+          text: String(h.text || '').slice(0, 500),
+        }))
+    : [];
     const userId = req.user.id;
     const role   = req.user.role;
 
     if (!message || !message.trim()) {
       return res.status(400).json({ success: false, message: 'Message is required' });
+    }
+
+    if (message.length > 1000) {
+      return res.status(400).json({ success: false, message: 'Message too long. Maximum 1000 characters.' });
     }
 
     // Build context based on role
@@ -38,8 +44,10 @@ exports.sendMessage = async (req, res) => {
     }
 
     if (role === 'company') {
-      const user = await User.findById(userId).select('companyName');
-      const jobs = await Job.find({ postedBy: userId, isDeleted: false }).select('_id');
+      const [user, jobs] = await Promise.all([
+        User.findById(userId).select('companyName'),
+        Job.find({ postedBy: userId, isDeleted: false }).select('_id'),
+      ]);
       const jobIds = jobs.map(j => j._id);
       const apps = await Application.find({ job: { $in: jobIds } }).select('status');
       context = {
