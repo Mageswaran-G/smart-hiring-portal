@@ -117,7 +117,7 @@ export default function DesktopAdminNav({ adminName, activeTab, onTab, onLogout 
           border: '2px solid rgba(124,58,237,0.2)',
           flexShrink: 0,
         }}>
-          {adminName[0].toUpperCase()}
+          {adminName?.[0]?.toUpperCase() || 'A'}
         </div>
 
         {/* Divider */}
