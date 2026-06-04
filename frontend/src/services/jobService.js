@@ -60,6 +60,11 @@ export const getCompanyDashboardStats = async () => {
   return res.data.data;
 };
 
+export const getCompanyTrend = async () => {
+  const res = await API.get(API_ENDPOINTS.COMPANY_TREND);
+  return res.data.data;
+};
+
 // Get single job by SEO slug — for job details page
 export const getJobBySlug = async (slug) => {
   const res = await API.get(API_ENDPOINTS.JOB_BY_SLUG(slug));

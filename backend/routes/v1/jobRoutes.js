@@ -15,7 +15,8 @@ const {
   deleteJob,
   updateJobStatus,
   getMyJobs,
-  getCompanyDashboardStats,  
+  getCompanyDashboardStats,
+  getCompanyDashboardTrend,
 } = require('../../controllers/v1/jobController');
 
 router.get('/slug/:slug', getJobBySlug);
@@ -25,7 +26,14 @@ router.get(
   '/company/dashboard-stats',
   verifyToken,
   authorizeRole('company'),       
-  getCompanyDashboardStats    
+  getCompanyDashboardStats
+);
+
+router.get(
+  '/company/trend',
+  verifyToken,
+  authorizeRole('company'),
+  getCompanyDashboardTrend
 );
 
 // My jobs 

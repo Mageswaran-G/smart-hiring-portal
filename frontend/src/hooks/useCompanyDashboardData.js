@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { getCompanyDashboardStats, getMyJobs } from '../services/jobService';
+import { getCompanyDashboardStats, getMyJobs, getCompanyTrend } from '../services/jobService';
 import { getCompanyApplications } from '../services/applicationService';
 import {
   getDashboardTrends,
@@ -18,14 +18,14 @@ const EMPTY_STATS = {
   reviewing: 0,
 };
 
-const mapDashboardStats = (statsData = {}) => ({
+const mapDashboardStats = (statsData = {}, realTrend) => ({
   total:       statsData.totalJobs   || 0,
   activeCount: statsData.activeJobs  || 0,
   applications:statsData.totalApps   || 0,
   reviewing:   statsData.reviewing   || 0,
   shortlisted: statsData.shortlisted || 0,
   hired:       statsData.hired       || 0,
-  appTrend:    Array.isArray(statsData.appTrend) ? statsData.appTrend : [0,0,0,0,0,0,0],
+  appTrend:    Array.isArray(realTrend) && realTrend.length === 7 ? realTrend : [0,0,0,0,0,0,0],
 });
 
 export default function useCompanyDashboardData() {
@@ -40,15 +40,17 @@ export default function useCompanyDashboardData() {
 
     const loadDashboard = async () => {
       try {
-        const [statsData, appsData, jobsData] = await Promise.all([
+        const [statsData, appsData, jobsData, trendRes] = await Promise.all([
           getCompanyDashboardStats(),
           getCompanyApplications(),
           getMyJobs(),
+          getCompanyTrend(),
         ]);
 
         if (!isMounted) return;
 
-        setStats(mapDashboardStats(statsData));
+        const realTrend = trendRes?.trend;
+        setStats(mapDashboardStats(statsData, realTrend));
         setApplications(Array.isArray(appsData) ? appsData : []);
         setJobs(Array.isArray(jobsData) ? jobsData : []);
       } catch (err) {
