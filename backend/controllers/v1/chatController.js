@@ -32,8 +32,10 @@ exports.sendMessage = async (req, res) => {
     let context = {};
 
     if (role === 'candidate') {
-      const user = await User.findById(userId).select('name skills');
-      const apps = await Application.find({ candidate: userId }).select('status');
+      const [user, apps] = await Promise.all([
+        User.findById(userId).select('name skills'),
+        Application.find({ candidate: userId }).select('status'),
+      ]);
       context = {
         name:              user?.name || '',
         skills:            user?.skills || [],

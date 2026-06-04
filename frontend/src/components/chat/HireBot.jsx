@@ -77,7 +77,7 @@ export default function CandidateChatBubble() {
 
           <div style={{ flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
             {messages.map((msg, i) => (
-              <div key={i} style={{
+              <div key={`${msg.role}-${i}`} style={{
                 display: 'flex',
                 justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
               }}>
