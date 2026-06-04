@@ -24,7 +24,7 @@ export default function CandidateChatBubble() {
     try {
       const history = messages.map(m => ({ role: m.role, text: m.text }));
       const res = await sendChatMessage(userMsg, history);
-      setMessages(prev => [...prev, { role: 'bot', text: res.data.reply }]);
+      setMessages(prev => [...prev, { role: 'bot', text: res.reply }]);
     } catch {
       setMessages(prev => [...prev, { role: 'bot', text: 'Something went wrong. Please try again.' }]);
     } finally {
