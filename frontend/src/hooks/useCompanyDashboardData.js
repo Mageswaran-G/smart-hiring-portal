@@ -16,6 +16,7 @@ const EMPTY_STATS = {
   hired: 0,
   activeCount: 0,
   reviewing: 0,
+  appTrend: [0,0,0,0,0,0,0],
 };
 
 const mapDashboardStats = (statsData = {}, realTrend) => ({
