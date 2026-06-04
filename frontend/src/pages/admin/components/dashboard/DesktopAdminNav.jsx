@@ -1,4 +1,4 @@
-import { Shield, LayoutDashboard, Building2, Users, Briefcase, BarChart3, LogOut, Bell, MessageSquare } from 'lucide-react';
+import { Shield, LayoutDashboard, Building2, Users, Briefcase, BarChart3, LogOut, MessageSquare } from 'lucide-react';
 import { COLORS, GRADIENTS } from '../../../../theme/adminTheme';
 
 const NAV_ITEMS = [
