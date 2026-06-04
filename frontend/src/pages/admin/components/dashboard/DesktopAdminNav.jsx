@@ -1,4 +1,4 @@
-import { Shield, LayoutDashboard, Building2, Users, Briefcase, BarChart3, LogOut, Bell } from 'lucide-react';
+import { Shield, LayoutDashboard, Building2, Users, Briefcase, BarChart3, LogOut, Bell, MessageSquare } from 'lucide-react';
 import { COLORS, GRADIENTS } from '../../../../theme/adminTheme';
 
 const NAV_ITEMS = [
@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { key: 'users',     label: 'Users',     Icon: Users           },
   { key: 'jobs',      label: 'Jobs',      Icon: Briefcase       },
   { key: 'analytics', label: 'Analytics', Icon: BarChart3       },
+  { key: 'hirebot',   label: 'HireBot',   Icon: MessageSquare   },
 ];
 
 export default function DesktopAdminNav({ adminName, activeTab, onTab, onLogout }) {
