@@ -100,7 +100,7 @@ export default function CandidateChatBubble() {
                   padding: '10px 14px', borderRadius: '18px 18px 18px 4px',
                   background: '#f3f4f6', display: 'flex', alignItems: 'center', gap: 6,
                 }}>
-                  <Loader size={13} color="#9ca3af" />
+                  <Loader size={13} color="#9ca3af" className="animate-spin" />
                   <span style={{ fontSize: 13, color: '#9ca3af' }}>Thinking...</span>
                 </div>
               </div>
