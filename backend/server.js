@@ -20,7 +20,8 @@ const applicationRoutes = require('./routes/v1/applicationRoutes');
 const savedJobRoutes = require('./routes/v1/savedJobRoutes');
 const { startCronJobs } = require('./utils/cronJobs');
 const aiRoutes = require('./routes/v1/aiRoutes');
-const adminRoutes = require('./routes/v1/adminRoutes');
+const adminRoutes = require("./routes/v1/adminRoutes");
+const chatRoutes  = require("./routes/v1/chatRoutes");
 const { generateCsrfToken, validateCsrf } = require('./middleware/csrfMiddleware');
 
 
@@ -87,7 +88,8 @@ app.use('/api/v1/jobs',         apiLimiter, writeLimiter, jobRoutes);
 app.use('/api/v1/applications', apiLimiter, writeLimiter, applicationRoutes);
 app.use('/api/v1/saved',        apiLimiter, writeLimiter, savedJobRoutes);
 app.use("/api/v1/admin",        apiLimiter, adminRoutes);
-app.use('/api/v1/ai', aiLimiter, aiRoutes);
+app.use('/api/v1/ai',   aiLimiter, aiRoutes);
+app.use('/api/v1/chat', apiLimiter, writeLimiter, chatRoutes);
 
 // CSRF token endpoint — frontend calls this on app load
 app.get('/api/v1/auth/csrf-token', generateCsrfToken);

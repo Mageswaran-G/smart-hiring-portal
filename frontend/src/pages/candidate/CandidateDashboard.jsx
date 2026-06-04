@@ -12,7 +12,8 @@ import useIsMobile from '../../hooks/useIsMobile';
 import { calcProfileStrength } from '../../utils/profileStrength';
 import LoadingScreen from './components/dashboard/LoadingScreen';
 import MobileDashboard from './components/dashboard/MobileDashboard';
-import DesktopDashboard from './components/dashboard/DesktopDashboard';
+import DesktopDashboard from "./components/dashboard/DesktopDashboard";
+import CandidateChatBubble from "../../components/chat/CandidateChatBubble";
 
 export default function CandidateDashboard() {
   const navigate  = useNavigate();
@@ -87,14 +88,22 @@ export default function CandidateDashboard() {
 
   if (isMobile) {
     return (
-      <MobileDashboard
-        {...sharedProps}
-        activeTab={activeTab}
-        handleTab={handleTab}
-        handleLogout={handleLogout}
-      />
+      <>
+        <MobileDashboard
+          {...sharedProps}
+          activeTab={activeTab}
+          handleTab={handleTab}
+          handleLogout={handleLogout}
+        />
+        <CandidateChatBubble />
+      </>
     );
   }
 
-  return <DesktopDashboard {...sharedProps} />;
+  return (
+    <>
+      <DesktopDashboard {...sharedProps} />
+      <CandidateChatBubble />
+    </>
+  );
 }
