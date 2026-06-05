@@ -35,12 +35,11 @@ const apiLimiter = rateLimit({
 });
 
 const writeLimiter = rateLimit({
-  skip: skipInTest,
+  skip: (req) => isTest || req.method === 'GET',
   windowMs: 15 * 60 * 1000,
   max: 50,
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req) => req.method === 'GET',
   message: { success: false, message: 'Too many write requests. Please wait 15 minutes.' }
 });
 
