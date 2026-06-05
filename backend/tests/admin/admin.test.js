@@ -45,6 +45,26 @@ describe('Admin — User Management', () => {
   });
 });
 
+describe('Admin — Platform Stats', () => {
+  it('should return platform stats for admin', async () => {
+    const { adminToken } = await createAdmin();
+    const res = await request(app)
+      .get('/api/v1/admin/stats')
+      .set('Authorization', `Bearer ${adminToken}`);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toBeDefined();
+  });
+
+  it('should reject stats for non-admin', async () => {
+    const token = await getToken(candidateUser());
+    const res = await request(app)
+      .get('/api/v1/admin/stats')
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.statusCode).toBe(403);
+  });
+});
+
 describe('Admin — Company Verification', () => {
   it('should allow admin to verify a company', async () => {
     const { adminToken } = await createAdmin();
