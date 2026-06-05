@@ -38,8 +38,15 @@ const applicationSchema = new mongoose.Schema({
       'shortlisted',
       'rejected',
       'hired',
+      'withdrawn',
     ],
     default: 'applied',
+  },
+
+  // Set when candidate withdraws
+  withdrawnAt: {
+    type: Date,
+    default: null,
   },
 
 }, {

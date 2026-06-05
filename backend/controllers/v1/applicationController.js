@@ -214,7 +214,10 @@ exports.withdrawApplication = async (req, res, next) => {
     if (['hired', 'rejected'].includes(application.status))
       return next(new AppError(`Cannot withdraw a ${application.status} application`, 400));
 
-    await Application.findByIdAndDelete(applicationId);
+    // Soft delete — keep history, just mark as withdrawn
+    application.status = 'withdrawn';
+    application.withdrawnAt = new Date();
+    await application.save();
 
     // Decrement job applicationsCount
     await Job.findByIdAndUpdate(application.job._id, { $inc: { applicationsCount: -1 } });
