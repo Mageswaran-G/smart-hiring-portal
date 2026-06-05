@@ -20,6 +20,7 @@ const {
   getActionCenter,
   getAIHealthMetrics,
   getSystemHealth,
+  getAuditLogs,
 } = require('../../controllers/v1/adminController');
 
 // Every admin route needs token + admin role check
@@ -65,12 +66,7 @@ router.get('/ai-health', getAIHealthMetrics);
 router.get("/system-health", getSystemHealth);
 
 // GET /api/v1/admin/audit-logs
-router.get(
-  '/audit-logs',
-  verifyToken,
-  authorizeRole('admin'),
-  adminController.getAuditLogs
-);
+router.get('/audit-logs', getAuditLogs);
 
 module.exports = router;
 // Jobs moderation routes
