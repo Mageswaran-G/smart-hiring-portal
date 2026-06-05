@@ -2,12 +2,13 @@ import { useState, useRef, useEffect } from 'react';
 import { MessageSquare, Send, Trash2 } from 'lucide-react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { sendChatMessage } from '../../services/chatService';
+import toast from 'react-hot-toast';
 
 const PRIMARY = '#7c3aed';
 
 export default function AdminChatPage() {
   const [messages, setMessages] = useState([
-    { role: 'bot', text: 'Hello! I am HireBot. Ask me anything about the platform — users, companies, jobs, or moderation guidance.' }
+    { id: crypto.randomUUID(), role: 'bot', text: 'Hello! I am HireBot. Ask me anything about the platform — users, companies, jobs, or moderation guidance.' }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,18 +21,22 @@ export default function AdminChatPage() {
   const handleSend = async () => {
     const msg = input.trim();
     if (!msg || loading) return;
+    if (msg.length > 1000) {
+      toast.error('Message too long. Max 1000 characters.');
+      return;
+    }
 
-    const userMsg = { role: 'user', text: msg };
-    const history = messages.filter(m => m.role !== 'system');
+    const userMsg = { id: crypto.randomUUID(), role: 'user', text: msg };
+    const history = messages.filter(m => m.role !== 'system').slice(-10);
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setLoading(true);
 
     try {
       const data = await sendChatMessage(msg, history);
-      setMessages(prev => [...prev, { role: 'bot', text: data.reply }]);
+      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'bot', text: data.reply }]);
     } catch {
-      setMessages(prev => [...prev, { role: 'bot', text: 'Something went wrong. Please try again.' }]);
+      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'bot', text: 'Something went wrong. Please try again.' }]);
     } finally {
       setLoading(false);
     }
@@ -45,7 +50,7 @@ export default function AdminChatPage() {
   };
 
   const handleClear = () => {
-    setMessages([{ role: 'bot', text: 'Hello! I am HireBot. Ask me anything about the platform — users, companies, jobs, or moderation guidance.' }]);
+    setMessages([{ id: crypto.randomUUID(), role: 'bot', text: 'Hello! I am HireBot. Ask me anything about the platform — users, companies, jobs, or moderation guidance.' }]);
   };
 
   return (
@@ -75,8 +80,8 @@ export default function AdminChatPage() {
 
           {/* Messages */}
           <div style={{ flex: 1, overflowY: 'auto', padding: '24px 24px 16px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {messages.map((msg, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
+            {messages.map((msg) => (
+              <div key={msg.id} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
                 <div style={{
                   maxWidth: '75%',
                   padding: '11px 16px',

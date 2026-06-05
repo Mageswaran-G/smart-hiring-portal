@@ -47,7 +47,7 @@ app.use(express.json({ limit: '1mb' }));
 app.use('/uploads', (req, res, next) => {
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
   next();
-}, express.static(require('path').join(__dirname, 'uploads')));
+}, express.static(require('path').join(__dirname, 'uploads'), { maxAge: '7d' }));
 
 app.use(cookieParser());
 app.use(xssMiddleware);
@@ -79,6 +79,7 @@ app.use('/api/v1/auth/refresh', refreshLimiter);
 
 // ─── Register Routes ──────────────────────────────────────────
 
+app.get('/api/v1/auth/csrf-token', generateCsrfToken);
 app.use('/api/v1/auth',         authRoutes);
 app.use('/api/v1/users',        userRoutes);
 app.use('/api/v1/public',       publicRoutes);
@@ -89,10 +90,9 @@ app.use('/api/v1/applications', apiLimiter, writeLimiter, applicationRoutes);
 app.use('/api/v1/saved',        apiLimiter, writeLimiter, savedJobRoutes);
 app.use("/api/v1/admin",        apiLimiter, adminRoutes);
 app.use('/api/v1/ai',   aiLimiter, aiRoutes);
-app.use('/api/v1/chat', chatRoutes);
+app.use('/api/v1/chat', aiLimiter, chatRoutes);
 
 // CSRF token endpoint — frontend calls this on app load
-app.get('/api/v1/auth/csrf-token', generateCsrfToken);
 
 // Health check
 app.get('/health', (req, res) => {
