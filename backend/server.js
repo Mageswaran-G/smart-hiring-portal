@@ -89,7 +89,7 @@ app.use('/api/v1/applications', apiLimiter, writeLimiter, applicationRoutes);
 app.use('/api/v1/saved',        apiLimiter, writeLimiter, savedJobRoutes);
 app.use("/api/v1/admin",        apiLimiter, adminRoutes);
 app.use('/api/v1/ai',   aiLimiter, aiRoutes);
-app.use('/api/v1/chat', apiLimiter, writeLimiter, chatRoutes);
+app.use('/api/v1/chat', chatRoutes);
 
 // CSRF token endpoint — frontend calls this on app load
 app.get('/api/v1/auth/csrf-token', generateCsrfToken);

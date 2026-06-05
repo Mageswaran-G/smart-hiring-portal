@@ -30,7 +30,7 @@ export default function ProfileAvatar({ profile, isCandidate, theme, onPhotoUplo
         <div onClick={() => !isUploadingPhoto && fileRef.current?.click()}
           className="group w-24 h-24 rounded-full overflow-hidden cursor-pointer relative">
           <SafeAvatar
-            src={profile?.profilePhoto ? `${import.meta.env.VITE_API_URL}${profile.profilePhoto}` : ''}
+            src={profile?.profilePhoto ? `${import.meta.env.VITE_API_URL || ''}${profile.profilePhoto}` : ''}
             name={profile?.name}
             alt="Profile"
             className="w-full h-full object-cover"

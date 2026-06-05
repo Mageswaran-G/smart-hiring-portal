@@ -2,12 +2,10 @@ import { useState, useRef, useEffect } from 'react';
 import { MessageSquare, Send, Trash2 } from 'lucide-react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { sendChatMessage } from '../../services/chatService';
-import { useAuth } from '../../context/AuthContext';
 
 const PRIMARY = '#7c3aed';
 
 export default function AdminChatPage() {
-  const { profile } = useAuth();
   const [messages, setMessages] = useState([
     { role: 'bot', text: 'Hello! I am HireBot. Ask me anything about the platform — users, companies, jobs, or moderation guidance.' }
   ]);
