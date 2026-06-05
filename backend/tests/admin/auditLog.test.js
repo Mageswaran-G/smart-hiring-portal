@@ -64,7 +64,7 @@ describe('GET /api/v1/admin/audit-logs', () => {
     const suspendRes = await request(app)
       .patch(`/api/v1/admin/users/${candId}/suspend`)
       .set('Authorization', `Bearer ${adminToken}`);
-
+    expect(suspendRes.statusCode).toBe(200);
 
     // Check audit log created
     const log = await AuditLog.findOne({ action: { $in: ['suspend_user', 'unsuspend_user'] } });
