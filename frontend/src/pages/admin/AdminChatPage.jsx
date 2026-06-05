@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { MessageSquare, Send, Trash2 } from 'lucide-react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
-import { sendChatMessage } from '../../services/chatService';
+import { sendChatMessage, getChatHistory, clearChatHistory } from '../../services/chatService';
 import toast from 'react-hot-toast';
 
 const PRIMARY = '#7c3aed';
@@ -13,6 +13,21 @@ export default function AdminChatPage() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef(null);
+
+  // Load chat history from DB on mount
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const saved = await getChatHistory();
+        if (saved && saved.length > 0) {
+          setMessages(saved);
+        }
+      } catch {
+        // No history yet — keep default welcome message
+      }
+    };
+    fetchHistory();
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -49,7 +64,12 @@ export default function AdminChatPage() {
     }
   };
 
-  const handleClear = () => {
+  const handleClear = async () => {
+    try {
+      await clearChatHistory();
+    } catch {
+      // Continue even if backend clear fails
+    }
     setMessages([{ id: crypto.randomUUID(), role: 'bot', text: 'Hello! I am HireBot. Ask me anything about the platform — users, companies, jobs, or moderation guidance.' }]);
   };
 

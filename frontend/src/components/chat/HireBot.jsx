@@ -1,15 +1,30 @@
 import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Loader } from 'lucide-react';
-import { sendChatMessage } from '../../services/chatService';
+import { sendChatMessage, getChatHistory, clearChatHistory } from '../../services/chatService';
+import toast from 'react-hot-toast';
 
 export default function CandidateChatBubble() {
   const [open,    setOpen]    = useState(false);
   const [input,   setInput]   = useState('');
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([
-    { role: 'bot', text: 'Hi! I am HireBot. Ask me anything about jobs, your applications, or career advice.' }
+    { id: crypto.randomUUID(), role: 'bot', text: 'Hi! I am HireBot. Ask me anything about jobs, your applications, or career advice.' }
   ]);
   const bottomRef = useRef(null);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const saved = await getChatHistory();
+        if (saved && saved.length > 0) {
+          setMessages(saved);
+        }
+      } catch {
+        // No history yet — keep default welcome message
+      }
+    };
+    fetchHistory();
+  }, []);
 
   useEffect(() => {
     if (open) bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -18,15 +33,19 @@ export default function CandidateChatBubble() {
   const handleSend = async () => {
     if (!input.trim() || loading) return;
     const userMsg = input.trim();
+    if (userMsg.length > 1000) {
+      toast.error('Message too long. Max 1000 characters.');
+      return;
+    }
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+    setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'user', text: userMsg }]);
     setLoading(true);
     try {
-      const history = messages.map(m => ({ role: m.role, text: m.text }));
+      const history = messages.slice(-10).map(m => ({ role: m.role, text: m.text }));
       const res = await sendChatMessage(userMsg, history);
-      setMessages(prev => [...prev, { role: 'bot', text: res.reply || 'I could not generate a response.' }]);
+      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'bot', text: res.reply || 'I could not generate a response.' }]);
     } catch {
-      setMessages(prev => [...prev, { role: 'bot', text: 'Something went wrong. Please try again.' }]);
+      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'bot', text: 'Something went wrong. Please try again.' }]);
     } finally {
       setLoading(false);
     }
@@ -76,8 +95,8 @@ export default function CandidateChatBubble() {
           </div>
 
           <div style={{ flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {messages.map((msg, i) => (
-              <div key={`${msg.role}-${i}`} style={{
+            {messages.map((msg) => (
+              <div key={msg.id} style={{
                 display: 'flex',
                 justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
               }}>

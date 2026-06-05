@@ -1,17 +1,32 @@
 import { useState, useRef, useEffect } from 'react';
 import { MessageSquare, Send, X, ChevronDown } from 'lucide-react';
-import { sendChatMessage } from '../../../../services/chatService';
+import { sendChatMessage, getChatHistory, clearChatHistory } from '../../../../services/chatService';
+import toast from 'react-hot-toast';
 
 const PRIMARY = '#1e3a5f';
 
 export default function CompanyChatSidebar() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: 'bot', text: 'Hello! I am HireBot. Ask me anything about hiring, job descriptions, or candidate evaluation.' }
+    { id: crypto.randomUUID(), role: 'bot', text: 'Hello! I am HireBot. Ask me anything about hiring, job descriptions, or candidate evaluation.' }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef(null);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const saved = await getChatHistory();
+        if (saved && saved.length > 0) {
+          setMessages(saved);
+        }
+      } catch {
+        // No history yet — keep default welcome message
+      }
+    };
+    fetchHistory();
+  }, []);
 
   useEffect(() => {
     if (open) bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -20,18 +35,22 @@ export default function CompanyChatSidebar() {
   const handleSend = async () => {
     const msg = input.trim();
     if (!msg || loading) return;
+    if (msg.length > 1000) {
+      toast.error('Message too long. Max 1000 characters.');
+      return;
+    }
 
-    const userMsg = { role: 'user', text: msg };
-    const history = messages.filter(m => m.role !== 'system');
+    const userMsg = { id: crypto.randomUUID(), role: 'user', text: msg };
+    const history = messages.filter(m => m.role !== 'system').slice(-10);
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setLoading(true);
 
     try {
       const data = await sendChatMessage(msg, history);
-      setMessages(prev => [...prev, { role: 'bot', text: data.reply }]);
+      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'bot', text: data.reply }]);
     } catch {
-      setMessages(prev => [...prev, { role: 'bot', text: 'Something went wrong. Please try again.' }]);
+      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'bot', text: 'Something went wrong. Please try again.' }]);
     } finally {
       setLoading(false);
     }
@@ -102,8 +121,8 @@ export default function CompanyChatSidebar() {
 
           {/* Messages */}
           <div style={{ flex: 1, overflowY: 'auto', padding: '16px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {messages.map((msg, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
+            {messages.map((msg) => (
+              <div key={msg.id} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
                 <div style={{
                   maxWidth: '82%',
                   padding: '9px 13px',
