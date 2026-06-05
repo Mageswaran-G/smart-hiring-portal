@@ -61,13 +61,16 @@ export function useNotifications() {
 
   const handleMarkOneRead = useCallback(async (id) => {
     try {
+      const target = notifications.find(n => n._id === id);
       await markNotificationRead(id);
       setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
-      setUnreadCount(prev => Math.max(0, prev - 1));
+      if (target && !target.isRead) {
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      }
     } catch {
       // silent
     }
-  }, []);
+  }, [notifications]);
 
   const handleClearAll = useCallback(async () => {
     try {
