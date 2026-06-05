@@ -115,6 +115,10 @@ exports.updateApplicationStatus = async (req, res, next) => {
 
     if (!application) return next(new AppError('Application not found', 404));
 
+    // Prevent duplicate status
+    if (application.status === status)
+      return next(new AppError(`Application already has status: ${status}`, 400));
+
     // Security — only the company that owns the job can update
     if (application.job.postedBy._id.toString() !== companyId)
       return next(new AppError('Not authorized to update this application', 403));
