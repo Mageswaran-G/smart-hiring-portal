@@ -74,7 +74,8 @@ describe('POST /api/v1/users/upload-photo', () => {
       .post('/api/v1/users/upload-photo')
       .set('Authorization', `Bearer ${token}`)
       .attach('photo', TEST_PNG);
-    expect([200, 400]).toContain(res.statusCode);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
   });
 
   it('should reject photo upload without token', async () => {
@@ -102,6 +103,16 @@ describe('POST /api/v1/users/upload-banner', () => {
       .set('Authorization', `Bearer ${token}`)
       .attach('banner', TEST_PNG);
     expect(res.statusCode).toBe(403);
+  });
+
+  it('should allow company to upload banner', async () => {
+    const token = await getToken(companyUser());
+    const res = await request(app)
+      .post('/api/v1/users/upload-banner')
+      .set('Authorization', `Bearer ${token}`)
+      .attach('banner', TEST_PNG);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
   });
 
   it('should reject banner upload without token', async () => {
