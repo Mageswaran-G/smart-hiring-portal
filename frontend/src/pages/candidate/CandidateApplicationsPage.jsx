@@ -166,6 +166,28 @@ export default function CandidateApplicationsPage() {
                     {APPLICATION_STATUS[app.status]?.label || app.status}
                   </span>
 
+                  {/* Status Timeline */}
+                  {app.statusHistory && app.statusHistory.length > 1 && (
+                    <div className="w-full mt-3 pt-3 border-t border-gray-100">
+                      <p className="text-xs text-gray-400 font-semibold mb-2">Timeline</p>
+                      <div className="flex flex-wrap gap-2">
+                        {app.statusHistory.map((h, i) => (
+                          <div key={i} className="flex items-center gap-1 text-xs text-gray-500">
+                            <span className={`px-2 py-0.5 rounded-full font-semibold ${APPLICATION_STATUS[h.status]?.color || 'bg-gray-100 text-gray-500'}`}>
+                              {APPLICATION_STATUS[h.status]?.label || h.status}
+                            </span>
+                            <span className="text-gray-300">
+                              {new Date(h.changedAt).toLocaleDateString()}
+                            </span>
+                            {i < app.statusHistory.length - 1 && (
+                              <span className="text-gray-300">→</span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Withdraw button — only for applied/reviewing */}
                   {['applied', 'reviewing'].includes(app.status) && (
                     <button

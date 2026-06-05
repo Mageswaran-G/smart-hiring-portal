@@ -43,6 +43,15 @@ const applicationSchema = new mongoose.Schema({
     default: 'applied',
   },
 
+  // Status change history
+  statusHistory: [
+    {
+      status:    { type: String },
+      changedAt: { type: Date, default: Date.now },
+      changedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    }
+  ],
+
   // Set when candidate withdraws
   withdrawnAt: {
     type: Date,

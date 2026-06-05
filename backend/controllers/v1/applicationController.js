@@ -29,7 +29,13 @@ exports.applyToJob = async (req, res, next) => {
     const userProfile = await User.findById(candidateId).select('resume resumes');
     const resumeUrl = userProfile?.resume?.url || userProfile?.resumes?.find(r => r.isDefault)?.url || userProfile?.resumes?.[0]?.url || '';
 
-    const application = await Application.create({ candidate: candidateId, job: jobId, coverLetter: coverLetter || '', resume: resumeUrl });
+    const application = await Application.create({
+      candidate:     candidateId,
+      job:           jobId,
+      coverLetter:   coverLetter || '',
+      resume:        resumeUrl,
+      statusHistory: [{ status: 'applied', changedAt: new Date(), changedBy: candidateId }],
+    });
     await Job.findByIdAndUpdate(jobId, { $inc: { applicationsCount: 1 } });
 
     // Notify company — new application received
@@ -113,8 +119,13 @@ exports.updateApplicationStatus = async (req, res, next) => {
     if (application.job.postedBy._id.toString() !== companyId)
       return next(new AppError('Not authorized to update this application', 403));
 
-    // Save the new status
+    // Save the new status + push to history
     application.status = status;
+    application.statusHistory.push({
+      status,
+      changedAt: new Date(),
+      changedBy: companyId,
+    });
     await application.save();
 
     // Send email AFTER save — status update always succeeds even if email fails
@@ -217,6 +228,11 @@ exports.withdrawApplication = async (req, res, next) => {
     // Soft delete — keep history, just mark as withdrawn
     application.status = 'withdrawn';
     application.withdrawnAt = new Date();
+    application.statusHistory.push({
+      status:    'withdrawn',
+      changedAt: new Date(),
+      changedBy: candidateId,
+    });
     await application.save();
 
     // Decrement job applicationsCount
