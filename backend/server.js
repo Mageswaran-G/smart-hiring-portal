@@ -22,7 +22,8 @@ const { startCronJobs } = require('./utils/cronJobs');
 const aiRoutes = require('./routes/v1/aiRoutes');
 const adminRoutes = require("./routes/v1/adminRoutes");
 const chatRoutes  = require("./routes/v1/chatRoutes");
-const notificationRoutes = require("./routes/v1/notificationRoutes");
+const notificationRoutes  = require("./routes/v1/notificationRoutes");
+const interviewRoutes    = require("./routes/v1/interviewRoutes");
 const { generateCsrfToken, validateCsrf } = require('./middleware/csrfMiddleware');
 
 
@@ -93,6 +94,7 @@ app.use("/api/v1/admin",        apiLimiter, adminRoutes);
 app.use('/api/v1/ai',   aiLimiter, aiRoutes);
 app.use('/api/v1/chat', aiLimiter, chatRoutes);
 app.use('/api/v1/notifications', apiLimiter, notificationRoutes);
+app.use('/api/v1/interviews',    apiLimiter, writeLimiter, interviewRoutes);
 
 // CSRF token endpoint — frontend calls this on app load
 

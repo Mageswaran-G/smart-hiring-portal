@@ -66,6 +66,11 @@ export const API_ENDPOINTS = {
   NOTIFICATIONS:         '/notifications',
   NOTIFICATIONS_UNREAD:  '/notifications/unread-count',
   NOTIFICATIONS_READ_ALL:'/notifications/read-all',
+
+  // Interviews
+  INTERVIEWS:              '/interviews',
+  INTERVIEWS_MY:           '/interviews/my',
+  INTERVIEWS_COMPANY:      '/interviews/company',
   ADMIN_SYSTEM_HEALTH:   '/admin/system-health',
   
 };
