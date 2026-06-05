@@ -67,6 +67,23 @@ describe('POST /api/v1/chat/message', () => {
   });
 });
 
+describe('POST /api/v1/chat/message — admin', () => {
+  it('should return reply for admin message', async () => {
+    const User = require('../../models/User');
+    const admin = await User.create({ name: 'Admin User', email: `admin_${uid()}@test.com`, password: 'Admin@1234', role: 'admin' });
+    const loginRes = await request(app).post('/api/v1/auth/login').send({ email: admin.email, password: 'Admin@1234' });
+    const token = loginRes.body.data.accessToken;
+
+    const res = await request(app)
+      .post('/api/v1/chat/message')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ message: 'How many users are on the platform?' });
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.reply).toBeDefined();
+  }, 30000);
+});
+
 describe('GET /api/v1/chat/history', () => {
   it('should return chat history', async () => {
     const token = await getToken(candidateUser());
