@@ -86,6 +86,28 @@ describe('PATCH /api/v1/notifications/read-all', () => {
   });
 });
 
+describe('PATCH /api/v1/notifications/:id/read', () => {
+  it('should mark single notification as read', async () => {
+    const cToken    = await getToken(companyUser());
+    const candToken = await getToken(candidateUser());
+
+    const jobRes = await request(app).post('/api/v1/jobs').set('Authorization', `Bearer ${cToken}`)
+      .send({ title: 'Dev', description: 'Dev needed', location: 'Chennai', jobType: 'full-time', workMode: 'remote' });
+    const jobId = jobRes.body.data._id;
+    await request(app).patch(`/api/v1/jobs/${jobId}/status`).set('Authorization', `Bearer ${cToken}`).send({ status: 'published' });
+    await request(app).post(`/api/v1/applications/${jobId}/apply`).set('Authorization', `Bearer ${candToken}`).send({});
+
+    const notifRes = await request(app).get('/api/v1/notifications').set('Authorization', `Bearer ${cToken}`);
+    const notifId = notifRes.body.data.notifications[0]._id;
+
+    const res = await request(app)
+      .patch(`/api/v1/notifications/${notifId}/read`)
+      .set('Authorization', `Bearer ${cToken}`);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});
+
 describe('DELETE /api/v1/notifications', () => {
   it('should clear all notifications', async () => {
     const token = await getToken(candidateUser());
