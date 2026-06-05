@@ -7,6 +7,7 @@ export const ROUTES = {
 
   // Candidate
   CANDIDATE_DASHBOARD:     '/candidate/dashboard',
+  CANDIDATE_INTERVIEWS:    '/candidate/interviews',
   CANDIDATE_APPLICATIONS:  '/candidate/applications',
   SAVED_JOBS:              '/candidate/saved-jobs',
   RECOMMENDATIONS:         '/candidate/recommendations',     
@@ -16,6 +17,7 @@ export const ROUTES = {
   COMPANY_JOBS:            '/company/jobs',
   COMPANY_JOB_CREATE:      '/company/jobs/create',
   COMPANY_JOB_EDIT:        '/company/jobs/:id/edit',
+  COMPANY_INTERVIEWS:      '/company/interviews',
   COMPANY_APPLICATIONS:    '/company/applications',
 
   // Admin

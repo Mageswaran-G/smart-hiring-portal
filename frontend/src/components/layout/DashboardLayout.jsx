@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Briefcase, Bookmark, FileText,
   User, Users, PlusCircle, Building2, TrendingUp, Sparkles,
   Shield, LogOut, Menu, X, MessageSquare,
-} from 'lucide-react';
+, Calendar } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ROUTES } from '../../constants/routes';
 import SafeAvatar from '../ui/SafeAvatar';
@@ -25,6 +25,7 @@ const NAV_LINKS = {
     { label:'Saved Jobs',   Icon:Bookmark,        path:ROUTES.SAVED_JOBS             },
     { label:'AI Match',     Icon:Sparkles,        path:ROUTES.RECOMMENDATIONS        },
     { label:'Applications', Icon:FileText,        path:ROUTES.CANDIDATE_APPLICATIONS },
+    { label:'Interviews',   Icon:Calendar,       path:ROUTES.CANDIDATE_INTERVIEWS   },
     { label:'My Profile',   Icon:User,            path:ROUTES.PROFILE                },
   ],
   company: [
@@ -33,7 +34,8 @@ const NAV_LINKS = {
       label:'My Jobs', Icon:Briefcase, path:ROUTES.COMPANY_JOBS,
       activeWhen: (pathname) => pathname === ROUTES.COMPANY_JOBS || /^\/company\/jobs\/[^/]+\/edit$/.test(pathname),
     },
-    { label:'Applicants', Icon:Users,      path:ROUTES.COMPANY_APPLICATIONS },
+    { label:'Applicants',  Icon:Users,      path:ROUTES.COMPANY_APPLICATIONS },
+    { label:'Interviews',  Icon:Calendar,   path:ROUTES.COMPANY_INTERVIEWS   },
     { label:'Post a Job', Icon:PlusCircle, path:ROUTES.COMPANY_JOB_CREATE  },
     { label:'My Profile', Icon:Building2,  path:ROUTES.PROFILE             },
   ],

@@ -61,4 +61,19 @@ const getInterviewById = async (interviewId) => {
     .lean();
 };
 
-module.exports = { scheduleInterview, getInterviewsForCandidate, getInterviewsForCompany, updateInterviewStatus, getInterviewById };
+const rescheduleInterview = async (interviewId, companyId, { scheduledAt, meetingLink, location, notes }) => {
+  const interview = await Interview.findById(interviewId);
+  if (!interview) throw new AppError('Interview not found', 404);
+  if (interview.company.toString() !== companyId) throw new AppError('Not authorized', 403);
+  if (new Date(scheduledAt) <= new Date()) throw new AppError('Interview time must be a future date', 400);
+
+  interview.scheduledAt = new Date(scheduledAt);
+  if (meetingLink !== undefined) interview.meetingLink = meetingLink;
+  if (location    !== undefined) interview.location    = location;
+  if (notes       !== undefined) interview.notes       = notes;
+  interview.status = 'pending';
+  await interview.save();
+  return interview;
+};
+
+module.exports = { scheduleInterview, getInterviewsForCandidate, getInterviewsForCompany, updateInterviewStatus, getInterviewById, rescheduleInterview };

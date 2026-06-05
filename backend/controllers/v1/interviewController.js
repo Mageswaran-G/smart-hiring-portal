@@ -1,4 +1,4 @@
-const { scheduleInterview, getInterviewsForCandidate, getInterviewsForCompany, updateInterviewStatus, getInterviewById } = require('../../services/interviewService');
+const { scheduleInterview, getInterviewsForCandidate, getInterviewsForCompany, updateInterviewStatus, getInterviewById, rescheduleInterview } = require('../../services/interviewService');
 const Application = require('../../models/Application');
 const { createNotification } = require('../../services/notificationService');
 const AppError = require('../../utils/AppError');
@@ -11,6 +11,10 @@ exports.schedule = async (req, res, next) => {
 
     if (!applicationId || !scheduledAt) {
       return next(new AppError('applicationId and scheduledAt are required', 400));
+    }
+
+    if (new Date(scheduledAt) <= new Date()) {
+      return next(new AppError('Interview time must be a future date', 400));
     }
 
     // Verify application belongs to this company
@@ -61,6 +65,28 @@ exports.getCompanyInterviews = async (req, res, next) => {
   try {
     const interviews = await getInterviewsForCompany(req.user.id);
     return res.status(200).json({ success: true, data: { interviews } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// PATCH /api/v1/interviews/:id/reschedule — company reschedules
+exports.reschedule = async (req, res, next) => {
+  try {
+    const { scheduledAt, meetingLink, location, notes } = req.body;
+    if (!scheduledAt) return next(new AppError('scheduledAt is required', 400));
+    const interview = await rescheduleInterview(req.params.id, req.user.id, { scheduledAt, meetingLink, location, notes });
+
+    // Notify candidate about reschedule
+    await createNotification(
+      interview.candidate,
+      'interview_rescheduled',
+      'Interview Rescheduled',
+      `Your interview has been rescheduled to ${new Date(scheduledAt).toLocaleString()}`,
+      { interviewId: interview._id }
+    );
+
+    return res.status(200).json({ success: true, message: 'Interview rescheduled', data: interview });
   } catch (error) {
     next(error);
   }

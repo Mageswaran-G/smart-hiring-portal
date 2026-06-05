@@ -25,6 +25,14 @@ router.get('/company',
   ctrl.getCompanyInterviews
 );
 
+// PATCH /api/v1/interviews/:id/reschedule — company reschedules
+router.patch('/:id/reschedule',
+  validateObjectId('id'),
+  verifyToken,
+  authorizeRole('company'),
+  ctrl.reschedule
+);
+
 // PATCH /api/v1/interviews/:id/status — candidate or company updates status
 router.patch('/:id/status',
   validateObjectId('id'),

@@ -1,10 +1,10 @@
 // ApplicationCard.jsx — Single application card
 import React from 'react';
-import { Mail, MapPin, FileText } from 'lucide-react';
+import { Mail, MapPin, FileText, Calendar } from 'lucide-react';
 import SafeAvatar from '../../../../components/ui/SafeAvatar';
 import { APPLICATION_STATUS, APPLICATION_STATUS_OPTIONS } from '../../../../constants/applicationStatus';
 
-export default function ApplicationCard({ app, updating, onStatusChange }) {
+export default function ApplicationCard({ app, updating, onStatusChange, onScheduleInterview }) {
   return (
     <div className="bg-white rounded-2xl p-5 md:p-6 shadow-sm border border-gray-100">
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
@@ -97,6 +97,16 @@ export default function ApplicationCard({ app, updating, onStatusChange }) {
 
           {updating === app._id && (
             <span className="text-xs text-gray-400">Saving...</span>
+          )}
+
+          {app.status === 'shortlisted' && onScheduleInterview && (
+            <button
+              type="button"
+              onClick={() => onScheduleInterview(app)}
+              className="flex items-center gap-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-lg transition"
+            >
+              <Calendar size={12} /> Schedule Interview
+            </button>
           )}
         </div>
 

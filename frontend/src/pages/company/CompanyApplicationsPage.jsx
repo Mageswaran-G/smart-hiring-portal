@@ -13,12 +13,14 @@ import AIRankingPanel from './components/applications/AIRankingPanel';
 import ApplicationCard from './components/applications/ApplicationCard';
 import ApplicationFilters from './components/applications/ApplicationFilters';
 import ApplicationSkeleton from './components/applications/ApplicationSkeleton';
+import ScheduleInterviewModal from './components/applications/ScheduleInterviewModal';
 
 const LIMIT = 10;
 
 export default function CompanyApplicationsPage() {
   const [applications, setApplications] = useState([]);
   const [loading,      setLoading]      = useState(true);
+  const [scheduleApp,  setScheduleApp]  = useState(null);
   const [loadingMore,  setLoadingMore]  = useState(false);
   const [total,        setTotal]        = useState(0);
   const [hasMore,      setHasMore]      = useState(false);
@@ -169,6 +171,7 @@ export default function CompanyApplicationsPage() {
                 app={app}
                 updating={updating}
                 onStatusChange={handleStatusChange}
+                onScheduleInterview={setScheduleApp}
               />
             ))}
           </div>
@@ -200,5 +203,13 @@ export default function CompanyApplicationsPage() {
         </>
       )}
     </DashboardLayout>
+
+    {scheduleApp && (
+      <ScheduleInterviewModal
+        app={scheduleApp}
+        onClose={() => setScheduleApp(null)}
+        onSuccess={() => setScheduleApp(null)}
+      />
+    )}
   );
 }

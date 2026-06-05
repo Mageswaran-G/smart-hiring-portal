@@ -14,11 +14,13 @@ const ProfilePage              = lazy(() => import('./pages/ProfilePage'));
 const PublicProfilePage        = lazy(() => import('./pages/PublicProfilePage'));
 const CandidateDashboard       = lazy(() => import('./pages/candidate/CandidateDashboard'));
 const CandidateApplicationsPage= lazy(() => import('./pages/candidate/CandidateApplicationsPage'));
+const CandidateInterviewsPage   = lazy(() => import('./pages/candidate/CandidateInterviewsPage'));
 const SavedJobsPage            = lazy(() => import('./pages/candidate/SavedJobsPage'));
 const RecommendationsPage      = lazy(() => import('./pages/candidate/RecommendationsPage'));
 const CompanyDashboard         = lazy(() => import('./pages/company/CompanyDashboard'));
 const CompanyJobsPage          = lazy(() => import('./pages/company/CompanyJobsPage'));
 const CompanyApplicationsPage  = lazy(() => import('./pages/company/CompanyApplicationsPage'));
+const CompanyInterviewsPage     = lazy(() => import('./pages/company/CompanyInterviewsPage'));
 const CreateJobPage            = lazy(() => import('./pages/company/CreateJobPage'));
 const EditJobPage              = lazy(() => import('./pages/company/EditJobPage'));
 const AdminDashboard           = lazy(() => import('./pages/admin/AdminDashboard'));
@@ -72,6 +74,9 @@ export default function App() {
           } />
 
           {/* ← ADD THIS ROUTE */}
+          <Route path={ROUTES.CANDIDATE_INTERVIEWS} element={
+            <RoleRoute role="candidate"><CandidateInterviewsPage /></RoleRoute>
+          } />
           <Route path={ROUTES.CANDIDATE_APPLICATIONS} element={
             <ProtectedRoute>
               <RoleRoute allowedRoles={['candidate']}>
@@ -123,6 +128,9 @@ export default function App() {
             </ProtectedRoute>
           } />
 
+          <Route path={ROUTES.COMPANY_INTERVIEWS} element={
+            <RoleRoute role="company"><CompanyInterviewsPage /></RoleRoute>
+          } />
           <Route path={ROUTES.COMPANY_APPLICATIONS} element={
             <ProtectedRoute>
               <RoleRoute allowedRoles={['company']}>
