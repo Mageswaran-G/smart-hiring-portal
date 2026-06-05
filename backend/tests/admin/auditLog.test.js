@@ -94,9 +94,10 @@ describe('GET /api/v1/admin/audit-logs with filters', () => {
     const cand = candidateUser();
     const signupRes = await request(app).post('/api/v1/auth/signup').send(cand);
     const candId = signupRes.body.data.id;
-    await request(app)
+    const suspendRes2 = await request(app)
       .patch(`/api/v1/admin/users/${candId}/suspend`)
       .set('Authorization', `Bearer ${adminToken}`);
+    expect(suspendRes2.statusCode).toBe(200);
 
     // Filter by action
     const res = await request(app)
