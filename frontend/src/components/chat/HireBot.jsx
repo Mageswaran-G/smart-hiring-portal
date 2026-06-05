@@ -41,8 +41,7 @@ export default function CandidateChatBubble() {
     setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'user', text: userMsg }]);
     setLoading(true);
     try {
-      const history = messages.slice(-10).map(m => ({ role: m.role, text: m.text }));
-      const res = await sendChatMessage(userMsg, history);
+      const res = await sendChatMessage(userMsg);
       setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'bot', text: res.reply || 'I could not generate a response.' }]);
     } catch {
       setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'bot', text: 'Something went wrong. Please try again.' }]);

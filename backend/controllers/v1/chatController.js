@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const { getChatResponse } = require('../../ai/chatEngine');
 const User = require('../../models/User');
 const Job = require('../../models/Job');
@@ -35,7 +36,7 @@ exports.sendMessage = async (req, res) => {
       ]);
       context = {
         name:              user?.name || '',
-        skills:            user?.skills || [],
+        skills:            (user?.skills || []).map(s => typeof s === 'string' ? s : s?.name || s?.skill || String(s)).filter(Boolean),
         totalApplications: apps.length,
         shortlisted:       apps.filter(a => a.status === 'shortlisted').length,
         hired:             apps.filter(a => a.status === 'hired').length,
@@ -71,7 +72,6 @@ exports.sendMessage = async (req, res) => {
     const result = await getChatResponse(message.trim(), role, context, safeHistory);
 
     // Save both user message and bot reply to DB
-    const crypto = require('crypto');
     await saveMessages(userId, role, [
       { id: crypto.randomUUID(), role: 'user', text: message.trim() },
       { id: crypto.randomUUID(), role: 'bot',  text: result.reply },
@@ -82,7 +82,8 @@ exports.sendMessage = async (req, res) => {
       data: { reply: result.reply },
     });
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    console.error('[chatController] sendMessage error:', error);
+    return res.status(500).json({ success: false, message: 'Failed to process chat request' });
   }
 };
 
@@ -91,7 +92,8 @@ exports.getHistory = async (req, res) => {
     const messages = await loadHistory(req.user.id);
     return res.status(200).json({ success: true, data: { messages } });
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    console.error('[chatController] getHistory error:', error);
+    return res.status(500).json({ success: false, message: 'Failed to load chat history' });
   }
 };
 
@@ -100,6 +102,7 @@ exports.clearHistory = async (req, res) => {
     await clearHistory(req.user.id);
     return res.status(200).json({ success: true, message: 'Chat history cleared' });
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    console.error('[chatController] clearHistory error:', error);
+    return res.status(500).json({ success: false, message: 'Failed to clear chat history' });
   }
 };

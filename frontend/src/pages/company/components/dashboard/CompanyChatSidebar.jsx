@@ -41,13 +41,12 @@ export default function CompanyChatSidebar() {
     }
 
     const userMsg = { id: crypto.randomUUID(), role: 'user', text: msg };
-    const history = messages.filter(m => m.role !== 'system').slice(-10);
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setLoading(true);
 
     try {
-      const data = await sendChatMessage(msg, history);
+      const data = await sendChatMessage(msg);
       setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'bot', text: data.reply }]);
     } catch {
       setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'bot', text: 'Something went wrong. Please try again.' }]);
