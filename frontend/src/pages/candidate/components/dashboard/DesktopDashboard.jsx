@@ -4,8 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Briefcase, Bookmark, FileText, User,
   ChevronRight, MapPin, Search, Award,
-  Star, CheckCircle, Clock, ArrowRight,
-, Calendar } from 'lucide-react';
+  Star, CheckCircle, Clock, ArrowRight, Calendar } from 'lucide-react';
 import DashboardLayout from '../../../../components/layout/DashboardLayout';
 import SafeAvatar from '../../../../components/ui/SafeAvatar';
 import CandidateAIWidget from '../../../../components/ai/CandidateAIWidget';

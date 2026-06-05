@@ -3,8 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Briefcase, Bookmark, FileText,
   User, Users, PlusCircle, Building2, TrendingUp, Sparkles,
-  Shield, LogOut, Menu, X, MessageSquare,
-, Calendar } from 'lucide-react';
+  Shield, LogOut, Menu, X, MessageSquare, Calendar } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ROUTES } from '../../constants/routes';
 import SafeAvatar from '../ui/SafeAvatar';

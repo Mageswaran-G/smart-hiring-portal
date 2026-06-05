@@ -112,6 +112,7 @@ export default function CompanyApplicationsPage() {
   };
 
   return (
+    <>
     <DashboardLayout>
       <PageHeader
         title="Applicants"
@@ -211,5 +212,6 @@ export default function CompanyApplicationsPage() {
         onSuccess={() => setScheduleApp(null)}
       />
     )}
+    </>
   );
 }
