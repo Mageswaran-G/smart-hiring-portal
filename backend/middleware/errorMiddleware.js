@@ -19,7 +19,7 @@ exports.errorHandler = (err, req, res, next) => {
   }
 
   // Wrong file type error
-  if (err.message === 'Only PDF, DOC, and DOCX files are allowed') {
+  if (err.message && err.message.includes('Only PDF')) {
     return res.status(400).json({
       success: false,
       message: err.message
