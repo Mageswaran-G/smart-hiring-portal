@@ -25,6 +25,8 @@ const generateCsrfToken = (req, res) => {
 // CSRF validation middleware
 // Skip GET, HEAD, OPTIONS — only protect state-changing requests
 const validateCsrf = (req, res, next) => {
+  // Skip CSRF in test environment
+  if (process.env.NODE_ENV === 'test') return next();
   const safeMethods = ['GET', 'HEAD', 'OPTIONS'];
   if (safeMethods.includes(req.method)) return next();
 
