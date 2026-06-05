@@ -1,8 +1,12 @@
 const mongoose = require('mongoose');
 
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/smart-hiring-portal';
+const TEST_DB   = MONGO_URI.replace('smart-hiring-portal', 'smart-hiring-portal-test');
+
 const connectTestDB = async () => {
-  const mongoUri = process.env.MONGO_URI_TEST || process.env.MONGO_URI;
-  await mongoose.connect(mongoUri);
+  if (mongoose.connection.readyState === 0) {
+    await mongoose.connect(TEST_DB);
+  }
 };
 
 const disconnectTestDB = async () => {

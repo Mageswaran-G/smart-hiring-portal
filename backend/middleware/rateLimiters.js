@@ -2,7 +2,13 @@
 
 const rateLimit = require('express-rate-limit');
 
+// Skip rate limiting in test environment
+const isTest = process.env.NODE_ENV === 'test';
+
+const skipInTest = () => isTest;
+
 const authLimiter = rateLimit({
+  skip: skipInTest,
   windowMs: 15 * 60 * 1000,
   max: 20,
   standardHeaders: true,
@@ -11,6 +17,7 @@ const authLimiter = rateLimit({
 });
 
 const refreshLimiter = rateLimit({
+  skip: skipInTest,
   windowMs: 15 * 60 * 1000,
   max: 60,
   standardHeaders: true,
@@ -19,6 +26,7 @@ const refreshLimiter = rateLimit({
 });
 
 const apiLimiter = rateLimit({
+  skip: skipInTest,
   windowMs: 15 * 60 * 1000,
   max: 300,
   standardHeaders: true,
@@ -27,6 +35,7 @@ const apiLimiter = rateLimit({
 });
 
 const writeLimiter = rateLimit({
+  skip: skipInTest,
   windowMs: 15 * 60 * 1000,
   max: 50,
   standardHeaders: true,
@@ -36,6 +45,7 @@ const writeLimiter = rateLimit({
 });
 
 const aiLimiter = rateLimit({
+  skip: skipInTest,
   windowMs: 15 * 60 * 1000,
   max: 60,
   standardHeaders: true,
@@ -44,6 +54,7 @@ const aiLimiter = rateLimit({
 });
 
 const aiHeavyLimiter = rateLimit({
+  skip: skipInTest,
   windowMs: 15 * 60 * 1000,
   max: 10,
   standardHeaders: true,
@@ -52,6 +63,7 @@ const aiHeavyLimiter = rateLimit({
 });
 
 const chatLimiter = rateLimit({
+  skip: skipInTest,
   windowMs: 15 * 60 * 1000,
   max: 20,
   standardHeaders: true,
