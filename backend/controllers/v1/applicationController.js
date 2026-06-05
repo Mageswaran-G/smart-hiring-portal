@@ -7,6 +7,7 @@ const Job            = require('../../models/Job');
 const User           = require('../../models/User');
 const AppError       = require('../../utils/AppError');
 const { sendStatusEmail } = require('../../utils/emailService');
+const { createNotification } = require('../../services/notificationService');
 
 
 // POST /api/v1/applications/:jobId/apply
@@ -30,6 +31,15 @@ exports.applyToJob = async (req, res, next) => {
 
     const application = await Application.create({ candidate: candidateId, job: jobId, coverLetter: coverLetter || '', resume: resumeUrl });
     await Job.findByIdAndUpdate(jobId, { $inc: { applicationsCount: 1 } });
+
+    // Notify company — new application received
+    await createNotification(
+      job.postedBy,
+      'new_application',
+      'New Application Received',
+      `A candidate applied for your job: ${job.title}`,
+      { jobId: job._id, applicationId: application._id }
+    );
 
     return res.status(201).json({ success: true, message: 'Application submitted successfully', data: application });
   } catch (error) { next(error); }
@@ -116,6 +126,23 @@ exports.updateApplicationStatus = async (req, res, next) => {
       companyName:   application.job.postedBy.companyName,
       status,
     });
+
+    // Notify candidate — application status changed
+    const statusMessages = {
+      reviewing:   'Your application is being reviewed',
+      shortlisted: 'Congratulations! You have been shortlisted',
+      rejected:    'Your application was not selected this time',
+      hired:       'Congratulations! You have been hired',
+    };
+    if (statusMessages[status]) {
+      await createNotification(
+        application.candidate._id,
+        `application_${status}`,
+        `Application ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+        `${statusMessages[status]} for ${application.job.title} at ${application.job.postedBy.companyName}`,
+        { jobId: application.job._id, applicationId: application._id }
+      );
+    }
 
     return res.status(200).json({ success: true, message: `Status updated to ${status}`, data: application });
   } catch (error) { next(error); }

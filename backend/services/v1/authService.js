@@ -4,6 +4,7 @@ const AppError = require('../../utils/AppError');
 const { hashToken, compareToken } = require('../../utils/hashToken');
 const { generateAccessToken, generateRefreshToken } = require('../../utils/generateToken');
 const logger = require('../../utils/logger');
+const { createNotification } = require('../notificationService');
 
 // SIGNUP SERVICE
 exports.signup = async ({ name, email, password, role }) => {
@@ -51,6 +52,20 @@ exports.signup = async ({ name, email, password, role }) => {
   });
 
   logger.info(`New user registered: ${email} as ${safeRole}`);
+
+  // Notify all admins when a new company registers
+  if (safeRole === 'company') {
+    const admins = await User.find({ role: 'admin', isDeleted: { $ne: true } }).select('_id').lean();
+    await Promise.all(admins.map(admin =>
+      createNotification(
+        admin._id,
+        'new_company',
+        'New Company Registered',
+        `A new company "${name}" has registered on the platform.`,
+        { companyEmail: email }
+      )
+    ));
+  }
 
   return {
     id:    user._id,
