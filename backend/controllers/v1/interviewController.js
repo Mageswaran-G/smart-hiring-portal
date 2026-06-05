@@ -25,6 +25,9 @@ exports.schedule = async (req, res, next) => {
     if (application.job.postedBy.toString() !== companyId) {
       return next(new AppError('Not authorized', 403));
     }
+    if (application.status !== 'shortlisted') {
+      return next(new AppError('Only shortlisted candidates can be scheduled for an interview', 400));
+    }
 
     const interview = await scheduleInterview({
       candidateId:   application.candidate._id,

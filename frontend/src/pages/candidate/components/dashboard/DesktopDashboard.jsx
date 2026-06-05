@@ -5,7 +5,7 @@ import {
   Briefcase, Bookmark, FileText, User,
   ChevronRight, MapPin, Search, Award,
   Star, CheckCircle, Clock, ArrowRight,
-} from 'lucide-react';
+, Calendar } from 'lucide-react';
 import DashboardLayout from '../../../../components/layout/DashboardLayout';
 import SafeAvatar from '../../../../components/ui/SafeAvatar';
 import CandidateAIWidget from '../../../../components/ai/CandidateAIWidget';
@@ -106,6 +106,7 @@ export default function DesktopDashboard({
               { label:'Total Applied',  value:applications.length, sub:'jobs applied',   Icon:FileText, color:C.primary, trend:appTrend,   id:'a'  },
               { label:'Jobs Saved',     value:savedCount,           sub:'bookmarked',     Icon:Bookmark, color:'#8b5cf6', trend:savedTrend, id:'s'  },
               { label:'Shortlisted',    value:shortlisted,          sub:'by companies',   Icon:Star,     color:'#0891b2', trend:shortTrend, id:'sh' },
+              { label:'Interviews',     value:interviewCount,       sub:'scheduled',      Icon:Calendar, color:'#059669', trend:[0,0,0,0,0,0,interviewCount], id:'iv' },
               { label:'Hired',          value:hired,                sub:'offer received', Icon:Award,    color:'#059669', trend:hiredTrend, id:'h'  },
             ].map(({ label, value, sub, Icon, color, trend, id }) => (
               <div key={label} style={{ background:'#fff', borderRadius:18, padding:'22px', boxShadow:'0 1px 5px rgba(0,0,0,0.06)', border:`1px solid ${C.gray100}` }}>

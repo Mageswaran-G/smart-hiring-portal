@@ -5,6 +5,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getMyApplications, getMyApplicationTrend } from '../../services/applicationService';
+import { getMyInterviews } from '../../services/interviewService';
 import { getSavedJobIds } from '../../services/savedJobService';
 import { getAllJobs } from '../../services/jobService';
 import { ROUTES } from '../../constants/routes';
@@ -27,6 +28,7 @@ export default function CandidateDashboard() {
   const [appTrendData, setAppTrendData] = useState([0,0,0,0,0,0,0]);
   const [loading,      setLoading]      = useState(true);
 
+  const [interviewCount, setInterviewCount] = useState(0);
   const fetchedRef = useRef(false);
 
   useEffect(() => {
@@ -34,16 +36,18 @@ export default function CandidateDashboard() {
     fetchedRef.current = true;
     (async () => {
       try {
-        const [apps, savedIds, jobsRes, trendRes] = await Promise.all([
+        const [apps, savedIds, jobsRes, trendRes, interviews] = await Promise.all([
           getMyApplications(),
           getSavedJobIds(),
           getAllJobs({ limit: 4 }),
           getMyApplicationTrend(),
+          getMyInterviews(),
         ]);
         setApplications(Array.isArray(apps) ? apps : []);
         setSavedCount(Array.isArray(savedIds) ? savedIds.length : 0);
         const jArr = Array.isArray(jobsRes) ? jobsRes : (jobsRes?.jobs || jobsRes?.data || []);
         setJobs(jArr);
+        setInterviewCount(Array.isArray(interviews) ? interviews.length : 0);
         const trendArr = trendRes?.data?.trend;
         if (Array.isArray(trendArr) && trendArr.length === 7) setAppTrendData(trendArr);
       } catch (err) {
@@ -84,6 +88,7 @@ export default function CandidateDashboard() {
     profile, applications, savedCount,
     shortlisted, hired, completion, jobs,
     appTrend, savedTrend, shortTrend, hiredTrend,
+    interviewCount,
   };
 
   if (isMobile) {
