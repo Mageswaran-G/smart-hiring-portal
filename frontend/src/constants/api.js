@@ -61,6 +61,11 @@ export const API_ENDPOINTS = {
   ADMIN_DELETE_JOB:      (id) => `/admin/jobs/${id}`,
   CHAT_MESSAGE:          '/chat/message',
   CHAT_HISTORY:          '/chat/history',
+
+  // Notifications
+  NOTIFICATIONS:         '/notifications',
+  NOTIFICATIONS_UNREAD:  '/notifications/unread-count',
+  NOTIFICATIONS_READ_ALL:'/notifications/read-all',
   ADMIN_SYSTEM_HEALTH:   '/admin/system-health',
   
 };

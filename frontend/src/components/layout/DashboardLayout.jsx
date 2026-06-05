@@ -8,6 +8,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { ROUTES } from '../../constants/routes';
 import SafeAvatar from '../ui/SafeAvatar';
+import NotificationBell from '../notifications/NotificationBell';
 import { useTheme } from '../../context/ThemeContext';
 
 
@@ -148,6 +149,9 @@ export default function DashboardLayout({ children }) {
 
         {/* Right side */}
         <div style={{ display:'flex', alignItems:'center', gap:10, flexShrink:0 }} className="header-right">
+
+          {/* Notification Bell */}
+          <NotificationBell />
 
           {/* User info — desktop */}
           <div style={{ textAlign:'right' }} className="desktop-userinfo">

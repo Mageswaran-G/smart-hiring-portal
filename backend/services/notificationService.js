@@ -3,6 +3,16 @@ const Notification = require('../models/Notification');
 const createNotification = async (userId, type, title, message, metadata = {}) => {
   try {
     await Notification.create({ user: userId, type, title, message, metadata });
+
+    // Keep only latest 100 notifications per user
+    const oldest = await Notification.find({ user: userId })
+      .sort({ createdAt: -1 })
+      .skip(100)
+      .select('_id')
+      .lean();
+    if (oldest.length > 0) {
+      await Notification.deleteMany({ _id: { $in: oldest.map(n => n._id) } });
+    }
   } catch (error) {
     console.error('[notificationService] createNotification error:', error);
   }
