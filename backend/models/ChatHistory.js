@@ -8,11 +8,11 @@ const messageSchema = new mongoose.Schema({
 });
 
 const chatHistorySchema = new mongoose.Schema({
-  user:     { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+  user:     { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   role:     { type: String, enum: ['candidate', 'company', 'admin'], required: true },
   messages: { type: [messageSchema], default: [] },
 }, { timestamps: true });
 
-chatHistorySchema.index({ user: 1 });
+chatHistorySchema.index({ user: 1 }, { unique: true });
 
 module.exports = mongoose.model('ChatHistory', chatHistorySchema);
