@@ -65,6 +65,25 @@ describe('Admin — Platform Stats', () => {
   });
 });
 
+describe('Admin — Company List', () => {
+  it('should return companies list for admin', async () => {
+    const { adminToken } = await createAdmin();
+    const res = await request(app)
+      .get('/api/v1/admin/companies')
+      .set('Authorization', `Bearer ${adminToken}`);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('should reject companies list for candidate', async () => {
+    const token = await getToken(candidateUser());
+    const res = await request(app)
+      .get('/api/v1/admin/companies')
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.statusCode).toBe(403);
+  });
+});
+
 describe('Admin — Company Verification', () => {
   it('should allow admin to verify a company', async () => {
     const { adminToken } = await createAdmin();
@@ -120,6 +139,38 @@ describe('Admin — User Suspension', () => {
     // Toggle back — unsuspend
     const res = await request(app)
       .patch(`/api/v1/admin/users/${user._id}/suspend`)
+      .set('Authorization', `Bearer ${adminToken}`);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});
+
+describe('Admin — Soft Delete User', () => {
+  it('should allow admin to soft delete a user', async () => {
+    const { adminToken } = await createAdmin();
+    const cData = candidateUser();
+    await request(app).post('/api/v1/auth/signup').send(cData);
+    const user = await User.findOne({ email: cData.email });
+
+    const res = await request(app)
+      .delete(`/api/v1/admin/users/${user._id}`)
+      .set('Authorization', `Bearer ${adminToken}`);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('should allow admin to restore a soft deleted user', async () => {
+    const { adminToken } = await createAdmin();
+    const cData = candidateUser();
+    await request(app).post('/api/v1/auth/signup').send(cData);
+    const user = await User.findOne({ email: cData.email });
+
+    // Soft delete first
+    await request(app).delete(`/api/v1/admin/users/${user._id}`).set('Authorization', `Bearer ${adminToken}`);
+
+    // Restore
+    const res = await request(app)
+      .patch(`/api/v1/admin/users/${user._id}/restore`)
       .set('Authorization', `Bearer ${adminToken}`);
     expect(res.statusCode).toBe(200);
     expect(res.body.success).toBe(true);
