@@ -117,8 +117,7 @@ describe('POST /api/v1/users/upload-banner', () => {
 
   it('should reject banner upload without token', async () => {
     const res = await request(app)
-      .post('/api/v1/users/upload-banner')
-      .attach('banner', TEST_PNG);
+      .post('/api/v1/users/upload-banner');
     expect(res.statusCode).toBe(401);
   });
 });
