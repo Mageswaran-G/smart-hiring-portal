@@ -2,6 +2,7 @@ const User        = require('../../models/User');
 const Job         = require('../../models/Job');
 const Application = require('../../models/Application');
 const AppError    = require('../../utils/AppError');
+const { createAuditLog } = require('../../services/auditLogService');
 
 
 // ─────────────────────────────────────────────────────
@@ -159,6 +160,14 @@ exports.verifyCompany = async (req, res, next) => {
     // Step 5 — send back the updated company
     const action = company.isVerified ? 'verified' : 'unverified';
 
+    await createAuditLog(
+      req.user.id,
+      `${action}_company`,
+      'company',
+      company._id,
+      `Admin ${action} company: ${company.companyName || company.name}`
+    );
+
     return res.status(200).json({
       success: true,
       message: `${company.companyName || company.name} has been ${action}`,
@@ -195,6 +204,14 @@ exports.suspendCompany = async (req, res) => {
     company.isSuspended = !company.isSuspended;
 
     await company.save();
+
+    await createAuditLog(
+      req.user.id,
+      company.isSuspended ? 'suspend_company' : 'unsuspend_company',
+      'company',
+      company._id,
+      `Admin ${company.isSuspended ? 'suspended' : 'unsuspended'} company: ${company.companyName || company.name}`
+    );
 
     res.json({
       success: true,
@@ -277,6 +294,14 @@ exports.deleteUser = async (req, res) => {
     user.refreshToken = null;
     await user.save();
 
+    await createAuditLog(
+      req.user.id,
+      'delete_user',
+      'user',
+      user._id,
+      `Admin soft-deleted user: ${user.name} (${user.email})`
+    );
+
     res.json({ success: true, message: "User deleted successfully" });
 
   } catch (error) {
@@ -299,6 +324,14 @@ exports.suspendUser = async (req, res) => {
 
     user.isSuspended = !user.isSuspended;
     await user.save();
+
+    await createAuditLog(
+      req.user.id,
+      user.isSuspended ? 'suspend_user' : 'unsuspend_user',
+      'user',
+      user._id,
+      `Admin ${user.isSuspended ? 'suspended' : 'unsuspended'} user: ${user.name} (${user.email})`
+    );
 
     res.json({
       success: true,
@@ -336,6 +369,14 @@ exports.restoreUser = async (req, res) => {
     user.deletedAt = null;
     user.isSuspended = false; 
     await user.save();
+
+    await createAuditLog(
+      req.user.id,
+      'restore_user',
+      'user',
+      user._id,
+      `Admin restored user: ${user.name} (${user.email})`
+    );
 
     res.json({ success: true, message: "User restored successfully" });
 
@@ -416,6 +457,14 @@ exports.closeJob = async (req, res) => {
     job.status = "closed";
     await job.save();
 
+    await createAuditLog(
+      req.user.id,
+      'close_job',
+      'job',
+      job._id,
+      `Admin force-closed job: ${job.title}`
+    );
+
     res.json({ success: true, message: "Job closed successfully" });
 
   } catch (error) {
@@ -432,6 +481,15 @@ exports.deleteJob = async (req, res) => {
       { returnDocument: 'after' }
     );
     if (!job) return res.status(404).json({ success: false, message: 'Job not found' });
+
+    await createAuditLog(
+      req.user.id,
+      'delete_job',
+      'job',
+      job._id,
+      `Admin soft-deleted job: ${job.title}`
+    );
+
     res.json({ success: true, message: 'Job deleted successfully' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -701,5 +759,39 @@ exports.getSystemHealth = async (req, res) => {
         storage:  'offline',
       }
     });
+  }
+};
+
+// GET /api/v1/admin/audit-logs
+// Returns paginated admin activity logs
+exports.getAuditLogs = async (req, res, next) => {
+  try {
+    const AuditLog = require('../../models/AuditLog');
+    const page      = Math.max(1, parseInt(req.query.page)  || 1);
+    const limit     = Math.min(50, parseInt(req.query.limit) || 20);
+    const skip      = (page - 1) * limit;
+    const action     = req.query.action     || null;
+    const targetType = req.query.targetType || null;
+
+    const query = {};
+    if (action)     query.action     = action;
+    if (targetType) query.targetType = targetType;
+
+    const [logs, total] = await Promise.all([
+      AuditLog.find(query)
+        .populate('performedBy', 'name email')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      AuditLog.countDocuments(query),
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      data: logs,
+      pagination: { total, page, limit, hasMore: skip + logs.length < total },
+    });
+  } catch (error) {
+    next(error);
   }
 };

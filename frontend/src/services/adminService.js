@@ -75,3 +75,8 @@ export const getAIHealthMetrics = async () => {
   const res = await API.get('/admin/ai-health');
   return res.data;
 };
+// Get admin audit logs (paginated)
+export const getAuditLogs = async (params = {}) => {
+  const response = await API.get('/admin/audit-logs', { params });
+  return response.data;
+};

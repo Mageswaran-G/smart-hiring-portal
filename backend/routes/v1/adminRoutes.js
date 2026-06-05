@@ -64,5 +64,13 @@ router.get("/action-center", getActionCenter);
 router.get('/ai-health', getAIHealthMetrics);
 router.get("/system-health", getSystemHealth);
 
+// GET /api/v1/admin/audit-logs
+router.get(
+  '/audit-logs',
+  verifyToken,
+  authorizeRole('admin'),
+  adminController.getAuditLogs
+);
+
 module.exports = router;
 // Jobs moderation routes

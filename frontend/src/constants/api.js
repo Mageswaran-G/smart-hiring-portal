@@ -35,6 +35,9 @@ export const API_ENDPOINTS = {
   UPDATE_APPLICATION_STATUS: (id) => `/applications/${id}/status`,
   WITHDRAW_APPLICATION:      (id) => `/applications/${id}/withdraw`,
 
+  // Admin
+  ADMIN_AUDIT_LOGS: '/admin/audit-logs',
+
   // ── Saved Jobs ───────────────────────────────────────
   SAVED_JOBS:   '/saved',
   SAVED_JOB_IDS: '/saved/ids',

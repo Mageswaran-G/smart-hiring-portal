@@ -45,6 +45,7 @@ const NAV_LINKS = {
     { label:'Jobs',      Icon:Briefcase,       path:'/admin/jobs'           },
     { label:'Analytics', Icon:TrendingUp,      path:'/admin/analytics'      },
     { label:'HireBot',   Icon:MessageSquare,  path:ROUTES.ADMIN_CHAT         },
+    { label:'Audit Logs', Icon:Shield,          path:ROUTES.ADMIN_AUDIT_LOGS   },
   ],
 };
 
