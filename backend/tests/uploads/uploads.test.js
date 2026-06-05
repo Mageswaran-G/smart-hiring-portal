@@ -80,8 +80,7 @@ describe('POST /api/v1/users/upload-photo', () => {
 
   it('should reject photo upload without token', async () => {
     const res = await request(app)
-      .post('/api/v1/users/upload-photo')
-      .attach('photo', TEST_PNG);
+      .post('/api/v1/users/upload-photo');
     expect(res.statusCode).toBe(401);
   });
 

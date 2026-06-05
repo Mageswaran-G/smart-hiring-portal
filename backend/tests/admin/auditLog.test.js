@@ -84,3 +84,28 @@ describe('GET /api/v1/admin/audit-logs', () => {
   });
 
 });
+
+describe('GET /api/v1/admin/audit-logs with filters', () => {
+
+  it('should filter audit logs by action', async () => {
+    const adminToken = await createAdmin();
+
+    // Create and suspend a candidate to generate a log
+    const cand = candidateUser();
+    const signupRes = await request(app).post('/api/v1/auth/signup').send(cand);
+    const candId = signupRes.body.data.id;
+    await request(app)
+      .patch(`/api/v1/admin/users/${candId}/suspend`)
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    // Filter by action
+    const res = await request(app)
+      .get('/api/v1/admin/audit-logs?action=suspend_user')
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.every(l => l.action === 'suspend_user')).toBe(true);
+  });
+
+});
