@@ -69,4 +69,3 @@ router.get("/system-health", getSystemHealth);
 router.get('/audit-logs', getAuditLogs);
 
 module.exports = router;
-// Jobs moderation routes
