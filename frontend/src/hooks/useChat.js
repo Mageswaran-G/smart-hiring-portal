@@ -33,7 +33,7 @@ export function useChat(welcomeMessage) {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const sendMessage = async () => {
+  const sendMessage = useCallback(async () => {
     const msg = input.trim();
     if (!msg || loading) return;
     if (msg.length > 1000) {
@@ -53,23 +53,23 @@ export function useChat(welcomeMessage) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [input, loading]);
 
-  const clearChat = async () => {
+  const clearChat = useCallback(async () => {
     try {
       await clearChatHistory();
     } catch {
       // Continue even if backend clear fails
     }
     setMessages([createWelcome()]);
-  };
+  }, [createWelcome]);
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = useCallback((e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
-  };
+  }, [sendMessage]);
 
   return {
     messages,
