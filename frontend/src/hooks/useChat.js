@@ -1,11 +1,14 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { generateId } from '../utils/generateId';
 import { sendChatMessage, getChatHistory, clearChatHistory } from '../services/chatService';
 import toast from 'react-hot-toast';
 
 export function useChat(welcomeMessage) {
-  const [messages, setMessages] = useState([
-    { id: crypto.randomUUID(), role: 'bot', text: welcomeMessage }
-  ]);
+  const createWelcome = useCallback(() => ({
+    id: generateId(), role: 'bot', text: welcomeMessage
+  }), [welcomeMessage]);
+
+  const [messages, setMessages] = useState(() => [createWelcome()]);
   const [input, setInput]     = useState('');
   const [loading, setLoading] = useState(false);
   const bottomRef             = useRef(null);
@@ -38,15 +41,15 @@ export function useChat(welcomeMessage) {
       return;
     }
 
-    setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'user', text: msg }]);
+    setMessages(prev => [...prev, { id: generateId(), role: 'user', text: msg }]);
     setInput('');
     setLoading(true);
 
     try {
       const data = await sendChatMessage(msg);
-      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'bot', text: data.reply }]);
+      setMessages(prev => [...prev, { id: generateId(), role: 'bot', text: data.reply }]);
     } catch {
-      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'bot', text: 'Something went wrong. Please try again.' }]);
+      setMessages(prev => [...prev, { id: generateId(), role: 'bot', text: 'Something went wrong. Please try again.' }]);
     } finally {
       setLoading(false);
     }
@@ -58,7 +61,7 @@ export function useChat(welcomeMessage) {
     } catch {
       // Continue even if backend clear fails
     }
-    setMessages([{ id: crypto.randomUUID(), role: 'bot', text: welcomeMessage }]);
+    setMessages([createWelcome()]);
   };
 
   const handleKeyDown = (e) => {
