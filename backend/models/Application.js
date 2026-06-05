@@ -54,10 +54,14 @@ const applicationSchema = new mongoose.Schema({
 });
 
 
-// Prevent duplicate applications
+// Prevent duplicate active applications
+// Allow reapply after withdraw
 applicationSchema.index(
   { candidate: 1, job: 1 },
-  { unique: true }
+  {
+    unique: true,
+    partialFilterExpression: { status: { $ne: 'withdrawn' } },
+  }
 );
 
 applicationSchema.index({ status: 1 });

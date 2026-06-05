@@ -210,8 +210,8 @@ exports.withdrawApplication = async (req, res, next) => {
     if (application.candidate.toString() !== candidateId)
       return next(new AppError('Not authorized to withdraw this application', 403));
 
-    // Cannot withdraw if already hired or rejected
-    if (['hired', 'rejected'].includes(application.status))
+    // Cannot withdraw if already hired, rejected, or withdrawn
+    if (['hired', 'rejected', 'withdrawn'].includes(application.status))
       return next(new AppError(`Cannot withdraw a ${application.status} application`, 400));
 
     // Soft delete — keep history, just mark as withdrawn
