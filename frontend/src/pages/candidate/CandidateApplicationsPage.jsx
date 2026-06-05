@@ -9,7 +9,7 @@ import DashboardLayout                     from '../../components/layout/Dashboa
 import PageHeader                          from '../../components/ui/PageHeader';
 import EmptyState                          from '../../components/ui/EmptyState';
 import { APPLICATION_STATUS }             from '../../constants/applicationStatus';
-import { getMyApplicationsPaginated }     from '../../services/applicationService';
+import { getMyApplicationsPaginated, withdrawApplication } from '../../services/applicationService';
 import { ROUTES }                          from '../../constants/routes';
 
 const LIMIT = 10; // how many to load per page
@@ -25,6 +25,7 @@ export default function CandidateApplicationsPage() {
   const [page,         setPage]         = useState(1);
   const [hasMore,      setHasMore]      = useState(false);
   const [total,        setTotal]        = useState(0);
+  const [withdrawingId, setWithdrawingId] = useState(null);
 
   // ── Load first page on mount ──────────────────────────────
   useEffect(() => {
@@ -62,6 +63,22 @@ export default function CandidateApplicationsPage() {
   const handleLoadMore = () => {
     setLoadingMore(true);
     loadPage(page + 1, false);  // next page, append mode
+  };
+
+  // ── Withdraw handler ─────────────────────────────────────
+  const handleWithdraw = async (appId) => {
+    if (!window.confirm('Are you sure you want to withdraw this application?')) return;
+    try {
+      setWithdrawingId(appId);
+      await withdrawApplication(appId);
+      setApplications(prev => prev.filter(a => a._id !== appId));
+      setTotal(prev => prev - 1);
+      toast.success('Application withdrawn');
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Failed to withdraw');
+    } finally {
+      setWithdrawingId(null);
+    }
   };
 
   // ── Loading state — first load only ──────────────────────
@@ -148,6 +165,17 @@ export default function CandidateApplicationsPage() {
                   `}>
                     {APPLICATION_STATUS[app.status]?.label || app.status}
                   </span>
+
+                  {/* Withdraw button — only for applied/reviewing */}
+                  {['applied', 'reviewing'].includes(app.status) && (
+                    <button
+                      onClick={() => handleWithdraw(app._id)}
+                      disabled={withdrawingId === app._id}
+                      className="px-3 py-1 rounded-full text-xs font-bold border border-red-200 text-red-500 hover:bg-red-50 hover:border-red-400 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {withdrawingId === app._id ? 'Withdrawing...' : 'Withdraw'}
+                    </button>
+                  )}
 
                   {/* Job Type Badge */}
                   {app.job?.jobType && (

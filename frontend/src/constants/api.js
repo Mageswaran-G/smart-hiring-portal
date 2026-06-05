@@ -33,6 +33,7 @@ export const API_ENDPOINTS = {
   // ── Applications — Company ───────────────────────────
   COMPANY_APPLICATIONS:      '/applications/company',
   UPDATE_APPLICATION_STATUS: (id) => `/applications/${id}/status`,
+  WITHDRAW_APPLICATION:      (id) => `/applications/${id}/withdraw`,
 
   // ── Saved Jobs ───────────────────────────────────────
   SAVED_JOBS:   '/saved',

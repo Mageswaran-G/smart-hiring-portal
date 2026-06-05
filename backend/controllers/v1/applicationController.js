@@ -192,3 +192,42 @@ exports.getMyApplicationTrend = async (req, res, next) => {
     return res.status(200).json({ success: true, data: { trend } });
   } catch (error) { next(error); }
 };
+
+
+// DELETE /api/v1/applications/:applicationId/withdraw
+// Candidate withdraws their own application
+exports.withdrawApplication = async (req, res, next) => {
+  try {
+    const { applicationId } = req.params;
+    const candidateId       = req.user.id;
+
+    const application = await Application.findById(applicationId)
+      .populate({ path: 'job', select: 'title postedBy' });
+
+    if (!application) return next(new AppError('Application not found', 404));
+
+    // Security — only the candidate who applied can withdraw
+    if (application.candidate.toString() !== candidateId)
+      return next(new AppError('Not authorized to withdraw this application', 403));
+
+    // Cannot withdraw if already hired or rejected
+    if (['hired', 'rejected'].includes(application.status))
+      return next(new AppError(`Cannot withdraw a ${application.status} application`, 400));
+
+    await Application.findByIdAndDelete(applicationId);
+
+    // Decrement job applicationsCount
+    await Job.findByIdAndUpdate(application.job._id, { $inc: { applicationsCount: -1 } });
+
+    // Notify company — candidate withdrew
+    await createNotification(
+      application.job.postedBy,
+      'application_withdrawn',
+      'Application Withdrawn',
+      `A candidate withdrew their application for: ${application.job.title}`,
+      { jobId: application.job._id, applicationId: application._id }
+    );
+
+    return res.status(200).json({ success: true, message: 'Application withdrawn successfully' });
+  } catch (error) { next(error); }
+};

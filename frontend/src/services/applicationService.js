@@ -60,3 +60,8 @@ export const getMyApplicationTrend = async () => {
   const res = await API.get(API_ENDPOINTS.MY_APPLICATIONS_TREND);
   return res.data;
 };
+// ─── Candidate withdraws their application ────────────────────
+export const withdrawApplication = async (applicationId) => {
+  const res = await API.delete(API_ENDPOINTS.WITHDRAW_APPLICATION(applicationId));
+  return res.data;
+};

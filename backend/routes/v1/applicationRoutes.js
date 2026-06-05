@@ -30,6 +30,14 @@ router.post(
   applicationController.applyToJob
 );
 
+// DELETE /api/v1/applications/:applicationId/withdraw
+router.delete(
+  '/:applicationId/withdraw',
+  verifyToken,
+  authorizeRole('candidate'),
+  applicationController.withdrawApplication
+);
+
 // ─── Company routes ──────────────────────────────────────────
 
 // GET  /api/v1/applications/company
