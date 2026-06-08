@@ -146,6 +146,11 @@ const getAllJobs = async (req, res) => {
 // ─────────────────────────────────────────
 // GET SINGLE JOB — Public
 // ─────────────────────────────────────────
+// Helper — increment job view count, fire and forget
+const incrementJobView = (jobId) => {
+  Job.findByIdAndUpdate(jobId, { $inc: { views: 1 } }).catch(() => {});
+};
+
 const getJobById = async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
@@ -162,8 +167,7 @@ const getJobById = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Job not found' });
     }
 
-    // Increment view count — fire and forget, never block the response
-    Job.findByIdAndUpdate(job._id, { $inc: { views: 1 } }).catch(() => {});
+    incrementJobView(job._id);
 
     res.json({ success: true, data: job });
   } catch (error) {
@@ -436,8 +440,7 @@ const getJobBySlug = async (req, res) => {
       });
     }
 
-    // Increment view count — fire and forget, never block the response
-    Job.findByIdAndUpdate(job._id, { $inc: { views: 1 } }).catch(() => {});
+    incrementJobView(job._id);
 
     res.json({ success: true, data: job });
   } catch (error) {
