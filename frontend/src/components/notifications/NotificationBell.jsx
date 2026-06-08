@@ -1,9 +1,11 @@
 import { useRef, useEffect } from 'react';
 import { Bell } from 'lucide-react';
 import { useNotifications } from '../../hooks/useNotifications';
+import { useAuth } from '../../context/AuthContext';
 import NotificationDropdown from './NotificationDropdown';
 
 export default function NotificationBell() {
+  const { user } = useAuth();
   const {
     notifications, unreadCount, loading, open,
     handleOpen, handleClose, handleMarkAllRead, handleMarkOneRead, handleClearAll,
@@ -51,6 +53,7 @@ export default function NotificationBell() {
       {open && (
         <NotificationDropdown
           notifications={notifications}
+          userRole={user?.role}
           loading={loading}
           onClose={handleClose}
           onMarkAllRead={handleMarkAllRead}

@@ -1,7 +1,7 @@
 import { X, CheckCheck, Trash2 } from 'lucide-react';
 import NotificationItem from './NotificationItem';
 
-export default function NotificationDropdown({ notifications, loading, onClose, onMarkAllRead, onMarkOneRead, onClearAll }) {
+export default function NotificationDropdown({ notifications, loading, onClose, onMarkAllRead, onMarkOneRead, onClearAll, userRole }) {
   return (
     <div style={{
       position: 'absolute', top: '100%', right: 0, zIndex: 1000,
@@ -44,7 +44,7 @@ export default function NotificationDropdown({ notifications, loading, onClose, 
           </div>
         )}
         {!loading && notifications.map(n => (
-          <NotificationItem key={n._id} notification={n} onRead={onMarkOneRead} />
+          <NotificationItem key={n._id} notification={n} onRead={onMarkOneRead} userRole={userRole} onClose={onClose} />
         ))}
       </div>
     </div>
