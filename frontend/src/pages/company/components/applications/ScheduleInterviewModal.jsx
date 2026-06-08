@@ -3,6 +3,13 @@ import { X, Calendar, Link, MapPin, FileText } from 'lucide-react';
 import { scheduleInterview } from '../../../../services/interviewService';
 import toast from 'react-hot-toast';
 
+// Returns local datetime string for min attribute — avoids UTC offset issues
+const getMinDateTime = () => {
+  const now = new Date(Date.now() + 60000);
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  return now.toISOString().slice(0, 16);
+};
+
 export default function ScheduleInterviewModal({ app, onClose, onSuccess }) {
   const [form, setForm] = useState({
     scheduledAt: '',
@@ -72,7 +79,7 @@ export default function ScheduleInterviewModal({ app, onClose, onSuccess }) {
           <div>
             <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 6 }}>Date and Time</label>
             <input type="datetime-local" name="scheduledAt" value={form.scheduledAt} onChange={handleChange}
-              min={new Date(Date.now() + 60000).toISOString().slice(0, 16)}
+              min={getMinDateTime()}
               style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: 10, padding: '9px 12px', fontSize: 13, outline: 'none', boxSizing: 'border-box', color: '#1e293b', background: '#fff' }} />
           </div>
 
