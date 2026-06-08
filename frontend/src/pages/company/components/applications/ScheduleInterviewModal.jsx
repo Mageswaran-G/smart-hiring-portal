@@ -74,7 +74,7 @@ export default function ScheduleInterviewModal({ app, onClose, onSuccess }) {
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
       <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 20, width: '100%', maxWidth: 480, padding: 28, boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
 
         {/* Header */}
@@ -137,7 +137,7 @@ export default function ScheduleInterviewModal({ app, onClose, onSuccess }) {
 
           {/* Buttons */}
           <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
-            <button type="button" onClick={onClose} style={{ flex: 1, padding: '10px', border: '1px solid #e2e8f0', borderRadius: 10, background: '#fff', fontSize: 13, fontWeight: 600, color: '#64748b', cursor: 'pointer' }}>
+            <button type="button" onClick={onClose} disabled={loading} style={{ flex: 1, padding: '10px', border: '1px solid #e2e8f0', borderRadius: 10, background: '#fff', fontSize: 13, fontWeight: 600, color: loading ? '#94a3b8' : '#64748b', cursor: loading ? 'not-allowed' : 'pointer' }}>
               Cancel
             </button>
             <button type="button" onClick={handleSubmit} disabled={loading}
