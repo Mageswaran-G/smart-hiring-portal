@@ -62,14 +62,14 @@ export default function ScheduleInterviewModal({ app, onClose, onSuccess }) {
           <div>
             <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 6 }}>Date and Time</label>
             <input type="datetime-local" name="scheduledAt" value={form.scheduledAt} onChange={handleChange}
-              style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: 10, padding: '9px 12px', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+              style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: 10, padding: '9px 12px', fontSize: 13, outline: 'none', boxSizing: 'border-box', color: '#1e293b', background: '#fff' }} />
           </div>
 
           {/* Mode */}
           <div>
             <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 6 }}>Interview Mode</label>
             <select name="mode" value={form.mode} onChange={handleChange}
-              style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: 10, padding: '9px 12px', fontSize: 13, outline: 'none', background: '#fff', boxSizing: 'border-box' }}>
+              style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: 10, padding: '9px 12px', fontSize: 13, outline: 'none', background: '#fff', boxSizing: 'border-box', color: '#1e293b' }}>
               <option value="online">Online</option>
               <option value="in-person">In Person</option>
               <option value="phone">Phone</option>
@@ -81,7 +81,7 @@ export default function ScheduleInterviewModal({ app, onClose, onSuccess }) {
             <div>
               <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 6 }}>Meeting Link</label>
               <input type="url" name="meetingLink" value={form.meetingLink} onChange={handleChange} placeholder="https://meet.google.com/..."
-                style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: 10, padding: '9px 12px', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: 10, padding: '9px 12px', fontSize: 13, outline: 'none', boxSizing: 'border-box', color: '#1e293b', background: '#fff' }} />
             </div>
           )}
 
@@ -90,7 +90,7 @@ export default function ScheduleInterviewModal({ app, onClose, onSuccess }) {
             <div>
               <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 6 }}>Location</label>
               <input type="text" name="location" value={form.location} onChange={handleChange} placeholder="Office address..."
-                style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: 10, padding: '9px 12px', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: 10, padding: '9px 12px', fontSize: 13, outline: 'none', boxSizing: 'border-box', color: '#1e293b', background: '#fff' }} />
             </div>
           )}
 
@@ -98,7 +98,7 @@ export default function ScheduleInterviewModal({ app, onClose, onSuccess }) {
           <div>
             <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 6 }}>Notes (optional)</label>
             <textarea name="notes" value={form.notes} onChange={handleChange} placeholder="Any instructions for the candidate..." rows={3}
-              style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: 10, padding: '9px 12px', fontSize: 13, outline: 'none', resize: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+              style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: 10, padding: '9px 12px', fontSize: 13, outline: 'none', resize: 'none', fontFamily: 'inherit', boxSizing: 'border-box', color: '#1e293b', background: '#fff' }} />
           </div>
 
           {/* Buttons */}
