@@ -25,6 +25,8 @@ const chatRoutes  = require("./routes/v1/chatRoutes");
 const notificationRoutes  = require("./routes/v1/notificationRoutes");
 const interviewRoutes    = require("./routes/v1/interviewRoutes");
 const { generateCsrfToken, validateCsrf } = require('./middleware/csrfMiddleware');
+const swaggerUi   = require('swagger-ui-express');
+const swaggerSpec  = require('./config/swagger');
 
 
 const app = express();
@@ -105,6 +107,18 @@ app.get('/health', (req, res) => {
 
 app.get('/', (req, res) => {
   res.send('API is running');
+});
+
+// Swagger API Documentation
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customSiteTitle: 'Smart Hiring Portal API',
+  customCss: '.swagger-ui .topbar { background: #1e3a5f; }',
+}));
+
+// Swagger JSON spec
+app.get('/api/docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
 });
 
 app.use(errorHandler);

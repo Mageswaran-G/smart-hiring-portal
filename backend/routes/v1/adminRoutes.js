@@ -1,3 +1,129 @@
+/**
+ * @swagger
+ * /api/v1/admin/stats:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get platform-wide stats — users, jobs, applications, hire rate
+ *     responses:
+ *       200: { description: Complete platform statistics }
+ *
+ * /api/v1/admin/companies:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get all company accounts with search and filter
+ *     responses:
+ *       200: { description: Paginated company list }
+ *
+ * /api/v1/admin/companies/{id}/verify:
+ *   patch:
+ *     tags: [Admin]
+ *     summary: Toggle company verification status
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Company verification toggled }
+ *
+ * /api/v1/admin/companies/{id}/suspend:
+ *   patch:
+ *     tags: [Admin]
+ *     summary: Toggle company suspension
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Company suspension toggled }
+ *
+ * /api/v1/admin/users:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get all users with search, role filter, status filter
+ *     responses:
+ *       200: { description: Paginated user list }
+ *
+ * /api/v1/admin/users/{id}/suspend:
+ *   patch:
+ *     tags: [Admin]
+ *     summary: Toggle user suspension — clears all sessions if suspending
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: User suspension toggled }
+ *
+ * /api/v1/admin/users/{id}:
+ *   delete:
+ *     tags: [Admin]
+ *     summary: Soft delete a user — sets isDeleted true, clears sessions
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: User soft deleted }
+ *
+ * /api/v1/admin/users/{id}/restore:
+ *   patch:
+ *     tags: [Admin]
+ *     summary: Restore a soft-deleted user account
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: User restored }
+ *
+ * /api/v1/admin/jobs:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get all platform jobs with admin-level filters
+ *     responses:
+ *       200: { description: All jobs including closed and expired }
+ *
+ * /api/v1/admin/jobs/{id}/close:
+ *   patch:
+ *     tags: [Admin]
+ *     summary: Close an active job posting
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Job closed }
+ *
+ * /api/v1/admin/analytics:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get full platform analytics — funnel, trends, conversion
+ *     responses:
+ *       200: { description: Analytics data for charts }
+ *
+ * /api/v1/admin/audit-logs:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get paginated audit logs — filterable by action and targetType
+ *     parameters:
+ *       - in: query
+ *         name: action
+ *         schema: { type: string }
+ *       - in: query
+ *         name: targetType
+ *         schema: { type: string, enum: [User, Company, Job] }
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer }
+ *     responses:
+ *       200: { description: Paginated audit log entries }
+ */
 
 const express = require('express');
 const router = express.Router();
