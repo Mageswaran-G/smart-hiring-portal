@@ -142,6 +142,12 @@ const jobSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+
+    // Track how many times job details page was viewed
+    views: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

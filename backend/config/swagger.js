@@ -17,6 +17,10 @@ const options = {
         url: 'http://localhost:8000',
         description: 'Development Server',
       },
+      {
+        url: 'https://api.smarthiringportal.com',
+        description: 'Production Server',
+      },
     ],
     components: {
       securitySchemes: {

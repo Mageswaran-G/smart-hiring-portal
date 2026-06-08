@@ -3,7 +3,7 @@
  * /api/v1/ai/match/{jobId}:
  *   get:
  *     tags: [AI]
- *     summary: Get AI match score for candidate vs job
+ *     summary: Get AI match score for candidate vs job (Candidate only)
  *     parameters:
  *       - in: path
  *         name: jobId
@@ -22,22 +22,34 @@
  *                 missingSkills: { type: array, items: { type: string } }
  *                 confidence:    { type: string, enum: [High, Medium, Low] }
  *
- * /api/v1/ai/ats:
+ * /api/v1/ai/ats-score:
  *   get:
  *     tags: [AI]
- *     summary: Get ATS resume quality score for candidate (0-100)
+ *     summary: Get ATS resume quality score for candidate (0-100) (Candidate only)
  *     responses:
  *       200: { description: ATS score with breakdown and improvement suggestions }
+ *
+ * /api/v1/ai/job-ats/{jobId}:
+ *   get:
+ *     tags: [AI]
+ *     summary: Get ATS score for candidate resume vs specific job (Candidate only)
+ *     parameters:
+ *       - in: path
+ *         name: jobId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Job-specific ATS match score }
  *
  * /api/v1/ai/recommendations:
  *   get:
  *     tags: [AI]
- *     summary: Get personalized job recommendations based on candidate skills
+ *     summary: Get personalized job recommendations based on candidate skills (Candidate only)
  *     responses:
  *       200: { description: List of recommended jobs with match scores }
  *
  * /api/v1/ai/rank/{jobId}:
- *   post:
+ *   get:
  *     tags: [AI]
  *     summary: Rank all applicants for a job by composite AI score (Company only)
  *     parameters:
@@ -48,31 +60,31 @@
  *     responses:
  *       200: { description: Ranked candidate list with hiring recommendations }
  *
- * /api/v1/ai/generate/cover-letter:
+ * /api/v1/ai/cover-letter:
  *   post:
  *     tags: [AI]
- *     summary: Generate AI cover letter for a job
+ *     summary: Generate AI cover letter for a job (Candidate only)
  *     responses:
  *       200: { description: Generated cover letter text }
  *
- * /api/v1/ai/generate/resume-feedback:
+ * /api/v1/ai/resume-feedback:
  *   post:
  *     tags: [AI]
- *     summary: Get AI feedback on candidate resume
+ *     summary: Get AI feedback on candidate resume (Candidate only)
  *     responses:
  *       200: { description: Actionable resume improvement feedback }
  *
- * /api/v1/ai/generate/interview-questions:
+ * /api/v1/ai/interview-questions:
  *   post:
  *     tags: [AI]
- *     summary: Generate role-specific interview questions
+ *     summary: Generate role-specific interview questions (Company only)
  *     responses:
  *       200: { description: List of interview questions }
  *
- * /api/v1/ai/generate/analyze-jd:
+ * /api/v1/ai/analyze-jd:
  *   post:
  *     tags: [AI]
- *     summary: Analyze job description and extract required and preferred skills
+ *     summary: Analyze job description and extract required and preferred skills (Company only)
  *     responses:
  *       200: { description: Extracted skills categorized as required and preferred }
  */

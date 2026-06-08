@@ -162,6 +162,9 @@ const getJobById = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Job not found' });
     }
 
+    // Increment view count — fire and forget, never block the response
+    Job.findByIdAndUpdate(job._id, { $inc: { views: 1 } }).catch(() => {});
+
     res.json({ success: true, data: job });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -421,6 +424,9 @@ const getJobBySlug = async (req, res) => {
         message: 'Job not found or no longer available',
       });
     }
+
+    // Increment view count — fire and forget, never block the response
+    Job.findByIdAndUpdate(job._id, { $inc: { views: 1 } }).catch(() => {});
 
     res.json({ success: true, data: job });
   } catch (error) {
