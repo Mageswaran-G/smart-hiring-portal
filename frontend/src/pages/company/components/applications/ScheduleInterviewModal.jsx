@@ -83,7 +83,7 @@ export default function ScheduleInterviewModal({ app, onClose, onSuccess }) {
             <h2 style={{ fontSize: 18, fontWeight: 800, color: '#1e293b', margin: 0 }}>Schedule Interview</h2>
             <p style={{ fontSize: 13, color: '#64748b', margin: '4px 0 0' }}>{app.candidate?.name} — {app.job?.title}</p>
           </div>
-          <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+          <button type="button" onClick={onClose} disabled={loading} style={{ background: 'none', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', padding: 4, opacity: loading ? 0.4 : 1 }}>
             <X size={20} color="#64748b" />
           </button>
         </div>
