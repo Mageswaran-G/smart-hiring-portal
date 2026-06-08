@@ -17,7 +17,17 @@ export default function ScheduleInterviewModal({ app, onClose, onSuccess }) {
 
   const handleSubmit = async () => {
     if (!form.scheduledAt) { toast.error('Please select interview date and time'); return; }
+
+    // Prevent past date selection
+    if (new Date(form.scheduledAt) <= new Date()) { toast.error('Interview time must be in the future'); return; }
+
     if (form.mode === 'online' && !form.meetingLink) { toast.error('Please provide meeting link for online interview'); return; }
+
+    // Validate meeting URL format
+    if (form.mode === 'online' && form.meetingLink && !form.meetingLink.trim().startsWith('https://')) {
+      toast.error('Meeting link must start with https://'); return;
+    }
+
     if (form.mode === 'in-person' && !form.location) { toast.error('Please provide location for in-person interview'); return; }
 
     setLoading(true);
@@ -26,9 +36,9 @@ export default function ScheduleInterviewModal({ app, onClose, onSuccess }) {
         applicationId: app._id,
         scheduledAt:   form.scheduledAt,
         mode:          form.mode,
-        meetingLink:   form.meetingLink,
-        location:      form.location,
-        notes:         form.notes,
+        meetingLink:   form.meetingLink.trim(),
+        location:      form.location.trim(),
+        notes:         form.notes.trim(),
       });
       toast.success('Interview scheduled successfully');
       onSuccess();
@@ -62,6 +72,7 @@ export default function ScheduleInterviewModal({ app, onClose, onSuccess }) {
           <div>
             <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 6 }}>Date and Time</label>
             <input type="datetime-local" name="scheduledAt" value={form.scheduledAt} onChange={handleChange}
+              min={new Date(Date.now() + 60000).toISOString().slice(0, 16)}
               style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: 10, padding: '9px 12px', fontSize: 13, outline: 'none', boxSizing: 'border-box', color: '#1e293b', background: '#fff' }} />
           </div>
 
