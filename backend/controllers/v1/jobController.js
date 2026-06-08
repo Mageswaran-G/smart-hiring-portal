@@ -328,7 +328,7 @@ const getCompanyDashboardStats = async (req, res, next) => {
     const jobs = await Job.find({
       postedBy:  companyId,
       isDeleted: false,
-    }).select('isActive status applicationsCount');
+    }).select('isActive status applicationsCount views');
 
     const jobIds = jobs.map(j => j._id);
 
