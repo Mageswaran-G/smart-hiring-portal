@@ -13,7 +13,7 @@ export default function ApplicationCard({ app, updating, onStatusChange, onSched
         <div className="flex items-start gap-3 flex-1 min-w-0">
 
           <SafeAvatar
-            src={app.candidate?.profilePhoto ? `${import.meta.env.VITE_API_URL}${app.candidate.profilePhoto}` : ''}
+            src={app.candidate?.profilePhoto ? `${import.meta.env.VITE_API_URL || "http://localhost:8000"}${app.candidate.profilePhoto}` : ''}
             name={app.candidate?.name}
             alt={app.candidate?.name || 'Candidate'}
             className="w-11 h-11 rounded-full object-cover shrink-0"
@@ -39,7 +39,7 @@ export default function ApplicationCard({ app, updating, onStatusChange, onSched
             {app.resume ? (
               <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <a
-                  href={`${import.meta.env.VITE_API_URL}${app.resume}`}
+                  href={`${import.meta.env.VITE_API_URL || "http://localhost:8000"}${app.resume}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-800 border border-blue-200 hover:border-blue-400 px-3 py-1.5 rounded-lg transition font-medium"
@@ -47,7 +47,7 @@ export default function ApplicationCard({ app, updating, onStatusChange, onSched
                   <FileText size={12} /> View
                 </a>
                 <a
-                  href={`${import.meta.env.VITE_API_URL}${app.resume}`}
+                  href={`${import.meta.env.VITE_API_URL || "http://localhost:8000"}${app.resume}`}
                   download
                   className="inline-flex items-center gap-1.5 text-xs text-gray-600 hover:text-gray-800 border border-gray-200 hover:border-gray-400 px-3 py-1.5 rounded-lg transition font-medium"
                 >

@@ -76,7 +76,11 @@ export default function App() {
 
           {/* ← ADD THIS ROUTE */}
           <Route path={ROUTES.CANDIDATE_INTERVIEWS} element={
-            <RoleRoute role="candidate"><CandidateInterviewsPage /></RoleRoute>
+            <ProtectedRoute>
+              <RoleRoute allowedRoles={['candidate']}>
+                <CandidateInterviewsPage />
+              </RoleRoute>
+            </ProtectedRoute>
           } />
           <Route path={ROUTES.CANDIDATE_APPLICATIONS} element={
             <ProtectedRoute>
@@ -130,7 +134,11 @@ export default function App() {
           } />
 
           <Route path={ROUTES.COMPANY_INTERVIEWS} element={
-            <RoleRoute role="company"><CompanyInterviewsPage /></RoleRoute>
+            <ProtectedRoute>
+              <RoleRoute allowedRoles={['company']}>
+                <CompanyInterviewsPage />
+              </RoleRoute>
+            </ProtectedRoute>
           } />
           <Route path={ROUTES.COMPANY_APPLICATIONS} element={
             <ProtectedRoute>

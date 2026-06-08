@@ -36,7 +36,7 @@ export default function ResumeSection({ profile, isUploading, onUpload, isCandid
 
           {/* View button opens resume in new tab */}
           <a
-            href={`${import.meta.env.VITE_API_URL}${profile.resume.url}`}
+            href={`${import.meta.env.VITE_API_URL || "http://localhost:8000"}${profile.resume.url}`}
             target="_blank"
             rel="noreferrer"
             className={`shrink-0 px-4 py-1.5 text-white text-sm font-semibold rounded-lg no-underline ${theme.avatar}`}>

@@ -31,6 +31,7 @@ export default function DesktopDashboard({
   profile, applications, savedCount,
   shortlisted, hired, completion, jobs,
   appTrend, savedTrend, shortTrend, hiredTrend,
+  interviewCount,
 }) {
   const navigate = useNavigate();
 

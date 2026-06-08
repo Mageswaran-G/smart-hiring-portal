@@ -7,7 +7,7 @@ import { API } from '../../../services/authService';
 function buildUrl(url) {
   if (!url) return '';
   if (url.startsWith('http')) return url;
-  return `${import.meta.env.VITE_API_URL}${url}`;
+  return `${import.meta.env.VITE_API_URL || "http://localhost:8000"}${url}`;
 }
 
 function ResumeCard({ resume, theme, isDefault, onSetDefault, onDelete }) {

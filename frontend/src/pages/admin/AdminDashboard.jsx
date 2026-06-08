@@ -19,7 +19,6 @@ import AdminHero from './components/dashboard/AdminHero';
 import DesktopAdminNav from './components/dashboard/DesktopAdminNav';
 import MobileAdminLayout from './components/dashboard/MobileAdminLayout';
 import AIHealthCard from './components/dashboard/AIHealthCard';
-import ModuleRoadmap from './components/dashboard/ModuleRoadmap';
 
 // ─── Main Component ───────────────────────────────────────────
 export default function AdminDashboard() {
@@ -155,7 +154,6 @@ export default function AdminDashboard() {
           {/* Left Column */}
           <div style={{ display:"flex", flexDirection:"column", gap:20 }}>
             <PlatformAnalyticsCard stats={stats} />
-            <ModuleRoadmap />
           </div>
         {/* Right Sidebar */}
         <div style={{ display:'flex', flexDirection:'column', gap:18 }}>

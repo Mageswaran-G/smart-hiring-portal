@@ -1,6 +1,12 @@
 // Run once: node scripts/migrateJobSlugs.js
 // Generates slugs for all existing jobs that don't have one
 
+// Safety guard — never run in production accidentally
+if (process.env.NODE_ENV === 'production') {
+  console.error('ERROR: This migration script cannot run in production.');
+  process.exit(1);
+}
+
 require('dotenv').config();
 const mongoose     = require('mongoose');
 const Job          = require('../models/Job');

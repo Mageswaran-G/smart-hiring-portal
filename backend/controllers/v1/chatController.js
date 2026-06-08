@@ -1,3 +1,4 @@
+const logger = require('../../utils/logger');
 const crypto = require('crypto');
 const { getChatResponse } = require('../../ai/chatEngine');
 const User = require('../../models/User');
@@ -82,7 +83,7 @@ exports.sendMessage = async (req, res) => {
       data: { reply: result.reply },
     });
   } catch (error) {
-    console.error('[chatController] sendMessage error:', error);
+    logger.error('[chatController] sendMessage error:', error);
     return res.status(500).json({ success: false, message: 'Failed to process chat request' });
   }
 };
@@ -92,7 +93,7 @@ exports.getHistory = async (req, res) => {
     const messages = await loadHistory(req.user.id);
     return res.status(200).json({ success: true, data: { messages } });
   } catch (error) {
-    console.error('[chatController] getHistory error:', error);
+    logger.error('[chatController] getHistory error:', error);
     return res.status(500).json({ success: false, message: 'Failed to load chat history' });
   }
 };
@@ -102,7 +103,7 @@ exports.clearHistory = async (req, res) => {
     await clearHistory(req.user.id);
     return res.status(200).json({ success: true, message: 'Chat history cleared' });
   } catch (error) {
-    console.error('[chatController] clearHistory error:', error);
+    logger.error('[chatController] clearHistory error:', error);
     return res.status(500).json({ success: false, message: 'Failed to clear chat history' });
   }
 };

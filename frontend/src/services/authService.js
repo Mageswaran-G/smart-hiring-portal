@@ -3,7 +3,7 @@ import axios from 'axios';
 export const API = axios.create({
   // Use environment variable — not hardcoded URL
   // In production, change VITE_API_URL in .env file
-  baseURL: `${import.meta.env.VITE_API_URL}/api/v1`,
+  baseURL: `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1`,
   withCredentials: true
 });
 
@@ -60,7 +60,9 @@ API.interceptors.response.use(
     // This prevents infinite loop
     const isAuthRoute =
       originalRequest.url?.includes('/auth/refresh') ||
-      originalRequest.url?.includes('/auth/logout');
+      originalRequest.url?.includes('/auth/logout') ||
+      originalRequest.url?.includes('/auth/login') ||
+      originalRequest.url?.includes('/auth/signup');
 
     if (isAuthRoute) {
       return Promise.reject(error);

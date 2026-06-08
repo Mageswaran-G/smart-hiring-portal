@@ -92,7 +92,7 @@ export default function CompanyInterviewsPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-3 flex-1 min-w-0">
                       <SafeAvatar
-                        src={interview.candidate?.profilePhoto ? `${import.meta.env.VITE_API_URL}${interview.candidate.profilePhoto}` : ''}
+                        src={interview.candidate?.profilePhoto ? `${import.meta.env.VITE_API_URL || "http://localhost:8000"}${interview.candidate.profilePhoto}` : ''}
                         name={interview.candidate?.name}
                         className="w-10 h-10 rounded-full object-cover shrink-0"
                         fallbackClassName="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0"
