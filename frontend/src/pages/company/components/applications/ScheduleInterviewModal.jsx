@@ -20,7 +20,16 @@ export default function ScheduleInterviewModal({ app, onClose, onSuccess }) {
   });
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm(prev => {
+      // Clear irrelevant fields when mode changes
+      if (name === 'mode') {
+        return { ...prev, mode: value, meetingLink: '', location: '' };
+      }
+      return { ...prev, [name]: value };
+    });
+  };
 
   const handleSubmit = async () => {
     if (!form.scheduledAt) { toast.error('Please select interview date and time'); return; }
