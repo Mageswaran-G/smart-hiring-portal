@@ -374,19 +374,30 @@ const getCompanyDashboardStats = async (req, res, next) => {
       return dailyMap[key] || 0;
     });
 
+    // Calculate total views across all company jobs
+    const totalViews = jobs.reduce((sum, j) => sum + (j.views || 0), 0);
+
+    // Conversion rate — applications per view
+    const totalAppsCount = appStats?.total || 0;
+    const conversionRate = totalViews > 0
+      ? Math.round((totalAppsCount / totalViews) * 100)
+      : 0;
+
     return res.status(200).json({
       success: true,
       data: {
-        totalJobs:     jobs.length,
-        activeJobs:    jobs.filter(j => j.isActive).length,
-        draftJobs:     jobs.filter(j => j.status === 'draft').length,
-        publishedJobs: jobs.filter(j => j.status === 'published').length,
-        totalApps:     appStats?.total       || 0,
-        applied:       appStats?.applied     || 0,
-        reviewing:     appStats?.reviewing   || 0,
-        shortlisted:   appStats?.shortlisted || 0,
-        rejected:      appStats?.rejected    || 0,
-        hired:         appStats?.hired       || 0,
+        totalJobs:      jobs.length,
+        activeJobs:     jobs.filter(j => j.isActive).length,
+        draftJobs:      jobs.filter(j => j.status === 'draft').length,
+        publishedJobs:  jobs.filter(j => j.status === 'published').length,
+        totalApps:      appStats?.total       || 0,
+        applied:        appStats?.applied     || 0,
+        reviewing:      appStats?.reviewing   || 0,
+        shortlisted:    appStats?.shortlisted || 0,
+        rejected:       appStats?.rejected    || 0,
+        hired:          appStats?.hired       || 0,
+        totalViews,
+        conversionRate,
         appTrend,
       }
     });

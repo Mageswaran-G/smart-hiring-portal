@@ -14,12 +14,8 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:8000',
-        description: 'Development Server',
-      },
-      {
-        url: 'https://api.smarthiringportal.com',
-        description: 'Production Server',
+        url: process.env.API_URL || 'http://localhost:8000',
+        description: process.env.NODE_ENV === 'production' ? 'Production Server' : 'Development Server',
       },
     ],
     components: {

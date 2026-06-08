@@ -67,9 +67,11 @@ export default function CompanyHero({ profile, stats, hireRate, navigate }) {
             {/* Quick stats */}
             <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
               {[
-                { label: 'Jobs',         value: stats.total        || 0 },
-                { label: 'Applications', value: stats.applications || 0 },
-                { label: 'Shortlisted',  value: stats.shortlisted  || 0 },
+                { label: 'Jobs',         value: stats.total           || 0 },
+                { label: 'Applications', value: stats.applications    || 0 },
+                { label: 'Shortlisted',  value: stats.shortlisted     || 0 },
+                { label: 'Views',        value: stats.totalViews      || 0 },
+                { label: 'Conversion',   value: `${stats.conversionRate || 0}%` },
               ].map(({ label, value }) => (
                 <div key={label} style={{
                   background: 'rgba(255,255,255,0.07)',

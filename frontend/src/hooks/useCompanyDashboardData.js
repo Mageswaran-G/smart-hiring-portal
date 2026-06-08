@@ -17,16 +17,20 @@ const EMPTY_STATS = {
   activeCount: 0,
   reviewing: 0,
   appTrend: [0,0,0,0,0,0,0],
+  totalViews: 0,
+  conversionRate: 0,
 };
 
 const mapDashboardStats = (statsData = {}, realTrend) => ({
-  total:       statsData.totalJobs   || 0,
-  activeCount: statsData.activeJobs  || 0,
-  applications:statsData.totalApps   || 0,
-  reviewing:   statsData.reviewing   || 0,
-  shortlisted: statsData.shortlisted || 0,
-  hired:       statsData.hired       || 0,
-  appTrend:    Array.isArray(realTrend) && realTrend.length === 7 ? realTrend : [0,0,0,0,0,0,0],
+  total:          statsData.totalJobs      || 0,
+  activeCount:    statsData.activeJobs     || 0,
+  applications:   statsData.totalApps      || 0,
+  reviewing:      statsData.reviewing      || 0,
+  shortlisted:    statsData.shortlisted    || 0,
+  hired:          statsData.hired          || 0,
+  totalViews:     statsData.totalViews     || 0,
+  conversionRate: statsData.conversionRate || 0,
+  appTrend:       Array.isArray(realTrend) && realTrend.length === 7 ? realTrend : [0,0,0,0,0,0,0],
 });
 
 export default function useCompanyDashboardData() {
