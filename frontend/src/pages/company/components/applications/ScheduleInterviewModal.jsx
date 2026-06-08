@@ -20,12 +20,12 @@ export default function ScheduleInterviewModal({ app, onClose, onSuccess }) {
   });
   const [loading, setLoading] = useState(false);
 
-  // Close on Escape key
+  // Close on Escape key — but not while submitting
   useEffect(() => {
-    const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
+    const handleKey = (e) => { if (e.key === 'Escape' && !loading) onClose(); };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [onClose]);
+  }, [onClose, loading]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
