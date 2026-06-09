@@ -29,7 +29,7 @@ export default function KanbanCard({ app, onStatusChange, updating }) {
       {/* Candidate info */}
       <div className="flex items-center gap-2 mb-2">
         {app.candidate?.profilePhoto ? (
-          <img src={app.candidate.profilePhoto} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+          <img src={app.candidate.profilePhoto} alt={app.candidate?.name || 'Candidate'} className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
         ) : (
           <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 text-xs font-bold flex-shrink-0">
             {initials(app.candidate?.name)}
