@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Briefcase, Calendar } from 'lucide-react';
+import ScoreBadge from '../../../../components/ai/ScoreBadge';
 
 const STATUS_OPTIONS = ['applied', 'reviewing', 'shortlisted', 'hired', 'rejected'];
 
@@ -10,11 +11,6 @@ const formatDate = (d) => {
 
 const initials = (name = '') => name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
 
-const getScoreColor = (score) => {
-  if (score >= 80) return 'bg-green-100 text-green-700';
-  if (score >= 60) return 'bg-amber-100 text-amber-700';
-  return 'bg-red-100 text-red-700';
-};
 
 export default function KanbanCard({ app, onStatusChange, updating }) {
   const [dragging, setDragging] = useState(false);
@@ -45,9 +41,7 @@ export default function KanbanCard({ app, onStatusChange, updating }) {
         </div>
         {/* AI match score badge */}
         {app.matchScore != null && (
-          <span className={`text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${getScoreColor(app.matchScore)}`}>
-            {app.matchScore}%
-          </span>
+          <ScoreBadge score={app.matchScore} />
         )}
       </div>
 
