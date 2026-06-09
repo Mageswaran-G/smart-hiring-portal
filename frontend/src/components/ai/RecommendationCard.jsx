@@ -37,7 +37,7 @@ export default function RecommendationCard({ job, index }) {
           <p style={{ fontSize:11, color:'#16a34a', fontWeight:700, margin:'0 0 4px', textTransform:'uppercase', letterSpacing:0.5 }}>Matched</p>
           <div style={{ display:'flex', gap:5, flexWrap:'wrap' }}>
             {job.matchedSkills.slice(0, 5).map((s, j) => (
-              <SkillChip key={j} label={s} type='matched' />
+              <SkillChip key={s} label={s} type='matched' />
             ))}
           </div>
         </div>
@@ -45,12 +45,26 @@ export default function RecommendationCard({ job, index }) {
 
       {/* Missing Skills */}
       {job.missingSkills?.length > 0 && (
-        <div>
+        <div style={{ marginBottom:8 }}>
           <p style={{ fontSize:11, color:'#dc2626', fontWeight:700, margin:'0 0 4px', textTransform:'uppercase', letterSpacing:0.5 }}>Missing</p>
           <div style={{ display:'flex', gap:5, flexWrap:'wrap' }}>
-            {job.missingSkills.slice(0, 3).map((s, j) => (
-              <SkillChip key={j} label={s} type='missing' />
+            {job.missingSkills.slice(0, 3).map((s) => (
+              <SkillChip key={s} label={s} type='missing' />
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Learning Suggestions */}
+      {job.suggestions?.length > 0 && (
+        <div style={{ marginTop:8, borderTop:'1px solid #f3f4f6', paddingTop:8 }}>
+          <p style={{ fontSize:11, color:'#d97706', fontWeight:700, margin:'0 0 4px', textTransform:'uppercase', letterSpacing:0.5 }}>Recommended Learning</p>
+          <div style={{ display:'flex', gap:5, flexWrap:'wrap' }}>
+            {job.suggestions.slice(0, 2).map((item) =>
+              item.resources.slice(0, 1).map((r) => (
+                <SkillChip key={r} label={r} type='suggestion' />
+              ))
+            )}
           </div>
         </div>
       )}
