@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Briefcase, ChevronRight } from 'lucide-react';
 import ScoreBadge from './ScoreBadge';
+import SkillChip from './SkillChip';
 
 export default function RecommendationCard({ job, index }) {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ export default function RecommendationCard({ job, index }) {
           <p style={{ fontSize:11, color:'#16a34a', fontWeight:700, margin:'0 0 4px', textTransform:'uppercase', letterSpacing:0.5 }}>Matched</p>
           <div style={{ display:'flex', gap:5, flexWrap:'wrap' }}>
             {job.matchedSkills.slice(0, 5).map((s, j) => (
-              <span key={j} style={{ background:'#dcfce7', color:'#15803d', padding:'2px 8px', borderRadius:6, fontSize:11, fontWeight:600 }}>{s}</span>
+              <SkillChip key={j} label={s} type='matched' />
             ))}
           </div>
         </div>
@@ -48,7 +49,7 @@ export default function RecommendationCard({ job, index }) {
           <p style={{ fontSize:11, color:'#dc2626', fontWeight:700, margin:'0 0 4px', textTransform:'uppercase', letterSpacing:0.5 }}>Missing</p>
           <div style={{ display:'flex', gap:5, flexWrap:'wrap' }}>
             {job.missingSkills.slice(0, 3).map((s, j) => (
-              <span key={j} style={{ background:'#fef2f2', color:'#dc2626', padding:'2px 8px', borderRadius:6, fontSize:11, fontWeight:600 }}>{s}</span>
+              <SkillChip key={j} label={s} type='missing' />
             ))}
           </div>
         </div>

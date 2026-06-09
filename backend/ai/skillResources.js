@@ -33,7 +33,7 @@ const getSuggestions = (missingSkills = []) => {
     .map(skill => {
       const normalized = normalizeSkill(skill);
       const resources = SKILL_RESOURCES[normalized];
-      if (!resources) return null;
+      if (!resources) return { skill, resources: [`Learn ${skill} Fundamentals`, `${skill} Crash Course`] };
       return { skill, resources: resources.slice(0, 2) };
     })
     .filter(Boolean);
