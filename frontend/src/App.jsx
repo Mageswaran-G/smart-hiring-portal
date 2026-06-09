@@ -30,6 +30,7 @@ const AdminJobsPage            = lazy(() => import('./pages/admin/AdminJobsPage'
 const AdminAnalyticsPage       = lazy(() => import('./pages/admin/AdminAnalyticsPage'));
 const AdminChatPage            = lazy(() => import('./pages/admin/AdminChatPage'));
 const AuditLogsPage            = lazy(() => import('./pages/admin/AuditLogsPage'));
+const AdminApplicationsPage    = lazy(() => import('./pages/admin/AdminApplicationsPage'));
 const PublicJobsPage           = lazy(() => import('./pages/jobs/PublicJobsPage'));
 const JobDetailsPage           = lazy(() => import('./pages/jobs/JobDetailsPage'));
 
@@ -210,6 +211,14 @@ export default function App() {
             <ProtectedRoute>
               <RoleRoute allowedRoles={['admin']}>
                 <AuditLogsPage />
+              </RoleRoute>
+            </ProtectedRoute>
+          } />
+
+          <Route path={ROUTES.ADMIN_APPLICATIONS} element={
+            <ProtectedRoute>
+              <RoleRoute allowedRoles={['admin']}>
+                <AdminApplicationsPage />
               </RoleRoute>
             </ProtectedRoute>
           } />

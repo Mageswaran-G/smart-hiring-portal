@@ -72,6 +72,7 @@ export default function AdminDashboard() {
       return;
     }
     if (key === 'hirebot') { navigate(ROUTES.ADMIN_CHAT); return; }
+    if (key === 'applications') { navigate(ROUTES.ADMIN_APPLICATIONS); return; }
     if (key === 'analytics') {
       navigate('/admin/analytics');
       return;

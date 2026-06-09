@@ -795,3 +795,19 @@ exports.getAuditLogs = async (req, res, next) => {
     next(error);
   }
 };
+
+// GET /api/v1/admin/applications
+// Returns all applications grouped by status for admin Kanban view
+exports.getAdminApplications = async (req, res, next) => {
+  try {
+    const applications = await Application.find()
+      .populate('candidate', 'name email profilePhoto')
+      .populate({ path: 'job', select: 'title location jobType workMode', populate: { path: 'postedBy', select: 'companyName' } })
+      .sort({ createdAt: -1 })
+      .limit(200);
+
+    return res.status(200).json({ success: true, data: applications });
+  } catch (error) {
+    next(error);
+  }
+};

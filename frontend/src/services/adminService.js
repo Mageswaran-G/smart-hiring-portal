@@ -80,3 +80,8 @@ export const getAuditLogs = async (params = {}) => {
   const response = await API.get('/admin/audit-logs', { params });
   return response.data;
 };
+
+export const getAdminApplications = async () => {
+  const res = await API.get('/admin/applications');
+  return res.data.data;
+};

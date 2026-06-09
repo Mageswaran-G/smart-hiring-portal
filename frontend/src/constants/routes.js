@@ -28,6 +28,7 @@ export const ROUTES = {
   ADMIN_ANALYTICS:         '/admin/analytics',
   ADMIN_CHAT:              '/admin/chat',
   ADMIN_AUDIT_LOGS:        '/admin/audit-logs',
+  ADMIN_APPLICATIONS:      '/admin/applications',
 
   // Public
   JOB_DETAILS:             '/jobs/:slug',

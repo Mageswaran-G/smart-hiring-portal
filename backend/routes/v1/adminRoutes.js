@@ -147,6 +147,7 @@ const {
   getAIHealthMetrics,
   getSystemHealth,
   getAuditLogs,
+  getAdminApplications,
 } = require('../../controllers/v1/adminController');
 
 // Every admin route needs token + admin role check
@@ -193,5 +194,6 @@ router.get("/system-health", getSystemHealth);
 
 // GET /api/v1/admin/audit-logs
 router.get('/audit-logs', getAuditLogs);
+router.get('/applications', getAdminApplications);
 
 module.exports = router;
