@@ -24,7 +24,7 @@ export default function RecommendationCard({ job, index }) {
               <MapPin size={12} /> {job.location || 'Remote'}
             </span>
             <span className="text-xs text-gray-500 flex items-center gap-1">
-              <Briefcase size={12} /> {job.jobType} · {job.workMode}
+              <Briefcase size={12} /> {job.jobType || 'Full Time'} · {job.workMode || 'Remote'}
             </span>
           </div>
         </div>
