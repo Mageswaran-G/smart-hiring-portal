@@ -12,7 +12,9 @@ const COLUMNS = [
 
 const formatDate = (d) => {
   if (!d) return 'N/A';
-  return new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+  const date = new Date(d);
+  if (isNaN(date)) return 'N/A';
+  return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 };
 
 export default function CandidateKanbanBoard({ applications }) {
@@ -58,7 +60,11 @@ export default function CandidateKanbanBoard({ applications }) {
                 {colApps.map((app) => (
                   <div
                     key={app._id}
-                    onClick={() => navigate(`/jobs/${app.job?.slug || app.job?._id}`)}
+                    onClick={() => {
+                    const id = app.job?.slug || app.job?._id;
+                    if (!id) return;
+                    navigate(`/jobs/${id}`);
+                  }}
                     className="bg-white border border-gray-200 rounded-xl p-3 cursor-pointer hover:border-orange-300 hover:shadow-md transition-all"
                   >
                     {/* Job title */}
@@ -87,7 +93,9 @@ export default function CandidateKanbanBoard({ applications }) {
                     {/* Applied date */}
                     <div className="flex items-center gap-1">
                       <Calendar size={11} className="text-gray-400 flex-shrink-0" />
-                      <p className="text-xs text-gray-400">{formatDate(app.createdAt)}</p>
+                      <p className="text-xs text-gray-400">
+                        {formatDate(app.statusHistory?.at(-1)?.changedAt || app.createdAt)}
+                      </p>
                     </div>
                   </div>
                 ))}
