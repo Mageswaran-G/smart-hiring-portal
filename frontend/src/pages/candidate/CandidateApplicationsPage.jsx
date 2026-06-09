@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useRef }     from 'react';
 import { useNavigate }                     from 'react-router-dom';
-import { Briefcase, MapPin, Calendar, ChevronDown } from 'lucide-react';
+import { Briefcase, MapPin, Calendar, ChevronDown, LayoutList, Columns } from 'lucide-react';
 import toast                               from 'react-hot-toast';
 import DashboardLayout                     from '../../components/layout/DashboardLayout';
 import PageHeader                          from '../../components/ui/PageHeader';
@@ -11,6 +11,7 @@ import EmptyState                          from '../../components/ui/EmptyState'
 import { APPLICATION_STATUS }             from '../../constants/applicationStatus';
 import { getMyApplicationsPaginated, withdrawApplication } from '../../services/applicationService';
 import { ROUTES }                          from '../../constants/routes';
+import CandidateKanbanBoard from './components/CandidateKanbanBoard';
 
 const LIMIT = 10; // how many to load per page
 
@@ -26,6 +27,7 @@ export default function CandidateApplicationsPage() {
   const [hasMore,      setHasMore]      = useState(false);
   const [total,        setTotal]        = useState(0);
   const [withdrawingId, setWithdrawingId] = useState(null);
+  const [viewMode,      setViewMode]      = useState('list');
 
   // ── Load first page on mount ──────────────────────────────
   useEffect(() => {
@@ -97,6 +99,31 @@ export default function CandidateApplicationsPage() {
         backRoute={ROUTES.CANDIDATE_DASHBOARD}
       />
 
+      {/* View toggle */}
+      <div className="flex justify-end mb-4">
+        <div className="flex gap-1 bg-gray-100 p-1 rounded-xl">
+          <button
+            onClick={() => setViewMode('list')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+              viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            }`}>
+            <LayoutList size={15} /> List
+          </button>
+          <button
+            onClick={() => setViewMode('kanban')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+              viewMode === 'kanban' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            }`}>
+            <Columns size={15} /> Kanban
+          </button>
+        </div>
+      </div>
+
+      {/* Kanban view */}
+      {!loading && viewMode === 'kanban' && (
+        <CandidateKanbanBoard applications={applications} />
+      )}
+
       {/* ── Loading skeleton — first load ── */}
       {showSkeleton && (
         <div className="flex flex-col gap-4">
@@ -126,7 +153,7 @@ export default function CandidateApplicationsPage() {
       )}
 
       {/* ── Applications list ── */}
-      {!showSkeleton && applications.length > 0 && (
+      {!showSkeleton && viewMode === 'list' && applications.length > 0 && (
         <>
           <div className="flex flex-col gap-4">
             {applications.map((app) => (
