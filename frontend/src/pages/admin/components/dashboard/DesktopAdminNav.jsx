@@ -62,9 +62,9 @@ export default function DesktopAdminNav({ adminName, activeTab, onTab, onLogout 
           const isActive = activeTab === key;
           return (
             <button key={key} onClick={() => onTab(key)} style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '7px 14px', borderRadius: 9, border: 'none',
-              cursor: 'pointer', fontSize: 13,
+              display: 'flex', alignItems: 'center', gap: 5,
+              padding: '7px 10px', borderRadius: 9, border: 'none',
+              cursor: 'pointer', fontSize: 12,
               fontWeight: isActive ? 700 : 500,
               background: isActive ? `${COLORS.primary}10` : 'transparent',
               color: isActive ? COLORS.primary : '#6b7280',

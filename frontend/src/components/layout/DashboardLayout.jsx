@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Briefcase, Bookmark, FileText,
   User, Users, PlusCircle, Building2, TrendingUp, Sparkles,
-  Shield, LogOut, Menu, X, MessageSquare, Calendar } from 'lucide-react';
+  Shield, LogOut, Menu, X, MessageSquare, Calendar , Columns } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ROUTES } from '../../constants/routes';
 import SafeAvatar from '../ui/SafeAvatar';
@@ -45,7 +45,8 @@ const NAV_LINKS = {
     { label:'Jobs',      Icon:Briefcase,       path:'/admin/jobs'           },
     { label:'Analytics', Icon:TrendingUp,      path:'/admin/analytics'      },
     { label:'HireBot',   Icon:MessageSquare,  path:ROUTES.ADMIN_CHAT         },
-    { label:'Audit Logs', Icon:Shield,          path:ROUTES.ADMIN_AUDIT_LOGS   },
+    { label:'Audit Logs',   Icon:Shield,    path:ROUTES.ADMIN_AUDIT_LOGS   },
+    { label:'Applications', Icon:Columns,   path:ROUTES.ADMIN_APPLICATIONS },
   ],
 };
 

@@ -801,12 +801,14 @@ exports.getAuditLogs = async (req, res, next) => {
 exports.getAdminApplications = async (req, res, next) => {
   try {
     const applications = await Application.find()
-      .populate('candidate', 'name email profilePhoto')
-      .populate({ path: 'job', select: 'title location jobType workMode', populate: { path: 'postedBy', select: 'companyName' } })
+      .populate({ path: 'candidate', select: 'name email profilePhoto', match: { isDeleted: { $ne: true } } })
+      .populate({ path: 'job', select: 'title location jobType workMode slug', populate: { path: 'postedBy', select: 'companyName' } })
       .sort({ createdAt: -1 })
       .limit(200);
 
-    return res.status(200).json({ success: true, data: applications });
+    const filtered = applications.filter(app => app.candidate !== null);
+
+    return res.status(200).json({ success: true, data: filtered });
   } catch (error) {
     next(error);
   }

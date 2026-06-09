@@ -14,6 +14,7 @@ const COLUMNS = [
   { status: 'shortlisted', label: 'Shortlisted', color: 'bg-purple-50 border-purple-200', badge: 'bg-purple-100 text-purple-700', dot: 'bg-purple-400' },
   { status: 'hired',       label: 'Hired',       color: 'bg-green-50 border-green-200',   badge: 'bg-green-100 text-green-700',   dot: 'bg-green-400'  },
   { status: 'rejected',    label: 'Rejected',    color: 'bg-red-50 border-red-200',       badge: 'bg-red-100 text-red-700',       dot: 'bg-red-400'    },
+  { status: 'withdrawn',   label: 'Withdrawn',   color: 'bg-gray-50 border-gray-200',     badge: 'bg-gray-100 text-gray-600',     dot: 'bg-gray-400'   },
 ];
 
 const formatDate = (d) => {
@@ -75,6 +76,20 @@ export default function AdminApplicationsPage() {
           subtitle="Applications will appear here once candidates apply"
           variant="admin"
         />
+      )}
+
+      {!loading && applications.length > 0 && (
+        <div className="grid grid-cols-3 gap-3 mb-6 sm:grid-cols-6">
+          {COLUMNS.map((col) => {
+            const count = (groupedApps[col.status] || []).length;
+            return (
+              <div key={col.status} className={`rounded-xl border p-3 text-center ${col.color}`}>
+                <p className="text-lg font-bold text-gray-800">{count}</p>
+                <p className="text-xs text-gray-500 font-medium">{col.label}</p>
+              </div>
+            );
+          })}
+        </div>
       )}
 
       {!loading && applications.length > 0 && (
