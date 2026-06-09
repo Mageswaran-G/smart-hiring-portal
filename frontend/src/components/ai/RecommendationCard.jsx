@@ -15,7 +15,7 @@ export default function RecommendationCard({ job, index }) {
       <div className="flex justify-between items-start mb-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className="bg-gray-100 text-gray-500 text-xs font-bold px-2 py-0.5 rounded-md">#{index + 1}</span>
+            <span className="bg-gray-100 text-gray-500 text-xs font-bold px-2 py-0.5 rounded-md">#{(index ?? 0) + 1}</span>
             <ScoreBadge score={job.matchScore} />
           </div>
           <h3 className="font-extrabold text-gray-900 text-base mb-1">{job.title}</h3>
@@ -62,7 +62,7 @@ export default function RecommendationCard({ job, index }) {
           <div className="flex gap-1 flex-wrap">
             {job.suggestions.slice(0, 2).map((item) =>
               item.resources.slice(0, 1).map((r) => (
-                <SkillChip key={r} label={r} type='suggestion' />
+                <SkillChip key={`${item.skill}-${r}`} label={r} type='suggestion' />
               ))
             )}
           </div>
