@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import KanbanCard from './KanbanCard';
 
 const COLUMNS = [
@@ -12,8 +12,13 @@ const COLUMNS = [
 export default function KanbanBoard({ applications, onStatusChange, updating }) {
   const [dragOver, setDragOver] = useState(null);
 
-  const getColumnApps = (status) =>
-    applications.filter(app => app.status === status);
+  const groupedApps = useMemo(() => {
+    return applications.reduce((acc, app) => {
+      acc[app.status] ??= [];
+      acc[app.status].push(app);
+      return acc;
+    }, {});
+  }, [applications]);
 
   const handleDragOver = (e, status) => {
     e.preventDefault();
@@ -35,7 +40,7 @@ export default function KanbanBoard({ applications, onStatusChange, updating }) 
     <div className="overflow-x-auto pb-4">
       <div className="flex gap-4 min-w-max">
         {COLUMNS.map((col) => {
-          const colApps = getColumnApps(col.status);
+          const colApps = groupedApps[col.status] || [];
           const isOver  = dragOver === col.status;
 
           return (

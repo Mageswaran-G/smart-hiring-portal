@@ -81,14 +81,16 @@ export default function CompanyApplicationsPage() {
   }, [applications, filterJob, filterStatus, debouncedSearch]);
 
   const handleStatusChange = async (applicationId, newStatus) => {
+    const previous = applications;
     setUpdating(applicationId);
+    setApplications(prev =>
+      prev.map(app => app._id === applicationId ? { ...app, status: newStatus } : app)
+    );
     try {
       await updateApplicationStatus(applicationId, newStatus);
-      setApplications(prev =>
-        prev.map(app => app._id === applicationId ? { ...app, status: newStatus } : app)
-      );
       toast.success('Status updated');
     } catch {
+      setApplications(previous);
       toast.error('Failed to update status');
     } finally {
       setUpdating(null);

@@ -3,13 +3,22 @@ import { Briefcase, Calendar } from 'lucide-react';
 
 const STATUS_OPTIONS = ['applied', 'reviewing', 'shortlisted', 'hired', 'rejected'];
 
+const formatDate = (d) => {
+  if (!d) return 'N/A';
+  return new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+};
+
+const initials = (name = '') => name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+
+const getScoreColor = (score) => {
+  if (score >= 80) return 'bg-green-100 text-green-700';
+  if (score >= 60) return 'bg-amber-100 text-amber-700';
+  return 'bg-red-100 text-red-700';
+};
+
 export default function KanbanCard({ app, onStatusChange, updating }) {
   const [dragging, setDragging] = useState(false);
   const isUpdating = updating === app._id;
-
-  const formatDate = (d) => new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
-
-  const initials = (name = '') => name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
 
   return (
     <div
@@ -30,10 +39,16 @@ export default function KanbanCard({ app, onStatusChange, updating }) {
             {initials(app.candidate?.name)}
           </div>
         )}
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-gray-900 truncate">{app.candidate?.name || 'Unknown'}</p>
           <p className="text-xs text-gray-400 truncate">{app.candidate?.email || ''}</p>
         </div>
+        {/* AI match score badge */}
+        {app.matchScore != null && (
+          <span className={`text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${getScoreColor(app.matchScore)}`}>
+            {app.matchScore}%
+          </span>
+        )}
       </div>
 
       {/* Job title */}
@@ -43,10 +58,22 @@ export default function KanbanCard({ app, onStatusChange, updating }) {
       </div>
 
       {/* Applied date */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 mb-2">
         <Calendar size={11} className="text-gray-400 flex-shrink-0" />
         <p className="text-xs text-gray-400">{formatDate(app.createdAt)}</p>
       </div>
+
+      {/* Mobile status dropdown — hidden on desktop */}
+      <select
+        className="md:hidden w-full text-xs border border-gray-200 rounded-lg px-2 py-1 text-gray-600 bg-gray-50 mt-1"
+        value={app.status}
+        onChange={(e) => onStatusChange(app._id, e.target.value)}
+        disabled={isUpdating}
+      >
+        {STATUS_OPTIONS.map(s => (
+          <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+        ))}
+      </select>
 
       {isUpdating && (
         <div className="flex items-center gap-1 mt-2">
