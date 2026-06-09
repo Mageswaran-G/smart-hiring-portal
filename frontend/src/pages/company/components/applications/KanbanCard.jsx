@@ -9,7 +9,7 @@ const formatDate = (d) => {
   return new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 };
 
-const initials = (name = '') => name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+const initials = (name = '') => name.trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2);
 
 
 export default function KanbanCard({ app, onStatusChange, updating }) {
