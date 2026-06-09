@@ -1,6 +1,6 @@
 // CompanyApplicationsPage.jsx — Company applicants with AI ranking
 import { useCallback, useEffect, useState, useMemo, useRef } from 'react';
-import { Users, ChevronDown } from 'lucide-react';
+import { Users, ChevronDown, LayoutList, Columns } from 'lucide-react';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import PageHeader from '../../components/ui/PageHeader';
@@ -14,6 +14,7 @@ import ApplicationCard from './components/applications/ApplicationCard';
 import ApplicationFilters from './components/applications/ApplicationFilters';
 import ApplicationSkeleton from './components/applications/ApplicationSkeleton';
 import ScheduleInterviewModal from './components/applications/ScheduleInterviewModal';
+import KanbanBoard from './components/applications/KanbanBoard';
 
 const LIMIT = 10;
 
@@ -33,6 +34,7 @@ export default function CompanyApplicationsPage() {
   const [rankFilters,  setRankFilters]  = useState({ minScore: '', recommendation: '', sortBy: 'score' });
   const [ranking,      setRanking]      = useState([]);
   const [rankLoading,  setRankLoading]  = useState(false);
+  const [viewMode,     setViewMode]     = useState('list');
   const debouncedSearch = useDebounce(searchName, 400);
   const abortRef = useRef(null);
 
@@ -124,6 +126,26 @@ export default function CompanyApplicationsPage() {
         backRoute={ROUTES.COMPANY_DASHBOARD}
       />
 
+      {/* View toggle */}
+      <div className="flex justify-end mb-4">
+        <div className="flex gap-1 bg-gray-100 p-1 rounded-xl">
+          <button
+            onClick={() => setViewMode('list')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+              viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            }`}>
+            <LayoutList size={15} /> List
+          </button>
+          <button
+            onClick={() => setViewMode('kanban')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+              viewMode === 'kanban' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            }`}>
+            <Columns size={15} /> Kanban
+          </button>
+        </div>
+      </div>
+
       <ApplicationFilters
         searchName={searchName}
         setSearchName={setSearchName}
@@ -162,8 +184,17 @@ export default function CompanyApplicationsPage() {
         />
       )}
 
+      {/* Kanban view */}
+      {!loading && viewMode === 'kanban' && (
+        <KanbanBoard
+          applications={filtered}
+          onStatusChange={handleStatusChange}
+          updating={updating}
+        />
+      )}
+
       {/* Applications list */}
-      {!loading && filtered.length > 0 && (
+      {!loading && viewMode === 'list' && filtered.length > 0 && (
         <>
           <div className="flex flex-col gap-4">
             {filtered.map((app) => (
