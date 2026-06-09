@@ -7,7 +7,7 @@ export default function RecommendationCard({ job, index }) {
 
   return (
     <div
-      onClick={() => navigate(`/jobs/${job.slug}`)}
+      onClick={() => navigate(`/jobs/${job._id}`)}
       className="bg-white rounded-2xl border border-gray-200 hover:border-purple-300 hover:shadow-xl transition-all duration-200 cursor-pointer"
       style={{ padding:'20px 24px' }}
     >

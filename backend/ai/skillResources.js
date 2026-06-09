@@ -1,5 +1,5 @@
 // Skill Gap Suggestions — static learning resource mapping
-const normalizeSkill = require('./normalizeText');
+const { normalizeSkill } = require("./normalizeText");
 
 const SKILL_RESOURCES = {
   docker:          ['Docker Basics', 'Container Deployment', 'Docker Compose'],
