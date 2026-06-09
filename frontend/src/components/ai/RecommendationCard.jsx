@@ -9,34 +9,34 @@ export default function RecommendationCard({ job, index }) {
   return (
     <div
       onClick={() => navigate(`/jobs/${job._id}`)}
-      className="bg-white rounded-2xl border border-gray-200 hover:border-purple-300 hover:shadow-xl transition-all duration-200 cursor-pointer"
-      style={{ padding:'20px 24px' }}
+      className="bg-white rounded-2xl border border-gray-200 p-5 hover:border-purple-300 hover:shadow-xl transition-all duration-200 cursor-pointer"
     >
-      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:12 }}>
-        <div style={{ flex:1, minWidth:0 }}>
-          <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4 }}>
-            <span style={{ background:'#f3f4f6', color:'#6b7280', fontSize:11, fontWeight:700, padding:'2px 8px', borderRadius:6 }}>#{index + 1}</span>
+      {/* Header */}
+      <div className="flex justify-between items-start mb-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="bg-gray-100 text-gray-500 text-xs font-bold px-2 py-0.5 rounded-md">#{index + 1}</span>
             <ScoreBadge score={job.matchScore} />
           </div>
-          <h3 style={{ fontWeight:800, fontSize:17, color:'#111827', margin:'0 0 4px', letterSpacing:'-0.3px' }}>{job.title}</h3>
-          <div style={{ display:'flex', gap:12, flexWrap:'wrap' }}>
-            <span style={{ fontSize:12, color:'#6b7280', display:'flex', alignItems:'center', gap:4 }}>
+          <h3 className="font-extrabold text-gray-900 text-base mb-1">{job.title}</h3>
+          <div className="flex gap-3 flex-wrap">
+            <span className="text-xs text-gray-500 flex items-center gap-1">
               <MapPin size={12} /> {job.location || 'Remote'}
             </span>
-            <span style={{ fontSize:12, color:'#6b7280', display:'flex', alignItems:'center', gap:4 }}>
+            <span className="text-xs text-gray-500 flex items-center gap-1">
               <Briefcase size={12} /> {job.jobType} · {job.workMode}
             </span>
           </div>
         </div>
-        <ChevronRight size={18} color="#9ca3af" style={{ flexShrink:0, marginTop:4 }} />
+        <ChevronRight size={18} className="text-gray-400 flex-shrink-0 mt-1" />
       </div>
 
       {/* Matched Skills */}
       {job.matchedSkills?.length > 0 && (
-        <div style={{ marginBottom:8 }}>
-          <p style={{ fontSize:11, color:'#16a34a', fontWeight:700, margin:'0 0 4px', textTransform:'uppercase', letterSpacing:0.5 }}>Matched</p>
-          <div style={{ display:'flex', gap:5, flexWrap:'wrap' }}>
-            {job.matchedSkills.slice(0, 5).map((s, j) => (
+        <div className="mb-2">
+          <p className="text-xs text-green-600 font-bold mb-1 uppercase tracking-wide">Matched</p>
+          <div className="flex gap-1 flex-wrap">
+            {job.matchedSkills.slice(0, 5).map((s) => (
               <SkillChip key={s} label={s} type='matched' />
             ))}
           </div>
@@ -45,9 +45,9 @@ export default function RecommendationCard({ job, index }) {
 
       {/* Missing Skills */}
       {job.missingSkills?.length > 0 && (
-        <div style={{ marginBottom:8 }}>
-          <p style={{ fontSize:11, color:'#dc2626', fontWeight:700, margin:'0 0 4px', textTransform:'uppercase', letterSpacing:0.5 }}>Missing</p>
-          <div style={{ display:'flex', gap:5, flexWrap:'wrap' }}>
+        <div className="mb-2">
+          <p className="text-xs text-red-600 font-bold mb-1 uppercase tracking-wide">Missing</p>
+          <div className="flex gap-1 flex-wrap">
             {job.missingSkills.slice(0, 3).map((s) => (
               <SkillChip key={s} label={s} type='missing' />
             ))}
@@ -57,9 +57,9 @@ export default function RecommendationCard({ job, index }) {
 
       {/* Learning Suggestions */}
       {job.suggestions?.length > 0 && (
-        <div style={{ marginTop:8, borderTop:'1px solid #f3f4f6', paddingTop:8 }}>
-          <p style={{ fontSize:11, color:'#d97706', fontWeight:700, margin:'0 0 4px', textTransform:'uppercase', letterSpacing:0.5 }}>Recommended Learning</p>
-          <div style={{ display:'flex', gap:5, flexWrap:'wrap' }}>
+        <div className="mt-2 pt-2 border-t border-gray-100">
+          <p className="text-xs text-amber-600 font-bold mb-1 uppercase tracking-wide">Recommended Learning</p>
+          <div className="flex gap-1 flex-wrap">
             {job.suggestions.slice(0, 2).map((item) =>
               item.resources.slice(0, 1).map((r) => (
                 <SkillChip key={r} label={r} type='suggestion' />
