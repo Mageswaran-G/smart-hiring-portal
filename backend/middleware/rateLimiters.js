@@ -63,12 +63,12 @@ const aiHeavyLimiter = rateLimit({
 
 const chatLimiter = rateLimit({
   skip: skipInTest,
-  windowMs: 15 * 60 * 1000,
-  max: 50,
+  windowMs: 60 * 1000,
+  max: 200,
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => { const key = req.user?.id || req.ip || 'unknown'; return key.replace(/:/g, '_'); },
-  message: { success: false, message: 'Too many chat messages. Please wait 15 minutes.' }
+  message: { success: false, message: 'Too many chat messages. Please wait a minute.' }
 });
 
 module.exports = { authLimiter, refreshLimiter, apiLimiter, writeLimiter, aiLimiter, aiHeavyLimiter, chatLimiter };
