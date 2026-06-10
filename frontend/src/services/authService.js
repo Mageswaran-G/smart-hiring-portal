@@ -39,7 +39,7 @@ API.interceptors.request.use(
     // Attach CSRF token for state-changing requests
     const safeMethods = ['get', 'head', 'options'];
     if (!safeMethods.includes(config.method?.toLowerCase())) {
-      const csrfToken = getCookie('csrfToken');
+      const csrfToken = localStorage.getItem('csrfToken') || getCookie('csrfToken');
       if (csrfToken) {
         config.headers['X-CSRF-Token'] = csrfToken;
       }
