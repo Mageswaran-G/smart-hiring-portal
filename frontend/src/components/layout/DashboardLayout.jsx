@@ -83,7 +83,7 @@ export default function DashboardLayout({ children }) {
         backdropFilter: 'blur(20px)',
         borderBottom: '1px solid rgba(0,0,0,0.06)',
         display: 'flex', alignItems: 'center',
-        padding: '0 28px', gap: 16,
+        padding: '0 16px', gap: 8,
         boxShadow: '0 1px 0 rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03)',
       }} className="main-header">
 
@@ -118,14 +118,14 @@ export default function DashboardLayout({ children }) {
         <div style={{ width:1, height:22, background:'rgba(0,0,0,0.08)', flexShrink:0 }} className="desktop-nav" />
 
         {/* Desktop Nav */}
-        <nav style={{ display:'flex', gap:1, alignItems:'center' }} className="desktop-nav">
+        <nav style={{ display:'flex', gap:0, alignItems:'center' }} className="desktop-nav">
           {links.map(({ label, Icon, path, activeWhen }) => {
             const active = isActive({ path, activeWhen });
             return (
               <Link key={path} to={path} style={{
                 display:'flex', alignItems:'center', gap:6,
-                padding:'7px 9px', borderRadius:9,
-                textDecoration:'none', fontSize:13,
+                padding:'6px 7px', borderRadius:9,
+                textDecoration:'none', fontSize:12,
                 fontWeight: active ? 700 : 500,
                 color: active ? colors.primary : '#6b7280',
                 background: active ? `${colors.primary}10` : 'transparent',
