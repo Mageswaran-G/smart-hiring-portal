@@ -67,7 +67,7 @@ const chatLimiter = rateLimit({
   max: 50,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => req.user?.id || req.ip,
+  keyGenerator: (req) => { const key = req.user?.id || req.ip || 'unknown'; return key.replace(/:/g, '_'); },
   message: { success: false, message: 'Too many chat messages. Please wait 15 minutes.' }
 });
 
