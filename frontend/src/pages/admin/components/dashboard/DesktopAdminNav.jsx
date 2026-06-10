@@ -18,8 +18,8 @@ export default function DesktopAdminNav({ adminName, activeTab, onTab, onLogout 
       background: 'rgba(255,255,255,0.98)',
       backdropFilter: 'blur(20px)',
       borderBottom: '1px solid rgba(0,0,0,0.06)',
-      height: 64, padding: '0 40px',
-      display: 'flex', alignItems: 'center', gap: 32,
+      height: 64, padding: '0 24px',
+      display: 'flex', alignItems: 'center', gap: 16,
       boxShadow: '0 1px 0 rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03)',
     }}>
 
@@ -57,13 +57,13 @@ export default function DesktopAdminNav({ adminName, activeTab, onTab, onLogout 
       <div style={{ width: 1, height: 24, background: 'rgba(0,0,0,0.08)', flexShrink: 0 }} />
 
       {/* Nav links */}
-      <nav style={{ display: 'flex', gap: 2, flex: 1 }}>
+      <nav style={{ display: 'flex', gap: 1, flex: 1 }}>
         {NAV_ITEMS.map(({ key, label, Icon }) => {
           const isActive = activeTab === key;
           return (
             <button key={key} onClick={() => onTab(key)} style={{
               display: 'flex', alignItems: 'center', gap: 5,
-              padding: '7px 10px', borderRadius: 9, border: 'none',
+              padding: '6px 8px', borderRadius: 9, border: 'none',
               cursor: 'pointer', fontSize: 12,
               fontWeight: isActive ? 700 : 500,
               background: isActive ? `${COLORS.primary}10` : 'transparent',
