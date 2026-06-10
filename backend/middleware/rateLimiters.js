@@ -64,9 +64,10 @@ const aiHeavyLimiter = rateLimit({
 const chatLimiter = rateLimit({
   skip: skipInTest,
   windowMs: 15 * 60 * 1000,
-  max: 20,
+  max: 50,
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: (req) => req.user?.id || req.ip,
   message: { success: false, message: 'Too many chat messages. Please wait 15 minutes.' }
 });
 
