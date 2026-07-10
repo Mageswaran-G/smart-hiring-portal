@@ -2,14 +2,14 @@
 // Shared profile strength calculation — used in dashboard and ProfileStrengthCard
 
 export const PROFILE_CHECKS = [
-  { key: 'photo',       label: 'Profile photo',      points: 10, check: p => !!p?.photo },
+  { key: 'photo',       label: 'Profile photo',      points: 10, check: p => !!p?.profilePhoto },
   { key: 'headline',    label: 'Headline',            points: 10, check: p => !!p?.headline },
   { key: 'bio',         label: 'Bio / About',         points: 10, check: p => !!p?.bio },
   { key: 'skills',      label: 'At least 3 skills',   points: 15, check: p => (p?.skills?.length || 0) >= 3 },
-  { key: 'resume',      label: 'Resume uploaded',     points: 20, check: p => !!p?.resumeUrl },
-  { key: 'education',   label: 'Education added',     points: 10, check: p => (p?.education?.length || 0) > 0 },
+  { key: 'resume',      label: 'Resume uploaded',     points: 20, check: p => !!p?.resume?.url },
+  { key: 'education',   label: 'Education added',     points: 10, check: p => (p?.educationList?.length || 0) > 0 },
   { key: 'workHistory', label: 'Work history added',  points: 10, check: p => (p?.workHistory?.length || 0) > 0 },
-  { key: 'linkedin',    label: 'LinkedIn linked',     points: 10, check: p => !!p?.linkedin },
+  { key: 'linkedin',    label: 'LinkedIn linked',     points: 10, check: p => !!p?.linkedIn },
   { key: 'github',      label: 'GitHub profile',      points: 10, check: p => !!p?.github },
   { key: 'phone',       label: 'Phone number',        points: 5,  check: p => !!p?.phone },
 ];
