@@ -3,6 +3,7 @@
 const User     = require('../../models/User');
 const AppError = require('../../utils/AppError');
 const logger   = require('../../utils/logger');
+const invalidateAICache = require('../../utils/invalidateAICache');
 
 // GET ALL USERS
 exports.getUsers = async () => {
@@ -64,6 +65,8 @@ exports.updateProfile = async (userId, updateData) => {
 
   if (!user) throw new AppError('User not found', 404);
 
+  invalidateAICache(userId);
+
   return user;
 };
 
@@ -106,6 +109,8 @@ exports.uploadResume = async (userId, file) => {
     }
   }
 
+  invalidateAICache(userId);
+
   return { user: updatedUser, fullUrl };
 };
 
@@ -137,6 +142,8 @@ exports.uploadCoverBanner = async (userId, filePath) => {
     { coverBanner: publicUrl },
     { returnDocument: "after" }
   ).select('-password -refreshToken');
+
+  invalidateAICache(userId);
 
   return { user, publicUrl };
 };

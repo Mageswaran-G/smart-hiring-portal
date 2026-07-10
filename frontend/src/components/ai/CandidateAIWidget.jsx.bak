@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { Sparkles, TrendingUp, BookOpen, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../constants/routes';
-import { getRecommendations } from '../../services/ai/recommendationService';
+import { getMatchScoreBatch } from '../../services/ai/matchingService';
+import { getAllJobs } from '../../services/jobService';
 
 export default function CandidateAIWidget({ profile }) {
   const navigate = useNavigate();
@@ -12,33 +13,27 @@ export default function CandidateAIWidget({ profile }) {
   useEffect(() => {
     const fetch = async () => {
       try {
-        const data = await getRecommendations();
-        const recommendations = data.recommendations || [];
+        const data = await getAllJobs({ limit: 10 });
+        const jobs = data.data || [];
+        if (!jobs.length) { setLoading(false); return; }
 
-        if (!recommendations.length) {
-          setLoading(false);
-          return;
-        }
+        const jobIds = jobs.map(j => j._id);
+        const scores = await getMatchScoreBatch(jobIds);
 
-        const topJob = recommendations[0];
-        const topScore = topJob.matchScore;
+        const entries  = Object.entries(scores);
+        if (!entries.length) { setLoading(false); return; }
+
+        const topEntry = entries.sort((a, b) => b[1] - a[1])[0];
+        const topJob   = jobs.find(j => j._id === topEntry[0]);
+        const topScore = topEntry[1];
 
         const avgScore = Math.round(
-          recommendations.reduce((sum, job) => sum + job.matchScore, 0) /
-          recommendations.length
+          entries.reduce((sum, [, s]) => sum + s, 0) / entries.length
         );
 
-        const strongCount = recommendations.filter(
-          job => job.matchScore >= 70
-        ).length;
+        const strongCount = entries.filter(([, s]) => s >= 70).length;
 
-        setInsights({
-          topJob,
-          topScore,
-          avgScore,
-          strongCount,
-          total: recommendations.length,
-        });
+        setInsights({ topJob, topScore, avgScore, strongCount, total: entries.length });
       } catch {
         // silent fail
       } finally {
