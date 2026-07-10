@@ -23,5 +23,5 @@ export const calcProfileStrength = (profile) => {
   const total = PROFILE_CHECKS.reduce(
     (sum, c) => sum + (c.check(profile) ? c.points : 0), 0
   );
-  return Math.round((total / MAX_PROFILE_POINTS) * 100);
+  return Math.floor((total / MAX_PROFILE_POINTS) * 100);
 };
