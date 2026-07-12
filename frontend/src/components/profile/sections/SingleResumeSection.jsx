@@ -13,6 +13,10 @@ export default function SingleResumeSection({
 
   const resume = profile?.resume;
 
+  const API_URL =
+    import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
   });
@@ -104,7 +108,7 @@ export default function SingleResumeSection({
               </div>
 
               <a
-                href={resume.url}
+                href={`${API_URL}${resume.url}`}
                 target="_blank"
                 rel="noreferrer"
                 className="rounded-lg border px-3 py-2 text-sm font-medium hover:bg-gray-100"
