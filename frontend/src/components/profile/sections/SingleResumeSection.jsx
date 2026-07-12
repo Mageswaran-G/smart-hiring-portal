@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { API } from '../../../services/authService';
 import toast from 'react-hot-toast';
+import ConfirmModal from '../../ui/ConfirmModal';
 
 export default function SingleResumeSection({
   profile,
@@ -9,6 +11,11 @@ export default function SingleResumeSection({
   if (!isCandidate) return null;
 
   const resume = profile?.resume;
+
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+  });
+
 
   const handleUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -40,7 +47,7 @@ export default function SingleResumeSection({
   };
 
   const handleDelete = async () => {
-    if (!confirm('Delete your resume?')) return;
+    setConfirmModal({ isOpen: false });
 
     try {
       await API.delete('/users/resume');
@@ -59,7 +66,8 @@ export default function SingleResumeSection({
   };
 
   return (
-    <div className="bg-white rounded-xl border p-6 space-y-4">
+    <>
+      <div className="bg-white rounded-xl border p-6 space-y-4">
       <div>
         <h3 className="text-lg font-semibold">
           Resume
@@ -89,7 +97,7 @@ export default function SingleResumeSection({
             </label>
 
             <button
-              onClick={handleDelete}
+              onClick={() => setConfirmModal({ isOpen: true })}
               className="px-4 py-2 rounded bg-red-600 text-white"
             >
               Delete Resume
@@ -107,6 +115,17 @@ export default function SingleResumeSection({
           />
         </label>
       )}
-    </div>
+      </div>
+
+      <ConfirmModal
+      isOpen={confirmModal.isOpen}
+      title="Delete Resume"
+      message="Are you sure you want to delete your resume? This action cannot be undone."
+      confirmText="Delete"
+      confirmVariant="danger"
+      onConfirm={handleDelete}
+      onCancel={() => setConfirmModal({ isOpen: false })}
+      />
+    </>
   );
 }
