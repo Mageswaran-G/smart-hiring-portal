@@ -22,7 +22,7 @@ import CertificationsSection   from '../components/profile/sections/Certificatio
 import LanguagesSection        from '../components/profile/sections/LanguagesSection';
 import PortfolioSection        from '../components/profile/sections/PortfolioSection';
 import ProfileSlugSection      from '../components/profile/sections/ProfileSlugSection';
-import MultipleResumesSection  from '../components/profile/sections/MultipleResumesSection';
+import SingleResumeSection from '../components/profile/sections/SingleResumeSection';
 import PrivacyControlsSection  from '../components/profile/sections/PrivacyControlsSection';
 import CoverBannerSection from '../components/profile/sections/CoverBannerSection';
 import HiringStatusSection from '../components/profile/sections/HiringStatusSection';
@@ -143,7 +143,7 @@ export default function ProfilePage() {
               isCandidate={isCandidate}
               onSave={handleSectionSave}
             />
-            <MultipleResumesSection
+            <SingleResumeSection
               profile={profile}
               isCandidate={isCandidate}
               onProfileRefresh={fetchProfile}
