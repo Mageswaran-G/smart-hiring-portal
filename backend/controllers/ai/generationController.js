@@ -9,7 +9,7 @@ const generateCoverLetter = async (req, res) => {
     const userId = req.user.id;
     const { jobId } = req.body;
     const [user, job] = await Promise.all([
-      User.findById(userId).select('name headline bio skills parsedSkills workHistory education'),
+      User.findById(userId).select('name headline bio skills parsedSkills workHistory educationList'),
       Job.findById(jobId).select('title skillsRequired postedBy').populate('postedBy', 'companyName'),
     ]);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
@@ -19,7 +19,7 @@ const generateCoverLetter = async (req, res) => {
     const matchedSkills = skills.filter(s => jobSkills.map(j => j.toLowerCase()).includes(s.toLowerCase()));
     const companyName   = job.postedBy?.companyName || 'your company';
     const experience    = user.workHistory?.[0]?.role || user.headline || 'software development';
-    const degree        = user.education?.[0]?.degree || 'Computer Science';
+    const degree        = user.educationList?.[0]?.degree || 'Computer Science';
     const coverLetter   = `Dear Hiring Manager at ${companyName},
 
 I am writing to express my strong interest in the ${job.title} position. With hands-on experience in ${matchedSkills.slice(0,3).join(', ') || skills.slice(0,3).join(', ')}, I am confident in my ability to contribute meaningfully to your team.
@@ -62,7 +62,7 @@ const generateInterviewQuestions = async (req, res) => {
 const generateResumeFeedback = async (req, res) => {
   try {
     const userId = req.user.id;
-    const user   = await User.findById(userId).select('name skills parsedSkills resume resumes bio headline education workHistory portfolioProjects certifications');
+    const user   = await User.findById(userId).select('name skills parsedSkills resume resumes bio headline educationList workHistory portfolioProjects certifications');
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     const skills = user.parsedSkills?.length ? user.parsedSkills : (user.skills || []).map(s => typeof s === 'string' ? s : s.name).filter(Boolean);
     const strengths = [], improvements = [], missing = [];
@@ -79,7 +79,7 @@ const generateResumeFeedback = async (req, res) => {
     else missing.push('Add a headline — e.g. "Full Stack Developer | React | Node.js"');
     if (user.workHistory?.length > 0) strengths.push('Work history added — ' + user.workHistory.length + ' position' + (user.workHistory.length > 1 ? 's' : '') + ' listed');
     else improvements.push('Add work history or internship experience');
-    if (user.education?.length > 0) strengths.push('Education section complete');
+    if (user.educationList?.length > 0) strengths.push('Education section complete');
     else missing.push('Add your education details');
     if (user.portfolioProjects?.length > 0) strengths.push(user.portfolioProjects.length + ' portfolio project' + (user.portfolioProjects.length > 1 ? 's' : '') + ' listed — great for freshers');
     else improvements.push('Add portfolio projects — very important for freshers');
@@ -89,7 +89,7 @@ const generateResumeFeedback = async (req, res) => {
     if (skills.length >= 3) atsScore += 20;
     if (user.headline) atsScore += 15;
     if (user.bio) atsScore += 15;
-    if (user.education?.length > 0) atsScore += 10;
+    if (user.educationList?.length > 0) atsScore += 10;
     if (user.workHistory?.length > 0) atsScore += 15;
     return res.json({ success: true, data: { atsScore, strengths, improvements, missing, totalSkills: skills.length, skillsList: skills.slice(0, 8) } });
   } catch (err) {
