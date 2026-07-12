@@ -7,8 +7,14 @@ async function parseResume(buffer, mimetype) {
 
   try {
     if (mimetype === 'application/pdf') {
-      const pdf = require('pdf-parse');
-      const data = await pdf(buffer);
+      const { PDFParse } = require('pdf-parse');
+
+      const parser = new PDFParse({
+        data: buffer,
+      });
+
+      const data = await parser.getText();
+
       text = data.text;
     } else if (
       mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
