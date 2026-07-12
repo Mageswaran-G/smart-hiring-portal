@@ -106,18 +106,6 @@ exports.updateProfileSchema = z.object({
     url:         z.string().trim().max(200).optional(),
     tech:        z.string().trim().max(200).optional(),
   })).optional(),
-
-  // Resumes array — up to 5 resumes with labels
-  resumes: z.array(z.object({
-    url:          z.string().optional(),
-    originalName: z.string().optional(),
-    size:         z.number().optional(),
-    mimeType:     z.string().optional(),
-    uploadedAt:   z.string().optional(),
-    label:        z.string().max(100).optional(),
-    isDefault:    z.boolean().optional(),
-  })).max(5).optional(),
-
   // Career preferences
   jobType:            z.enum(['full-time', 'part-time', 'internship', 'any', '']).optional(),
   locationType:       z.enum(['remote', 'hybrid', 'onsite', 'any', '']).optional(),

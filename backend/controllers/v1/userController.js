@@ -126,6 +126,24 @@ exports.uploadCoverBanner = async (req, res, next) => {
   }
 };
 
+
+exports.deleteResume = async (req, res, next) => {
+  try {
+    await userService.deleteResume(req.user.id);
+
+    res.status(200).json(
+      new ApiResponse(
+        true,
+        'Resume deleted successfully'
+      )
+    );
+
+  } catch (err) {
+    next(err);
+  }
+};
+
+
 exports.uploadProfilePhoto = async (req, res, next) => {
   try {
     // Check file was sent

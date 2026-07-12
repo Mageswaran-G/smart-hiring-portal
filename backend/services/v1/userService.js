@@ -40,7 +40,7 @@ exports.updateProfile = async (userId, updateData) => {
   'photoVisibility',
     'contactVisibility',
 
-  'headline', 'openToWork', 'resumeVisibility', 'profileSlug', 'resumes',
+  'headline', 'openToWork', 'resumeVisibility', 'profileSlug',
   'certifications', 'languages', 'portfolioProjects', 'profileVisibility',
   ];
 
@@ -181,3 +181,45 @@ exports.uploadProfilePhoto = async (userId, filePath) => {
 
   return { user, publicUrl };
 };
+
+exports.deleteResume = async (userId) => {
+  const fs = require('fs').promises;
+  const path = require('path');
+
+  const user = await User.findById(userId);
+  if (!user) throw new AppError('User not found', 404);
+
+  if (user.resume?.url) {
+    const fileName = path.basename(user.resume.url);
+    const allowedDir = path.resolve('uploads/resumes');
+    const filePath = path.resolve(path.join('uploads', 'resumes', fileName));
+
+    if (filePath.startsWith(allowedDir)) {
+      await fs.unlink(filePath).catch(() => {});
+    }
+  }
+
+  user.resume = {
+    url: '',
+    originalName: '',
+    size: 0,
+    mimeType: '',
+    uploadedAt: null
+  };
+
+  user.parsedResumeText = '';
+  user.parsedSkills = [];
+  user.lastResumeParsedAt = null;
+  user.resumeParseConfidence = 'low';
+
+  await user.save();
+
+  try {
+    invalidateAICache(userId);
+  } catch (err) {
+    logger.warn('Failed to invalidate AI cache:', err.message);
+  }
+
+  return user;
+};
+

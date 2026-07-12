@@ -27,6 +27,14 @@ router.post('/upload-resume',
   upload.single('resume'),
   userController.uploadResume
 );
+
+router.delete(
+  '/resume',
+  verifyToken,
+  authorizeRole('candidate'),
+  userController.deleteResume
+);
+
 // POST upload profile photo — all logged-in users can upload
 // Only image files allowed (JPG, PNG, WEBP)
 // Max size: 2MB

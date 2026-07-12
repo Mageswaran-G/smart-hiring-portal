@@ -26,8 +26,8 @@ exports.applyToJob = async (req, res, next) => {
     const alreadyApplied = await Application.findOne({ candidate: candidateId, job: jobId });
     if (alreadyApplied) return next(new AppError('You already applied for this job', 400));
 
-    const userProfile = await User.findById(candidateId).select('resume resumes');
-    const resumeUrl = userProfile?.resume?.url || userProfile?.resumes?.find(r => r.isDefault)?.url || userProfile?.resumes?.[0]?.url || '';
+    const userProfile = await User.findById(candidateId).select('resume');
+    const resumeUrl = userProfile?.resume?.url || '';
 
     const application = await Application.create({
       candidate:     candidateId,

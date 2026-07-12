@@ -84,17 +84,6 @@ const userSchema = new mongoose.Schema({
   // Resume visibility — who can see the resume
   resumeVisibility: { type: String, enum: ['public', 'private'], default: 'public' },
 
-  // Multiple resumes
-  resumes: [{
-    url:          { type: String, default: '' },
-    originalName: { type: String, default: '' },
-    size:         { type: Number, default: 0  },
-    mimeType:     { type: String, default: '' },
-    label:        { type: String, default: '' },
-    isDefault:    { type: Boolean, default: false },
-    uploadedAt:   { type: Date }
-  }],
-
   // Certifications
   certifications: [{
     name:       { type: String, default: '' },

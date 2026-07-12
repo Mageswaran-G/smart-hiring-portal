@@ -62,11 +62,11 @@ const generateInterviewQuestions = async (req, res) => {
 const generateResumeFeedback = async (req, res) => {
   try {
     const userId = req.user.id;
-    const user   = await User.findById(userId).select('name skills parsedSkills resume resumes bio headline educationList workHistory portfolioProjects certifications');
+    const user   = await User.findById(userId).select('name skills parsedSkills resume bio headline educationList workHistory portfolioProjects certifications');
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     const skills = user.parsedSkills?.length ? user.parsedSkills : (user.skills || []).map(s => typeof s === 'string' ? s : s.name).filter(Boolean);
     const strengths = [], improvements = [], missing = [];
-    const hasResume = user.resumes?.length > 0 || user.resume?.url;
+    const hasResume = !!user.resume?.url;
     if (hasResume) strengths.push('Resume uploaded — recruiters can view your CV');
     else missing.push('Upload your resume to increase visibility by 60%');
     if (skills.length >= 5) strengths.push('Strong skill set — ' + skills.length + ' skills listed');
