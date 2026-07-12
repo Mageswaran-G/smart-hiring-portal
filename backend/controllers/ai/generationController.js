@@ -34,7 +34,10 @@ Sincerely,
 ${user.name || 'Candidate'}`;
     return res.json({ success: true, data: { coverLetter } });
   } catch (err) {
-    return res.status(500).json({ success: false, message: err.message });
+    return res.status(500).json({
+      success: false,
+      message: err.message
+    });
   }
 };
 
@@ -62,7 +65,7 @@ const generateInterviewQuestions = async (req, res) => {
 const generateResumeFeedback = async (req, res) => {
   try {
     const userId = req.user.id;
-    const user   = await User.findById(userId).select('name skills parsedSkills resume bio headline educationList workHistory portfolioProjects certifications');
+    const user   = await User.findById(userId).select('name skills parsedSkills parsedResumeText resume bio headline educationList workHistory portfolioProjects certifications');
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     const skills = user.parsedSkills?.length ? user.parsedSkills : (user.skills || []).map(s => typeof s === 'string' ? s : s.name).filter(Boolean);
     const strengths = [], improvements = [], missing = [];
@@ -84,14 +87,12 @@ const generateResumeFeedback = async (req, res) => {
     if (user.portfolioProjects?.length > 0) strengths.push(user.portfolioProjects.length + ' portfolio project' + (user.portfolioProjects.length > 1 ? 's' : '') + ' listed — great for freshers');
     else improvements.push('Add portfolio projects — very important for freshers');
     if (user.certifications?.length > 0) strengths.push('Certifications listed — builds recruiter trust');
-    let atsScore = 0;
-    if (hasResume) atsScore += 25;
-    if (skills.length >= 3) atsScore += 20;
-    if (user.headline) atsScore += 15;
-    if (user.bio) atsScore += 15;
-    if (user.educationList?.length > 0) atsScore += 10;
-    if (user.workHistory?.length > 0) atsScore += 15;
-    return res.json({ success: true, data: { atsScore, strengths, improvements, missing, totalSkills: skills.length, skillsList: skills.slice(0, 8) } });
+    const resumeText =
+      user.parsedResumeText ||
+      `${user.bio || ''} Skills: ${(user.parsedSkills || user.skills || []).join(', ')}`;
+
+    const ats = scoreATS(resumeText, user);
+    return res.json({ success: true, data: { atsScore: ats.score, strengths, improvements, missing, totalSkills: skills.length, skillsList: skills.slice(0, 8) } });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
   }
@@ -114,6 +115,7 @@ const getATSScore = async (req, res) => {
     // Use parsedResumeText if available, else use bio + skills
     const resumeText = user.parsedResumeText ||
       `${user.bio || ''} Skills: ${(user.parsedSkills || user.skills || []).join(', ')}`;
+
 
     const result = scoreATS(resumeText, user);
 

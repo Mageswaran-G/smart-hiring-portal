@@ -11,6 +11,7 @@ export default function ResumeFeedbackCard() {
   const [done, setDone]         = useState(false);
 
   const handleAnalyze = async () => {
+
     if (loading) return;
     try {
       setLoading(true);
@@ -32,14 +33,14 @@ export default function ResumeFeedbackCard() {
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
 
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-50 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+      <div className="px-6 py-4 border-b border-gray-50 grid grid-cols-[1fr_auto] items-center gap-4">
+        <div className="flex items-center gap-2 min-w-0">
           <div className="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center">
             <Sparkles size={15} color="#fff" />
           </div>
-          <div>
-            <p className="font-bold text-sm text-gray-900">AI Resume Feedback</p>
-            <p className="text-[11px] text-gray-400">Analyze your profile strength</p>
+          <div className="min-w-0">
+            <p className="font-bold text-sm text-gray-900 truncate">AI Resume Feedback</p>
+            <p className="text-[11px] text-gray-400 truncate">Analyze your profile strength</p>
           </div>
         </div>
         {done && (
@@ -47,9 +48,13 @@ export default function ResumeFeedbackCard() {
             type="button"
             onClick={handleAnalyze}
             disabled={loading}
-            className="text-xs text-violet-600 hover:text-violet-800 font-semibold underline"
+            className={`justify-self-end text-sm font-semibold whitespace-nowrap transition-colors ${
+              loading
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-violet-600 hover:text-violet-800 underline"
+            }`}
           >
-            Re-analyze
+            {loading ? "Analyzing..." : "Re-analyze"}
           </button>
         )}
       </div>
