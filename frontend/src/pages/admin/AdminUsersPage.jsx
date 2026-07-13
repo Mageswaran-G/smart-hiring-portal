@@ -45,6 +45,12 @@ export default function AdminUsersPage() {
 
   const users = res?.data?.users || [];
   const total = res?.data?.total || 0;
+  const stats = res?.data?.stats || {
+    totalUsers: 0,
+    candidateCount: 0,
+    companyCount: 0,
+    suspendedCount: 0,
+  };
   
   useEffect(() => { setPage(1); }, [search, filter]);
 
@@ -118,10 +124,10 @@ export default function AdminUsersPage() {
         {/* Stats Row */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16, marginBottom: SPACING.section }}>
           {[
-            { label: "Total Users",  value: total,                                              color: C.purple   },
-            { label: "Candidates",   value: users.filter(u => u.role === "candidate").length,   color: "#ea580c"  },
-            { label: "Companies",    value: users.filter(u => u.role === "company").length,     color: "#1e3a5f"  },
-            { label: "Suspended",    value: users.filter(u => u.isSuspended).length,            color: COLORS.dangerText  },
+            { label: "Total Users", value: stats.totalUsers, color: C.purple },
+            { label: "Candidates", value: stats.candidateCount, color: "#ea580c" },
+            { label: "Companies", value: stats.companyCount, color: "#1e3a5f" },
+            { label: "Suspended", value: stats.suspendedCount, color: COLORS.dangerText },
           ].map(stat => (
             <div key={stat.label} style={{
               background: "white", borderRadius: 16, padding: "16px 20px",

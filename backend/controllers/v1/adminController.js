@@ -228,21 +228,22 @@ exports.suspendCompany = async (req, res) => {
 exports.getAllUsers = async (req, res) => {
   try {
     const { search = "", filter = "all", page = 1, limit = 10 } = req.query;
-    const safePage  = Math.max(1, parseInt(page)  || 1);
+
+    const safePage = Math.max(1, parseInt(page) || 1);
     const safeLimit = Math.min(50, Math.max(1, parseInt(limit) || 10));
     const skip = (safePage - 1) * safeLimit;
 
-    // Build query — exclude admin accounts
+    // ----------------------------
+    // Query for table data
+    // ----------------------------
     const query = { role: { $ne: "admin" } };
 
-    // When filter is "deleted" show only deleted users, otherwise exclude them
     if (filter === "deleted") {
       query.isDeleted = true;
     } else {
       query.isDeleted = { $ne: true };
     }
 
-    // Search by name or email
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: "i" } },
@@ -250,26 +251,131 @@ exports.getAllUsers = async (req, res) => {
       ];
     }
 
-    // Filter by role or status
     if (filter === "candidates") query.role = "candidate";
-    if (filter === "companies")  query.role = "company";
-    if (filter === "suspended")  query.isSuspended = true;
-
-    
+    if (filter === "companies") query.role = "company";
+    if (filter === "suspended") query.isSuspended = true;
 
     const [users, total] = await Promise.all([
       User.find(query)
         .select("-password -refreshToken")
         .sort({ createdAt: -1 })
         .skip(skip)
-        .limit(Number(safeLimit)),
+        .limit(safeLimit),
+
       User.countDocuments(query)
     ]);
 
-    res.json({ success: true, data: { users, total } });
+    // ----------------------------
+    // Stats cards
+    // ----------------------------
+    let stats = {
+      totalUsers: 0,
+      candidateCount: 0,
+      companyCount: 0,
+      suspendedCount: 0,
+    };
+
+    if (filter === "all") {
+
+      stats.totalUsers = await User.countDocuments({
+        role: { $ne: "admin" },
+        isDeleted: { $ne: true }
+      });
+
+      stats.candidateCount = await User.countDocuments({
+        role: "candidate",
+        isDeleted: { $ne: true }
+      });
+
+      stats.companyCount = await User.countDocuments({
+        role: "company",
+        isDeleted: { $ne: true }
+      });
+
+      stats.suspendedCount = await User.countDocuments({
+        role: { $ne: "admin" },
+        isDeleted: { $ne: true },
+        isSuspended: true
+      });
+
+    } else if (filter === "candidates") {
+
+      stats.totalUsers = total;
+      stats.candidateCount = total;
+      stats.companyCount = 0;
+
+      stats.suspendedCount = await User.countDocuments({
+        role: "candidate",
+        isDeleted: { $ne: true },
+        isSuspended: true
+      });
+
+    } else if (filter === "companies") {
+
+      stats.totalUsers = total;
+      stats.candidateCount = 0;
+      stats.companyCount = total;
+
+      stats.suspendedCount = await User.countDocuments({
+        role: "company",
+        isDeleted: { $ne: true },
+        isSuspended: true
+      });
+
+    } else if (filter === "suspended") {
+
+      stats.totalUsers = total;
+
+      stats.candidateCount = await User.countDocuments({
+        role: "candidate",
+        isDeleted: { $ne: true },
+        isSuspended: true
+      });
+
+      stats.companyCount = await User.countDocuments({
+        role: "company",
+        isDeleted: { $ne: true },
+        isSuspended: true
+      });
+
+      stats.suspendedCount = total;
+
+    } else if (filter === "deleted") {
+
+      stats.totalUsers = total;
+
+      stats.candidateCount = await User.countDocuments({
+        role: "candidate",
+        isDeleted: true
+      });
+
+      stats.companyCount = await User.countDocuments({
+        role: "company",
+        isDeleted: true
+      });
+
+      stats.suspendedCount = await User.countDocuments({
+        role: { $ne: "admin" },
+        isDeleted: true,
+        isSuspended: true
+      });
+
+    }
+
+    res.json({
+      success: true,
+      data: {
+        users,
+        total,
+        stats
+      }
+    });
 
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 
