@@ -212,6 +212,46 @@ export default function SignupPage() {
 
           <form className="sp-form" onSubmit={handleSubmit}>
 
+            {/* Mobile Role Selector */}
+            <div className="sp-mobile-role-selector">
+              <label className="sp-label">Register As</label>
+
+              <div className="sp-mobile-role-cards">
+                {ROLES.map(r => (
+                  <button
+                    key={r.id}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, role: r.id })}
+                    className="sp-mobile-role-card"
+                    style={{
+                      borderColor: formData.role === r.id ? r.color : '#e5e5e5',
+                      background: formData.role === r.id ? `${r.color}12` : '#fff',
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontWeight: 700,
+                        color: formData.role === r.id ? r.color : '#374151',
+                      }}
+                    >
+                      {r.label}
+                    </div>
+
+                    <div
+                      style={{
+                        fontSize: 11,
+                        marginTop: 4,
+                        color: '#6b7280',
+                      }}
+                    >
+                      {r.benefit}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+
             {/* Full Name */}
             <div>
               <label className="sp-label">Full Name</label>

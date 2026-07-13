@@ -82,18 +82,6 @@ export default function MobileDashboard({
   return (
     <div style={{ minHeight:'100vh', background:C.gray50, paddingBottom:72, fontFamily:'system-ui,-apple-system,sans-serif' }}>
 
-      {/* Header */}
-      <header style={{ background:'#fff', borderBottom:`1px solid ${C.gray200}`, height:56, padding:'0 16px', display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:40 }}>
-        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-          <div style={{ width:32, height:32, borderRadius:8, background:C.grad, display:'flex', alignItems:'center', justifyContent:'center' }}>
-            <Briefcase size={16} color="#fff" />
-          </div>
-          <span style={{ fontWeight:900, fontSize:17, color:C.gray900, letterSpacing:'-0.3px' }}>HirePortal</span>
-          <span style={{ background:`${C.primary}15`, color:C.primary, fontSize:9, fontWeight:800, borderRadius:5, padding:'2px 6px', letterSpacing:'0.5px', border:`1px solid ${C.primary}25` }}>CANDIDATE</span>
-        </div>
-        <Avatar profile={profile} size={34} border={`2px solid ${C.primary}`} onClick={() => navigate(ROUTES.PROFILE)} />
-      </header>
-
       {/* Hero */}
       <section style={{ background:'linear-gradient(135deg, #7c1d06 0%, #c2410c 35%, #ea580c 65%, #f97316 85%, #fbbf24 100%)', padding:'28px 20px 36px', position:'relative', overflow:'hidden', borderRadius:20, margin:'12px 12px 0' }}>
         <div style={{ position:'absolute', top:-40, right:-40, width:180, height:180, borderRadius:'50%', background:'rgba(255,255,255,0.06)', pointerEvents:'none' }} />

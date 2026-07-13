@@ -14,6 +14,7 @@ import { calcProfileStrength } from '../../utils/profileStrength';
 import LoadingScreen from './components/dashboard/LoadingScreen';
 import MobileDashboard from './components/dashboard/MobileDashboard';
 import DesktopDashboard from "./components/dashboard/DesktopDashboard";
+import DashboardLayout from "../../components/layout/DashboardLayout";
 import HireBot from "../../components/chat/HireBot";
 
 export default function CandidateDashboard() {
@@ -94,12 +95,14 @@ export default function CandidateDashboard() {
   if (isMobile) {
     return (
       <>
-        <MobileDashboard
-          {...sharedProps}
-          activeTab={activeTab}
-          handleTab={handleTab}
-          handleLogout={handleLogout}
-        />
+        <DashboardLayout>
+          <MobileDashboard
+            {...sharedProps}
+            activeTab={activeTab}
+            handleTab={handleTab}
+            handleLogout={handleLogout}
+          />
+        </DashboardLayout>
         <HireBot />
       </>
     );

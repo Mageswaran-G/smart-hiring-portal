@@ -95,3 +95,44 @@
   .sp-left { display:none; }
   .sp-right { padding:32px 24px; }
 }
+
+/* =========================================================
+   Mobile Signup Role Selector
+========================================================= */
+
+.sp-mobile-role-selector{
+  display:none;
+}
+
+@media (max-width:768px){
+
+  .sp-mobile-role-selector{
+    display:block;
+    margin-bottom:22px;
+  }
+
+  .sp-mobile-role-cards{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+
+  .sp-mobile-role-card{
+    border:1.5px solid #e5e5e5;
+    border-radius:14px;
+    padding:14px;
+    background:#fff;
+    cursor:pointer;
+    transition:.2s;
+    text-align:left;
+  }
+
+}
+
+@media (min-width:769px){
+
+  .sp-mobile-role-selector{
+    display:none;
+  }
+
+}
