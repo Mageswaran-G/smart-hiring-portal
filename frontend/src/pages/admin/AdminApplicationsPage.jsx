@@ -93,7 +93,12 @@ export default function AdminApplicationsPage() {
       )}
 
       {!loading && applications.length > 0 && (
-        <div className="overflow-x-auto pb-4">
+        <div
+          className="overflow-x-auto overflow-y-auto pb-4"
+          style={{
+            maxHeight: "calc(100vh - 250px)"
+          }}
+        >
           <div className="flex gap-4 min-w-max">
             {COLUMNS.map((col) => {
               const colApps = groupedApps[col.status] || [];
