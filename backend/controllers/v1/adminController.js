@@ -3,6 +3,7 @@ const Job         = require('../../models/Job');
 const Application = require('../../models/Application');
 const AppError    = require('../../utils/AppError');
 const { createAuditLog } = require('../../services/auditLogService');
+const { createNotification } = require('../../services/notificationService');
 
 
 // ─────────────────────────────────────────────────────
@@ -168,6 +169,17 @@ exports.verifyCompany = async (req, res, next) => {
       `Admin ${action} company: ${company.companyName || company.name}`
     );
 
+    await createNotification(
+      req.user.id,
+      company.isVerified ? 'company_verified' : 'company_unverified',
+      company.isVerified ? 'Company Verified' : 'Company Unverified',
+      `${company.companyName || company.name} has been ${action}.`,
+      {
+        companyId: company._id,
+        companyName: company.companyName || company.name
+      }
+    );
+
     return res.status(200).json({
       success: true,
       message: `${company.companyName || company.name} has been ${action}`,
@@ -211,6 +223,17 @@ exports.suspendCompany = async (req, res) => {
       'company',
       company._id,
       `Admin ${company.isSuspended ? 'suspended' : 'unsuspended'} company: ${company.companyName || company.name}`
+    );
+
+    await createNotification(
+      req.user.id,
+      company.isSuspended ? 'company_suspended' : 'company_unsuspended',
+      company.isSuspended ? 'Company Suspended' : 'Company Unsuspended',
+      `${company.companyName || company.name} has been ${company.isSuspended ? 'suspended' : 'unsuspended'}.`,
+      {
+        companyId: company._id,
+        companyName: company.companyName || company.name
+      }
     );
 
     res.json({
@@ -408,6 +431,17 @@ exports.deleteUser = async (req, res) => {
       `Admin soft-deleted user: ${user.name} (${user.email})`
     );
 
+    await createNotification(
+      req.user.id,
+      'user_deleted',
+      'User Deleted',
+      `${user.name} (${user.email}) has been deleted.`,
+      {
+        userId: user._id,
+        role: user.role
+      }
+    );
+
     res.json({ success: true, message: "User deleted successfully" });
 
   } catch (error) {
@@ -437,6 +471,17 @@ exports.suspendUser = async (req, res) => {
       'user',
       user._id,
       `Admin ${user.isSuspended ? 'suspended' : 'unsuspended'} user: ${user.name} (${user.email})`
+    );
+
+    await createNotification(
+      req.user.id,
+      user.isSuspended ? 'user_suspended' : 'user_unsuspended',
+      user.isSuspended ? 'User Suspended' : 'User Unsuspended',
+      `${user.name} (${user.email}) has been ${user.isSuspended ? 'suspended' : 'unsuspended'}.`,
+      {
+        userId: user._id,
+        role: user.role
+      }
     );
 
     res.json({
@@ -482,6 +527,17 @@ exports.restoreUser = async (req, res) => {
       'user',
       user._id,
       `Admin restored user: ${user.name} (${user.email})`
+    );
+
+    await createNotification(
+      req.user.id,
+      'user_restored',
+      'User Restored',
+      `${user.name} (${user.email}) has been restored.`,
+      {
+        userId: user._id,
+        role: user.role
+      }
     );
 
     res.json({ success: true, message: "User restored successfully" });
@@ -569,6 +625,17 @@ exports.closeJob = async (req, res) => {
       'job',
       job._id,
       `Admin force-closed job: ${job.title}`
+    );
+
+    await createNotification(
+      req.user.id,
+      'job_closed',
+      'Job Closed',
+      `${job.title} has been closed by the administrator.`,
+      {
+        jobId: job._id,
+        title: job.title
+      }
     );
 
     res.json({ success: true, message: "Job closed successfully" });
