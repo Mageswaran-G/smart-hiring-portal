@@ -53,18 +53,39 @@ exports.signup = async ({ name, email, password, role }) => {
 
   logger.info(`New user registered: ${email} as ${safeRole}`);
 
-  // Notify all admins when a new company registers
-  if (safeRole === 'company') {
-    const admins = await User.find({ role: 'admin', isDeleted: { $ne: true } }).select('_id').lean();
-    await Promise.all(admins.map(admin =>
-      createNotification(
-        admin._id,
-        'new_company',
-        'New Company Registered',
-        `A new company "${name}" has registered on the platform.`,
-        { companyEmail: email }
+  // Notify admins when a company or candidate registers
+  if (safeRole === 'company' || safeRole === 'candidate') {
+
+    const admins = await User.find({
+      role: 'admin',
+      isDeleted: { $ne: true }
+    }).select('_id').lean();
+
+    const notification = safeRole === 'company'
+      ? {
+          type: 'new_company',
+          title: 'New Company Registered',
+          message: `A new company "${name}" has registered on the platform.`,
+          metadata: { companyEmail: email }
+        }
+      : {
+          type: 'new_candidate',
+          title: 'New Candidate Registered',
+          message: `A new candidate "${name}" has joined the platform.`,
+          metadata: { candidateEmail: email }
+        };
+
+    await Promise.all(
+      admins.map(admin =>
+        createNotification(
+          admin._id,
+          notification.type,
+          notification.title,
+          notification.message,
+          notification.metadata
+        )
       )
-    ));
+    );
   }
 
   return {
