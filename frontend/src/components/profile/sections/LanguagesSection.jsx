@@ -17,33 +17,53 @@ function LanguageCard({ lang, theme, onEdit, onRemove }) {
   const level = LEVEL_STYLES[lang.proficiency] || LEVEL_STYLES.intermediate;
 
   return (
-    <div className="flex items-center justify-between p-4 border border-gray-100 rounded-xl hover:border-gray-200 transition">
-      <div className="flex items-center gap-3 flex-1">
+  <div className="border border-gray-100 rounded-xl p-4 hover:border-gray-200 transition">
 
-        <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${theme.badge}`}>
-          <Languages size={16} />
-        </div>
+    <div className="flex items-start gap-3">
 
-        <div className="flex-1">
-          <div className="flex items-center justify-between mb-1">
-            <p className="text-sm font-semibold text-gray-800">{lang.language}</p>
-            <p className={`text-xs font-medium capitalize ${level.label}`}>
-              {lang.proficiency}
-            </p>
-          </div>
-
-          <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-            <div className={`h-full rounded-full transition-all duration-500 ${level.bar} ${level.color}`} />
-          </div>
-        </div>
+      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${theme.badge}`}>
+        <Languages size={16} />
       </div>
 
-      <div className="flex gap-2 ml-4 shrink-0">
-        <button onClick={onEdit}   className="text-xs text-gray-400 hover:text-gray-600 cursor-pointer">Edit</button>
-        <button onClick={onRemove} className="text-xs text-red-400  hover:text-red-600  cursor-pointer">Remove</button>
+      <div className="flex-1 min-w-0">
+
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-sm font-semibold text-gray-800">
+            {lang.language}
+          </p>
+
+          <p className={`text-xs font-medium capitalize ${level.label}`}>
+            {lang.proficiency}
+          </p>
+        </div>
+
+        <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all duration-500 ${level.bar} ${level.color}`}
+          />
+        </div>
+
+        <div className="mt-3 flex justify-end gap-4">
+          <button
+            onClick={onEdit}
+            className="text-xs text-gray-500 hover:text-gray-700 cursor-pointer"
+          >
+            Edit
+          </button>
+
+          <button
+            onClick={onRemove}
+            className="text-xs text-red-500 hover:text-red-700 cursor-pointer"
+          >
+            Remove
+          </button>
+        </div>
+
       </div>
     </div>
-  );
+
+  </div>
+);
 }
 
 export default function LanguagesSection({ profile, isCandidate, onSave }) {
