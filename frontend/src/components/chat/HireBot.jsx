@@ -55,7 +55,10 @@ export default function CandidateChatBubble() {
       )}
 
       {/* Floating button */}
-      <button type="button" onClick={() => setOpen(o => !o)}
+      <button
+        type="button"
+        className={!open ? "hirebot-float" : ""}
+        onClick={() => setOpen(o => !o)}
         style={{
           width: 56, height: 56, borderRadius: '50%',
           background: PRIMARY_GRADIENT,
