@@ -210,11 +210,17 @@ export default function DashboardLayout({ children }) {
       {/* ── Mobile Dropdown ── */}
       {menuOpen && (
         <div style={{
-          position:'fixed', top:60, left:0, right:0,
+  position:'fixed',
+  top:60,
+  left:0,
+  right:0,
+  bottom:0,
+  overflowY:'auto',
+  WebkitOverflowScrolling:'touch',
           background:'rgba(255,255,255,0.98)',
           backdropFilter:'blur(20px)',
           borderBottom:'1px solid rgba(0,0,0,0.06)',
-          zIndex:49, padding:'12px 16px 20px',
+          zIndex:49, padding:'12px 16px 90px',
           boxShadow:'0 8px 32px rgba(0,0,0,0.12)',
         }}>
           {/* User row */}
