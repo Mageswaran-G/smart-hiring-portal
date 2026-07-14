@@ -41,16 +41,7 @@ export default function CompanyAvatar({ profile, size = 60 }) {
         />
       </div>
 
-      {/* Green verified dot */}
-      {profile?.isVerified && (
-        <div style={{
-          position: 'absolute', bottom: 4, right: 4,
-          width: 14, height: 14, borderRadius: '50%',
-          background: '#22c55e',
-          border: '2px solid #0f172a',
-          boxShadow: '0 0 6px rgba(34,197,94,0.6)',
-        }} />
-      )}
+     
     </div>
   );
 }
