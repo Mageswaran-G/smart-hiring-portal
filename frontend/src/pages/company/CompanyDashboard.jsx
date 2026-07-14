@@ -120,7 +120,7 @@ export default function CompanyDashboard() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
               <div style={{ position: 'relative', flexShrink: 0 }}>
                 <CompanyAvatar profile={profile} size={58} border="2px solid rgba(255,255,255,0.25)" />
-                <div style={{ position: 'absolute', bottom: 2, right: 2, width: 12, height: 12, borderRadius: '50%', background: '#4ade80', border: '2px solid #0a1628', boxShadow: '0 0 5px rgba(74,222,128,0.7)' }} />
+                
               </div>
               <div style={{ minWidth: 0 }}>
                 <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 11, margin: '0 0 2px', fontWeight: 500 }}>Welcome back,</p>
