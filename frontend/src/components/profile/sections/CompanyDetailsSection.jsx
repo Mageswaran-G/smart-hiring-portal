@@ -79,9 +79,13 @@ export default function CompanyDetailsSection({ profile, onSave }) {
           ].map(({ label, value }) => (
             <div key={label}>
               <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide">{label}</p>
-              <p className="text-sm text-gray-800 mt-0.5">
-                {value || <em className="text-gray-300">Not set</em>}
-              </p>
+              <p
+  className={`text-sm text-gray-800 mt-0.5 ${
+    label === 'Website' ? 'break-all' : ''
+  }`}
+>
+  {value || <em className="text-gray-300">Not set</em>}
+</p>
             </div>
           ))}
           <div className="col-span-2">
@@ -103,7 +107,7 @@ export default function CompanyDetailsSection({ profile, onSave }) {
                 placeholder={placeholder}
                 type={type}
                 onKeyDown={onKeyDown}
-                // ✅ Hide the number up/down arrows (spinner)
+                //  Hide the number up/down arrows (spinner)
                 className={`${inputClass} [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
               />
             </div>
