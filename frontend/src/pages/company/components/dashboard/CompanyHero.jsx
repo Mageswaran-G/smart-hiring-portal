@@ -31,8 +31,7 @@ export default function CompanyHero({ profile, stats, hireRate, navigate }) {
                   border="2px solid rgba(255,255,255,0.25)"
                   style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.3)' }}
                 />
-                {/* Online dot */}
-                <div style={{ position: 'absolute', bottom: 2, right: 2, width: 14, height: 14, borderRadius: '50%', background: '#4ade80', border: '2px solid #0a1628', boxShadow: '0 0 6px rgba(74,222,128,0.7)' }} />
+                
               </div>
               <div>
                 <p style={{ fontSize: 12, opacity: 0.6, margin: '0 0 4px', letterSpacing: '0.2px' }}>Welcome back,</p>
