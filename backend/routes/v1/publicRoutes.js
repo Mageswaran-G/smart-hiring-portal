@@ -3,7 +3,9 @@ const router  = express.Router();
 const asyncHandler = require('../../utils/asyncHandler');
 const User         = require('../../models/User');
 const AppError     = require('../../utils/AppError');
-
+const homeController = require('../../controllers/public/homeController');
+// GET /api/v1/public/home
+router.get('/home', homeController.getHomeData);
 router.get('/profile/:slug', asyncHandler(async (req, res) => {
   const { slug } = req.params;
 
